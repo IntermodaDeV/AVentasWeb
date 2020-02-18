@@ -1,0 +1,281 @@
+.contenedorLoadingColecciones{
+    height: 80vh;
+    display: flex;
+}
+.img {
+    width: 100%;
+    height: 50px;
+    border-style: solid;
+    /* object-fit: contain; */
+    border-width: 1px;
+    border-color: rgb(5, 5, 5);
+    /* margin-right: 10px;
+     */
+    /* margin: 0 auto; */
+}
+
+.img-container {
+    text-align: center;
+    width: 55px;
+    height: 55px;
+    /* margin: 5px 5px ; */
+    /* display: inline; */
+    margin: 0 auto;
+}
+
+.main-img {
+    width: 95%;
+    height: 420px;
+    object-fit: contain;
+    border-style: solid;
+    border-width: 1px;
+    border-color: rgb(5, 5, 5);
+    /* background-color:white; */
+}
+
+.selected-img {
+    border-color: #44dd89;
+    border-style: solid;
+}
+
+.Remove {
+    position: absolute;
+    right: 1em;
+    top: 50%;
+    bottom: auto;
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -o-transform: translateY(-50%);
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: url("../../assets/img/remove.png") no-repeat center center;
+}
+
+.Trash {
+    position: absolute;
+    right: 1em;
+    top: 50%;
+    bottom: auto;
+    -webkit-transform: translateY(-50%);
+    -moz-transform: translateY(-50%);
+    -ms-transform: translateY(-50%);
+    -o-transform: translateY(-50%);
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    /* border-radius: 50%; */
+    background: url("../../assets/img/trash.png") no-repeat center center;
+}
+
+.HeaderCart {
+    margin-top: 5px;
+    margin-left: 10px;
+}
+
+.CarritoPedido {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 350px;
+    /* header height */
+    /* padding-top: 50px; */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+    z-index: 1031;
+    background-color: white;
+}
+
+.cdcardItems {
+    padding: 0;
+}
+
+.cdcardli {
+    position: relative;
+    padding: 1em;
+    border-bottom: 1px solid #e0e6ef;
+}
+
+.ImgCarrito {
+    height: 80px;
+    width: auto;
+    /* margin: 10px; */
+}
+
+.HeaderH2 {
+    color: black;
+    margin-top: 10px;
+    /* text-align: center; */
+}
+
+.hrsuccess {
+    height: 3px;
+    background-image: -webkit-linear-gradient(left, rgba(210, 105, 30, .8), rgba(210, 105, 30, .6))
+}
+
+.cdcartotal {
+    margin-right: 10px;
+    font-size: 22px;
+    /* margin-left: 0px; */
+    text-align: right;
+}
+
+.cdcartotal span {
+    margin-left: 10px;
+}
+
+.NoHover {
+    cursor: default important;
+    /* height: 20px !important;
+   
+    */
+}
+
+.CloseButton {
+    margin-top: 0px;
+    width: 150px;
+    position: absolute;
+}
+
+.CompleteButton {
+    display: block;
+    width: 100%;
+    height: 60px;
+    line-height: 60px;
+    background: #7dcf85;
+    color: #FFF;
+    text-align: center;
+}
+
+.Active {
+    color: #495057;
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6;
+}
+
+.InActive {
+    color: inherit;
+    text-decoration: none;
+}
+
+.labels {
+    font-size: 13px;
+    margin: 0px;
+    text-align: right;
+}
+
+.TipoClass {
+    width: 100px;
+    color: white;
+    height: 15px;
+    padding: 8px 0 0 0;
+    margin: 0 20px 0 0;
+    background: #23475F;
+    text-align: center;
+    border-radius: 13px;
+    margin-bottom: 10px;
+    margin-top: 25px;
+}
+
+.CantidadProductosLabel {
+    padding: 0 !important;
+    padding-right: 4px !important;
+}
+
+.ChipContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    padding: 0px !important;
+}
+
+.SearchContainerDialog {
+    position: sticky !important;
+    top: 0;
+    z-index: 3;
+    background: white;
+}
+
+.TitleExpansionContainerDialog {
+    position: sticky !important;
+    top: 30px;
+    z-index: 2;
+    background: white;
+}
+
+.SearchFiltros {
+    width: 100%;
+    border: 2px solid #ddd;
+    background: transparent;
+    border-radius: 30px;
+    outline: none;
+    height: 30px;
+    padding-left: 30px;
+}
+
+.SearchFiltrosIcon {
+    position: absolute;
+    top: 7px;
+    left: 10px;
+    color: #666;
+}
+
+.SearchFiltros:focus {
+    border: 2px solid rgb(144, 185, 203);
+}
+
+.searchToggle {
+    position: relative;
+    display: block;
+    height: 10px;
+    width: 10px;
+}
+
+.searchToggle::before, .searchToggle::after {
+    content: '';
+    position: absolute;
+    display: block;
+    transition: all 0.1s;
+}
+
+.searchToggle::before {
+    border: 2px solid #666;
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+}
+
+.searchToggle::after {
+    height: 2px;
+    width: 7px;
+    background: #666;
+    top: 10px;
+    left: 8px;
+    transform: rotate(45deg);
+}
+
+.searchToggle.active::before {
+    width: 0;
+    height: 12px;
+    border-width: 1px;
+    border-color: indianred;
+    border-radius: 0;
+    transform: rotate(45deg);
+    left: 5px;
+    top: 1px;
+}
+
+.searchToggle.active::after {
+    width: 13px;
+    left: 0px;
+    top: 6px;
+    background-color: indianred;
+}
+
+:global(.cell) {
+    text-align: right;
+}

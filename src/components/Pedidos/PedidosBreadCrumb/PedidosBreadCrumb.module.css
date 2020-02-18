@@ -1,0 +1,27 @@
+.FaSignOutAlt {
+    margin-right: 0.5rem;
+    font-size: 22px;
+    color: black;
+}
+
+.ColBreadCrumb {
+    text-align: right;
+    margin-bottom: 1rem;
+}
+
+.FaExclamationCircle {
+    vertical-align: middle;
+    color: #fd7e14;
+}
+
+.FechaEntrega{
+    display: inline-block;
+    font-weight: 600;
+    color: crimson;
+    font-size: 13px;
+}
+
+.linkButton:hover {
+    text-decoration: underline;
+    cursor: pointer;
+};

@@ -1,0 +1,13 @@
+.TableContainer {
+    border: 1px solid #dee2e6
+}
+
+.PaperDialog {
+    min-width: 550px;
+}
+
+@media(max-width:768px) {
+    .PaperDialog {
+        min-width: 300px;
+    }
+}

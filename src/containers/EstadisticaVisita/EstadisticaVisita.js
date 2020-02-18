@@ -1,0 +1,389 @@
+import React, { useEffect, useState } from 'react';
+import { DatePicker } from "@material-ui/pickers";
+import MUIDataTable from 'mui-datatables'
+// import { EstadisticaVisitaTable } from './EstadisticaVisitaTable';
+import PieChart from 'components/EstadisticaVisita/PieChart';
+import moment from 'moment';
+import { Dropdown } from "semantic-ui-react";
+import 'moment/locale/es';
+import {
+    Button,
+    // Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText,  Select, MenuItem 
+} from '@material-ui/core';
+// import { ScaleLoader } from 'react-spinners';
+import {
+    FaCheck,
+    //  FaTimes,
+    FaTimesCircle, FaUserFriends
+} from "react-icons/fa";
+
+moment.locale('es')
+const urlApi = 'https://aventas.devcit.com:3044'
+const columns = [
+
+    {
+        name: 'CodigoAsesor',
+        label: 'Codigo',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'Nombre',
+        label: 'Nombre',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'Usuario',
+        label: 'Usuario',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'CantidadVisitas',
+        label: 'Cantidad Visitas',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'Atendidas',
+        label: 'Atendidas',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    // {
+    //     name: 'PorcentajeEjecucion',
+    //     label: 'Porcentaje Ejecucion',
+    //     options: {
+    //         filter: true,
+    //         sort: true
+    //     }
+    // },
+    {
+        name: 'ClienteCancelo',
+        label: 'Cliente Cancelo',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'Efectivas',
+        label: 'Efectivas',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+
+]
+const EstadisticaVisita = (props) => {
+    const [fechaInicio, setFechaInicio] = useState(new Date());
+    const [fechaFin, setFechaFin] = useState(new Date((new Date()).valueOf() + (1000 * 60 * 60 * 24) * 6 + 1));
+    const [estadisticasVisita, setEstadisticasVisita] = useState([]);
+    const [Usuarios, setUsuarios] = useState([]);
+    const [Selected, setSelected] = useState(null);
+    useEffect(() => {
+        CargarDatos()
+
+        // eslint-disable-next-line
+    }, []);
+
+    const CargarDatos = () => {
+        Promise.all([cargarEstadisticaVisita(fechaInicio, fechaFin)]).then(values => {
+            setEstadisticasVisita(values[0]);
+            setOptions(values[0]);
+        });
+    }
+
+    const setOptions = (values) => {
+        let users = [];
+        values.forEach(el => {
+            var cliente = { key: el.CodigoAsesor, value: JSON.stringify(el), text: el.Nombre }
+            users.push(cliente);
+        });
+
+        setUsuarios(users);
+    }
+
+
+    const options = {
+        responsive: "scrollFullHeight",
+        selectableRows: 'none',
+        print: false,
+        download: false,
+        selectableRowsOnClick: true,
+        // rowsSelected: selectedRowsIndex,
+        textLabels: {
+            body: {
+                noMatch: "No se han encontrado pedidos",
+                toolTip: "Ordenar",
+            },
+            pagination: {
+                next: "Siguiente",
+                previous: "Anterior",
+                rowsPerPage: "Filas por página:",
+                displayRows: "de",
+            },
+            toolbar: {
+                search: "Buscar",
+                downloadCsv: "Descargar CSV",
+                print: "Imprimir",
+                viewColumns: "Ver Columnas",
+                filterTable: "Filtrar Tabla",
+            },
+            filter: {
+                all: "Todos",
+                title: "Filtros",
+                reset: "Quitar",
+            },
+            viewColumns: {
+                title: "Mostrar Columnas",
+                titleAria: "Mostrar/Esconder Columnas",
+            },
+            selectedRows: {
+                text: "Fila(s) seleccionadas",
+                delete: "Borrar",
+                deleteAria: "Borrar Filas Seleccionadas",
+            }
+        },
+        // onRowsSelect: (currentRowsSelected, allRowsSelected) => {
+        //   setSelectedRowsIndex(allRowsSelected.map(row => row.dataIndex))
+        // }
+    }
+
+    const handleOnChange = (value) => {
+        // var val = JSON.parse(value);
+
+        setSelected(value);
+    }
+
+    const handleFechaInicio = (date) => {
+        setFechaInicio(date);
+    }
+
+    const handleFechaFin = (date) => {
+        setFechaFin(date);
+    }
+
+
+    let data = [];
+    estadisticasVisita.forEach(estVis => {
+
+        data.push({
+            CodigoAsesor: estVis.CodigoAsesor,
+            Nombre: estVis.Nombre,
+            Usuario: estVis.Usuario,
+            CantidadVisitas: estVis.CantidadVisitas,
+            Atendidas: estVis.Atendidas,
+            // PorcentajeEjecucion: estVis.PorcentajeEjecucion,
+            ClienteCancelo: estVis.ClienteCancelo,
+            Efectivas: estVis.Efectivas,
+        });
+    });
+    return (
+        <div className="col-12">
+            <div className="row">
+                <div className="col-12 mb-3">
+                    <h3 className="font-weight-light">
+                        Estadística de Visita
+                    </h3>
+                </div>
+                <div className='col-lg-2 col-sm-4 col-12'>
+                    <DatePicker
+                        disableToolbar
+                        className={"w-100"}
+                        autoOk
+                        label={"Fecha Inicio"}
+                        variant="inline"
+                        format={"DD/MM/YYYY"}
+                        //disablePast
+                        value={fechaInicio}
+                        onChange={(date) => handleFechaInicio(date)}
+                    />
+
+                </div>
+                <div className='col-lg-2 col-sm-4 col-12'>
+                    <DatePicker
+                        disableToolbar
+                        className={"w-100"}
+                        autoOk
+                        minDate={fechaInicio}
+                        minDateMessage={"Fecha Inválida"}
+                        label={"Fecha Fin"}
+                        variant="inline"
+                        // minDate={this.state.startDate}
+                        format={"DD/MM/YYYY"}
+                        value={fechaFin}
+                        onChange={(date) => handleFechaFin(date)}
+                    />
+                </div>
+                <div className="col-lg-2 col-sm-4 col-12" style={{ paddingTop: 15 }}>
+
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => CargarDatos()}>Obtener
+                        {/* {this.state.GuardarAsignacion ?
+                                                <ScaleLoader
+                                                    css={{ height: '25px', bottom: '5px', position: 'relative', transform: 'scale(0.6)' }}
+                                                    size={'20px'}
+                                                    color={'#3f51b5'}
+                                                    loading={this.state.GuardarAsignacion} /> : 'Asignar'
+                                            } */}
+                    </Button>
+                </div>
+
+            </div>
+
+            <hr></hr>
+            <div className="row">
+                <div className="col-xl-3 col-md-6 mb-4" >
+                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkblue' }}>
+                        <div className="card-body">
+                            <div className="row no-gutters align-items-center">
+                                <div className="col mr-2">
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas a Clientes</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.CantidadVisitas }, 0)}</div>
+                                </div>
+                                <div className="col-auto">
+                                    {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
+                                    <FaUserFriends size={"25px"} style={{ color: 'darkblue' }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-xl-3 col-md-6 mb-4">
+                    <div className="card  shadow h-100 py-2" style={{ borderColor: 'green' }}>
+                        <div className="card-body">
+                            <div className="row no-gutters align-items-center">
+                                <div className="col mr-2">
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Atendidas</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Atendidas }, 0)}</div>
+                                </div>
+                                <div className="col-auto">
+                                    {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
+                                    <FaCheck size={"25px"} style={{ color: 'green' }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-xl-3 col-md-6 mb-4">
+                    <div className="card  shadow h-100 py-2" style={{ borderColor: 'red' }}>
+                        <div className="card-body">
+                            <div className="row no-gutters align-items-center">
+                                <div className="col mr-2">
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Canceladas</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.ClienteCancelo }, 0)}</div>
+                                </div>
+                                <div className="col-auto">
+                                    {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
+                                    <FaTimesCircle size={"25px"} style={{ color: 'red' }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-xl-3 col-md-6 mb-4">
+                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkgreen' }}>
+                        <div className="card-body">
+                            <div className="row no-gutters align-items-center">
+                                <div className="col mr-2">
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Efectivas</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Efectivas }, 0)}</div>
+                                </div>
+                                <div className="col-auto">
+                                    <FaCheck size={"25px"} style={{ color: 'darkgreen' }} />
+                                    {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="row">
+                <div className="col-lg-6 my-2 col-12 order-lg-first order-last">
+                    <MUIDataTable
+                        title={'Estadistica Visita'}
+                        data={data}
+                        columns={columns}
+                        options={options}
+                    />
+                </div>
+
+                <div className="col-lg-6 my-2 col-12  order-lg-last order-first">
+                    <div className="card shadow h-100 py-2">
+                        <div className="row my-2">
+                            <div className="col-12">
+                                <h5 className="card-title">
+                                    Clientes Visitados
+                                </h5>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-12 my-2">
+                                <Dropdown
+                                    placeholder="Asesor"
+                                    fluid
+                                    search
+                                    selection
+                                    onChange={(e, { value }) => handleOnChange(value)}
+                                    options={Usuarios}
+                                    noResultsMessage={"No hay resultados"}
+                                    closeOnChange={true}
+                                    value={Selected}
+                                />
+                            </div>
+                        </div>
+                        <div className="row">
+                            <PieChart Selected={Selected} Users={estadisticasVisita} />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+const cargarEstadisticaVisita = (fechaInicio, fechaFin) => {
+    var inicio = moment(fechaInicio).format();
+    var fin = moment(fechaFin).format();
+    return new Promise((resolve, reject) => {
+        fetch(urlApi + `/api/EstadisticaVisita?FechaInicio=${inicio}&FechaFin=${fin}`, {
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then(res => {
+            if (res.status === 401) {
+                localStorage.setItem('token', '')
+                window.location.reload()
+            }
+            if (res.status === 200) {
+                res.json().then(
+                    result => {
+                        resolve(result)
+                    },
+
+                    error => {
+                        reject({
+                            error
+                        })
+                    }
+                )
+            }
+        })
+    })
+};
+export default EstadisticaVisita;

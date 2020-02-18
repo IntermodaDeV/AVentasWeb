@@ -1,0 +1,405 @@
+import React, { useState, useEffect } from 'react';
+import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { Link as RouterLink } from 'react-router-dom';
+import { Tour } from 'components/Layout';
+import {
+    SwipeableDrawer as MuiSwipeableDrawer,
+    Divider,
+    //ListSubheader,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Collapse
+} from '@material-ui/core';
+
+//Icons
+import {
+    ExpandLess,
+    ExpandMore,
+    DashboardOutlined,
+    FeaturedPlayListOutlined,
+    PostAdd,
+    ListAlt,
+    EventNote,
+    EventAvailable,
+    Receipt,
+    SwapHorizOutlined,
+    StoreMallDirectoryOutlined,
+    CameraAltOutlined,
+    LocationOnOutlined,
+    HelpOutline
+} from '@material-ui/icons';
+import AssessmentIcon from '@material-ui/icons/Assessment';
+//components
+import Logo from 'assets/img/logo/LogoColorBlanco.png';
+import styles from 'components/Layout/Layout.module.css';
+
+
+const Drawer = withStyles({
+    paper: {
+        background: 'linear-gradient(120deg, rgba(89,140,151,1) 0%, rgba(72,87,101,1) 100%)',
+    },
+})(MuiSwipeableDrawer);
+
+const useStyles = makeStyles(theme => ({
+    list: {
+        width: 250,
+    },
+    nested: {
+        paddingLeft: theme.spacing(4),
+    },
+}));
+
+const navItems = [
+    { to: '/estadistica-visita', name: 'Estadistica Visita', dataTut: 'DataTut_EstadisticaVisista', Icon: AssessmentIcon },
+    { to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
+    {
+        to: '/pedidos', name: 'Pedidos', dataTut: 'DataTut_Pedidos', Icon: FeaturedPlayListOutlined,
+        expanded: [
+            { to: '/pedidos', name: 'Nuevo Pedido', dataTut: 'DataTut_NuevoPedido', Icon: PostAdd },
+            { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt },
+        ]
+    },
+    { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
+    { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },
+    { to: '/recibos', name: 'Recibos', dataTut: 'DataTut_Recibos', Icon: Receipt },
+    { to: '/devoluciones', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
+    { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
+    { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
+    { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
+];
+
+const Sidebar = (props) => {
+    const classes = useStyles();
+    const [isMenuOpen, setIsMenuOpen] = useState([]);
+    const [NodeGuia, setNodeGuia] = useState(null);
+    const [SideMenu, setSideMenu] = useState({
+        left: false,
+        right: false,
+    });
+    useEffect(() => {
+        // Update the document title using the browser API
+        let node = document.getElementById("SidebarToggle");
+
+        if (node !== null) {
+            node.addEventListener("click", () => toggleDrawer('left', true));
+        }
+
+        let Submenus = [];
+        navItems.map((menu, index) => {
+            if (menu.expanded && menu.expanded !== null && menu.expanded !== undefined) {
+                Submenus[index] = false;
+            }
+            return false;
+        });
+        setIsMenuOpen(Submenus);
+
+        // eslint-disable-next-line
+    }, []);
+
+    const toggleDrawer = (side, open) => {
+        setSideMenu({ ...SideMenu, [side]: open });
+
+        setTimeout(() => {
+            let guia = document.getElementById('OpenHelperGuide');
+
+            if (guia !== null) {
+                setNodeGuia(guia);
+            }
+        }, 300)
+
+    };
+
+    const handleClick = (index) => {
+        let Submenu = [...isMenuOpen];
+        Submenu[index] = !Submenu[index];
+
+        setIsMenuOpen(Submenu);
+    };
+
+    const sideList = side => (
+        <div
+            className={classes.list}
+            role="presentation"
+        >
+            <div
+                className="px-3 py-3"
+            >
+                <div
+                    className="px-3"
+                >
+                    <img
+                        src={Logo}
+                        className="img-fluid"
+                        alt="Logo"
+                    />
+                </div>
+            </div>
+            <Divider />
+            <List
+                component="nav"
+            // subheader={
+            //     <ListSubheader component="div" id="nested-list-subheader" className="text-light">
+            //         Nested List Items
+            //     </ListSubheader>
+            // }
+            >
+                {
+                    navItems.map((menu, index) => {
+                        if (menu.expanded && menu.expanded !== null && menu.expanded !== undefined) {
+
+                            return (
+                                <React.Fragment key={index}>
+                                    <ListItem data-tut={menu.dataTut} data-content={index} button className={styles.Titulo} onClick={() => handleClick(index)}>
+                                        <ListItemIcon>
+                                            <menu.Icon className={styles.Icons} />
+                                        </ListItemIcon>
+                                        <ListItemText primary={menu.name} />
+                                        {isMenuOpen[index] ? <ExpandLess /> : <ExpandMore />}
+                                    </ListItem>
+                                    <Collapse in={isMenuOpen[index]} timeout="auto" unmountOnExit>
+                                        <List component="div" disablePadding>
+                                            {
+                                                menu.expanded.map((submenu, ind) => {
+
+                                                    return (
+                                                        <ListItemLink
+                                                            key={ind}
+                                                            nested
+                                                            dataTut={submenu.dataTut}
+                                                            classes={classes}
+                                                            to={submenu.to}
+                                                            primary={submenu.name}
+                                                            icon={<submenu.Icon className={styles.Icons} />}
+                                                        />
+                                                    )
+                                                })
+                                            }
+                                        </List>
+                                    </Collapse>
+                                </React.Fragment>
+                            )
+                        }
+                        return (
+                            <ListItemLink
+                                key={index}
+                                to={menu.to}
+                                dataTut={menu.dataTut}
+                                primary={menu.name}
+                                icon={<menu.Icon className={styles.Icons} />}
+                            />
+                        )
+                    })
+                }
+
+                <ListItemLink
+                    id={"OpenHelperGuide"}
+                    to={'#'}
+                    primary={"Ayuda"}
+                    dataTut={"DataTut_HelperButton"}
+                    icon={<HelpOutline className={styles.Icons} />}
+                />
+            </List>
+        </div >
+    );
+
+    const tourConfig = [
+        {
+            selector: '[data-tut="DataTut_Dashboard"]',
+            content: `Información del dashboard.`
+        },
+        {
+            selector: '[data-tut="DataTut_EstadisticaVisista"]',
+            content: `Información de las visistas.`
+        },
+        {
+            selector: '[data-tut="DataTut_Pedidos"]',
+            content: `Controles Pedidos.`
+        },
+        {
+            selector: '[data-tut="DataTut_NuevoPedido"]',
+            content: "Realizar Nuevo Pedido",
+            action: () => {
+                let node = document.querySelector('[data-tut="DataTut_Pedidos"]');
+                let index = node.getAttribute('data-content');
+
+                if (!isMenuOpen[index]) {
+                    handleClick(index);
+                }
+            }
+        },
+        {
+            selector: '[data-tut="DataTut_ListadoPedidos"]',
+            content: "Ver listado de pedidos",
+            action: () => {
+                let node = document.querySelector('[data-tut="DataTut_Pedidos"]');
+                let index = node.getAttribute('data-content');
+
+                if (!isMenuOpen[index]) {
+                    handleClick(index);
+                }
+            }
+        },
+        {
+            selector: '[data-tut="DataTut_Agenda"]',
+            content: `Ver agenda y las asignaciones de trabajo.`
+        },
+        {
+            selector: '[data-tut="DataTut_Asignación"]',
+            content: `Configurar asignaciones de trabajo.`
+        },
+        {
+            selector: '[data-tut="DataTut_Recibos"]',
+            content: `Recibos.`
+        },
+        {
+            selector: '[data-tut="DataTut_Devoluciones"]',
+            content: `Devoluciones.`
+        },
+        {
+            selector: '[data-tut="DataTut_Inventarios"]',
+            content: `Inventarios.`
+        },
+        {
+            selector: '[data-tut="DataTut_Fotografias"]',
+            content: `Fotografias.`
+        },
+        {
+            selector: '[data-tut="DataTut_Coordenadas"]',
+            content: `Ver coordenadas.`
+        },
+        {
+            selector: '[data-tut="DataTut_HelperButton"]',
+            content: `Obtener ayuda de la interfaz`
+        },
+        //   {
+        //     selector: '[data-tut="reactour__style"]',
+        //     content: () => (
+        //       <div>
+        //         <Glitch data-glitch="Styled">Styled</Glitch>
+        //         <Text color="#e5e5e5">
+        //           The <Tooltip data-tooltip="this helper ⬇">tourist guide</Tooltip>{" "}
+        //           could be dressed in any way, using custom components, styles and so
+        //           on…
+        //       </Text>
+        //         <Text color="#373737" size=".7em" style={{ marginTop: ".7em" }}>
+        //           <Link
+        //             href="http://codepen.io/lbebber/full/ypgql/"
+        //             color="dark"
+        //             nospaces
+        //           >
+        //             Text effect
+        //         </Link>{" "}
+        //           by{" "}
+        //           <Link href="https://twitter.com/lucasbebber" color="dark" nospaces>
+        //             Lucas Bebber
+        //         </Link>
+        //         </Text>
+        //       </div>
+        //     ),
+        //     style: {
+        //       backgroundColor: "black",
+        //       color: "white"
+        //     }
+        //   },
+        //   {
+        //     selector: '[data-tut="reactour__goTo"]',
+        //     content: ({ goTo }) => (
+        //       <div>
+        //         If you wanna go anywhere, skipping places, it is absolutely possible.
+        //       <br /> "Oh, I forgot something inside the bus…"{" "}
+        //         <button
+        //           style={{
+        //             border: "1px solid #f7f7f7",
+        //             background: "none",
+        //             padding: ".3em .7em",
+        //             fontSize: "inherit",
+        //             display: "block",
+        //             cursor: "pointer",
+        //             margin: "1em auto"
+        //           }}
+        //           onClick={() => goTo(1)}
+        //         >
+        //           Please go back to 🚌
+        //       </button>
+        //       </div>
+        //     )
+        //   },
+        //   {
+        //     selector: '[data-tut="reactour__position"]',
+        //     content: () => (
+        //       <Text>
+        //         The <Tooltip data-tooltip="this helper ⬇">tourist guide</Tooltip> could
+        //         be positioned where you want.
+        //       <br /> In this case will try to stay in the <strong>
+        //           left side
+        //       </strong>{" "}
+        //         if there's available space, otherwise will{" "}
+        //         <strong>auto position</strong>.
+        //     </Text>
+        //     ),
+        //     position: "left"
+        //   },
+        //   {
+        //     selector: '[data-tut="reactour__action"]',
+        //     content:
+        //       "When arrived on each place you could fire an action, like… (look at the console)",
+        //     action: () =>
+        //       console.log(`
+        //                 ------------🏠🏚---------
+        //     🚌 Arrived to explore these beautiful buildings! 🚌
+        //                 ------------🏠🏚---------
+        //  🚧 This action could also fire a method in your Component 🚧
+        //   `)
+        //   },
+        //   {
+        //     selector: '[data-tut="reactour__state"]',
+        //     content:
+        //       "And the Tour could be observing changes to update the view, try clicking the button…",
+        //     observe: '[data-tut="reactour__state--observe"]'
+        //   }
+    ];
+
+    return (
+        <div>
+            <Drawer className={styles.Container} onOpen={() => toggleDrawer('left', true)} open={SideMenu.left} onClose={() => toggleDrawer('left', false)}>
+                {sideList('left')}
+            </Drawer>
+            <Drawer anchor="right" open={SideMenu.right} onOpen={() => toggleDrawer('right', true)} onClose={() => toggleDrawer('right', false)}>
+                {sideList('right')}
+            </Drawer>
+
+            <Tour startAt={0} Steps={tourConfig} Color={"#598c97"} Node={NodeGuia} />
+        </div>
+    );
+}
+
+const ListItemLink = (props) => {
+    const { icon, primary, to } = props;
+
+    const renderLink = React.useMemo(
+        () =>
+            React.forwardRef((itemProps, ref) => (
+                // With react-router-dom@^6.0.0 use `ref` instead of `innerRef`
+                // See https://github.com/ReactTraining/react-router/issues/6056
+                <RouterLink to={to} {...itemProps} innerRef={ref} />
+            )),
+        [to],
+    );
+    let classes = styles.Titulo;
+    if (props.nested) {
+        classes += " " + props.classes.nested;
+    }
+
+    return (
+        <li id={props.id && props.id} data-tut={props.dataTut}>
+            <ListItem className={classes} button component={renderLink}>
+                {icon ? <ListItemIcon>{icon}</ListItemIcon> : null}
+                <ListItemText primary={primary} />
+            </ListItem>
+        </li>
+    );
+}
+
+export default Sidebar;

@@ -1,0 +1,29 @@
+/* Sidebar */
+
+.Titulo {
+    color: white !important;
+}
+
+.Icons {
+    color: white;
+}
+
+/* Header */
+
+.MarginBottomHeader {
+    margin-bottom: 0.8rem !important;
+}
+
+.LogoHeaderContainer {
+    max-height: 64px;
+}
+
+.LogoHeader{
+    width: 160px;
+}
+
+@media (max-width:768px) {
+    .LogoHeaderContainer {
+        max-height: 56px;
+    }
+}

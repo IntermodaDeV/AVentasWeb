@@ -1,0 +1,15 @@
+.InfoLabel {
+    margin-right: 15px;
+    font-weight: bold;
+}
+.InfoLabelDetail {
+    margin-left: 25px !important;
+}
+.ThTest {
+    background-color: darkslategray;
+    color: white;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}

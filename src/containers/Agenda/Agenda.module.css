@@ -1,0 +1,8 @@
+.ToastOnTopModal {
+    z-index: 1300;
+}
+
+.AtenderContainer {
+    width: 430px;
+    margin: auto;
+}

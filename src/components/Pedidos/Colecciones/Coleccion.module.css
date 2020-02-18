@@ -1,0 +1,8 @@
+.BorderTop {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.TitleColeccion {
+    font-size: 16px;
+    font-weight: 500;
+}

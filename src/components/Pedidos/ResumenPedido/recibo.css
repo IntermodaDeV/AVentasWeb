@@ -1,0 +1,151 @@
+@media all {
+    #invoice-POS {
+        box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);
+        padding: 2mm;
+        margin: 0 auto;
+        background: #fff;
+    }
+    #invoice-POS thead {
+        display: table-row-group;
+    }
+    #invoice-POS tfoot {
+        display: table-row-group;
+    }
+    #invoice-POS>div:last-child {
+        page-break-after: always
+    }
+    #invoice-POS h1 {
+        font-size: 1.6em;
+        color: #000;
+    }
+    #invoice-POS h2 {
+        font-size: 3em;
+    }
+    #invoice-POS h3 {
+        font-size: 2.2em;
+        font-weight: 300;
+        line-height: 2em;
+    }
+    #invoice-POS p {
+        font-size: 2.1em;
+        color: #000;
+        line-height: 1.2em;
+    }
+    #invoice-POS #top, #invoice-POS #mid, #invoice-POS #bot {
+        /* Targets all id with 'col-' */
+        border-bottom: 1px solid #000;
+    }
+    #invoice-POS #top {
+        min-height: 100px;
+    }
+    #invoice-POS #mid {
+        min-height: 80px;
+        padding-bottom: 10px;
+        border: 0;
+    }
+    #mid .col-sm-6, #mid .col-sm-5 {
+        display: inline-block;
+    }
+    #invoice-POS #bot {
+        min-height: 50px;
+    }
+    #invoice-POS .info {
+        margin-left: 0;
+        padding-top: 15px;
+        font-size: .855em;
+    }
+    #invoice-POS #legalcopy {
+        margin-top: 5mm;
+    }
+    #invoice-POS table {
+        width: 100%;
+        border-collapse: collapse;
+        border-spacing: 0;
+        margin-bottom: 20px;
+        margin-top: 10px;
+        color: #000;
+    }
+    #invoice-POS table th {
+        padding: 0px;
+        white-space: nowrap;
+        font-weight: 400;
+        font-size: 1.8em;
+        background-color: #d9d9d9;
+        text-align: center
+    }
+    #invoice-POS table td {
+        padding: 0px 5px;
+        font-size: 1.5em;
+    }
+    #invoice-POS .codigoProducto {
+        font-size: 1.4em;
+        text-align: left;
+    }
+    th.CodigoHeader {
+        width: 100px;
+    }
+    #invoice-POS table th {
+        border-top: 0;
+        border-bottom: 1px solid #000 !important;
+        /* background-color: #fff !important; */
+        font-weight: bold;
+        /* border: 1px solid #000 !important; */
+        background-color: #d9d9d9 !important
+    }
+    #invoice-POS table th, #invoice-POS table td {
+        /* border: 1px solid #000; */
+        border: none;
+    }
+    #invoice-POS tbody+tbody {
+        border-top: none;
+        /* border-top: 2px solid #000000; */
+    }
+    .ColorRow {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    .TotalRow {
+        border-top: 1px solid #000;
+    }
+    .labelTotal {
+        font-weight: bold;
+        text-align: right;
+        font-size: 2.5em;
+    }
+    .valueTotal {
+        text-align: right;
+        font-size: 2.5em;
+    }
+    .thanks {
+        width: 80%;
+        margin: auto;
+    }
+    .thanks img {
+        width: auto;
+        height: 160px;
+        display: flex;
+        max-width: 100%;
+        margin: auto;
+        /* width: 80%;
+        max-width: 100%;
+        margin-left: 20px;
+        margin-top: 10px; */
+    }
+    #invoice-POS .notices {
+        padding-left: 6px;
+        border-left: 6px solid #000
+    }
+    #invoice-POS .notices div {
+        font-size: 2em
+    }
+    .firma {
+        font-size: 1.8em;
+        border: 0;
+        text-align: center;
+        border-top: 2.5px solid #000;
+        width: 80%;
+        margin: auto;
+    }
+    .MuiDialog-paperScrollPaper, .MuiDialog-paperWidthSm {
+        max-width: unset !important;
+    }
+}

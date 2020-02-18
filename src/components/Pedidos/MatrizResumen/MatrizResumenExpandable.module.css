@@ -1,0 +1,89 @@
+.tbody {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.header {
+    background-color: rgb(24, 151, 176, 0.2)
+}
+
+.BorderExpansion {
+    border: 1px solid steelblue;
+}
+
+.BorderExpansionWarning {
+    border: 1px solid #ffc107;
+}
+
+.BorderHeader {
+    font-size: 13px;
+}
+
+.BorderHeaderSecondary {
+    color: #757575;
+    font-size: 13px;
+}
+
+.HeaderTest {
+    overflow: auto;
+    /* height: 100px; */
+    margin-bottom: 30px;
+    max-height: 70VH;
+    width: 100%;
+}
+
+.ThTest {
+    background-color: darkslategray;
+    color: white;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.barra {
+    border-top: 2px solid #007bff;
+    margin-bottom: -15px;
+    position: sticky;
+    bottom: -1px;
+    background-color: white;
+    z-index: 2;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.barraInner {
+    display: -webkit-box;
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+}
+
+.FiTrash2 {
+    color: darkred;
+    cursor: pointer;
+    font-size: 17px
+}
+
+.FiTrash2:hover {
+    color: red;
+}
+
+.Arrows {
+    position: absolute;
+    margin: auto;
+    z-index: 1000;
+    top: 50%;
+    cursor: pointer;
+}
+
+.ArrowsRight {
+    right: 10%
+}
+
+.ArrowsLeft {
+    left: 10%
+}
+
+.PopperDistribution {
+    z-index: 2;
+    top: 6px !important;
+}

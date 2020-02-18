@@ -1,0 +1,57 @@
+.SearchColeccion {
+    border-radius: 15px !important;
+    border: 1px solid #aaa !important;
+    padding-right: 30px !important;
+}
+
+.SearchIcon {
+    height: calc(1.5em + 0.75rem + 2px);
+    border-radius: 15px;
+    background: none;
+    border: none;
+    position: absolute;
+    right: 25px;
+    -webkit-transition: all .3s ease-out;
+    -moz-transition: all .3s ease-out;
+    -o-transition: all .3s ease-out;
+    transition: all .3s ease-out;
+}
+
+
+.SearchColeccion:focus {
+    outline: none!important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+}
+
+.SearchColeccion:focus~.SearchIcon {
+    color: #007bff;
+}
+
+.SearchIcon:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+@media (max-width: 960px) {
+    .SearchColeccionContainer {
+        width: 50% !important;
+    }
+}
+
+@media (min-width: 960px) and (max-width: 1200px) {
+    .SearchColeccionContainer {
+        width: 40% !important;
+    }
+}
+
+@media (min-width: 1200px) and (max-width: 1500px) {
+    .SearchColeccionContainer {
+        width: 30% !important;
+    }
+}
+
+@media (min-width: 1500px) {
+    .SearchColeccionContainer {
+        width: 25% !important;
+    }
+}

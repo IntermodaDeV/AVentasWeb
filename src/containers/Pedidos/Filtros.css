@@ -1,0 +1,141 @@
+#sidebar-wrapper {
+  min-height: 100vh;
+  display: none;
+  -webkit-transition: all .25s ease-out;
+  -moz-transition: all .25s ease-out;
+  -o-transition: all .25s ease-out;
+  transition: all .25s ease-out;
+}
+
+#sidebar-wrapper .sidebar-heading {
+  padding: 0.875rem 1.25rem;
+  font-size: 1.2rem;
+}
+
+#sidebar-wrapper .list-group {
+  height: 90vh;
+  overflow: auto;
+  position: -webkit-sticky;
+  position: sticky;
+  top: 110px;
+}
+
+.cr-app {
+  overflow: unset !important;
+}
+
+#wrapper.toggled #sidebar-wrapper {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  #sidebar-wrapper {
+    margin-left: 0;
+    display: block;
+  }
+  #sidebar-wrapper .list-group {
+    height: 90vh;
+    max-height: 100%;
+    overflow: auto;
+    position: -webkit-sticky;
+    position: sticky;
+    top: 56px;
+  }
+  #wrapper.toggled #sidebar-wrapper {
+    display: none;
+    flex-grow: 1;
+    transition: all 400ms ease;
+  }
+}
+
+.especial {
+  background-color: black;
+  color: white !important;
+  padding: 14px 25px;
+  text-align: left;
+  text-decoration: none;
+  font-size: 12px;
+  width: 18rem;
+}
+
+.Especial2 {
+  background-color: white;
+  color: white !important;
+  padding: 10px 20px;
+  text-align: left;
+  text-decoration: none;
+  font-size: 12px;
+  width: 100%;
+  z-index: 20;
+  color: black !important;
+  border-top: 1px solid #bbb;
+  border-bottom: 1px solid #999;
+}
+
+.especiala {
+  background-color: transparent;
+  color: black;
+  /* border-bottom: 2px solid darkblue; */
+  padding: 5px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.especialaActive {
+  background-color: #8FB9CB;
+  color: white !important;
+}
+
+/* Countdown Alert Inactividad */
+
+.countdown-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.countdown-item {
+  color: #111;
+  font-size: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  line-height: 30px;
+  margin: 10px;
+  padding-top: 10px;
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.countdown-item span {
+  color: #333;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.countdown-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100px;
+  height: 100px;
+}
+
+.TextTransitionNoAnimation {
+  width: unset !important;
+}
+
+.TextTransitionNoAnimation .text-transition-inner {
+  left: unset;
+}
+
+body {
+  padding: 0 !important;
+}

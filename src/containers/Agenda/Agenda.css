@@ -1,0 +1,29 @@
+.AgendaContainer .MuiDialog-paperScrollPaper {
+    min-width: 30%;
+}
+
+.CalendarioAgenda .fc-Asignacion-button:hover {
+    background-color: steelblue;
+    border-color: steelblue;
+}
+
+.CalendarioAgenda .fc-Asignacion-button {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.CalendarioAgenda .fc-right {
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+    .CalendarioAgenda .fc-left, .CalendarioAgenda .fc-center, .CalendarioAgenda .fc-right {
+        width: 100%;
+        display: block;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .CalendarioAgenda .fc-Asignacion-button, .CalendarioAgenda .fc-today-button, .CalendarioAgenda .fc-button-group {
+        margin-top: 5px;
+    }
+}

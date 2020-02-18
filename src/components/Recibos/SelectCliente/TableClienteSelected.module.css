@@ -1,0 +1,21 @@
+.InfoLabel {
+    margin-right: 15px;
+    font-weight: bold;
+}
+
+.InfoLabelDetail {
+    margin-left: 25px !important;
+}
+
+.TCenter {
+    text-align: left !important;
+    color: red;
+    margin-bottom: 0;
+}
+
+.TCenterContainer {
+    display: inline-block;
+    border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+    padding-bottom: 1px;
+    margin-bottom: 23px;
+}

@@ -1,0 +1,12 @@
+.separator {
+    flex-grow: 1;
+}
+
+.Border {
+    border: 1px solid #94A9CF;
+    border-radius: 5px;
+}
+
+.BordetBottom {
+    border-bottom: 1px solid #94A9CF;
+}

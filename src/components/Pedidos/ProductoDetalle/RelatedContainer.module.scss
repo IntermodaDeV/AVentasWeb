@@ -1,0 +1,18 @@
+.FabButton {
+  width: 26px !important;
+  height: 26px !important;
+  min-height: unset !important;
+  min-width: unset !important;
+  margin: auto !important;
+
+  &:hover {
+    outline: none;
+  }
+  &:focus {
+    outline: none;
+  }
+}
+
+.AddIcon {
+  font-size: 20px !important;
+}

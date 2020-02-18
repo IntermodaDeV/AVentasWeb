@@ -1,0 +1,20 @@
+.MuiDialogContent-root.MuiPickersModal-dialog {
+    overflow: auto;
+}
+
+.text-transition .text-transition-inner .text {
+    left: 0
+}
+
+.DropdownAsignacionTiempo {
+    width: 100%;
+}
+
+.DropdownAsignacionTiempo .MuiSelect-select {
+    padding-left: 15px;
+}
+
+.row {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+}
