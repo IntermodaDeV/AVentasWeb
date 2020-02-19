@@ -6,22 +6,10 @@ import CuotasACancelarAgrupadasTable from 'components/Recibos/Facturas/CuotasACa
 import PagoReciboTable from 'components/Recibos/Recibo/PagoReciboTable';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
 import Recibo from 'components/Recibos/Recibo/Recibo'
-import {
-    Card,
-    // CardContent,
-    // TextField,
-} from '@material-ui/core';
+import { Card } from '@material-ui/core';
 import moment from 'moment';
 import 'moment/locale/es';
-import {
-    Col,
-    // Container,
-    Row,
-} from 'reactstrap';
-//import { DatePicker } from "@material-ui/pickers";
-// import color from '@material-ui/core/colors/amber';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-// import withReactContent from 'sweetalert2-react-content';
 import 'sweetalert2/src/sweetalert2.scss';
 moment.locale('es')
 
@@ -306,31 +294,32 @@ const DetalleRecibo = (props) => {
         event.stopPropagation();
         setOpenModal(true);
         let DataModal = [];
-    
+
         cuotas.forEach(cuot => {
-          let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
-          let diasDescuento = 0;
-          let fechaDescuento = moment(cuot.FechaMaxDescuento);
-          if (fechaDescuento.isValid()) {
-            diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
-          }
-          DataModal.push({
-            NumeroFactura: cuot.Factura.Factura,
-            Dias: dias,
-            DiasDescuento: diasDescuento,
-            Tipo: cuot.TipoDocumento,
-            Fecha: moment(cuot.Factura.FechaFactura).format("DD/MM/YYYY"),
-            Vencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
-            FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
-            Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-    
-          }
-          )
+            let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
+            let diasDescuento = 0;
+            let fechaDescuento = moment(cuot.FechaMaxDescuento);
+            if (fechaDescuento.isValid()) {
+                diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
+            }
+            DataModal.push(
+                {
+                    NumeroFactura: cuot.Factura.Factura,
+                    Dias: dias,
+                    DiasDescuento: diasDescuento,
+                    Tipo: cuot.TipoDocumento,
+                    Fecha: moment(cuot.Factura.FechaFactura).format("DD/MM/YYYY"),
+                    Vencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
+                    FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
+                    Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                    Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                    //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+
+                }
+            )
         });
-    
-    
+
+
         /* DataModal.push({
           Tipo: 'Factura [D-P]',
           NumeroFactura: '2',
@@ -345,11 +334,11 @@ const DetalleRecibo = (props) => {
         });
      */
         setDataModal(DataModal);
-      }
+    }
     return (
         <div>
             <h3>Detalle Recibo</h3>
-            <Row>
+            <div className="row">
                 <Card style={{ marginTop: '10px', marginBottom: '10px' }}>
                     <PagoReciboTable
                         Bancos={bancos}
@@ -367,32 +356,32 @@ const DetalleRecibo = (props) => {
                     ></PagoReciboTable>
                 </Card>
 
-            </Row>
+            </div>
             <h3>Detalle Facturas a Cancelar</h3>
-            <Row>
-                <Col sm={3}>
+            <div className="row">
+                <div className="col-lg-3 col-md-4 col-sm-5 col-12 my-2">
                     <CuotasAgrupadasACancelarTable
                         Cuotas={props.Cuotas}
                         CuotasAPagar={props.CuotasAPagar}
                         SetLineasfiltradas={setLineasfiltradas}
                         Acumulado={Acumulado}
                     />
-                </Col>
-                <Col sm={9}>
+                </div>
+                <div className="col-lg-9 col-md-8 col-sm-7 col-12 my-2">
 
-                {
+                    {
                         props.Cuotas[0].AgrupaPorCuota ?
-                        <CuotasACancelarAgrupadasTable
-                        onClick={OpenModal}
-                        moment={moment}
-                        
-                        // ColSpan={rowData.length + 1}
-                        Cuotas={props.Cuotas}
-                        CuotasAPagar={props.CuotasAPagar}
-                        // NumeroAcuerdo={data[rowMeta.dataIndex].Numero}
-                        // SelectedRowsIndexXAcuerdo={selectedRowsIndexXAcuerdo}
-                        // SetCuotasAPagar={(newArray) => { setCuotasSeleccionadas(data[rowMeta.dataIndex].Numero, newArray) }}
-                      />
+                            <CuotasACancelarAgrupadasTable
+                                onClick={OpenModal}
+                                moment={moment}
+
+                                // ColSpan={rowData.length + 1}
+                                Cuotas={props.Cuotas}
+                                CuotasAPagar={props.CuotasAPagar}
+                            // NumeroAcuerdo={data[rowMeta.dataIndex].Numero}
+                            // SelectedRowsIndexXAcuerdo={selectedRowsIndexXAcuerdo}
+                            // SetCuotasAPagar={(newArray) => { setCuotasSeleccionadas(data[rowMeta.dataIndex].Numero, newArray) }}
+                            />
                             :
                             <CuotasACancelarTable
                                 Cuotas={props.Cuotas}
@@ -403,9 +392,9 @@ const DetalleRecibo = (props) => {
 
                     }
                     <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
-                </Col>
+                </div>
 
-            </Row>
+            </div>
             {
                 ModalRecibo &&
                 <Recibo

@@ -3,6 +3,7 @@ import React, {
   useState
 } from 'react'
 import MUIDataTable from 'mui-datatables'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
 import 'moment/locale/es';
 // import { Button } from '@material-ui/core';
@@ -57,7 +58,7 @@ const CuotasAgrupadasACancelarTable = props => {
   const options = {
     sort: false,
     filterType: 'false',
-    responsive: "scrollFullHeight",
+    responsive: "scrollMaxHeight",
     print: false,
     download: false,
     pagination: false,
@@ -128,17 +129,26 @@ const CuotasAgrupadasACancelarTable = props => {
     props.SetLineasfiltradas(lineasFiltradas)
   }
   return (
-    <>
+    <MuiThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={''}
         data={data}
         columns={columns}
         options={options}
       />
-
-    </>
+    </MuiThemeProvider>
   )
 }
+
+const getMuiTheme = () => createMuiTheme({
+  overrides: {
+    MUIDataTable: {
+      responsiveScrollMaxHeight: {
+        maxHeight: 'unset !important',
+      }
+    },
+  }
+});
 
 const numberWithCommas = (x) => {
   x = x.toFixed(2);

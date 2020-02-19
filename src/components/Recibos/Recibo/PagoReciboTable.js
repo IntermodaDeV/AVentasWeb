@@ -1,5 +1,6 @@
 import React from 'react'
 import MUIDataTable from 'mui-datatables'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
 import 'moment/locale/es';
 import { Button } from '@material-ui/core';
@@ -74,7 +75,7 @@ const columns = [
     },
     {
         // name: 'TipoPago',
-        label: '',
+        label: 'Acciones',
         options: {
             filter: false,
             sort: false
@@ -84,7 +85,7 @@ const columns = [
 const PagoReciboTable = (props) => {
     const options = {
         filterType: 'false',
-        responsive: "scrollFullHeight",
+        responsive: "scrollMaxHeight",
         print: false,
         download: false,
         pagination: false,
@@ -140,7 +141,7 @@ const PagoReciboTable = (props) => {
             props.Monedas[indexMoneda] ? props.Monedas[indexMoneda].Moneda : '',
             props.Bancos[indexBanco] ? props.Bancos[indexBanco].NombreBanco : '',
             referencia,
-            (<div>
+            (<div className="d-flex">
                 <Button className="mr-1" onClick={() => { props.SetEditPagoXRecibo(indexArray) }}><EditIcon /></Button>
                 <Button className="ml-1" onClick={() => { props.DeletePago(indexArray) }}><DeleteForeverIcon /></Button>
             </div>),
@@ -331,7 +332,7 @@ const PagoReciboTable = (props) => {
                 }}
             />),
 
-            (<div>
+            (<div className="d-flex">
                 <Button className="mr-1" onClick={() => { props.ConfirmEditarPago(indexArray) }}><CheckIcon /></Button>
                 <Button className="ml-1" onClick={() => { props.CancelEditarPago(indexArray) }}><CloseIcon /></Button>
             </div>),
@@ -353,7 +354,7 @@ const PagoReciboTable = (props) => {
     data.push([
         null, null, null, null, null, null, null,
         (
-            <div>
+            <div className="d-flex">
                 <Button
                     className="mr-1"
                     style={{ textAlign: 'center' }}
@@ -374,7 +375,7 @@ const PagoReciboTable = (props) => {
         )
     ]);
     return (
-        <>
+        <MuiThemeProvider theme={getMuiTheme()}>
             <MUIDataTable
                 // title={'Detalle de Pagos'}
                 title={''}
@@ -382,16 +383,18 @@ const PagoReciboTable = (props) => {
                 columns={columns}
                 options={options}
             />
-            {/* {selectedRowsIndex.length > 0 && (<Button
-
-                onClick={() => { setCuotasAPagar() }}
-                variant="contained"
-                color="primary">
-                Eliminar
-        </Button>)} */}
-        </>
+        </MuiThemeProvider>
     )
 }
 
+const getMuiTheme = () => createMuiTheme({
+    overrides: {
+        MUIDataTable: {
+            responsiveScrollMaxHeight: {
+                maxHeight: 'unset !important',
+            }
+        },
+    }
+});
 
 export default PagoReciboTable;

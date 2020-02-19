@@ -2,7 +2,8 @@ import React, {
     //  useEffect, 
     useState, useEffect
 } from 'react'
-import MUIDataTable from 'mui-datatables'
+import MUIDataTable from 'mui-datatables';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
 import 'moment/locale/es';
 
@@ -34,7 +35,6 @@ const columns = [
 ]
 
 const CuentaCorrienteTable = props => {
-    
     // let selectedRowsIndexXAcuerdo = null;
     const [cuentaCorriente, setCuentaCorriente] = useState([])
     useEffect(() => {
@@ -65,7 +65,7 @@ const CuentaCorrienteTable = props => {
         filterType: 'none',
         sort: false,
         pagination: false,
-        responsive: "scrollFullHeight",
+        responsive: "scrollMaxHeight",
         print: false,
         filter: false,
         viewColumns: false,
@@ -73,7 +73,6 @@ const CuentaCorrienteTable = props => {
         selectableRows: 'none',
 
         expandableRowsOnClick: false,
-        customToolbar: () => { },
         textLabels: {
             body: {
                 noMatch: "Nada que mostrar.",
@@ -133,17 +132,36 @@ const CuentaCorrienteTable = props => {
 
 
     return (
-        <>
+        <MuiThemeProvider theme={getMuiTheme()}>
             <MUIDataTable
                 title={''}
                 data={data}
                 columns={columns}
                 options={options}
             />
-
-        </>
+        </MuiThemeProvider>
     )
 }
+
+const getMuiTheme = () => createMuiTheme({
+    overrides: {
+        MUIDataTable: {
+            responsiveScrollMaxHeight: {
+                maxHeight: 'unset !important',
+            }
+        },
+        MuiToolbar: {
+            root: {
+                display: 'flex !important',
+            }
+        },
+        MUIDataTableToolbar: {
+            actions: {
+                textAlign: 'end !important',
+            }
+        }
+    }
+})
 
 export default CuentaCorrienteTable;
 

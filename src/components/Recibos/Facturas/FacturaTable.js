@@ -1,9 +1,10 @@
 import React, {
   //  useEffect, useState 
 } from 'react'
-import MUIDataTable from 'mui-datatables'
-import moment from 'moment'
-import 'moment/locale/es'
+import MUIDataTable from 'mui-datatables';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import moment from 'moment';
+import 'moment/locale/es';
 import {
   Button,
   // TablePagination, TableCell
@@ -65,6 +66,7 @@ const getOptions = (props) => {
     download: false,
     filter: false,
     viewColumns: false,
+    responsive: "scrollMaxHeight",
     search: false,
     // customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage, textLabels) => CustomFooter(count, page, rowsPerPage, changeRowsPerPage, changePage, textLabels, props),
     customFooter: () => { },
@@ -160,10 +162,10 @@ const FacturaTable = props => {
     let saldo15DiasAvencer = 0;
     let disponible = 0;
     acuXTipPed.Acuerdos.forEach(acu => {
-      if(acuXTipPed.AgrupaPorCuota){
-        disponible += Number(acu.Disponible); 
-      }else{
-        disponible = (props.Cliente.CreditoDisponible?props.Cliente.CreditoDisponible:0);
+      if (acuXTipPed.AgrupaPorCuota) {
+        disponible += Number(acu.Disponible);
+      } else {
+        disponible = (props.Cliente.CreditoDisponible ? props.Cliente.CreditoDisponible : 0);
       }
       acu.Facturas.forEach(fact => {
         fact.Cuotas.forEach(cuot => {
@@ -218,6 +220,22 @@ const FacturaTable = props => {
       Accion: (<label ></label>)
     }
   );
-  return <MUIDataTable title={'Resumen Cartera'} data={data} columns={columns} options={getOptions(props)} />
+  return (
+
+    <MuiThemeProvider theme={getMuiTheme()}>
+      <MUIDataTable title={'Resumen Cartera'} data={data} columns={columns} options={getOptions(props)} />
+    </MuiThemeProvider>
+  )
 }
+
+const getMuiTheme = () => createMuiTheme({
+  overrides: {
+    MUIDataTable: {
+      responsiveScrollMaxHeight: {
+        maxHeight: 'unset !important',
+      }
+    },
+  }
+});
+
 export default FacturaTable

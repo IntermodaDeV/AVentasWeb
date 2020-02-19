@@ -111,7 +111,7 @@ const SelectCliente = (props) => {
                             <span className={styles["TCenterContainer"]}>
                                 <h5 className={styles["TCenter"]}>Información General</h5>
                             </span>
-                            <table className='table' style={{ border: "none" }}>
+                            <table className='table table-responsive-xl' style={{ border: "none" }}>
                                 <tbody>
                                     <tr>
                                         <td className={styles.InfoLabel}>
@@ -189,7 +189,7 @@ const SelectCliente = (props) => {
                             </span>
                             {/* <button disabled="" className="btn btn-outline-primary disabled">Ultimo Pedido Lps. 25,000.00</button> */}
                             {/* <button disabled="" className="btn btn-outline-primary disabled">Limite de Credito Disponible Lps. 42,000.00</button> */}
-                            <table className="table">
+                            <table className="table table-responsive-xl">
                                 {/* <thead>
                                     <tr>
                                         <th>
@@ -283,9 +283,10 @@ const SelectCliente = (props) => {
                             <hr />
                         </div>
                     </div>
-                    <div className={'row'}>
-                        <div className={'col-xl-10 col-lg-10 col-xs-12 col-sm-10'} >
+                    <div className={'row mb-3'}>
+                        <div className={'col-xl-10 col-lg-10 col-sm-9 col-12 mt-2'} >
                             <Dropdown
+                                className="Holis"
                                 placeholder="Ingrese Cliente"
                                 fluid
                                 search
@@ -298,7 +299,7 @@ const SelectCliente = (props) => {
                             />
                         </div>
 
-                        <div className={'col-xl-2 col-lg-2 col-xs-12 col-sm-2'}>
+                        <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                             <Button
                                 disabled={props.autocompleteValue ? false : true}
                                 onClick={props.setCliente}

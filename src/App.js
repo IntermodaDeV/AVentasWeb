@@ -20,6 +20,7 @@ import ListaPedidos from 'containers/ListaPedidos/ListaPedidos'
 import AsignacionPage from 'containers/Asignacion/Asignacion'
 import AgendaPage from 'containers/Agenda/Agenda'
 import './styles/reduction.scss'
+import './App.css'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')

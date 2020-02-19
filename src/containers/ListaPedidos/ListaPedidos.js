@@ -158,8 +158,8 @@ const ListaPedidos = () => {
     const getMuiTheme = () => createMuiTheme({
         overrides: {
             MUIDataTable: {
-                responsiveScroll: {
-                    maxHeight: "67vh"
+                responsiveScrollMaxHeight: {
+                    maxHeight: 'unset !important',
                 }
             },
             MUIDataTableBodyRow: {
@@ -326,7 +326,7 @@ const HeadersListaPedidos = [
 
 const DatatableOptions = {
     filterType: "dropdown",
-    responsive: "scrollFullHeight",
+    responsive: "scrollMaxHeight",
     print: false,
     download: false,
     selectableRows: 'none',

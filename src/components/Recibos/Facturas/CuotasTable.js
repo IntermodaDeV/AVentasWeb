@@ -2,7 +2,8 @@ import React, {
   //  useEffect, 
   useState
 } from 'react'
-import MUIDataTable from 'mui-datatables'
+import MUIDataTable from 'mui-datatables';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
 import 'moment/locale/es';
 import { Button } from '@material-ui/core';
@@ -50,7 +51,22 @@ const columns = [
     label: 'Dias Descuento',
 
   },
-  
+  {
+    name: 'ValorDescuento',
+    label: 'Valor Descuento',
+    options: {
+      filter: true,
+      sort: false
+    }
+  },
+  {
+    name: 'APagar',
+    label: 'A Pagar',
+    options: {
+      filter: true,
+      sort: false
+    }
+  },
   {
     name: 'Valor',
     label: 'Valor',
@@ -63,24 +79,7 @@ const columns = [
     name: 'Saldo',
     label: 'Saldo',
 
-  },
-  {
-    name: 'ValorDescuento',
-    label: 'Valor Descuento',
-    options: {
-      filter: true,
-      sort: false
-    }
-  },
-  
-  {
-    name: 'APagar',
-    label: 'A Pagar',
-    options: {
-      filter: true,
-      sort: false
-    }
-  },
+  }
 ];
 
 const CuotasTable = props => {
@@ -90,7 +89,7 @@ const CuotasTable = props => {
   let Expired = [];
   const options = {
     filterType: 'multiselect',
-    responsive: "scrollFullHeight",
+    responsive: "scrollMaxHeight",
     print: false,
     pagination: false,
     sort: false,
@@ -178,7 +177,11 @@ const CuotasTable = props => {
           let DiasVencido = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
           console.log('DiasVencido :', DiasVencido);
           console.log('cuot.FechaVencimiento :', cuot.FechaVencimiento);
-          let ValorDescuento = cuot.Descuento;
+          let ValorDescuento = '';
+
+          if (diasDescuento > 0) {
+            ValorDescuento = cuot.Descuento;
+          }
 
           if (DiasVencido < 0) {
             foundExpired = true;
@@ -188,13 +191,13 @@ const CuotasTable = props => {
               IdSubFactura: cuot.IdSubFactura,
               Dias: <span className="text-danger font-weight-bold">{DiasVencido}</span>,
               DiasDescuento: <span className="text-danger font-weight-bold"> {diasDescuento}</span>,
-              ValorDescuento: <span className="text-danger font-weight-bold">{ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+              ValorDescuento: <span className="text-danger font-weight-bold">{ValorDescuento}</span>,
               Tipo: <span className="text-danger font-weight-bold"> {cuot.TipoDocumento}</span>,
               Factura: <span className="text-danger font-weight-bold"> {fact.Factura}</span>,
               Fecha: <span className="text-danger font-weight-bold"> {moment(fact.FechaFactura).format("DD/MM/YYYY")}</span>,
               FechaVencimiento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,
               FechaDescuento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY")}</span>,
-              APagar: (cuot.Saldo - ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+              APagar: (cuot.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Valor: <span className="text-danger font-weight-bold">{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Saldo: <span className="text-danger font-weight-bold">{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Cuota: cuot,
@@ -328,14 +331,25 @@ const CuotasTable = props => {
     return null
   }
   return (
-    <>
+    <MuiThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={'Cuenta Cartera - ' + (props.Cuotas && props.Cuotas[0] ? props.Cuotas[0].TipoPedido : '')}
         data={data}
         columns={columns}
         options={options}
       />
-    </>
+    </MuiThemeProvider>
   )
 }
+
+const getMuiTheme = () => createMuiTheme({
+  overrides: {
+    MUIDataTable: {
+      responsiveScrollMaxHeight: {
+        maxHeight: 'unset !important',
+      }
+    },
+  }
+});
+
 export default CuotasTable

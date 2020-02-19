@@ -3,6 +3,7 @@ import React, {
   useState
 } from 'react'
 import MUIDataTable from 'mui-datatables'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
 import 'moment/locale/es';
 import {
@@ -16,33 +17,33 @@ const columns = [
   {
     name: 'Tipo',
     label: 'Tipo',
-    
+
   },
   {
     name: 'Fecha',
     label: 'Fecha',
-    
+
   },
   {
     name: 'FechaVencimiento',
     label: 'Vencimiento',
-    
+
   },
 
   {
     name: 'Dias',
     label: 'Dias',
-    
+
   },
   {
     name: 'FechaDescuento',
     label: 'Fecha Descuento',
-    
+
   },
   {
     name: 'DiasDescuento',
     label: 'Dias Descuento',
-    
+
   },
   {
     name: 'Valor',
@@ -51,7 +52,7 @@ const columns = [
   {
     name: 'Saldo',
     label: 'Saldo',
-    
+
   }
 ]
 
@@ -60,12 +61,12 @@ const CuotasACancelarTable = props => {
   const data = []
   const options = {
     filterType: 'false',
-    responsive: "scrollFullHeight",
+    responsive: "scrollMaxHeight",
     print: false,
     download: false,
     pagination: false,
     sortFilterList: false,
-    sort : false,
+    sort: false,
     filter: false,
     search: false,
     viewColumns: false,
@@ -73,7 +74,7 @@ const CuotasACancelarTable = props => {
     // rowsSelected: selectedRowsIndex,
     textLabels: {
       body: {
-        noMatch: "No se han encontrado pedidos",
+        noMatch: "No se han encontrado data",
         toolTip: "Ordenar",
       },
       pagination: {
@@ -104,7 +105,7 @@ const CuotasACancelarTable = props => {
         deleteAria: "Borrar Filas Seleccionadas",
       }
     },
-    customToolbarSelect: () => {},
+    customToolbarSelect: () => { },
     onRowsSelect: (currentRowsSelected, allRowsSelected) => {
       setSelectedRowsIndex(allRowsSelected.map(row => row.dataIndex))
     }
@@ -148,21 +149,35 @@ const CuotasACancelarTable = props => {
     props.SetCuotasAPagar(cuotasAPagar)
   }
   return (
-    <>
+    <MuiThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={''}
         data={data}
         columns={columns}
         options={options}
       />
-      {selectedRowsIndex.length > 0 && (<Button
+      {
+        selectedRowsIndex.length > 0 &&
+        <Button
 
-        onClick={() => { setCuotasAPagar() }}
-        variant="contained"
-        color="primary">
-        Eliminar
-    </Button>)}
-    </>
+          onClick={() => { setCuotasAPagar() }}
+          variant="contained"
+          color="primary">
+          Eliminar
+        </Button>
+      }
+    </MuiThemeProvider>
   )
 }
+
+const getMuiTheme = () => createMuiTheme({
+  overrides: {
+    MUIDataTable: {
+      responsiveScrollMaxHeight: {
+        maxHeight: 'unset !important',
+      }
+    },
+  }
+});
+
 export default CuotasACancelarTable

@@ -3,6 +3,7 @@ import React, {
   useState
 } from 'react'
 import MUIDataTable from 'mui-datatables'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import CuotasAgrupadasExpandableRow from './CuotasAgrupadasExpandableRow';
 import moment from 'moment';
 import 'moment/locale/es';
@@ -56,7 +57,7 @@ const CuotasAgrupadasTable = props => {
     filterType: 'multiselect',
     sort: false,
     pagination: false,
-    responsive: "scrollFullHeight",
+    responsive: "scrollMaxHeight",
     print: false,
     filter: false,
     viewColumns: false,
@@ -146,12 +147,11 @@ const CuotasAgrupadasTable = props => {
       //let facturas = [];
       acu.Facturas.forEach(fact => {
         fact.Cuotas.forEach(cuot => {
-          cuotasSinAgrupar.push(cuot);
+          cuotasSinAgrupar.push(cuot)
           let cuotaAgrupada = cuotasAgrupadas.find(cuotAgr => cuotAgr.NumeroCuota === cuot.NumeroCuota);
           if (cuotaAgrupada) {
             cuotaAgrupada.Valor += cuot.ValorCuota;
             cuotaAgrupada.Saldo += cuot.Saldo;
-            cuotaAgrupada.ValorDescuento += cuot.Descuento;
             cuotaAgrupada.IdsSubFactura.push(cuot.IdSubFactura);
             cuotaAgrupada.Cuotas.push({ ...cuot, Factura: fact });
             if (cuotaAgrupada.NumeroFactura !== fact.Factura) {
@@ -164,7 +164,6 @@ const CuotasAgrupadasTable = props => {
               Valor: cuot.ValorCuota,
               FechaVencimiento: cuot.FechaVencimiento,
               Saldo: cuot.Saldo,
-              ValorDescuento :cuot.Descuento,
               IdsSubFactura: [cuot.IdSubFactura],
               Cuotas: [{ ...cuot, Factura: fact }]
 
@@ -285,6 +284,7 @@ const CuotasAgrupadasTable = props => {
   }
   const setCuotasAPagar = () => {
 
+    debugger;
     let array = IdsSubFacturaArray();
 
     if (array) {
@@ -329,16 +329,28 @@ const CuotasAgrupadasTable = props => {
   }
   return (
     <>
-      <MUIDataTable
-        title={'Cuenta Carteras - ' + (props.Cuotas && props.Cuotas[0] ? props.Cuotas[0].TipoPedido : '')}
-        data={data}
-        columns={columns}
-        options={options}
-      />
+      <MuiThemeProvider theme={getMuiTheme()}>
+        <MUIDataTable
+          title={'Cuenta Carteras - ' + (props.Cuotas && props.Cuotas[0] ? props.Cuotas[0].TipoPedido : '')}
+          data={data}
+          columns={columns}
+          options={options}
+        />
+      </MuiThemeProvider>
       <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
     </>
   )
 }
+
+const getMuiTheme = () => createMuiTheme({
+  overrides: {
+    MUIDataTable: {
+      responsiveScrollMaxHeight: {
+        maxHeight: 'unset !important',
+      }
+    },
+  }
+});
 
 export default CuotasAgrupadasTable;
 

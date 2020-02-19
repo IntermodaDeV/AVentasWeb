@@ -20,10 +20,19 @@
     .CalendarioAgenda .fc-left, .CalendarioAgenda .fc-center, .CalendarioAgenda .fc-right {
         width: 100%;
         display: block;
-        padding-left: 10px;
-        padding-right: 10px;
     }
     .CalendarioAgenda .fc-Asignacion-button, .CalendarioAgenda .fc-today-button, .CalendarioAgenda .fc-button-group {
         margin-top: 5px;
+    }
+}
+
+@media (max-width: 600px) {
+    .CalendarioAgenda .fc-header-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .CalendarioAgenda .fc-left, .CalendarioAgenda .fc-center, .CalendarioAgenda .fc-right {
+        display: flex;
+        margin: auto;
     }
 }

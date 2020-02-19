@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import styles from 'components/Pedidos/SelectCliente/SelectCliente.module.css';
 import { Dropdown } from "semantic-ui-react";
 import MySnackbarContentWrapper from 'components/Global/snackbar'
 import 'semantic-ui-css/semantic.min.css'
@@ -33,7 +32,6 @@ const SelectCliente = (props) => {
         // eslint-disable-next-line
     }, [props.clientes]);
 
-    let infoCliente = null;
     // let FacturacionEntrega = null;
     var alerta = false;
     var options = [];
@@ -64,12 +62,6 @@ const SelectCliente = (props) => {
         }
 
     };
-
-    if (props.clienteSelected) {
-        if (props.infoCliente)
-            infoCliente = props.infoCliente(props, styles)
-
-    }
     return (
         <Card className="my-2" style={{ overflow: 'unset' }}>
             <CardContent>
@@ -83,7 +75,7 @@ const SelectCliente = (props) => {
                         </div>
                     </div>
                     <div className={'row mb-3'}>
-                        <div className={'col-xl-10 col-lg-10 col-xs-12 col-sm-10'} >
+                        <div className={'col-xl-10 col-lg-10 col-sm-9 col-12 mt-2'} >
                             <Dropdown
                                 placeholder="Ingrese Cliente"
                                 fluid
@@ -98,14 +90,14 @@ const SelectCliente = (props) => {
                             />
                         </div>
 
-                        <div className={'col-xl-2 col-lg-2 col-xs-12 col-sm-2'}>
+                        <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                             <Button
                                 disabled={props.clienteSelected ? false : true}
                                 onClick={props.setCliente}
                                 variant="contained"
                                 color="primary">
                                 Continuar
-                    </Button>
+                            </Button>
                         </div>
                     </div>
 
@@ -118,8 +110,6 @@ const SelectCliente = (props) => {
                                 loading={props.loading} />
                         </div>
                     }
-
-                    {infoCliente}
 
                     <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={alerta} TransitionComponent={TransitionGrow}>
                         <MySnackbarContentWrapper

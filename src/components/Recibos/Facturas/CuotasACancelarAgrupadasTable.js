@@ -3,6 +3,7 @@ import React, {
     // useState
 } from 'react';
 import MUIDataTable from 'mui-datatables';
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { FaEye } from "react-icons/fa";
 
 const columns = [
@@ -39,6 +40,17 @@ const CuotasACancelarAgrupadasTable = (props) => {
 
     let cuotasAgrupadas = [];
     let cuotasSinAgrupar = [];
+
+    const getMuiTheme = () => createMuiTheme({
+        overrides: {
+            MUIDataTable: {
+                responsiveScrollMaxHeight: {
+                    maxHeight: 'unset !important',
+                }
+            },
+        }
+    });
+
     props.Cuotas.forEach(fact => {
         fact.Acuerdos.forEach(acu => {
             //let facturas = [];
@@ -86,17 +98,11 @@ const CuotasACancelarAgrupadasTable = (props) => {
         }
     });
 
-
-
-
-
-
-
     const options = {
         filterType: 'multiselect',
         selectableRowsOnClick: false,
         selectableRows: 'none',
-        responsive: "scrollFullHeight",
+        responsive: "scrollMaxHeight",
         print: false,
         selectableRowsHeader: false,
         download: false,
@@ -146,13 +152,14 @@ const CuotasACancelarAgrupadasTable = (props) => {
 
     }
     return (
-        <MUIDataTable
-            title={''}
-            data={data}
-            columns={columns}
-            options={options}
-        />
-
+        <MuiThemeProvider theme={getMuiTheme()}>
+            <MUIDataTable
+                title={''}
+                data={data}
+                columns={columns}
+                options={options}
+            />
+        </MuiThemeProvider>
     );
 }
 export default CuotasACancelarAgrupadasTable;

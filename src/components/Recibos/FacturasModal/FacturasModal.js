@@ -1,6 +1,7 @@
 import React from "react";
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@material-ui/core';
 import MUIDataTable from 'mui-datatables'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 
 const FacturasModal = (props) => {
@@ -85,7 +86,7 @@ const FacturasModal = (props) => {
 
     const options = {
         filterType: 'false',
-        responsive: "scrollFullHeight",
+        responsive: "scrollMaxHeight",
         print: false,
         download: false,
         pagination: false,
@@ -145,12 +146,14 @@ const FacturasModal = (props) => {
                 </div>
                 </DialogTitle>
                 <DialogContent>
-                    <MUIDataTable
-                        title={''}
-                        data={props.Data}
-                        columns={columns}
-                        options={options}
-                    />
+                    <MuiThemeProvider theme={getMuiTheme()}>
+                        <MUIDataTable
+                            title={''}
+                            data={props.Data}
+                            columns={columns}
+                            options={options}
+                        />
+                    </MuiThemeProvider>
                 </DialogContent>
                 <DialogActions>
                     <Button variant="outlined" onClick={() => props.onClose(false)} color="primary">
@@ -177,5 +180,15 @@ const FacturasModal = (props) => {
         </>
     );
 }
+
+const getMuiTheme = () => createMuiTheme({
+    overrides: {
+        MUIDataTable: {
+            responsiveScrollMaxHeight: {
+                maxHeight: 'unset !important',
+            }
+        },
+    }
+});
 
 export default FacturasModal;

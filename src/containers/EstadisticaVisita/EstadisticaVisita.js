@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from 'mui-datatables'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 // import { EstadisticaVisitaTable } from './EstadisticaVisitaTable';
 import PieChart from 'components/EstadisticaVisita/PieChart';
 import moment from 'moment';
@@ -118,7 +119,7 @@ const EstadisticaVisita = (props) => {
 
 
     const options = {
-        responsive: "scrollFullHeight",
+        responsive: "scrollMaxHeight",
         selectableRows: 'none',
         print: false,
         download: false,
@@ -316,12 +317,14 @@ const EstadisticaVisita = (props) => {
 
             <div className="row">
                 <div className="col-lg-6 my-2 col-12 order-lg-first order-last">
-                    <MUIDataTable
-                        title={'Estadistica Visita'}
-                        data={data}
-                        columns={columns}
-                        options={options}
-                    />
+                    <MuiThemeProvider theme={getMuiTheme()}>
+                        <MUIDataTable
+                            title={'Estadistica Visita'}
+                            data={data}
+                            columns={columns}
+                            options={options}
+                        />
+                    </MuiThemeProvider>
                 </div>
 
                 <div className="col-lg-6 my-2 col-12  order-lg-last order-first">
@@ -386,4 +389,15 @@ const cargarEstadisticaVisita = (fechaInicio, fechaFin) => {
         })
     })
 };
+
+const getMuiTheme = () => createMuiTheme({
+    overrides: {
+        MUIDataTable: {
+            responsiveScrollMaxHeight: {
+                maxHeight: 'unset !important',
+            }
+        },
+    }
+});
+
 export default EstadisticaVisita;
