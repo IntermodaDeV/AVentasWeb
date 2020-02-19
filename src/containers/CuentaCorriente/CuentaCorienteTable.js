@@ -123,7 +123,7 @@ const CuentaCorrienteTable = props => {
         row.Dias,
         row.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
         row.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-        moment(row.FechaMaxDescuento).format("DD/MM/YYYY"),
+        row.FechaMaxDescuento?(moment(row.FechaMaxDescuento).format("DD/MM/YYYY")):'',
         row.DiasV,
         row.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
         row.APagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
