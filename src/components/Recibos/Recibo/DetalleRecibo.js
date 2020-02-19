@@ -61,7 +61,7 @@ const DetalleRecibo = (props) => {
             referencia: ''
         }
     ])
-    const [lineasfiltradas, setLineasfiltradas] = useState([])
+    // const [lineasfiltradas, setLineasfiltradas] = useState([])
     const [openModal, setOpenModal] = useState(false);
     const [DataModal, setDataModal] = useState([]);
 
@@ -306,31 +306,31 @@ const DetalleRecibo = (props) => {
         event.stopPropagation();
         setOpenModal(true);
         let DataModal = [];
-    
+
         cuotas.forEach(cuot => {
-          let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
-          let diasDescuento = 0;
-          let fechaDescuento = moment(cuot.FechaMaxDescuento);
-          if (fechaDescuento.isValid()) {
-            diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
-          }
-          DataModal.push({
-            NumeroFactura: cuot.Factura.Factura,
-            Dias: dias,
-            DiasDescuento: diasDescuento,
-            Tipo: cuot.TipoDocumento,
-            Fecha: moment(cuot.Factura.FechaFactura).format("DD/MM/YYYY"),
-            Vencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
-            FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
-            Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-    
-          }
-          )
+            let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
+            let diasDescuento = 0;
+            let fechaDescuento = moment(cuot.FechaMaxDescuento);
+            if (fechaDescuento.isValid()) {
+                diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
+            }
+            DataModal.push({
+                NumeroFactura: cuot.Factura.Factura,
+                Dias: dias,
+                DiasDescuento: diasDescuento,
+                Tipo: cuot.TipoDocumento,
+                Fecha: moment(cuot.Factura.FechaFactura).format("DD/MM/YYYY"),
+                Vencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
+                FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
+                Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+
+            }
+            )
         });
-    
-    
+
+
         /* DataModal.push({
           Tipo: 'Factura [D-P]',
           NumeroFactura: '2',
@@ -345,7 +345,40 @@ const DetalleRecibo = (props) => {
         });
      */
         setDataModal(DataModal);
-      }
+    }
+    const CuotasSinAgruparACancelar = () => {
+        /* <CuotasACancelarTable
+            Cuotas={props.Cuotas}
+            CuotasAPagar={props.CuotasAPagar}
+            EliminarCuota={props.EliminarCuota}
+            Lineasfiltradas={lineasfiltradas}
+        /> */
+        let data = [];
+        props.Cuotas.forEach(fact => {
+            fact.Acuerdos.forEach(acu => {
+                acu.Facturas.forEach(fact => {
+                    fact.Cuotas.forEach(cuot => {
+                        if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
+                            let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
+                            let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days')
+                            data.push([
+                                cuot.TipoDocumento, //Tipo  
+                                moment(fact.FechaFactura).format("DD/MM/YYYY"), //Fecha  
+                                moment(cuot.FechaVencimiento).format("DD/MM/YYYY"), //FechaVencimiento  
+                                dias, //Dias  
+                                moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY"), //FechaDescuento  
+                                diasDescuento, //DiasDescuento  
+                                cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor  
+                                cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo  
+                            ]);
+                        }
+                    });
+
+                });
+            });
+        })
+        return data;
+    }
     return (
         <div>
             <h3>Detalle Recibo</h3>
@@ -374,34 +407,31 @@ const DetalleRecibo = (props) => {
                     <CuotasAgrupadasACancelarTable
                         Cuotas={props.Cuotas}
                         CuotasAPagar={props.CuotasAPagar}
-                        SetLineasfiltradas={setLineasfiltradas}
+                        SetLineasfiltradas={() => { }}
                         Acumulado={Acumulado}
                     />
                 </Col>
                 <Col sm={9}>
 
-                {
+                    {
                         props.Cuotas[0].AgrupaPorCuota ?
-                        <CuotasACancelarAgrupadasTable
-                        onClick={OpenModal}
-                        moment={moment}
-                        
-                        // ColSpan={rowData.length + 1}
-                        Cuotas={props.Cuotas}
-                        CuotasAPagar={props.CuotasAPagar}
-                        // NumeroAcuerdo={data[rowMeta.dataIndex].Numero}
-                        // SelectedRowsIndexXAcuerdo={selectedRowsIndexXAcuerdo}
-                        // SetCuotasAPagar={(newArray) => { setCuotasSeleccionadas(data[rowMeta.dataIndex].Numero, newArray) }}
-                      />
-                            :
-                            <CuotasACancelarTable
+                            <CuotasACancelarAgrupadasTable
+                                onClick={OpenModal}
+                                moment={moment}
                                 Cuotas={props.Cuotas}
                                 CuotasAPagar={props.CuotasAPagar}
-                                EliminarCuota={props.EliminarCuota}
-                                Lineasfiltradas={lineasfiltradas}
-                            />
 
+                            // ColSpan={rowData.length + 1}
+                            // NumeroAcuerdo={data[rowMeta.dataIndex].Numero}
+                            // SelectedRowsIndexXAcuerdo={selectedRowsIndexXAcuerdo}
+                            // SetCuotasAPagar={(newArray) => { setCuotasSeleccionadas(data[rowMeta.dataIndex].Numero, newArray) }}
+                            />
+                            :
+                            <CuotasACancelarTable
+                                CuotasSinAgruparACancelar={CuotasSinAgruparACancelar()}
+                            />
                     }
+
                     <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
                 </Col>
 
