@@ -6,9 +6,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons'
 import { Button, Form, FormGroup, Input, Label } from 'reactstrap';
 import { ScaleLoader } from 'react-spinners';
+import {APIURL} from 'utils/Enviroment';
 
 class AuthForm extends React.Component {
-  urlApi = "https://aventas.devcit.com:3044";
+  urlApi = APIURL;
   // urlApi="http://localhost:62630";
 
   state = {

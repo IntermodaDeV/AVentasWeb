@@ -5,9 +5,10 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import styles from 'containers/Coordenadas/Coordenadas.module.css';
+import {APIURL} from 'utils/Enviroment';
 // const CustomMarker = ({ text }) => <div>{text}</div>;
 export default class Coordenadas extends Component {
-    urlApi = "https://aventas.devcit.com:3044";
+    urlApi = APIURL;
     state = {
         isLoaded: false,
         Eventos: [],

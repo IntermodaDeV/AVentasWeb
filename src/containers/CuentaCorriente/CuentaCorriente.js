@@ -7,7 +7,7 @@
 //   // const [clientePreSelected, setClientePreSelected] = useState(null)
 //   const [clienteSelected, setClienteSelected] = useState(null)
 //   // const [facturasXCliente, setFacturasXCliente] = useState(null)
-//   const urlApi = 'https://aventas.devcit.com:3044'
+//   const urlApi = APIURL
 
 //   useEffect(() => {
 //     CargarDatos()

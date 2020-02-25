@@ -8,6 +8,7 @@ import DetalleRecibo from 'components/Recibos/Recibo/DetalleRecibo'
 import { ClipLoader } from 'react-spinners';
 import RecibosBreadCrumb from 'components/Recibos/RecibosBreadCrumb/RecibosBreadCrumb';
 // import TableCliente from 'components/Recibos/SelectCliente/TableClienteSelected'
+import {APIURL} from 'utils/Enviroment';
 import CuentaCorrienteTable from '../CuentaCorriente/CuentaCorienteTable'
 // import styles from 'containers/Recibos/Recibos.module.css';
 const Recibos = (props) => {
@@ -19,7 +20,7 @@ const Recibos = (props) => {
   // const [clientePreSelected, setClientePreSelected] = useState(null)
   const [facturasXCliente, setFacturasXCliente] = useState(null)
   // const [tipoPedido, setTipoPedido] = useState(null)
-  const urlApi = 'https://aventas.devcit.com:3044'
+  const urlApi = APIURL
 
   useEffect(() => {
     // if(props.location.state&&props.location.state.Cliente) {

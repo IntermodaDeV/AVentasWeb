@@ -6,10 +6,11 @@ import MUIDataTable from 'mui-datatables';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
 import 'moment/locale/es';
+import {APIURL} from 'utils/Enviroment';
 
 
 moment.locale('es')
-const urlApi = 'https://aventas.devcit.com:3044'
+const urlApi = APIURL
 const columnRender = (columnMeta, updateDirection) => {
     return <th key={2}
         className={"MuiTableCell-root MuiTableCell-head MUIDataTableHeadCell-root-433 MUIDataTableHeadCell-fixedHeaderCommon-435 MUIDataTableHeadCell-fixedHeaderXAxis-436 MUIDataTableHeadCell-fixedHeaderYAxis-437"}

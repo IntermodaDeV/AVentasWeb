@@ -9,6 +9,7 @@ import withReactContent from 'sweetalert2-react-content';
 import { StickyContainer, Sticky } from 'react-sticky';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { withStyles } from '@material-ui/core/styles';
+import {APIURL} from 'utils/Enviroment';
 import { Radio } from 'semantic-ui-react';
 //import { Link } from "react-scroll";
 import { Checkbox, Dropdown } from 'element-react';
@@ -63,7 +64,7 @@ class Pedidos extends React.Component {
     IsEncabezadoCreado = false;
     PedidoId = null;
 
-    urlApi = "https://aventas.devcit.com:3044";
+    urlApi = APIURL;
     // urlApi = "http://localhost:62630";
 
     NotFoundImage = "http://www.quesoselllanojaral.com/img/nodisponible.png";

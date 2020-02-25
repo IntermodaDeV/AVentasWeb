@@ -5,6 +5,7 @@ import GoogleMapReact from 'google-map-react';
 import { ScaleLoader } from 'react-spinners';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import TextField from '@material-ui/core/TextField';
+import {APIURL} from 'utils/Enviroment';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
 import {
     Dialog,
@@ -27,7 +28,7 @@ import moment from "moment";
 import { FaEye } from "react-icons/fa";
 moment.locale('es');
 export default class Agenda extends Component {
-    urlApi = "https://aventas.devcit.com:3044";
+    urlApi = APIURL;
     state = {
         Asignaciones: [],
         mostrarAcciones: true,

@@ -7,13 +7,14 @@ import Slider from "components/Pedidos/ProductoDetalle/Slider";
 import RelatedContainer from "components/Pedidos/ProductoDetalle/RelatedContainer";
 import Expandable from "components/Pedidos/ProductoDetalle/Expandable";
 import styles from 'components/Pedidos/ProductoDetalle/VistaProducto.module.css';
+import {APIURL} from 'utils/Enviroment';
 
 const VistaProducto = (props) => {
     const [precioProducto, setPrecio] = useState(undefined);
     const [selected, setselected] = useState(false);
     const [hasBackOrder, setHasBackOrder] = useState("N");
 
-    const urlApi = "https://aventas.devcit.com:3044";
+    const urlApi = APIURL;
 
     useEffect(() => {
         // Update the document title using the browser API

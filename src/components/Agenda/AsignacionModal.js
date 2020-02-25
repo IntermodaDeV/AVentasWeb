@@ -5,6 +5,7 @@ import { withStyles } from '@material-ui/core/styles';
 import { Radio, RadioGroup, FormControl, FormLabel, FormControlLabel } from '@material-ui/core';
 import styles from './AsignacionModal.module.css';
 import moment from "moment";
+import {APIURL} from 'utils/Enviroment';
 moment.locale('es');
 
 
@@ -26,7 +27,7 @@ const Modal = (props) => {
     }
 
 
-    const urlApi = "https://aventas.devcit.com:3044";
+    const urlApi = APIURL ;
     // urlApi = "http://localhost:62630/";
 
 

@@ -11,10 +11,11 @@ import moment from 'moment';
 import 'moment/locale/es';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'sweetalert2/src/sweetalert2.scss';
+import {APIURL} from 'utils/Enviroment';
 import { FaEye } from "react-icons/fa";
 moment.locale('es');
 
-const urlApi = 'https://aventas.devcit.com:3044'
+const urlApi = APIURL
 
 
 
@@ -74,19 +75,19 @@ const DetalleRecibo = (props) => {
     }, [pagosXRecibo]);
     useEffect(() => {
         CargarDatos()
-        let totalPorPagar = 0.00;
-        props.Cuotas.forEach(fact => {
-            fact.Acuerdos.forEach(acu => {
-                acu.Facturas.forEach(fact => {
-                    fact.Cuotas.forEach(cuot => {
-                        if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
-                            totalPorPagar += cuot.Saldo;
-                        }
-                    });
+        // let totalPorPagar = 0.00;
+        // props.Cuotas.forEach(fact => {
+        //     fact.Acuerdos.forEach(acu => {
+        //         acu.Facturas.forEach(fact => {
+        //             fact.Cuotas.forEach(cuot => {
+        //                 if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
+        //                     totalPorPagar += cuot.Saldo;
+        //                 }
+        //             });
 
-                });
-            });
-        });
+        //         });
+        //     });
+        // });
         // setTotalAPagar(totalPorPagar);
         let pago = { ...pagosXRecibo[0], valor: 1 };
         setPagosXRecibo([

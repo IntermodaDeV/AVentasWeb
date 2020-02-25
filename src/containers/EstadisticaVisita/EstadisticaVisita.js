@@ -6,6 +6,7 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import PieChart from 'components/EstadisticaVisita/PieChart';
 import moment from 'moment';
 import { Dropdown } from "semantic-ui-react";
+import {APIURL} from 'utils/Enviroment';
 import 'moment/locale/es';
 import {
     Button,
@@ -19,7 +20,7 @@ import {
 } from "react-icons/fa";
 
 moment.locale('es')
-const urlApi = 'https://aventas.devcit.com:3044'
+const urlApi = APIURL
 const columns = [
 
     {

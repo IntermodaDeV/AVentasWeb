@@ -7,6 +7,7 @@ import { Dropdown } from "semantic-ui-react";
 import { Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, Button, Select, MenuItem } from '@material-ui/core';
 import { ScaleLoader } from 'react-spinners';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import {APIURL} from 'utils/Enviroment';
 import Loader from 'components/Global/Loader';
 import 'containers/Asignacion/Asignacion.css';
 import styles from './Asignacion.module.css';
@@ -24,7 +25,7 @@ import moment from "moment";
 moment.locale('es');
 
 export default class Asignacion extends Component {
-    urlApi = "https://aventas.devcit.com:3044";
+    urlApi = APIURL;
     // urlApi = "http://localhost:62630/";
     state = {
         startDate: new Date(),
