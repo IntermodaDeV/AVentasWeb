@@ -148,7 +148,7 @@ const CuotasAgrupadasTable = props => {
       acu.Facturas.forEach(fact => {
         fact.Cuotas.forEach(cuot => {
           cuotasSinAgrupar.push(cuot)
-          let cuotaAgrupada = cuotasAgrupadas.find(cuotAgr => cuotAgr.NumeroCuota === cuot.NumeroCuota);
+          let cuotaAgrupada = cuotasAgrupadas.find(cuotAgr => cuotAgr.NumeroCuota === cuot.NumeroCuota && cuot.FechaVencimiento === cuotAgr.FechaVencimiento && cuot.FechaMaxDescuento === cuotAgr.FechaMaxDescuento);
           if (cuotaAgrupada) {
             cuotaAgrupada.Valor += cuot.ValorCuota;
             cuotaAgrupada.Saldo += cuot.Saldo;
@@ -163,10 +163,10 @@ const CuotasAgrupadasTable = props => {
               NumeroFactura: fact.Factura,
               Valor: cuot.ValorCuota,
               FechaVencimiento: cuot.FechaVencimiento,
+              FechaMaxDescuento: cuot.FechaMaxDescuento,
               Saldo: cuot.Saldo,
               IdsSubFactura: [cuot.IdSubFactura],
               Cuotas: [{ ...cuot, Factura: fact }]
-
             })
           }
           SaldoTotal += cuot.Saldo;
@@ -179,9 +179,11 @@ const CuotasAgrupadasTable = props => {
       cuotasAgrupadas.sort((a, b) => {
         if (a.NumeroCuota > b.NumeroCuota) {
           return 1;
-        } else {
+        } 
+        if (a.NumeroCuota < b.NumeroCuota){
           return -1;
         }
+        return 0;
       });
       if (SaldoTotal > 0) {
 

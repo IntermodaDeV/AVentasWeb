@@ -4,7 +4,6 @@ import React, {
 } from 'react';
 import MUIDataTable from 'mui-datatables';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-import { FaEye } from "react-icons/fa";
 
 const columns = [
 
@@ -21,13 +20,37 @@ const columns = [
         label: 'Fecha',
     },
     {
+        name: 'FechaDescuento',
+        label: 'Fecha Descuento',
+    },
+    {
+        name: 'Moneda',
+        label: 'Moneda',
+    },
+    {
         name: 'Valor',
         label: 'Valor',
+    },
+    {
+        name: 'ValorDescuento',
+        label: 'Valor Descuento',
     },
 
     {
         name: 'Saldo',
         label: 'Saldo',
+    },
+    {
+        name: 'DescuentoAplicado',
+        label: 'Descuento Aplicado',
+    },
+    {
+        name: 'APagar',
+        label: 'A Pagar',
+    },
+    {
+        name: 'PagoAplicado',
+        label: 'Aplicado',
     },
     {
         name: 'Acciones',
@@ -38,8 +61,6 @@ const columns = [
 const CuotasACancelarAgrupadasTable = (props) => {
     let selectedRowsIndex = [];
 
-    let cuotasAgrupadas = [];
-    let cuotasSinAgrupar = [];
 
     const getMuiTheme = () => createMuiTheme({
         overrides: {
@@ -51,52 +72,6 @@ const CuotasACancelarAgrupadasTable = (props) => {
         }
     });
 
-    props.Cuotas.forEach(fact => {
-        fact.Acuerdos.forEach(acu => {
-            //let facturas = [];
-            acu.Facturas.forEach(fact => {
-                fact.Cuotas.forEach(cuot => {
-                    if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
-                        cuotasSinAgrupar.push(cuot)
-                        let cuotaAgrupada = cuotasAgrupadas.find(cuotAgr => cuotAgr.NumeroCuota === cuot.NumeroCuota);
-                        if (cuotaAgrupada) {
-                            cuotaAgrupada.Valor += cuot.ValorCuota;
-                            cuotaAgrupada.Saldo += cuot.Saldo;
-                            cuotaAgrupada.IdsSubFactura.push(cuot.IdSubFactura);
-                            cuotaAgrupada.Cuotas.push({ ...cuot, Factura: fact });
-                            if (cuotaAgrupada.NumeroFactura !== fact.Factura) {
-                                cuotaAgrupada.NumeroFactura = 'Varias';
-                            }
-                        } else {
-                            cuotasAgrupadas.push({
-                                NumeroCuota: cuot.NumeroCuota,
-                                NumeroFactura: fact.Factura,
-                                Valor: cuot.ValorCuota,
-                                FechaVencimiento: cuot.FechaVencimiento,
-                                Saldo: cuot.Saldo,
-                                IdsSubFactura: [cuot.IdSubFactura],
-                                Cuotas: [{ ...cuot, Factura: fact }]
-
-                            })
-                        }
-                        // let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days');
-                        // let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
-                    }
-                });
-
-            });
-        });
-    });
-    const data = cuotasAgrupadas.map(cuotAgru => {
-        return {
-            Cuota: cuotAgru.NumeroCuota,
-            Factura: cuotAgru.NumeroFactura,
-            Fecha: props.moment(cuotAgru.FechaVencimiento).format("DD/MM/YYYY"),
-            Valor: Number(cuotAgru.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            Saldo: Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,
-        }
-    });
 
     const options = {
         filterType: 'multiselect',
@@ -155,7 +130,7 @@ const CuotasACancelarAgrupadasTable = (props) => {
         <MuiThemeProvider theme={getMuiTheme()}>
             <MUIDataTable
                 title={''}
-                data={data}
+                data={props.CuotasAgrupadas}
                 columns={columns}
                 options={options}
             />

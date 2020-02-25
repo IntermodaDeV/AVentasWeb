@@ -53,12 +53,6 @@ const Producto = (props) => {
 
 
   useEffect(() => {
-    let selected = false;
-    try {
-
-      selected = props.TableValue[props.producto.Linea.IdLinea][props.producto.CodigoColeccion][props.producto.GrupoTalla].Productos[props.producto.ProductoId].Selected;
-    } catch{ }
-    setselected(selected);
 
     let precio = props.producto.Precio.find(precioxProd => {
       return precioxProd.GrupoPrecio === props.GrupoPrecioCliente;
@@ -82,6 +76,14 @@ const Producto = (props) => {
     }
     // eslint-disable-next-line
   }, []);
+  useEffect(() => {
+    let selected = false;
+    try {
+      selected = props.TableValue[props.producto.Linea.IdLinea][props.producto.CodigoColeccion][props.producto.GrupoTalla].Productos[props.producto.ProductoId].Selected;
+    } catch{ }
+    setselected(selected);
+    // eslint-disable-next-line
+  }, [props.producto]);
   let selectableClassName = styles.selectable;
 
 
@@ -107,7 +109,7 @@ const Producto = (props) => {
         <div className={selectableClassName}>
           <Img
             className="card-img-right"
-            src={[props.producto.ListaImagenes && props.producto.ListaImagenes[0]?props.producto.ListaImagenes[0].FotografiaProducto:null, notFound]}
+            src={[props.producto.ListaImagenes && props.producto.ListaImagenes[0] ? props.producto.ListaImagenes[0].FotografiaProducto : null, notFound]}
             style={{ width: 'auto', height: 250 }}
             loader={
               <ScaleLoader

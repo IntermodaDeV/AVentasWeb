@@ -19,11 +19,7 @@ const VistaProducto = (props) => {
         // Update the document title using the browser API
         cargarBackOrder();
         Mounted();
-        let selected = false;
-        try {
-            selected = props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Selected;
-        } catch{ }
-        setselected(selected);
+
         let precio = props.producto.Precio.find(precioxProd => {
             return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
         });
@@ -36,6 +32,14 @@ const VistaProducto = (props) => {
         }
         // eslint-disable-next-line
     }, []);
+    useEffect(() => {
+        let selected = false;
+        try {
+            selected = props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Selected;
+        } catch{ }
+        setselected(selected);
+        // eslint-disable-next-line
+    }, [props.producto]);
 
     const cargarBackOrder = () => {
         fetch(urlApi + "/api/Configuraciones", {

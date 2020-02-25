@@ -175,13 +175,11 @@ const CuotasTable = props => {
           let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days')
 
           let DiasVencido = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
-          console.log('DiasVencido :', DiasVencido);
-          console.log('cuot.FechaVencimiento :', cuot.FechaVencimiento);
-          let ValorDescuento = '';
+          let ValorDescuento = cuot.Descuento;
 
-          if (diasDescuento > 0) {
-            ValorDescuento = cuot.Descuento;
-          }
+          // if (diasDescuento > 0) {
+          //   ValorDescuento = cuot.Descuento;
+          // }
 
           if (DiasVencido < 0) {
             foundExpired = true;
@@ -197,7 +195,7 @@ const CuotasTable = props => {
               Fecha: <span className="text-danger font-weight-bold"> {moment(fact.FechaFactura).format("DD/MM/YYYY")}</span>,
               FechaVencimiento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,
               FechaDescuento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY")}</span>,
-              APagar: (cuot.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+              APagar: <span className="text-danger font-weight-bold">{(cuot.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Valor: <span className="text-danger font-weight-bold">{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Saldo: <span className="text-danger font-weight-bold">{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Cuota: cuot,
@@ -214,7 +212,7 @@ const CuotasTable = props => {
               Fecha: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(fact.FechaFactura).format("DD/MM/YYYY")}</span>,
               FechaVencimiento: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,
               FechaDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY")}</span>,
-              APagar: (cuot.Saldo - ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+              APagar: <span className={"font-weight-bold " + styles.WarnRecibo}>{(cuot.Saldo - ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Valor: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Saldo: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Cuota: cuot,

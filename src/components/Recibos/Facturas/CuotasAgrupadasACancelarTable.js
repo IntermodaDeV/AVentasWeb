@@ -115,11 +115,13 @@ const CuotasAgrupadasACancelarTable = props => {
     data.push([key, numberWithCommas(Number(value.Saldo))]);
     saldoTotal += Number(value.Saldo);
   }
-  let faltante = Number(saldoTotal) - Number(props.Acumulado());
+let acumulado = props.Acumulado();
+  let faltante = Number(saldoTotal) -(Number(acumulado) + Number(props.DescuentoAplicado));
   localStorage.setItem('Faltante', faltante);
   localStorage.setItem('TotalRecibo', saldoTotal);
   data.push([(<h6 className="font-weight-bolder text-dark">Total</h6>), numberWithCommas(Number(saldoTotal))]);
-  data.push([(<h6 className="font-weight-bolder text-dark">Acumulado</h6>), numberWithCommas(Number(props.Acumulado()))]);
+  data.push([(<h6 className="font-weight-bolder text-dark">Acumulado</h6>), numberWithCommas(Number(acumulado))]);
+  data.push([(<h6 className="font-weight-bolder text-dark">Descuento</h6>), numberWithCommas(Number(props.DescuentoAplicado))]);
   data.push([(<h6 className="font-weight-bolder text-dark">Faltante</h6>), numberWithCommas(Number(faltante))]);
   const setLineasfiltradas = (allRowsSelectedIndex) => {
     let lineasFiltradas = [];

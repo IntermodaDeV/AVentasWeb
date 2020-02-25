@@ -17,19 +17,21 @@ const columns = [
   {
     name: 'Tipo',
     label: 'Tipo',
+  },
+  {
+    name: 'Factura',
+    label: 'Factura',
 
   },
   {
     name: 'Fecha',
     label: 'Fecha',
-
   },
   {
     name: 'FechaVencimiento',
     label: 'Vencimiento',
 
   },
-
   {
     name: 'Dias',
     label: 'Dias',
@@ -38,20 +40,38 @@ const columns = [
   {
     name: 'FechaDescuento',
     label: 'Fecha Descuento',
-
   },
   {
     name: 'DiasDescuento',
     label: 'Dias Descuento',
-
+  },
+  {
+    name: 'Moneda',
+    label: 'Moneda',
   },
   {
     name: 'Valor',
     label: 'Valor',
   },
   {
+    name: 'ValorDescuento',
+    label: 'Valor Descuento',
+  },
+  {
     name: 'Saldo',
     label: 'Saldo',
+  },
+  {
+    name: 'DescuentoAplicado',
+    label: 'Descuento Aplicado',
+  },
+  {
+    name: 'APagar',
+    label: 'A Pagar',
+  },
+  {
+    name: 'Aplicado',
+    label: 'Aplicado',
 
   }
 ]
