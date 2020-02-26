@@ -2,16 +2,16 @@ import React, { useState } from 'react';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
 import ProductoTable from 'components/Pedidos/MatrizResumen/ProductoTable';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import { 
-    Card, 
-    CardContent, 
-    CardHeader, 
-    ExpansionPanel, 
-    ExpansionPanelDetails, 
-    ExpansionPanelSummary, 
-    Popover, 
-    Box, 
-    Typography 
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    ExpansionPanel,
+    ExpansionPanelDetails,
+    ExpansionPanelSummary,
+    Popover,
+    Box,
+    Typography
 } from '@material-ui/core';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { InfoOutlined } from "@material-ui/icons";
@@ -118,13 +118,12 @@ const MatrizResumen = (props) => {
                         {gruposTalla.map((grupoTalla, index) => {
 
                             let productos = Object.keys(props.tableValue[grupoTalla].Productos);
-                            let tallas = props.tableValue[grupoTalla].ListaTallas;
-                            let IsDist = checkDist(tallas);
                             if (props.tableValue[grupoTalla].Mostrar) {
                                 return (
-
                                     productos.map((codigoProducto, index1) => {
                                         let producto = props.tableValue[grupoTalla].Productos[codigoProducto];
+                                        let tallas = props.tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
+                                        let IsDist = checkDist(tallas);
                                         let productoConCantindad = false;
                                         if (producto.Selected) {
                                             Object.keys(producto.Colores).forEach((codigoColor) => {

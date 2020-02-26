@@ -9,7 +9,7 @@ import withReactContent from 'sweetalert2-react-content';
 import { StickyContainer, Sticky } from 'react-sticky';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { withStyles } from '@material-ui/core/styles';
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import { Radio } from 'semantic-ui-react';
 //import { Link } from "react-scroll";
 import { Checkbox, Dropdown } from 'element-react';
@@ -395,6 +395,7 @@ class Pedidos extends React.Component {
         if (value[producto.ProductoId] === undefined) {
             value[producto.ProductoId] = {};
             value[producto.ProductoId].Colores = {};
+            value[producto.ProductoId].ListaTallas = producto.ListaTalla
             value[producto.ProductoId].NombreProducto = producto.NombreProducto;
             value[producto.ProductoId].Precio = producto.Precio;
             if (producto.ListaImagenes !== null && producto.ListaImagenes.length > 0) {
@@ -854,6 +855,7 @@ class Pedidos extends React.Component {
             if (value[producto.ProductoId] === undefined) {
                 value[producto.ProductoId] = {};
                 value[producto.ProductoId].Colores = {};
+                value[producto.ProductoId].ListaTallas = producto.ListaTalla
                 value[producto.ProductoId].Selected = true;
                 value[producto.ProductoId].NombreProducto = producto.NombreProducto;
                 value[producto.ProductoId].Precio = producto.Precio;
@@ -875,7 +877,7 @@ class Pedidos extends React.Component {
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = fisicoDisponible ? fisicoDisponible.Cantidad : 0;
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
-                        if (fisicoDisponible && fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0 ) {
+                        if (fisicoDisponible && fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0) {
                             value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = fisicoDisponible.PreciosEspecificos[0].Precio
                         } else {
 
