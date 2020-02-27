@@ -168,7 +168,7 @@ export default class Coordenadas extends Component {
                     <div className="col p-0" style={{ marginTop: '-7px', borderLeft: '1px solid #ddd' }}>
                         <div style={{ height: '100%', width: '100%' }}>
                             <GoogleMapReact
-                                bootstrapURLKeys={{ key: "AIzaSyBFVcn8D5GEMWbyhrx2C9pmdO70tiZ2oN8" }}
+                                bootstrapURLKeys={{ key: "AIzaSyBYe6qlu-FWB8cCAMG52pdAPVs5W2cdODU" }}
                                 defaultCenter={
                                     {
                                         lat: 15.497377,

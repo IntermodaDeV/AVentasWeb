@@ -1,0 +1,30 @@
+.Title {
+    font-size: 45px !important;
+}
+
+.LineHeight_1_5 {
+    line-height: 1.5rem !important;
+}
+
+.LineHeight_Normal {
+    line-height: normal !important;
+}
+
+.TableRow td {
+    text-align: center;
+}
+
+/* .TableRowNoBorder td {
+    border-top: 2px solid #aaa !important;
+    border-bottom: 2px solid #aaa !important;
+} */
+
+.TableCellAmmount {
+    text-align: right !important;
+}
+
+.FirmaContainer {
+    border-top: 1px solid #000;
+    width: 100%;
+    margin-top: 160px;
+}

@@ -17,6 +17,7 @@ import EstadisticaVisita from 'containers/EstadisticaVisita/EstadisticaVisita'
 import Pruebas from 'components/Global/pruebas'
 import Coordenadas from 'containers/Coordenadas/Coordenadas'
 import ListaPedidos from 'containers/ListaPedidos/ListaPedidos'
+import ListaRecibos from 'containers/ListaRecibos/ListaRecibos'
 import AsignacionPage from 'containers/Asignacion/Asignacion'
 import AgendaPage from 'containers/Agenda/Agenda'
 import './styles/reduction.scss'
@@ -81,6 +82,12 @@ const App = props => {
               path='/recibos'
               layout={MainLayout}
               component={Recibos}
+            />
+            <LayoutRoute
+              exact
+              path='/lista-recibos'
+              layout={MainLayout}
+              component={ListaRecibos}
             />
             <LayoutRoute
               exact

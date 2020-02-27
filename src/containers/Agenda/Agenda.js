@@ -615,7 +615,7 @@ export default class Agenda extends Component {
                                                 <h5 className="font-weight-light">Ubicación</h5>
                                                 <div style={{ height: '300px' }}>
                                                     <GoogleMapReact
-                                                        bootstrapURLKeys={{ key: "AIzaSyBFVcn8D5GEMWbyhrx2C9pmdO70tiZ2oN8" }}
+                                                        bootstrapURLKeys={{ key: "AIzaSyBYe6qlu-FWB8cCAMG52pdAPVs5W2cdODU" }}
                                                         defaultCenter={
                                                             {
                                                                 lat: this.state.clienteActivo.latitud,

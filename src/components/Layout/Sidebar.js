@@ -20,6 +20,7 @@ import {
     DashboardOutlined,
     FeaturedPlayListOutlined,
     PostAdd,
+    AddBoxOutlined,
     ListAlt,
     EventNote,
     EventAvailable,
@@ -63,7 +64,13 @@ const navItems = [
     },
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
     { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },
-    { to: '/recibos', name: 'Recibos', dataTut: 'DataTut_Recibos', Icon: Receipt },
+    {
+        to: '/recibos', name: 'Recibos', dataTut: 'DataTut_Recibos', Icon: Receipt,
+        expanded: [
+            { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined },
+            { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt },
+        ]
+    },
     { to: '/devoluciones', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
     { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
     { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
@@ -206,12 +213,12 @@ const Sidebar = (props) => {
 
     const tourConfig = [
         {
-            selector: '[data-tut="DataTut_Dashboard"]',
-            content: `Información del dashboard.`
-        },
-        {
             selector: '[data-tut="DataTut_EstadisticaVisista"]',
             content: `Información de las visistas.`
+        },
+        {
+            selector: '[data-tut="DataTut_Dashboard"]',
+            content: `Información del dashboard.`
         },
         {
             selector: '[data-tut="DataTut_Pedidos"]',
@@ -252,6 +259,31 @@ const Sidebar = (props) => {
         {
             selector: '[data-tut="DataTut_Recibos"]',
             content: `Recibos.`
+        },
+
+        {
+            selector: '[data-tut="DataTut_NuevoRecibo"]',
+            content: "Realizar Nuevo Recibo",
+            action: () => {
+                let node = document.querySelector('[data-tut="DataTut_Recibos"]');
+                let index = node.getAttribute('data-content');
+
+                if (!isMenuOpen[index]) {
+                    handleClick(index);
+                }
+            }
+        },
+        {
+            selector: '[data-tut="DataTut_ListadoRecibos"]',
+            content: "Ver Listado de Recibos",
+            action: () => {
+                let node = document.querySelector('[data-tut="DataTut_Recibos"]');
+                let index = node.getAttribute('data-content');
+
+                if (!isMenuOpen[index]) {
+                    handleClick(index);
+                }
+            }
         },
         {
             selector: '[data-tut="DataTut_Devoluciones"]',
