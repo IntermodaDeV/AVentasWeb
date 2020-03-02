@@ -1,16 +1,15 @@
 import React, {
     //  useEffect, 
-    useState, useEffect
+
 } from 'react'
 import MUIDataTable from 'mui-datatables';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
 import 'moment/locale/es';
-import {APIURL} from 'utils/Enviroment';
 
 
 moment.locale('es')
-const urlApi = APIURL
+
 const columnRender = (columnMeta, updateDirection) => {
     return <th key={2}
         className={"MuiTableCell-root MuiTableCell-head MUIDataTableHeadCell-root-433 MUIDataTableHeadCell-fixedHeaderCommon-435 MUIDataTableHeadCell-fixedHeaderXAxis-436 MUIDataTableHeadCell-fixedHeaderYAxis-437"}
@@ -37,7 +36,8 @@ const columns = [
 
 const CuentaCorrienteTable = props => {
     // let selectedRowsIndexXAcuerdo = null;
-    const [cuentaCorriente, setCuentaCorriente] = useState([])
+    
+    /*
     useEffect(() => {
         fetch(urlApi + '/api/Cliente/CuentaCorriente/' + props.clienteSelected.Codigo, {
             headers: {
@@ -61,6 +61,7 @@ const CuentaCorrienteTable = props => {
         });
         // eslint-disable-next-line
     }, [props.clienteSelected]);
+    */
     let data = []
     const options = {
         filterType: 'none',
@@ -113,24 +114,10 @@ const CuentaCorrienteTable = props => {
 
 
     }
-    data = cuentaCorriente.map(row => {
-        return [row.Tipo,
-        row.TipoPedido,
-        row.Factura,
-        row.IdAcuerdoxCliente,
-        row.NumeroCuota,
-        moment(row.FechaFactura).format("DD/MM/YYYY"),
-        moment(row.FechaVencimiento).format("DD/MM/YYYY"),
-        row.Dias,
-        row.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-        row.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-        row.FechaMaxDescuento?(moment(row.FechaMaxDescuento).format("DD/MM/YYYY")):'',
-        row.DiasV,
-        row.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-        row.APagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-        row.idmoneda]
+    data = props.CuotasCuentaCorriente.map(cuenCorr => {
+        return Object.values(cuenCorr)
     })
-
+    // console.log('props.CuotasCuentaCorriente', props.CuotasCuentaCorriente)
 
     return (
         <MuiThemeProvider theme={getMuiTheme()}>

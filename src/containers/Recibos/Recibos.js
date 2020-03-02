@@ -8,19 +8,23 @@ import DetalleRecibo from 'components/Recibos/Recibo/DetalleRecibo'
 import { ClipLoader } from 'react-spinners';
 import RecibosBreadCrumb from 'components/Recibos/RecibosBreadCrumb/RecibosBreadCrumb';
 // import TableCliente from 'components/Recibos/SelectCliente/TableClienteSelected'
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import CuentaCorrienteTable from '../CuentaCorriente/CuentaCorienteTable'
+import moment from 'moment';
+import 'moment/locale/es';
+moment.locale('es');
 // import styles from 'containers/Recibos/Recibos.module.css';
 const Recibos = (props) => {
-  const [clientes, setClientes] = useState([])
-  const [clienteSelected, setClienteSelected] = useState(null)
-  const [cuotasXCliente, setCuotasXCliente] = useState(null)
-  const [cuotasAPagar, setCuotasAPagar] = useState(null)
-  const [loading, setLoading] = useState(true)
-  // const [clientePreSelected, setClientePreSelected] = useState(null)
-  const [facturasXCliente, setFacturasXCliente] = useState(null)
-  // const [tipoPedido, setTipoPedido] = useState(null)
-  const urlApi = APIURL
+  const [clientes, setClientes] = useState([]);
+  const [clienteSelected, setClienteSelected] = useState(null);
+  const [cuotasXCliente, setCuotasXCliente] = useState(null);
+  const [cuotasAPagar, setCuotasAPagar] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [facturasXCliente, setFacturasXCliente] = useState(null);
+  const [cuotasCuentaCorriente, setCuotasCuentaCorriente] = useState([]);
+  const urlApi = APIURL;
+  // const [tipoPedido, setTipoPedido] = useState(null);
+  // const [clientePreSelected, setClientePreSelected] = useState(null);
 
   useEffect(() => {
     // if(props.location.state&&props.location.state.Cliente) {
@@ -38,9 +42,69 @@ const Recibos = (props) => {
       setFacturasXCliente(cliente.Facturas);
     }
     // eslint-disable-next-line
-  }, [clientes])
+  }, [clientes]);
+  useEffect(() => {
+    if (clienteSelected) {
+      calcularCuotasCuentaCorriente();
+    }
+    // eslint-disable-next-line
+  }, [clienteSelected])
 
+  const calcularCuotasCuentaCorriente = () => {
+    let agrupacionCuentCorriente = [];
+    console.log('clienteSelected', clienteSelected)
+    clienteSelected.AcuerdosXTipoPedido.forEach(acuXTip => {
+      acuXTip.Acuerdos.forEach(acu => {
+        acu.Facturas.forEach(fact => {
+          fact.Cuotas.forEach(cuot => {
+            let diasVencimiento = moment().diff(cuot.FechaVencimiento, 'days') * -1;
+            let diasDescuento = moment().diff(cuot.FechaMaxDescuento, 'days') * -1;
+            let aPagar = cuot.Saldo;
+            if(diasDescuento>=0 && cuot.Descuento){
+              aPagar -= cuot.Descuento;
+            }
+            agrupacionCuentCorriente.push({
+              Tipo: cuot.TipoDocumento,// Tipo
+              TipoPedido: acuXTip.TipoPedido,// TipoPedido
+              Factura: fact.Factura,// Factura
+              IdAcuerdoxCliente: acu.Acuerdo,// IdAcuerdoxCliente
+              NumeroCuota: cuot.NumeroCuota,// NumeroCuota
+              FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+              FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+              Dias: diasVencimiento,// Dias
+              Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Valor
+              Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Saldo
+              FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY"),// FechaMaxDescuento
+              DiasV: diasDescuento,// DiasV
+              Descuento: cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Descuento
+              APagar: aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// APagar
+              idmoneda: cuot.IdMoneda,// idmoneda
+            });
+          });
+        });
+      });
+    });
+    agrupacionCuentCorriente = agrupacionCuentCorriente.sort((a, b) => {
+      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+        return 1;
+      }
+      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+        return -1;
+      }
+      if (a.NumeroCuota < b.NumeroCuota) {
 
+        return -1;
+      }
+      if (a.NumeroCuota > b.NumeroCuota) {
+
+        return 1;
+      }
+      return 0;
+
+    });
+
+    setCuotasCuentaCorriente(agrupacionCuentCorriente);
+  }
 
   const CargarDatos = () => {
     cargarClientes()
@@ -206,6 +270,7 @@ const Recibos = (props) => {
             clienteSelected &&
             <CuentaCorrienteTable
               clienteSelected={clienteSelected}
+              CuotasCuentaCorriente={cuotasCuentaCorriente}
             >
             </CuentaCorrienteTable>
           }
