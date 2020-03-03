@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux'
 import SelectCliente from 'components/Recibos/SelectCliente/SelectCliente'
 import FacturaTable from 'components/Recibos/Facturas/FacturaTable'
 // import SubFacturaTable from 'components/Recibos/Facturas/SubFacturaTable'
@@ -9,20 +10,17 @@ import { ClipLoader } from 'react-spinners';
 import RecibosBreadCrumb from 'components/Recibos/RecibosBreadCrumb/RecibosBreadCrumb';
 // import TableCliente from 'components/Recibos/SelectCliente/TableClienteSelected'
 import { APIURL } from 'utils/Enviroment';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, matchPath } from 'react-router-dom';
 import CuentaCorrienteTable from '../CuentaCorriente/CuentaCorienteTable'
 import moment from 'moment';
 import 'moment/locale/es';
 moment.locale('es');
 // import styles from 'containers/Recibos/Recibos.module.css';
 const Recibos = (props) => {
-  const [clientes, setClientes] = useState([]);
-  const [clienteSelected, setClienteSelected] = useState(null);
-  const [cuotasXCliente, setCuotasXCliente] = useState(null);
-  const [cuotasAPagar, setCuotasAPagar] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [facturasXCliente, setFacturasXCliente] = useState(null);
-  const [cuotasCuentaCorriente, setCuotasCuentaCorriente] = useState([]);
+
+
+
   const urlApi = APIURL;
   // const [tipoPedido, setTipoPedido] = useState(null);
   // const [clientePreSelected, setClientePreSelected] = useState(null);
@@ -31,31 +29,42 @@ const Recibos = (props) => {
     // if(props.location.state&&props.location.state.Cliente) {
     //   ? props.location.state.CodigoCliente : null
     // }
-    CargarDatos()
+    // if(props.)
+    if (matchPath(props.match.url,
+      {
+        path: props.location.pathname,
+        exact: true,
+      }
+    )) {
+
+      CargarDatos()
+    } else {
+      setLoading(false);
+    }
     // eslint-disable-next-line
   }, [])
   useEffect(() => {
-    if (props.location.state && props.location.state.CodigoCliente && clientes && clientes.length > 0) {
-      let cliente = clientes.find(cl => {
+    if (props.location.state && props.location.state.CodigoCliente && props.clientes && props.clientes.length > 0) {
+      let cliente = props.clientes.find(cl => {
         return cl.Codigo === props.location.state.CodigoCliente;
       });
-      setClienteSelected(cliente);
-      setFacturasXCliente(cliente.Facturas);
+      props.onStoreReciboClienteSelected(cliente);
+      props.onStoreReciboFacturasXCliente(cliente.Facturas);
     }
     // eslint-disable-next-line
-  }, [clientes]);
+  }, [props.clientes]);
   useEffect(() => {
-    if (clienteSelected) {
+    if (props.clienteSelected) {
       calcularCuotasCuentaCorriente();
     }
     // eslint-disable-next-line
-  }, [clienteSelected])
+  }, [props.clienteSelected])
 
   const calcularCuotasCuentaCorriente = () => {
     let agrupacionCuentCorriente = [];
     let totalSaldo = 0;
     let totalAPagar = 0;
-    clienteSelected.AcuerdosXTipoPedido.forEach(acuXTip => {
+    props.clienteSelected.AcuerdosXTipoPedido.forEach(acuXTip => {
       acuXTip.Acuerdos.forEach(acu => {
         acu.Facturas.forEach(fact => {
           fact.Cuotas.forEach(cuot => {
@@ -118,18 +127,18 @@ const Recibos = (props) => {
       Dias: null,// Dias
       Valor: null,// Valor
       Saldo: (<label className="font-weight-bolder text-dark">
-      {totalSaldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
-    </label>),// Saldo
+        {totalSaldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
+      </label>),// Saldo
       FechaMaxDescuento: null,// FechaMaxDescuento
       DiasV: null,// DiasV
       Descuento: null,// Descuento
       APagar: (<label className="font-weight-bolder text-dark">
-      {totalAPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
-    </label>),// APagar
+        {totalAPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
+      </label>),// APagar
       idmoneda: null,// idmoneda
     });
 
-    setCuotasCuentaCorriente(agrupacionCuentCorriente);
+    props.onStoreReciboCuotasCuentaCorriente(agrupacionCuentCorriente);
   }
 
   const CargarDatos = () => {
@@ -150,32 +159,30 @@ const Recibos = (props) => {
         res.json().then(
           result => {
             setLoading(false);
-            setClientes(result)
+            props.onStoreReciboClientes(result)
           },
           // Note: it's important to handle errors here
           // instead of a catch() block so that we don't swallow
           // exceptions from actual bugs in components.
           error => {
-            this.setState({
-              error
-            })
+
           }
         )
       }
     })
   }
   const cargarFacturasXCliente = () => {
-    setFacturasXCliente(clienteSelected.Facturas)
+    props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas)
     props.history.push(`/Recibos/TipoCredito`);
   }
 
   const cargarCuotasXCliente = (cuotas) => {
-    setCuotasXCliente(cuotas);
+    props.onStoreReciboCuotasXCliente(cuotas);
     props.history.push(`/Recibos/${cuotas[0].TipoPedido}/Facturas`);
   }
 
   const CargarCuotasAPagar = (cuotas) => {
-    setCuotasAPagar(cuotas);
+    props.onStoreReciboCuotasAPagar(cuotas);
     props.history.push(`/Recibos/Detalle`);
   }
 
@@ -183,17 +190,14 @@ const Recibos = (props) => {
     props.history.push(`/Recibos`);
   }
 
-  if (facturasXCliente) {
-    console.log('CM');
-  }
 
   const BreadCrumb = () => {
     return (
       <RecibosBreadCrumb
         match={props.match}
-        cliente={clienteSelected}
-        cuotas={cuotasXCliente}
-        cuotasAPagar={cuotasAPagar}
+        cliente={props.clienteSelected}
+        cuotas={props.cuotasXCliente}
+        cuotasAPagar={props.cuotasAPagar}
         cancelarRecibo={cancelarRecibo}
         clickBreadCrumb={clickBreadCrumb}>
 
@@ -207,23 +211,23 @@ const Recibos = (props) => {
 
   const cancelarRecibo = () => {
     NavHome();
-    setClienteSelected(null);
+    props.onStoreReciboClienteSelected(null);
 
-    setCuotasXCliente(null);
-    setCuotasAPagar(null);
-    setFacturasXCliente(null);
+    props.onStoreReciboCuotasXCliente(null);
+    props.onStoreReciboCuotasAPagar(null);
+    props.onStoreReciboFacturasXCliente(null);
 
   }
 
   let Cliente = (
     <div className="text-center">
-      <h4>{clienteSelected ? clienteSelected.Codigo + ' ' + clienteSelected.Nombre : ''}</h4>
+      <h4>{props.clienteSelected ? props.clienteSelected.Codigo + ' ' + props.clienteSelected.Nombre : ''}</h4>
       <hr />
     </div>
   );
   const SelectedCliente = cliente => {
     //props.history.push('/Recibos/TipoCredito');
-    setClienteSelected(cliente);
+    props.onStoreReciboClienteSelected(cliente);
   }
   // if (clienteSelected && facturasXCliente && cuotasAPagar) {
   //   return (
@@ -251,7 +255,7 @@ const Recibos = (props) => {
   //         {Cliente}
   //         <div className="row">
   //           <div className="col-12">
-  //             <CuotasAgrupadasTable Cuotas={cuotasXCliente} SetCuotasAPagar={setCuotasAPagar} />
+  //             <CuotasAgrupadasTable Cuotas={cuotasXCliente} props.onStoreReciboCuotasAPagar={props.onStoreReciboCuotasAPagar} />
   //           </div>
   //         </div>
   //       </>
@@ -263,7 +267,7 @@ const Recibos = (props) => {
   //         {Cliente}
   //         <div className="row">
   //           <div className="col-12">
-  //             <CuotasTable Cuotas={cuotasXCliente} SetCuotasAPagar={setCuotasAPagar} />
+  //             <CuotasTable Cuotas={cuotasXCliente} props.onStoreReciboCuotasAPagar={props.onStoreReciboCuotasAPagar} />
   //           </div>
   //         </div>
   //       </>
@@ -282,7 +286,7 @@ const Recibos = (props) => {
   //             Cliente={clienteSelected}
   //             Credito={clienteSelected.Credito}
   //             AcuerdosXTipoPedido={clienteSelected.AcuerdosXTipoPedido}
-  //             SetCuotas={setCuotasXCliente}
+  //             SetCuotas={props.onStoreReciboCuotasXCliente}
   //           />
   //         </div>
   //       </div>
@@ -301,12 +305,12 @@ const Recibos = (props) => {
   }
   return (
     <Switch>
-      <Route path={props.match.url} exact component={(routeProps) => (
+      <Route path={props.match.url} exact render={() => (
         <div className="row">
           <div className="col-12">
             <SelectCliente
-              clientes={clientes}
-              clienteSelected={clienteSelected}
+              clientes={props.clientes}
+              clienteSelected={props.clienteSelected}
               onSelect={SelectedCliente}
               setCliente={cargarFacturasXCliente}
               codigoClientePreseleccionado={
@@ -315,27 +319,27 @@ const Recibos = (props) => {
             />
 
             {
-              clienteSelected &&
+              props.clienteSelected &&
               <CuentaCorrienteTable
-              clienteSelected={clienteSelected}
-              CuotasCuentaCorriente={cuotasCuentaCorriente}
-            >
-            </CuentaCorrienteTable>
+                clienteSelected={props.clienteSelected}
+                CuotasCuentaCorriente={props.cuotasCuentaCorriente}
+              >
+              </CuentaCorrienteTable>
             }
 
           </div>
         </div>
       )} />
-      <Route path={props.match.url + '/TipoCredito'} exact component={(routeProps) => (
+      <Route path={props.match.url + '/TipoCredito'} exact render={() => (
         <>
           {BreadCrumb()}
           {Cliente}
           <div className="row">
             <div className="col-12">
               <FacturaTable
-                Cliente={clienteSelected}
-                Credito={clienteSelected.Credito}
-                AcuerdosXTipoPedido={clienteSelected.AcuerdosXTipoPedido}
+                Cliente={props.clienteSelected}
+                Credito={props.clienteSelected.Credito}
+                AcuerdosXTipoPedido={props.clienteSelected.AcuerdosXTipoPedido}
                 SetCuotas={cargarCuotasXCliente}
               />
             </div>
@@ -345,14 +349,14 @@ const Recibos = (props) => {
       <Route path={props.match.url + '/:TipoCredito/Facturas'} exact component={(routeProps) => (
         <>
           {
-            cuotasXCliente[0].AgrupaPorCuota ?
+            props.cuotasXCliente[0].AgrupaPorCuota ?
               (
                 <>
                   {BreadCrumb()}
                   {Cliente}
                   <div className="row">
                     <div className="col-12">
-                      <CuotasAgrupadasTable Cuotas={cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} />
+                      <CuotasAgrupadasTable Cuotas={props.cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} />
                     </div>
                   </div>
                 </>
@@ -363,7 +367,7 @@ const Recibos = (props) => {
                 {Cliente}
                 <div className="row">
                   <div className="col-12">
-                    <CuotasTable Cuotas={cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} />
+                    <CuotasTable Cuotas={props.cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} />
                   </div>
                 </div>
               </>
@@ -378,9 +382,9 @@ const Recibos = (props) => {
             <div className="col-12">
               <DetalleRecibo
                 history={props.history}
-                Cliente={clienteSelected}
-                Cuotas={cuotasXCliente}
-                CuotasAPagar={cuotasAPagar}
+                Cliente={props.clienteSelected}
+                Cuotas={props.cuotasXCliente}
+                CuotasAPagar={props.cuotasAPagar}
                 EliminarCuota={() => { }}
               />
             </div>
@@ -391,5 +395,56 @@ const Recibos = (props) => {
   )
 }
 
+const mapStateToProps = state => {
 
-export default Recibos
+
+
+  return {
+
+    clientes: state.Recibo.clientes,
+    clienteSelected: state.Recibo.clienteSelected,
+    cuotasXCliente: state.Recibo.cuotasXCliente,
+    cuotasAPagar: state.Recibo.cuotasAPagar,
+    facturasXCliente: state.Recibo.facturasXCliente,
+    cuotasCuentaCorriente: state.Recibo.cuotasCuentaCorriente,
+
+    loading: state.Recibo.loading,
+
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return {
+    onStoreReciboClientes: (clientes) => dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: clientes }),
+    onStoreReciboClienteSelected: (clienteSelected) => dispatch({ type: 'STORE_RECIBO_CLIENTESELECTED', clienteSelected: clienteSelected }),
+    onStoreReciboCuotasXCliente: (cuotasXCliente) => dispatch({ type: 'STORE_RECIBO_CUOTASXCLIENTE', cuotasXCliente: cuotasXCliente }),
+    onStoreReciboCuotasAPagar: (cuotasAPagar) => dispatch({ type: 'STORE_RECIBO_CUOTASAPAGAR', cuotasAPagar: cuotasAPagar }),
+    onStoreReciboFacturasXCliente: (facturasXCliente) => dispatch({ type: 'STORE_RECIBO_FACTURASXCLIENTE', facturasXCliente: facturasXCliente }),
+    onStoreReciboCuotasCuentaCorriente: (cuotasCuentaCorriente) => dispatch({ type: 'STORE_RECIBO_CUOTASCUENTACORRIENTE', cuotasCuentaCorriente: cuotasCuentaCorriente }),
+
+
+    onStoreReciboLoading: (loading) => dispatch({ type: 'STORE_RECIBO_LOADING', loading: loading }),
+
+    onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),
+    onStoreTipoPedido: (TipoPedido) => dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: TipoPedido }),
+    onSetProducto: (producto) => dispatch({ type: 'SET_PRODUCTO', producto: producto }),
+    onSetColeccion: (coleccion) => dispatch({ type: 'SET_COLECCION', coleccion: coleccion }),
+    onSetCliente: (cliente) => dispatch({ type: 'SET_CLIENTE', cliente: cliente }),
+    onSetTipoPedido: (tipoPedido, acuerdoVenta) => dispatch({ type: 'SET_PEDIDO', TipoPedido: tipoPedido, AcuerdoVenta: acuerdoVenta }),
+    onCancelarPedido: () => dispatch({ type: 'CANCELAR_PEDIDO' }),
+    onReinicarPedido: () => dispatch({ type: 'REINICIAR_PEDIDO' }),
+    onToggleSelectProducto: (producto) => dispatch({ type: 'TOGGLE_SELECT_PRODUCTO', producto: producto }),
+    onResetProductosAgreagados: () => dispatch({ type: 'RESET_PRODUCTOS_AGREGADOS' }),
+    onStoreMaestroLinea: (maestroLineas) => dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: maestroLineas }),
+    onSetLineaSeleccionada: (lineaSeleccionada) => dispatch({ type: 'SET_LINEA', LineaSeleccionada: lineaSeleccionada }),
+    onSetTableValue: (tableValue) => dispatch({ type: 'SET_TABLEVALUE', TableValue: tableValue }),
+    onSetPedidoEnCurso: (pedidoEnCurso) => dispatch({ type: 'SET_PEDIDOENCURSO', pedidoEnCurso: pedidoEnCurso }),
+    onSetTotalPedido: (TotalPedido) => dispatch({ type: 'SET_TOTALPEDIDO', TotalPedido: TotalPedido }),
+    onSetNumeroOrden: (NumeroOrden) => dispatch({ type: 'SET_NUMEROORDEN', NumeroOrden: NumeroOrden }),
+    onStoreTiposColeccion: (TiposColeccion) => dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: TiposColeccion }),
+    onStoreDatosParaPedido: (colecciones, clientes, TiposPedido, maestroLineas) => dispatch(
+      { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
+
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Recibos);
