@@ -17,26 +17,26 @@ const columnRender = (columnMeta, updateDirection) => {
 }
 const columns = [
 
+    { name: 'Documento', label: 'Documento', options: { customHeadRender: columnRender } },
     { name: 'Tipo', label: 'Tipo', options: { customHeadRender: columnRender } },
-    { name: 'TipoPedido', label: 'TipoPedido', options: { customHeadRender: columnRender } },
     { name: 'Factura', label: 'Factura', options: { customHeadRender: columnRender } },
-    { name: 'IdAcuerdoxCliente', label: 'AcuerdoxCliente', options: { customHeadRender: columnRender } },
-    { name: 'NumeroCuota', label: 'Numero Cuota', options: { customHeadRender: columnRender } },
-    { name: 'FechaFactura', label: 'Fecha Factura', options: { customHeadRender: columnRender } },
-    { name: 'FechaVencimiento', label: 'Fecha Vencimiento', options: { customHeadRender: columnRender } },
+    { name: 'Acuerdo No.', label: 'Acuerdo No.', options: { customHeadRender: columnRender } },
+    { name: 'Numero Cuota', label: 'Numero Cuota', options: { customHeadRender: columnRender } },
+    { name: 'Fecha', label: 'Fecha', options: { customHeadRender: columnRender } },
+    { name: 'Vencimiento', label: 'Vencimiento', options: { customHeadRender: columnRender } },
     { name: 'Dias', label: 'Dias', options: { customHeadRender: columnRender } },
     { name: 'Valor', label: 'Valor', options: { customHeadRender: columnRender } },
     { name: 'Saldo', label: 'Saldo', options: { customHeadRender: columnRender } },
-    { name: 'FechaMaxDescuento', label: 'Fecha Maxima Descuento', options: { customHeadRender: columnRender } },
-    { name: 'DiasV', label: 'Dias Vencidos', options: { customHeadRender: columnRender } },
+    { name: 'Fecha Descuento', label: 'Fecha Descuento', options: { customHeadRender: columnRender } },
+    { name: 'Dias', label: 'Dias', options: { customHeadRender: columnRender } },
     { name: 'Descuento', label: 'Descuento', options: { customHeadRender: columnRender } },
-    { name: 'APagar', label: 'A Pagar', options: { customHeadRender: columnRender } },
-    { name: 'idmoneda', label: 'moneda', options: { customHeadRender: columnRender } },
+    { name: 'A Pagar', label: 'A Pagar', options: { customHeadRender: columnRender } },
+    { name: 'Moneda', label: 'Moneda', options: { customHeadRender: columnRender } },
 ]
 
 const CuentaCorrienteTable = props => {
     // let selectedRowsIndexXAcuerdo = null;
-    
+
     /*
     useEffect(() => {
         fetch(urlApi + '/api/Cliente/CuentaCorriente/' + props.clienteSelected.Codigo, {

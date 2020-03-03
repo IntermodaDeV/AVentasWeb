@@ -52,7 +52,8 @@ const Recibos = (props) => {
 
   const calcularCuotasCuentaCorriente = () => {
     let agrupacionCuentCorriente = [];
-    console.log('clienteSelected', clienteSelected)
+    let totalSaldo = 0;
+    let totalAPagar = 0;
     clienteSelected.AcuerdosXTipoPedido.forEach(acuXTip => {
       acuXTip.Acuerdos.forEach(acu => {
         acu.Facturas.forEach(fact => {
@@ -60,9 +61,11 @@ const Recibos = (props) => {
             let diasVencimiento = moment().diff(cuot.FechaVencimiento, 'days') * -1;
             let diasDescuento = moment().diff(cuot.FechaMaxDescuento, 'days') * -1;
             let aPagar = cuot.Saldo;
-            if(diasDescuento>=0 && cuot.Descuento){
+            if (diasDescuento >= 0 && cuot.Descuento) {
               aPagar -= cuot.Descuento;
             }
+            totalSaldo += cuot.Saldo;
+            totalAPagar += aPagar;
             agrupacionCuentCorriente.push({
               Tipo: cuot.TipoDocumento,// Tipo
               TipoPedido: acuXTip.TipoPedido,// TipoPedido
@@ -84,7 +87,7 @@ const Recibos = (props) => {
         });
       });
     });
-    agrupacionCuentCorriente = agrupacionCuentCorriente.sort((a, b) => {
+    agrupacionCuentCorriente.sort((a, b) => {
       if (moment(a.FechaVencimiento, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
         return 1;
       }
@@ -101,6 +104,28 @@ const Recibos = (props) => {
       }
       return 0;
 
+    });
+
+    agrupacionCuentCorriente.push({
+      Tipo: <h6 className="font-weight-bolder text-dark">Totales</h6>,// Tipo
+      TipoPedido: null,// TipoPedido
+      Factura: null,// Factura
+      IdAcuerdoxCliente: null,// IdAcuerdoxCliente
+      NumeroCuota: null,// NumeroCuota
+      FechaFactura: null,// FechaFactura
+      FechaVencimiento: null,// FechaVencimiento
+      Dias: null,// Dias
+      Valor: null,// Valor
+      Saldo: (<label className="font-weight-bolder text-dark">
+      {totalSaldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
+    </label>),// Saldo
+      FechaMaxDescuento: null,// FechaMaxDescuento
+      DiasV: null,// DiasV
+      Descuento: null,// Descuento
+      APagar: (<label className="font-weight-bolder text-dark">
+      {totalAPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
+    </label>),// APagar
+      idmoneda: null,// idmoneda
     });
 
     setCuotasCuentaCorriente(agrupacionCuentCorriente);
