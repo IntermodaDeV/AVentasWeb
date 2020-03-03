@@ -78,7 +78,6 @@ const App = props => {
             />
 
             <LayoutRoute
-              exact
               path='/recibos'
               layout={MainLayout}
               component={Recibos}

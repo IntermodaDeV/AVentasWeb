@@ -11,7 +11,7 @@ import moment from 'moment';
 import 'moment/locale/es';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'sweetalert2/src/sweetalert2.scss';
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import { FaEye } from "react-icons/fa";
 moment.locale('es');
 
@@ -59,6 +59,7 @@ const DetalleRecibo = (props) => {
     // const [lineasfiltradas, setLineasfiltradas] = useState([])
     const [openModal, setOpenModal] = useState(false);
     const [DataModal, setDataModal] = useState([]);
+    console.log('props :', props);
     useEffect(() => {
         let cuotasYDescuentoCalculado = {
             Cuotas: [],
@@ -145,9 +146,9 @@ const DetalleRecibo = (props) => {
                                     FechaDescuento: cuot.FechaMaxDescuento,
                                     ValorDescuento: cuot.Descuento,
                                     DescuentoAplicado: 0,
-                                    APagar:cuot.Saldo,
+                                    APagar: cuot.Saldo,
                                     PagoAplicado: 0,
-                                    Moneda:cuot.IdMoneda,
+                                    Moneda: cuot.IdMoneda,
                                 });
                             }
                             // let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days');
@@ -158,7 +159,7 @@ const DetalleRecibo = (props) => {
                 });
             });
         });
-        
+
         return cuotasAgrupadas;
 
     }
@@ -166,13 +167,13 @@ const DetalleRecibo = (props) => {
         let descuentoAcumulado = 0;
         let cuotasAProcesar = CuotasAgrupadas().sort((a, b) => {
             if (a.NumeroCuota > b.NumeroCuota) {
-              return 1;
-            } 
-            if (a.NumeroCuota < b.NumeroCuota){
-              return -1;
+                return 1;
+            }
+            if (a.NumeroCuota < b.NumeroCuota) {
+                return -1;
             }
             return 0;
-          });
+        });
         pagosXRecibo.forEach(pago => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
@@ -201,7 +202,7 @@ const DetalleRecibo = (props) => {
                 });
             }
         });
-         const cuotas = cuotasAProcesar.map(cuotAgru => {
+        const cuotas = cuotasAProcesar.map(cuotAgru => {
             return [
                 cuotAgru.NumeroCuota, //Cuota:
                 cuotAgru.NumeroFactura, //Factura:
@@ -216,7 +217,7 @@ const DetalleRecibo = (props) => {
                 Number(cuotAgru.PagoAplicado).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //PagoAplicado:
                 <FaEye onClick={(event) => { OpenModal(event, cuotAgru.Cuotas) }} size={"20px"} />, //Acciones:
             ]
-         });
+        });
         return {
             Cuotas: cuotas,
             DescuentoAplicado: descuentoAcumulado
@@ -338,9 +339,6 @@ const DetalleRecibo = (props) => {
         // eslint-disable-next-line
     }, [monedas]);
 
-    const CloseModal = (state) => {
-        setModalRecibo(state)
-    }
 
     const onPagosXReciboChange = (index, newPago) => {
         let pagos = [...pagosXRecibo];
@@ -451,6 +449,12 @@ const DetalleRecibo = (props) => {
         // var val = JSON.parse(especificacionPago);
         setMonedaSeleccionada(moneda);
     }
+
+    const Finalizar = () => {
+        setModalRecibo(false);
+        props.history.push(`/Recibos`);
+    }
+
     const EnviarRecibo = () => {
 
         let loading = Swal.fire({
@@ -634,10 +638,10 @@ const DetalleRecibo = (props) => {
             {
                 ModalRecibo &&
                 <Recibo
+                    Finalizar={Finalizar}
                     Cliente={props.Cliente}
                     Open={ModalRecibo}
-                    RecibosAplicados={recibosAplicados}
-                    Close={CloseModal} />
+                    RecibosAplicados={recibosAplicados}/>
             }
         </div>);
 }

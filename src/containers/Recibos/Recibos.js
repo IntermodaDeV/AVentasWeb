@@ -8,7 +8,8 @@ import DetalleRecibo from 'components/Recibos/Recibo/DetalleRecibo'
 import { ClipLoader } from 'react-spinners';
 import RecibosBreadCrumb from 'components/Recibos/RecibosBreadCrumb/RecibosBreadCrumb';
 // import TableCliente from 'components/Recibos/SelectCliente/TableClienteSelected'
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
+import { Route, Switch } from 'react-router-dom';
 import CuentaCorrienteTable from '../CuentaCorriente/CuentaCorienteTable'
 // import styles from 'containers/Recibos/Recibos.module.css';
 const Recibos = (props) => {
@@ -76,7 +77,25 @@ const Recibos = (props) => {
   }
   const cargarFacturasXCliente = () => {
     setFacturasXCliente(clienteSelected.Facturas)
+    props.history.push(`/Recibos/TipoCredito`);
+  }
 
+  const cargarCuotasXCliente = (cuotas) => {
+    setCuotasXCliente(cuotas);
+    props.history.push(`/Recibos/${cuotas[0].TipoPedido}/Facturas`);
+  }
+
+  const CargarCuotasAPagar = (cuotas) => {
+    setCuotasAPagar(cuotas);
+    props.history.push(`/Recibos/Detalle`);
+  }
+
+  const NavHome = () => {
+    props.history.push(`/Recibos`);
+  }
+
+  if (facturasXCliente) {
+    console.log('CM');
   }
 
   const BreadCrumb = () => {
@@ -84,6 +103,8 @@ const Recibos = (props) => {
       <RecibosBreadCrumb
         match={props.match}
         cliente={clienteSelected}
+        cuotas={cuotasXCliente}
+        cuotasAPagar={cuotasAPagar}
         cancelarRecibo={cancelarRecibo}
         clickBreadCrumb={clickBreadCrumb}>
 
@@ -96,11 +117,13 @@ const Recibos = (props) => {
   }
 
   const cancelarRecibo = () => {
+    NavHome();
     setClienteSelected(null);
 
     setCuotasXCliente(null);
     setCuotasAPagar(null);
     setFacturasXCliente(null);
+
   }
 
   let Cliente = (
@@ -113,70 +136,70 @@ const Recibos = (props) => {
     //props.history.push('/Recibos/TipoCredito');
     setClienteSelected(cliente);
   }
-  if (clienteSelected && facturasXCliente && cuotasAPagar) {
-    return (
-      <>
-        {BreadCrumb()}
-        {Cliente}
-        <div className="row">
-          <div className="col-12">
-            <DetalleRecibo
-              Cliente={clienteSelected}
-              Cuotas={cuotasXCliente}
-              CuotasAPagar={cuotasAPagar}
-              EliminarCuota={() => { }}
-            />
-          </div>
-        </div>
-      </>
-    )
-  }
-  if (clienteSelected && facturasXCliente && cuotasXCliente && cuotasXCliente.length > 0) {
-    if (cuotasXCliente[0].AgrupaPorCuota) {
-      return (
-        <>
-          {BreadCrumb()}
-          {Cliente}
-          <div className="row">
-            <div className="col-12">
-              <CuotasAgrupadasTable Cuotas={cuotasXCliente} SetCuotasAPagar={setCuotasAPagar} />
-            </div>
-          </div>
-        </>
-      );
-    } else {
-      return (
-        <>
-          {BreadCrumb()}
-          {Cliente}
-          <div className="row">
-            <div className="col-12">
-              <CuotasTable Cuotas={cuotasXCliente} SetCuotasAPagar={setCuotasAPagar} />
-            </div>
-          </div>
-        </>
-      );
-    }
-  }
+  // if (clienteSelected && facturasXCliente && cuotasAPagar) {
+  //   return (
+  //     <>
+  //       {BreadCrumb()}
+  //       {Cliente}
+  //       <div className="row">
+  //         <div className="col-12">
+  //           <DetalleRecibo
+  //             Cliente={clienteSelected}
+  //             Cuotas={cuotasXCliente}
+  //             CuotasAPagar={cuotasAPagar}
+  //             EliminarCuota={() => { }}
+  //           />
+  //         </div>
+  //       </div>
+  //     </>
+  //   )
+  // }
+  // if (clienteSelected && facturasXCliente && cuotasXCliente && cuotasXCliente.length > 0) {
+  //   if (cuotasXCliente[0].AgrupaPorCuota) {
+  //     return (
+  //       <>
+  //         {BreadCrumb()}
+  //         {Cliente}
+  //         <div className="row">
+  //           <div className="col-12">
+  //             <CuotasAgrupadasTable Cuotas={cuotasXCliente} SetCuotasAPagar={setCuotasAPagar} />
+  //           </div>
+  //         </div>
+  //       </>
+  //     );
+  //   } else {
+  //     return (
+  //       <>
+  //         {BreadCrumb()}
+  //         {Cliente}
+  //         <div className="row">
+  //           <div className="col-12">
+  //             <CuotasTable Cuotas={cuotasXCliente} SetCuotasAPagar={setCuotasAPagar} />
+  //           </div>
+  //         </div>
+  //       </>
+  //     );
+  //   }
+  // }
 
-  if (clienteSelected && facturasXCliente) {
-    return (
-      <>
-        {BreadCrumb()}
-        {Cliente}
-        <div className="row">
-          <div className="col-12">
-            <FacturaTable
-              Cliente={clienteSelected}
-              Credito={clienteSelected.Credito}
-              AcuerdosXTipoPedido={clienteSelected.AcuerdosXTipoPedido}
-              SetCuotas={setCuotasXCliente}
-            />
-          </div>
-        </div>
-      </>
-    )
-  }
+  // if (clienteSelected && facturasXCliente) {
+  //   return (
+  //     <>
+  //       {BreadCrumb()}
+  //       {Cliente}
+  //       <div className="row">
+  //         <div className="col-12">
+  //           <FacturaTable
+  //             Cliente={clienteSelected}
+  //             Credito={clienteSelected.Credito}
+  //             AcuerdosXTipoPedido={clienteSelected.AcuerdosXTipoPedido}
+  //             SetCuotas={setCuotasXCliente}
+  //           />
+  //         </div>
+  //       </div>
+  //     </>
+  //   )
+  // }
   if (loading) {
     return (
       <div className="m-auto">
@@ -188,31 +211,93 @@ const Recibos = (props) => {
     );
   }
   return (
-    <>
-      {BreadCrumb()}
-      <div className="row">
-        <div className="col-12">
-          <SelectCliente
-            clientes={clientes}
-            clienteSelected={clienteSelected}
-            onSelect={SelectedCliente}
-            setCliente={cargarFacturasXCliente}
-            codigoClientePreseleccionado={
-              props.location.state ? props.location.state.CodigoCliente : null
-            }
-          />
-
-          {
-            clienteSelected &&
-            <CuentaCorrienteTable
+    <Switch>
+      <Route path={props.match.url} exact component={(routeProps) => (
+        <div className="row">
+          <div className="col-12">
+            <SelectCliente
+              clientes={clientes}
               clienteSelected={clienteSelected}
-            >
-            </CuentaCorrienteTable>
-          }
+              onSelect={SelectedCliente}
+              setCliente={cargarFacturasXCliente}
+              codigoClientePreseleccionado={
+                props.location.state ? props.location.state.CodigoCliente : null
+              }
+            />
 
+            {
+              clienteSelected &&
+              <CuentaCorrienteTable
+                clienteSelected={clienteSelected}
+              >
+              </CuentaCorrienteTable>
+            }
+
+          </div>
         </div>
-      </div>
-    </>
+      )} />
+      <Route path={props.match.url + '/TipoCredito'} exact component={(routeProps) => (
+        <>
+          {BreadCrumb()}
+          {Cliente}
+          <div className="row">
+            <div className="col-12">
+              <FacturaTable
+                Cliente={clienteSelected}
+                Credito={clienteSelected.Credito}
+                AcuerdosXTipoPedido={clienteSelected.AcuerdosXTipoPedido}
+                SetCuotas={cargarCuotasXCliente}
+              />
+            </div>
+          </div>
+        </>
+      )} />
+      <Route path={props.match.url + '/:TipoCredito/Facturas'} exact component={(routeProps) => (
+        <>
+          {
+            cuotasXCliente[0].AgrupaPorCuota ?
+              (
+                <>
+                  {BreadCrumb()}
+                  {Cliente}
+                  <div className="row">
+                    <div className="col-12">
+                      <CuotasAgrupadasTable Cuotas={cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} />
+                    </div>
+                  </div>
+                </>
+              )
+              :
+              <>
+                {BreadCrumb()}
+                {Cliente}
+                <div className="row">
+                  <div className="col-12">
+                    <CuotasTable Cuotas={cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} />
+                  </div>
+                </div>
+              </>
+          }
+        </>
+      )} />
+      <Route path={props.match.url + '/Detalle'} exact component={(routeProps) => (
+        <>
+          {BreadCrumb()}
+          {Cliente}
+          <div className="row">
+            <div className="col-12">
+              <DetalleRecibo
+                history={props.history}
+                Cliente={clienteSelected}
+                Cuotas={cuotasXCliente}
+                CuotasAPagar={cuotasAPagar}
+                EliminarCuota={() => { }}
+              />
+            </div>
+          </div>
+        </>
+      )} />
+    </Switch>
   )
 }
 
