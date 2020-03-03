@@ -9,9 +9,73 @@ import 'moment/locale/es';
 moment.locale('es');
 
 const RecibosBreadCrumb = (props) => {
+    console.log('cliente :', props.cliente);
     return (
         <Switch>
-            <Route path={props.match.ur} component={(routeProps) => (
+            <Route path={props.match.url + '/TipoCredito'} exact component={(routeProps) => (
+                <div>
+                    <div className="row">
+                        <div className="col" style={{ textAlign: 'left' }}>
+                            <NavigationBreadcrumb
+                                BreadcrumbItems={[
+                                    { Click: () => { props.clickBreadCrumb("/Recibos") }, Titulo: props.cliente.Codigo },
+                                    { Titulo: "Tipo Credito" }
+                                ]}
+                            />
+                        </div>
+                        {
+                            props.cliente &&
+                            <div className="col" style={{ textAlign: 'right' }}>
+                                <Dropdown
+                                    onCommand={props.cancelarRecibo}
+                                    menu={(
+                                        <Dropdown.Menu>
+                                            <Dropdown.Item command="">Cancelar</Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    )}
+                                >
+                                    <span >
+                                        <FaSignOutAlt className={styles.FaSignOutAlt} />
+                                    </span>
+                                </Dropdown>
+                            </div>
+                        }
+                    </div>
+                </div>
+            )} />
+            <Route path={props.match.url + '/:TipoCredito/Facturas'} exact component={(routeProps) => (
+                <div>
+                    <div className="row">
+                        <div className="col" style={{ textAlign: 'left' }}>
+                            <NavigationBreadcrumb
+                                BreadcrumbItems={[
+                                    { Click: () => { props.clickBreadCrumb("/Recibos") }, Titulo: props.cliente.Codigo },
+                                    { Click: () => { props.clickBreadCrumb("/Recibos/TipoCredito") }, Titulo: props.cuotas[0].TipoPedido },
+                                    { Titulo: "Facturas" }
+                                ]}
+                            />
+                        </div>
+                        {
+                            props.cliente &&
+                            <div className="col" style={{ textAlign: 'right' }}>
+                                <Dropdown
+                                    onCommand={props.cancelarRecibo}
+                                    menu={(
+                                        <Dropdown.Menu>
+                                            <Dropdown.Item command="">Cancelar</Dropdown.Item>
+                                        </Dropdown.Menu>
+                                    )}
+                                >
+                                    <span >
+                                        <FaSignOutAlt className={styles.FaSignOutAlt} />
+                                    </span>
+                                </Dropdown>
+                            </div>
+                        }
+                    </div>
+                </div>
+            )} />
+            <Route path={props.match.url} component={(routeProps) => (
                 <div>
                     <div className="row">
                         <div className="col" style={{ textAlign: 'left' }}>
