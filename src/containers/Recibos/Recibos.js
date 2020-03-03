@@ -210,9 +210,9 @@ const Recibos = (props) => {
   }
 
   const cancelarRecibo = () => {
+    
     NavHome();
     props.onStoreReciboClienteSelected(null);
-
     props.onStoreReciboCuotasXCliente(null);
     props.onStoreReciboCuotasAPagar(null);
     props.onStoreReciboFacturasXCliente(null);
@@ -314,7 +314,9 @@ const Recibos = (props) => {
               onSelect={SelectedCliente}
               setCliente={cargarFacturasXCliente}
               codigoClientePreseleccionado={
-                props.location.state ? props.location.state.CodigoCliente : null
+                props.location.state ? props.location.state.CodigoCliente 
+                : null
+                // (props.clienteSelected?props.clienteSelected.Codigo:null)
               }
             />
 
