@@ -20,7 +20,7 @@ const columns = [
     },
     {
         name: 'Fecha',
-        label: 'Fecha',
+        label: 'Vencimiento',
     },
     {
         name: 'Valor',
