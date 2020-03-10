@@ -19,7 +19,7 @@ const columns = [
 
     { name: 'Documento', label: 'Documento', options: { customHeadRender: columnRender } },
     { name: 'Tipo', label: 'Tipo', options: { customHeadRender: columnRender } },
-    { name: 'Factura', label: 'Factura', options: { customHeadRender: columnRender } },
+    { name: 'Numero', label: 'Numero', options: { customHeadRender: columnRender } },
     { name: 'Acuerdo No.', label: 'Acuerdo No.', options: { customHeadRender: columnRender } },
     { name: 'Numero Cuota', label: 'Numero Cuota', options: { customHeadRender: columnRender } },
     { name: 'Fecha', label: 'Fecha', options: { customHeadRender: columnRender } },

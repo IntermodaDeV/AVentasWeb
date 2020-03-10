@@ -1886,29 +1886,30 @@ class Pedidos extends React.Component {
 
                                                                 <div className="col-md-9 text-right" style={{ zIndex: 2 }}>
                                                                     <div className="row align-items-center justify-content-around justify-content-md-start">
-                                                                        {this.props.coleccion.Edades.map((edad, index0) => {
-                                                                            return (
-                                                                                <div
-                                                                                    key={index0}
-                                                                                    className={this.state.filtroEdad === edad.IdEdad ? "especiala especialaActive" : "especiala"}
-                                                                                    onClick={() => this.SelectFiltroEdad(edad.IdEdad)}
-                                                                                >
-                                                                                    {edad.Edad}
-                                                                                </div>
-                                                                                // <Link
-                                                                                //     key={index0}
-                                                                                //     className="especiala"
-                                                                                //     activeClass="especialaActive"
-                                                                                //     to={'section' + edad.IdEdad}
-                                                                                //     spy={true}
-                                                                                //     smooth={"easeOutCubic"}
-                                                                                //     offset={-70}
-                                                                                //     duration={1500}
-                                                                                // >
-                                                                                //     {edad.Edad}
-                                                                                // </Link>
-                                                                            )
-
+                                                                        {this.props.coleccion.Edades.map((edad, index0, self) => {
+                                                                            if (self.indexOf(edad) === index0) {
+                                                                                return (
+                                                                                    <div
+                                                                                        key={index0}
+                                                                                        className={this.state.filtroEdad === edad.IdEdad ? "especiala especialaActive" : "especiala"}
+                                                                                        onClick={() => this.SelectFiltroEdad(edad.IdEdad)}
+                                                                                    >
+                                                                                        {edad.Edad}
+                                                                                    </div>
+                                                                                    // <Link
+                                                                                    //     key={index0}
+                                                                                    //     className="especiala"
+                                                                                    //     activeClass="especialaActive"
+                                                                                    //     to={'section' + edad.IdEdad}
+                                                                                    //     spy={true}
+                                                                                    //     smooth={"easeOutCubic"}
+                                                                                    //     offset={-70}
+                                                                                    //     duration={1500}
+                                                                                    // >
+                                                                                    //     {edad.Edad}
+                                                                                    // </Link>
+                                                                                )
+                                                                            }
                                                                         })}
 
                                                                     </div>
