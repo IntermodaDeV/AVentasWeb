@@ -1887,7 +1887,7 @@ class Pedidos extends React.Component {
                                                                 <div className="col-md-9 text-right" style={{ zIndex: 2 }}>
                                                                     <div className="row align-items-center justify-content-around justify-content-md-start">
                                                                         {this.props.coleccion.Edades.map((edad, index0, self) => {
-                                                                            if (self.indexOf(edad) === index0) {
+                                                                            if (self.map(e => e.IdEdad).indexOf(edad.IdEdad) === index0) {
                                                                                 return (
                                                                                     <div
                                                                                         key={index0}
@@ -1910,6 +1910,7 @@ class Pedidos extends React.Component {
                                                                                     // </Link>
                                                                                 )
                                                                             }
+                                                                            return null;
                                                                         })}
 
                                                                     </div>
