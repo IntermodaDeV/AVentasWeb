@@ -6,37 +6,36 @@ import CuotasACancelarAgrupadasTable from 'components/Recibos/Facturas/CuotasACa
 import PagoReciboTable from 'components/Recibos/Recibo/PagoReciboTable';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
 import Recibo from 'components/Recibos/Recibo/Recibo'
-import {
-    Card,
-    // CardContent,
-    // TextField,
-} from '@material-ui/core';
+import { Card } from '@material-ui/core';
 import moment from 'moment';
 import 'moment/locale/es';
-import {
-    Col,
-    // Container,
-    Row,
-} from 'reactstrap';
-//import { DatePicker } from "@material-ui/pickers";
-// import color from '@material-ui/core/colors/amber';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-// import withReactContent from 'sweetalert2-react-content';
 import 'sweetalert2/src/sweetalert2.scss';
-moment.locale('es')
+import { APIURL } from 'utils/Enviroment';
+import { FaEye } from "react-icons/fa";
+import MySnackbarContentWrapper from 'components/Global/snackbar';
+import Snackbar from '@material-ui/core/Snackbar';
+moment.locale('es');
 
-const urlApi = 'https://aventas.devcit.com:3044'
+const urlApi = APIURL
 
 
 
 const DetalleRecibo = (props) => {
-    const [totalAPagar, setTotalAPagar] = useState(0.00);
+    // const [totalAPagar, setTotalAPagar] = useState(0.00);
     const [bancos, setBancos] = useState([]);
     const [ModalRecibo, setModalRecibo] = useState(false);
     const [recibosAplicados, setRecibosAplicados] = useState([]);
     const [tipoPagoEditando, setTipoPagoEditando] = useState(null);
     const [addedNewPayment, setAddedNewPayment] = useState(false);
     //const [bancoSeleccionado, setBancoSeleccionado] = useState(null);
+    const [cuotasYDescuentoAplicado, setCuotasYDescuentoAplicado] = useState({
+        Cuotas: [],
+        DescuentoAplicado: 0,
+        TotalPorPagar: 0
+    });
+    const [opens,setOpen] = useState(false);
+    const [mensaje,setMensaje] = useState('');
     const [monedas, setMonedas] = useState([]);
     const [
         //monedaSeleccionada, 
@@ -51,39 +50,54 @@ const DetalleRecibo = (props) => {
     //const [referencia, setReferencia] = useState('')
     const [pagosXRecibo, setPagosXRecibo] = useState([
         {
-            Editar: false,
+            Editar: true,
             indexTiposPago: 2,
             indexTiposdePagoDetalle: 0,
             fecha: new Date(),
-            valor: totalAPagar,
+            valor: 1,//totalAPagar - cuotasYDescuentoAplicado.DescuentoAplicado,
             indexMoneda: 2,
             indexBanco: null,
             referencia: ''
         }
     ])
-    const [lineasfiltradas, setLineasfiltradas] = useState([])
+    // const [lineasfiltradas, setLineasfiltradas] = useState([])
     const [openModal, setOpenModal] = useState(false);
     const [DataModal, setDataModal] = useState([]);
-
+    //console.log('props :', props);
+    useEffect(() => {
+        let cuotasYDescuentoCalculado = {
+            Cuotas: [],
+            DescuentoAplicado: 0,
+            TotalPorPagar: 0
+        };
+        if (props.Cuotas[0].AgrupaPorCuota) {
+            cuotasYDescuentoCalculado = CalculoCuotasAgrupadasYDescuento();//CalculoCuotasAgrupadasYDescuento()
+        } else {
+            cuotasYDescuentoCalculado = CalculoCuotasSingAgruparYDescuento();
+        }
+        setCuotasYDescuentoAplicado(cuotasYDescuentoCalculado);
+        // eslint-disable-next-line
+    }, [pagosXRecibo]);
     useEffect(() => {
         CargarDatos()
-        let totalPorPagar = 0.00;
-        props.Cuotas.forEach(fact => {
-            fact.Acuerdos.forEach(acu => {
-                acu.Facturas.forEach(fact => {
-                    fact.Cuotas.forEach(cuot => {
-                        if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
-                            totalPorPagar += cuot.Saldo;
-                        }
-                    });
+        // let totalPorPagar = 0.00;
+        // props.Cuotas.forEach(fact => {
+        //     fact.Acuerdos.forEach(acu => {
+        //         acu.Facturas.forEach(fact => {
+        //             fact.Cuotas.forEach(cuot => {
+        //                 if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
+        //                     totalPorPagar += cuot.Saldo;
+        //                 }
+        //             });
 
-                });
-            });
-        });
-        setTotalAPagar(totalPorPagar);
-        setPagosXRecibo([{
-            ...pagosXRecibo[0], valor: totalPorPagar //.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
-        }])
+        //         });
+        //     });
+        // });
+        // setTotalAPagar(totalPorPagar);
+        let pago = { ...pagosXRecibo[0], valor: 1 };
+        setPagosXRecibo([
+            pago    //.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+        ]);
         // const [pagosXRecibo, setPagosXRecibo] = useState([
         //     {
         //         indexTiposPago: 2,
@@ -103,6 +117,225 @@ const DetalleRecibo = (props) => {
         // eslint-disable-next-line
     }, []);
 
+    const CuotasAgrupadas = () => {
+        let cuotasSinAgrupar = [];
+        let cuotasAgrupadas = [];
+        props.Cuotas.forEach(fact => {
+            fact.Acuerdos.forEach(acu => {
+                //let facturas = [];
+                acu.Facturas.forEach(fact => {
+                    fact.Cuotas.forEach(cuot => {
+                        if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
+                            cuotasSinAgrupar.push(cuot)
+                            let cuotaAgrupada = cuotasAgrupadas.find(cuotAgr => cuotAgr.NumeroCuota === cuot.NumeroCuota && cuot.FechaVencimiento === cuotAgr.FechaVencimiento && cuot.FechaMaxDescuento === cuotAgr.FechaMaxDescuento)
+                            if (cuotaAgrupada) {
+                                cuotaAgrupada.Valor += cuot.ValorCuota;
+                                cuotaAgrupada.Saldo += cuot.Saldo;
+                                cuotaAgrupada.APagar += cuot.Saldo;
+                                cuotaAgrupada.ValorDescuento += cuot.Descuento;
+                                cuotaAgrupada.IdsSubFactura.push(cuot.IdSubFactura);
+                                cuotaAgrupada.Cuotas.push({ ...cuot, Factura: fact });
+                                if (cuotaAgrupada.NumeroFactura !== fact.Factura) {
+                                    cuotaAgrupada.NumeroFactura = 'Varias';
+                                }
+                            } else {
+                                cuotasAgrupadas.push({
+                                    NumeroCuota: cuot.NumeroCuota,
+                                    NumeroFactura: fact.Factura,
+                                    Valor: cuot.ValorCuota,
+                                    FechaVencimiento: cuot.FechaVencimiento,
+                                    Saldo: cuot.Saldo,
+                                    IdsSubFactura: [cuot.IdSubFactura],
+                                    Cuotas: [{ ...cuot, Factura: fact }],
+
+                                    FechaDescuento: cuot.FechaMaxDescuento,
+                                    ValorDescuento: cuot.Descuento,
+                                    DescuentoAplicado: 0,
+                                    APagar: cuot.Saldo,
+                                    PagoAplicado: 0,
+                                    Moneda: cuot.IdMoneda,
+                                });
+                            }
+                            // let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days');
+                            // let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
+                        }
+                    });
+
+                });
+            });
+        });
+
+        return cuotasAgrupadas;
+
+    }
+    const CalculoCuotasAgrupadasYDescuento = () => {
+        let descuentoAcumulado = 0;
+        let cuotasAProcesar = CuotasAgrupadas().sort((a, b) => {
+            if (a.NumeroCuota > b.NumeroCuota) {
+                return 1;
+            }
+            if (a.NumeroCuota < b.NumeroCuota) {
+                return -1;
+            }
+            return 0;
+        });
+        pagosXRecibo.forEach(pago => {
+            let PagoAcumulado = Number(pago.valor);
+            let fechaPago = pago.fecha;
+            if (PagoAcumulado > 0) {
+                cuotasAProcesar.forEach(cuotProc => {
+                    let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
+                    let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
+                    if (montoAPagar > 0) {
+                        if (montoAPagar > PagoAcumulado) {
+                            cuotProc.PagoAplicado += PagoAcumulado;
+                            PagoAcumulado = 0;
+                        }
+                        if (montoAPagar <= PagoAcumulado) {
+                            cuotProc.PagoAplicado += montoAPagar;
+                            PagoAcumulado -= montoAPagar;
+                            if (aplicaADescuento) {
+                                cuotProc.DescuentoAplicado = cuotProc.ValorDescuento;
+                                descuentoAcumulado += cuotProc.ValorDescuento;
+                                // cuotProc.APagar = montoAPagar;
+                            }
+                        }
+                        if (aplicaADescuento) {
+                            cuotProc.APagar = montoAPagar;
+                        }
+                    }
+                });
+            }
+        });
+        const cuotas = cuotasAProcesar.map(cuotAgru => {
+            return [
+                cuotAgru.NumeroCuota, //Cuota:
+                cuotAgru.NumeroFactura, //Factura:
+                moment(cuotAgru.FechaVencimiento).format("DD/MM/YYYY"), //Fecha:
+                moment(cuotAgru.FechaDescuento).format("DD/MM/YYYY"), //FechaDescuento:
+                cuotAgru.Moneda, //DiasDescuento  
+                Number(cuotAgru.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor:
+                Number(cuotAgru.ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //ValorDescuento:
+                Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo:
+                Number(cuotAgru.DescuentoAplicado).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //DescuentoAplicado:
+                Number(cuotAgru.APagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //APagar:
+                Number(cuotAgru.PagoAplicado).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //PagoAplicado:
+                <FaEye onClick={(event) => { OpenModal(event, cuotAgru.Cuotas) }} size={"20px"} />, //Acciones:
+            ]
+        });
+        return {
+            Cuotas: cuotas,
+            DescuentoAplicado: descuentoAcumulado
+        }
+    }
+    const CalculoCuotasSingAgruparYDescuento = () => {
+        let descuentoAcumulado = 0;
+        let cuotasAProcesar = CuotasSinAgrupar();
+        pagosXRecibo.forEach(pago => {
+            let PagoAcumulado = Number(pago.valor);
+            let fechaPago = pago.fecha;
+            if (PagoAcumulado > 0) {
+                cuotasAProcesar.forEach(cuotProc => {
+                    let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
+                    let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
+                    if (montoAPagar > 0) {
+                        if (montoAPagar > PagoAcumulado) {
+                            cuotProc.PagoAplicado += PagoAcumulado;
+                            PagoAcumulado = 0;
+                        }
+                        if (montoAPagar <= PagoAcumulado) {
+                            cuotProc.PagoAplicado += montoAPagar;
+                            PagoAcumulado -= montoAPagar;
+                            if (aplicaADescuento) {
+                                cuotProc.DescuentoAplicado = cuotProc.ValorDescuento;
+                                descuentoAcumulado += cuotProc.ValorDescuento;
+                                // cuotProc.APagar = montoAPagar;
+                            }
+                        }
+                        if (aplicaADescuento) {
+                            cuotProc.APagar = montoAPagar;
+                        }
+                    }
+                });
+            }
+        });
+        const cuotasProcesadas = cuotasAProcesar.map(cuotProc => {
+            return [
+                cuotProc.Tipo, //Tipo  
+                cuotProc.NumeroFactura, //Numero Factura  
+                moment(cuotProc.Fecha).format("DD/MM/YYYY"), //Fecha  
+                moment(cuotProc.FechaVencimiento).format("DD/MM/YYYY"), //FechaVencimiento  
+                cuotProc.Dias, //Dias  
+                moment(cuotProc.FechaDescuento).format("DD/MM/YYYY"), //FechaDescuento  
+                cuotProc.DiasDescuento, //DiasDescuento  
+                cuotProc.Moneda, //DiasDescuento  
+                cuotProc.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor  
+                cuotProc.ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Valor Descuento
+                cuotProc.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo 
+                cuotProc.DescuentoAplicado.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Descuento
+                (cuotProc.APagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//APagar
+                cuotProc.PagoAplicado.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Aplicado 
+            ]
+        });
+        return {
+            Cuotas: cuotasProcesadas,
+            DescuentoAplicado: descuentoAcumulado
+        };
+    }
+    const CuotasSinAgrupar = () => {
+        let data = [];
+        props.Cuotas.forEach(fact => {
+            fact.Acuerdos.forEach(acu => {
+                acu.Facturas.forEach(fact => {
+                    fact.Cuotas.forEach(cuot => {
+                        if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
+                            let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days');
+                            let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
+                            // data.push([
+                            //     cuot.TipoDocumento, //Tipo  
+                            //     moment(fact.FechaFactura).format("DD/MM/YYYY"), //Fecha  
+                            //     moment(cuot.FechaVencimiento).format("DD/MM/YYYY"), //FechaVencimiento  
+                            //     dias, //Dias  
+                            //     moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY"), //FechaDescuento  
+                            //     diasDescuento, //DiasDescuento  
+                            //     cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor  
+                            //     cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo  
+                            // ]);
+                            data.push({
+                                Tipo: cuot.TipoDocumento, //Tipo  
+                                NumeroFactura: cuot.Factura, //Numero Factura  
+                                Fecha: fact.FechaFactura, //Fecha  
+                                FechaVencimiento: cuot.FechaVencimiento, //FechaVencimiento  
+                                Dias: dias, //Dias  
+                                FechaDescuento: cuot.FechaMaxDescuento, //FechaDescuento  
+                                DiasDescuento: diasDescuento, //DiasDescuento  
+                                Moneda: cuot.IdMoneda, //Moneda  
+                                Valor: cuot.ValorCuota, //Valor  
+                                ValorDescuento: cuot.Descuento, //Valor Decuento 
+                                PagoAplicado: 0,
+                                DescuentoAplicado: 0,
+                                Saldo: cuot.Saldo, //Saldo  
+                                APagar: cuot.Saldo, //APagar  
+                            });
+                        }
+                    });
+
+                });
+            });
+        });
+        return data.sort(CuotasSinAgruparSort);
+    }
+    const CuotasSinAgruparSort = (a, b) => {
+        if (moment(a.FechaVencimiento).isBefore(b.FechaVencimiento, 'days')) {
+            return -1;
+        }
+        if (moment(a.FechaVencimiento).isAfter(b.FechaVencimiento, 'days')) {
+            return 1;
+        }
+        if (moment(a.FechaVencimiento).isSame(b.FechaVencimiento, 'days')) {
+            return 0;
+        }
+    }
     useEffect(() => {
         const monedaDefault = monedas.find(mon => mon.key === 'HNL');
         if (monedaDefault) {
@@ -111,9 +344,6 @@ const DetalleRecibo = (props) => {
         // eslint-disable-next-line
     }, [monedas]);
 
-    const CloseModal = (state) => {
-        setModalRecibo(state)
-    }
 
     const onPagosXReciboChange = (index, newPago) => {
         let pagos = [...pagosXRecibo];
@@ -128,7 +358,7 @@ const DetalleRecibo = (props) => {
     const onAddPagoXRecibo = () => {
         if (!tipoPagoEditando) {
             let pagos = [...pagosXRecibo];
-            let restante = totalAPagar - Acumulado();
+            let restante = 0;//totalAPagar - (Acumulado() + cuotasYDescuentoAplicado.DescuentoAplicado);
             let valor = restante > 0 ? restante : 0
             let pago = {
                 Editar: true,
@@ -224,6 +454,12 @@ const DetalleRecibo = (props) => {
         // var val = JSON.parse(especificacionPago);
         setMonedaSeleccionada(moneda);
     }
+
+    const Finalizar = () => {
+        setModalRecibo(false);
+        props.history.push(`/Recibos`);
+    }
+
     const EnviarRecibo = () => {
 
         let loading = Swal.fire({
@@ -306,31 +542,31 @@ const DetalleRecibo = (props) => {
         event.stopPropagation();
         setOpenModal(true);
         let DataModal = [];
-    
+
         cuotas.forEach(cuot => {
-          let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
-          let diasDescuento = 0;
-          let fechaDescuento = moment(cuot.FechaMaxDescuento);
-          if (fechaDescuento.isValid()) {
-            diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
-          }
-          DataModal.push({
-            NumeroFactura: cuot.Factura.Factura,
-            Dias: dias,
-            DiasDescuento: diasDescuento,
-            Tipo: cuot.TipoDocumento,
-            Fecha: moment(cuot.Factura.FechaFactura).format("DD/MM/YYYY"),
-            Vencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
-            FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
-            Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-    
-          }
-          )
+            let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
+            let diasDescuento = 0;
+            let fechaDescuento = moment(cuot.FechaMaxDescuento);
+            if (fechaDescuento.isValid()) {
+                diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
+            }
+            DataModal.push({
+                NumeroFactura: cuot.Factura.Factura,
+                Dias: dias,
+                DiasDescuento: diasDescuento,
+                Tipo: cuot.TipoDocumento,
+                Fecha: moment(cuot.Factura.FechaFactura).format("DD/MM/YYYY"),
+                Vencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
+                FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
+                Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+
+            }
+            )
         });
-    
-    
+
+
         /* DataModal.push({
           Tipo: 'Factura [D-P]',
           NumeroFactura: '2',
@@ -341,15 +577,25 @@ const DetalleRecibo = (props) => {
           DiasDescuento: '-28',
           Valor: '696,969.00',
           Saldo: '323,886.00',
-    
+     
         });
      */
         setDataModal(DataModal);
-      }
+    }
+
+    const showAlert = (abrir,mensaje)=>{
+            setOpen(abrir);
+            setMensaje(mensaje); 
+    }
+
+    const handleClose=()=>{        
+        setOpen(false);
+    }
+
     return (
         <div>
-            <h3>Detalle Recibo</h3>
-            <Row>
+            <h3>Pago Recibido</h3>
+            <div className="row">
                 <Card style={{ marginTop: '10px', marginBottom: '10px' }}>
                     <PagoReciboTable
                         Bancos={bancos}
@@ -364,56 +610,62 @@ const DetalleRecibo = (props) => {
                         ConfirmEditarPago={confirmEditarPago}
                         CancelEditarPago={cancelEditarPago}
                         DeletePago={deletePago}
+                        showAlert={showAlert}
                     ></PagoReciboTable>
                 </Card>
 
-            </Row>
+            </div>
             <h3>Detalle Facturas a Cancelar</h3>
-            <Row>
-                <Col sm={3}>
+            <div className="row">
+                <div className="col-lg-3 col-md-4 col-sm-5 col-12 my-2">
                     <CuotasAgrupadasACancelarTable
                         Cuotas={props.Cuotas}
                         CuotasAPagar={props.CuotasAPagar}
-                        SetLineasfiltradas={setLineasfiltradas}
+                        SetLineasfiltradas={() => { }}
                         Acumulado={Acumulado}
+                        DescuentoAplicado={cuotasYDescuentoAplicado.DescuentoAplicado}
                     />
-                </Col>
-                <Col sm={9}>
+                </div>
+                <div className="col-lg-9 col-md-8 col-sm-7 col-12 my-2">
 
-                {
+                    {
                         props.Cuotas[0].AgrupaPorCuota ?
-                        <CuotasACancelarAgrupadasTable
-                        onClick={OpenModal}
-                        moment={moment}
-                        
-                        // ColSpan={rowData.length + 1}
-                        Cuotas={props.Cuotas}
-                        CuotasAPagar={props.CuotasAPagar}
-                        // NumeroAcuerdo={data[rowMeta.dataIndex].Numero}
-                        // SelectedRowsIndexXAcuerdo={selectedRowsIndexXAcuerdo}
-                        // SetCuotasAPagar={(newArray) => { setCuotasSeleccionadas(data[rowMeta.dataIndex].Numero, newArray) }}
-                      />
+                            <CuotasACancelarAgrupadasTable
+                                moment={moment}
+                                CuotasAgrupadas={cuotasYDescuentoAplicado.Cuotas}
+
+
+                            // ColSpan={rowData.length + 1}
+                            // NumeroAcuerdo={data[rowMeta.dataIndex].Numero}
+                            // SelectedRowsIndexXAcuerdo={selectedRowsIndexXAcuerdo}
+                            // SetCuotasAPagar={(newArray) => { setCuotasSeleccionadas(data[rowMeta.dataIndex].Numero, newArray) }}
+                            />
                             :
                             <CuotasACancelarTable
-                                Cuotas={props.Cuotas}
-                                CuotasAPagar={props.CuotasAPagar}
-                                EliminarCuota={props.EliminarCuota}
-                                Lineasfiltradas={lineasfiltradas}
+                                CuotasSinAgruparACancelar={cuotasYDescuentoAplicado.Cuotas}
                             />
-
                     }
-                    <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
-                </Col>
 
-            </Row>
+                    <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
+                </div>
+
+            </div>
             {
                 ModalRecibo &&
                 <Recibo
+                    Finalizar={Finalizar}
                     Cliente={props.Cliente}
                     Open={ModalRecibo}
-                    RecibosAplicados={recibosAplicados}
-                    Close={CloseModal} />
+                    RecibosAplicados={recibosAplicados}/>
             }
+
+            <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={opens} onClose={handleClose} autoHideDuration={6000}>
+                <MySnackbarContentWrapper
+                    variant="error"
+                    message={mensaje}
+                    onClose={handleClose}
+                />
+            </Snackbar>
         </div>);
 }
 const cargarTiposPago = new Promise((resolve, reject) => {

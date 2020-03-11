@@ -1,5 +1,4 @@
-import React, {
-  //  useEffect, useState 
+import React, {useState
 } from 'react'
 import MUIDataTable from 'mui-datatables'
 import moment from 'moment'
@@ -8,6 +7,10 @@ import {
   Button,
   // TablePagination, TableCell
 } from '@material-ui/core';
+import { FaEye } from "react-icons/fa";
+import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
+import FacturasModalPrecompra from "components/Recibos/FacturasModal/FacturasModalPrecompra";
+import CuotaModal from "components/Recibos/FacturasModal/CuotaModal";
 
 moment.locale('es')
 
@@ -21,6 +24,14 @@ const columns = [
     }
   },
   {
+    name: 'CantFactVencidas',
+    label: 'Facturas Vencidas',
+    options: {
+      filter: true,
+      sort: false
+    }
+  },
+  /*{
     name: 'Disponible',
     label: 'Disponible',
     options: {
@@ -35,7 +46,7 @@ const columns = [
       filter: true,
       sort: true
     }
-  },
+  },*/
   {
     name: 'Vencido',
     label: 'Vencido',
@@ -44,9 +55,34 @@ const columns = [
       sort: false
     }
   },
+ 
+  {
+    name: 'Dias',
+    label: 'Días Vencido',
+    options: {
+      filter: true,
+      sort: true
+    }
+  },
   {
     name: 'C15Dias',
-    label: '15 Dias',
+    label: 'Por Vencer(15 Dias)',
+    options: {
+      filter: true,
+      sort: false
+    }
+  },
+  {
+    name: 'FactXVencer',
+    label: 'Facturas A Vencer',
+    options: {
+      filter: true,
+      sort: false
+    }
+  },
+  {
+    name: 'FechaVencimiento',
+    label: 'Fecha Proxima a Vencer',
     options: {
       filter: true,
       sort: false
@@ -142,11 +178,18 @@ const CustomFooter = (count, page, rowsPerPage, changeRowsPerPage, changePage, t
 } */
 
 const FacturaTable = props => {
+  const [DataModal, setDataModal] = useState([]);
+  const [DataModalPrecompra, setDataModalPrecompra] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
+  const [openModalPrecompra, setOpenModalPrecompra] = useState(false);
+  const [cuotasa,setCuotasa] = useState([]);
+  const [openModalCuota,setOpenModalCuota] = useState(false);
+
   const setCuotas = (tipoPedido) => {
     const cuotas = props.AcuerdosXTipoPedido.filter(acu => acu.TipoPedido === tipoPedido);
-
     props.SetCuotas(cuotas)
   };
+
   const data = [];
   const Totales = {
     Disponible: 0,
@@ -154,6 +197,233 @@ const FacturaTable = props => {
     C15Dias: 0,
     Vencido: 0
   };
+
+  const handleOpenModalCuota = (cuotas)=>{
+    setCuotasa(cuotas);
+    setOpenModalCuota(true);
+  }
+
+  const ProcesarFactura = (factura,credito,acuerdo)=>{
+      let dias = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days')
+      let diasDescuento = 0;
+      let fechaDescuento = moment(factura.FechaMaxDescuento);
+      if (fechaDescuento.isValid()) {
+        diasDescuento = moment(factura.FechaMaxDescuento).diff(moment(new Date()), 'days');
+      }
+
+      if(credito ==='Precompra'){
+         
+        let cuotasTmp = [];
+
+        if(factura.Cuotas){
+          factura.Cuotas.forEach(cuota=>{
+              cuotasTmp.push(ProcesarCuota(cuota,acuerdo));
+          });
+        }  
+
+        let facturatmp={
+          NumeroFactura: factura.Factura,
+          Dias: dias,
+          DiasDescuento: diasDescuento,
+          Tipo: factura.Tipo,
+          Fecha: moment(factura.FechaFactura).format("DD/MM/YYYY"),
+          Vencimiento: moment(factura.FechaVencimiento).format("DD/MM/YYYY"),
+          FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
+          Valor: factura.TotalFactura.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+          Saldo: factura.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+          Cuotas:(<FaEye size={"20px"} style={{display:"inline-block",marginLeft:'10px'}} onClick={()=>handleOpenModalCuota(cuotasTmp)}/>)
+        }
+        return facturatmp;
+      }
+
+      let facturatmp={
+        NumeroFactura: factura.Factura,
+        Dias: dias,
+        DiasDescuento: diasDescuento,
+        Tipo: factura.Tipo,
+        Fecha: moment(factura.FechaFactura).format("DD/MM/YYYY"),
+        Vencimiento: moment(factura.FechaVencimiento).format("DD/MM/YYYY"),
+        FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
+        Valor: factura.TotalFactura.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+        Saldo: factura.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')     
+      }
+      return facturatmp;
+  }
+
+  const ProcesarCuota = (cuota,acuerdo)=>{
+    let dias = moment(cuota.FechaVencimiento).diff(moment(new Date()), 'days')
+    let diasDescuento = 0;
+    let fechaDescuento = moment(cuota.FechaMaxDescuento);
+    if (fechaDescuento.isValid()) {
+      diasDescuento = moment(cuota.FechaMaxDescuento).diff(moment(new Date()), 'days');
+    }
+
+    let cuotatmp={
+      Factura: cuota.Factura,
+      Acuerdo: acuerdo,
+      Dias: dias,
+      DiasDescuento: diasDescuento,
+      Cuota: cuota.NumeroCuota,
+      Fecha: moment(cuota.FechaFactura).format("DD/MM/YYYY"),
+      Vencimiento: moment(cuota.FechaVencimiento).format("DD/MM/YYYY"),
+      FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
+      Valor: cuota.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+      Saldo: cuota.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')     
+    }
+    return cuotatmp;
+}
+
+  const OpenModalVencido = (acuerdo)=>{
+    const acuerdoFiltrado = props.AcuerdosXTipoPedido.filter(x=>x.TipoPedido===acuerdo);
+    const facturasEnAcuerdo = acuerdoFiltrado[0].Acuerdos;
+
+    let facturas = [];
+
+    if(acuerdo==='Precompra')
+    {
+        facturasEnAcuerdo.forEach(e=>{          
+          e.Facturas.forEach(factura=>{
+    
+            const fechaVencimiento = new Date(factura.FechaVencimiento);
+            const fechaActual      = new Date();
+            const isVencida        = fechaActual>fechaVencimiento;
+    
+            if(isVencida){
+              facturas.push(ProcesarFactura(factura,acuerdo,e.Acuerdo));  
+            }    
+          });
+        });
+
+      setDataModalPrecompra(facturas);
+      setOpenModalPrecompra(true);
+    }else{
+      facturasEnAcuerdo.forEach(e=>{
+        e.Facturas.forEach(factura=>{
+  
+          const fechaVencimiento = new Date(factura.FechaVencimiento);
+          const fechaActual      = new Date();
+          const isVencida        = fechaActual>fechaVencimiento;
+  
+          if(isVencida){
+            facturas.push(ProcesarFactura(factura,acuerdo,e.Acuerdo));
+        }
+  
+        });
+      });
+  
+      setDataModal(facturas);
+      setOpenModal(true);
+    }
+  }
+
+  const OpenModalAVencer = (acuerdo)=>{
+
+    const acuerdoFiltrado   = props.AcuerdosXTipoPedido.filter(x=>x.TipoPedido===acuerdo);
+    const facturasEnAcuerdo = acuerdoFiltrado[0].Acuerdos;
+
+    let facturas = [];
+
+    if(acuerdo==='Precompra'){
+      facturasEnAcuerdo.forEach(e=>{
+        e.Facturas.forEach(factura=>{
+
+          let diasParaVencer   = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days');
+          let isFacturaAVencer = (Math.sign(diasParaVencer)===1) && diasParaVencer<=15;
+
+          if(isFacturaAVencer){
+            facturas.push(ProcesarFactura(factura,acuerdo,e.Acuerdo));
+          } 
+        });
+      });
+
+      setDataModalPrecompra(facturas);
+      setOpenModalPrecompra(true);
+    }else{
+        facturasEnAcuerdo.forEach(e=>{
+          e.Facturas.forEach(factura=>{
+
+            let diasParaVencer   = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days');
+            let isFacturaAVencer = (Math.sign(diasParaVencer)===1) && diasParaVencer<=15;
+
+            if(isFacturaAVencer){
+              facturas.push(ProcesarFactura(factura,acuerdo,e.Acuerdo));
+            } 
+          });
+        });
+
+        setDataModal(facturas);
+        setOpenModal(true);
+    }
+  }
+
+  const FechaVencido = (credito,isFecha)=>{
+    const creditoFiltrado = props.AcuerdosXTipoPedido.filter(x=>x.TipoPedido===credito);
+    const facturasEnAcuerdo = creditoFiltrado[0].Acuerdos;
+
+    let facturasVencidas = [];
+
+    if(isFecha){
+      facturasEnAcuerdo.forEach(e=>{          
+        e.Facturas.forEach(factura=>{
+            let Fecha = factura.FechaVencimiento
+            facturasVencidas.push(Fecha);  
+        });
+      });
+      return facturasVencidas[0];
+    }
+
+    facturasEnAcuerdo.forEach(e=>{          
+      e.Facturas.forEach(factura=>{
+
+        const fechaVencimiento = new Date(factura.FechaVencimiento);
+        const fechaActual      = new Date();
+        const isVencida        = fechaActual>fechaVencimiento;
+
+        if(isVencida){
+          let dias = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days')
+          facturasVencidas.push(dias);  
+        }    
+      });
+    });
+    return (facturasVencidas.length===0)? 0: facturasVencidas[0];
+  }
+
+  const FactVencidas = (credito,vencidas)=>{
+    const creditoFiltrado = props.AcuerdosXTipoPedido.filter(x=>x.TipoPedido===credito);
+    const facturasEnAcuerdo = creditoFiltrado[0].Acuerdos;
+
+    let facturasVencidas = [];
+
+    if(vencidas){
+      facturasEnAcuerdo.forEach(e=>{          
+        e.Facturas.forEach(factura=>{
+
+          const fechaVencimiento = new Date(factura.FechaVencimiento);
+          const fechaActual      = new Date();
+          const isVencida        = fechaActual>fechaVencimiento;
+
+          if(isVencida){
+            facturasVencidas.push(factura);  
+          }    
+        });
+      });
+      return facturasVencidas.length;
+    }
+    
+    facturasEnAcuerdo.forEach(e=>{
+      e.Facturas.forEach(factura=>{
+
+        let diasParaVencer   = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days');
+        let isFacturaAVencer = (Math.sign(diasParaVencer)===1) && diasParaVencer<=15;
+
+        if(isFacturaAVencer){
+          facturasVencidas.push(factura);
+        } 
+      });
+    });
+    return facturasVencidas.length;
+  }
+
   props.AcuerdosXTipoPedido.forEach(acuXTipPed => {
     let saldo = 0;
     let saldoVencido = 0;
@@ -167,7 +437,6 @@ const FacturaTable = props => {
       }
       acu.Facturas.forEach(fact => {
         fact.Cuotas.forEach(cuot => {
-
           if (cuot.Saldo > 0) {
             saldo += cuot.Saldo;
             if (moment(cuot.FechaVencimiento).isSameOrBefore(moment(new Date()), 'days')) {
@@ -180,24 +449,56 @@ const FacturaTable = props => {
         });
       });
     });
+    
     Totales.Disponible += Number(disponible);
     Totales.SaldoTotal += saldo;
     Totales.Vencido += saldoVencido;
     Totales.C15Dias += saldo15DiasAvencer;
-    data.push({
-      Tipo: acuXTipPed.TipoPedido,
-      Disponible: Number(disponible).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-      SaldoTotal: saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-      C15Dias: saldo15DiasAvencer.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-      Vencido: saldoVencido.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-      Accion: (<Button
-        onClick={() => { setCuotas(acuXTipPed.TipoPedido) }}
-        variant="contained"
-        color="primary">
-        Pagar
-    </Button>)
-    })
+
+    if (saldoVencido > 0 ) {
+      data.push({
+        FechaV:FechaVencido(acuXTipPed.TipoPedido,true),
+        Tipo: acuXTipPed.TipoPedido,
+        CantFactVencidas:(<div>{FactVencidas(acuXTipPed.TipoPedido,true)}{(saldoVencido>0)?<FaEye onClick={()=>{OpenModalVencido(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
+        Vencido: (<div><p style={{display:"inline-block"}}>{saldoVencido.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
+        Dias: <span className={"text-danger font-weight-bold"}>{FechaVencido(acuXTipPed.TipoPedido,false)}</span>, 
+        C15Dias: (<div><p style={{display:"inline-block"}}>{saldo15DiasAvencer.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
+        FactXVencer :(<div>{FactVencidas(acuXTipPed.TipoPedido,false)}{(saldo15DiasAvencer>0)?<FaEye onClick={()=>{OpenModalAVencer(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
+        FechaVencimiento:<span className="inline-block"> {moment(FechaVencido(acuXTipPed.TipoPedido,true)).format("DD/MM/YYYY")}</span>, 
+        Disponible: Number(disponible).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+        SaldoTotal: saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+        Accion: (<Button
+          onClick={() => { setCuotas(acuXTipPed.TipoPedido) }}
+          variant="contained"
+          color="primary">
+          Pagar
+      </Button>)
+      })
+    }
+    else{
+      data.push({
+        FechaV:FechaVencido(acuXTipPed.TipoPedido,true),
+        Tipo: acuXTipPed.TipoPedido,
+        CantFactVencidas:(<div>{FactVencidas(acuXTipPed.TipoPedido,true)}{(saldoVencido>0)?<FaEye onClick={()=>{OpenModalVencido(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
+        Vencido: (<div><p style={{display:"inline-block"}}>{saldoVencido.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
+        Dias: <span className={"inline-block"}>{FechaVencido(acuXTipPed.TipoPedido,false)}</span>, 
+        C15Dias: (<div><p style={{display:"inline-block"}}>{saldo15DiasAvencer.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
+        FactXVencer :(<div>{FactVencidas(acuXTipPed.TipoPedido,false)}{(saldo15DiasAvencer>0)?<FaEye onClick={()=>{OpenModalAVencer(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
+        FechaVencimiento:  moment(FechaVencido(acuXTipPed.TipoPedido,true)).format("DD/MM/YYYY"),
+        Disponible: Number(disponible).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+        SaldoTotal: saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+        Accion: (<Button
+          onClick={() => { setCuotas(acuXTipPed.TipoPedido) }}
+          variant="contained"
+          color="primary">
+          Pagar
+      </Button>)
+      })
+    }
+    data.sort((a,b)=>(new Date(a.FechaV)-new Date(b.FechaV)));
+ 
   });
+
   data.push(
     {
       Tipo: (
@@ -210,7 +511,7 @@ const FacturaTable = props => {
         {Totales.SaldoTotal.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
       </label>),
       Vencido: (<label className="font-weight-bolder text-dark">
-        {Totales.Vencido.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
+        {Totales.Vencido.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}     
       </label>),
       C15Dias: (<label className="font-weight-bolder text-dark">
         {Totales.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
@@ -218,6 +519,13 @@ const FacturaTable = props => {
       Accion: (<label ></label>)
     }
   );
-  return <MUIDataTable title={'Resumen Cartera'} data={data} columns={columns} options={getOptions(props)} />
+
+  return (
+  <>
+    <MUIDataTable title={'Resumen Cartera'} data={data} columns={columns} options={getOptions(props)} />
+    <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
+    <FacturasModalPrecompra Data={DataModalPrecompra} Open={openModalPrecompra} onClose={setOpenModalPrecompra}></FacturasModalPrecompra>
+    <CuotaModal  Data={cuotasa} Open={openModalCuota} onClose={setOpenModalCuota}/>
+  </>)
 }
 export default FacturaTable

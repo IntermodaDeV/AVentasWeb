@@ -7,23 +7,20 @@ import Slider from "components/Pedidos/ProductoDetalle/Slider";
 import RelatedContainer from "components/Pedidos/ProductoDetalle/RelatedContainer";
 import Expandable from "components/Pedidos/ProductoDetalle/Expandable";
 import styles from 'components/Pedidos/ProductoDetalle/VistaProducto.module.css';
+import {APIURL} from 'utils/Enviroment';
 
 const VistaProducto = (props) => {
     const [precioProducto, setPrecio] = useState(undefined);
     const [selected, setselected] = useState(false);
     const [hasBackOrder, setHasBackOrder] = useState("N");
 
-    const urlApi = "https://aventas.devcit.com:3044";
+    const urlApi = APIURL;
 
     useEffect(() => {
         // Update the document title using the browser API
         cargarBackOrder();
         Mounted();
-        let selected = false;
-        try {
-            selected = props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Selected;
-        } catch{ }
-        setselected(selected);
+
         let precio = props.producto.Precio.find(precioxProd => {
             return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
         });
@@ -36,6 +33,14 @@ const VistaProducto = (props) => {
         }
         // eslint-disable-next-line
     }, []);
+    useEffect(() => {
+        let selected = false;
+        try {
+            selected = props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Selected;
+        } catch{ }
+        setselected(selected);
+        // eslint-disable-next-line
+    }, [props.producto]);
 
     const cargarBackOrder = () => {
         fetch(urlApi + "/api/Configuraciones", {

@@ -3,6 +3,7 @@ import React, {
     // useState
 } from 'react';
 import MUIDataTable from 'mui-datatables'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import { FaEye } from "react-icons/fa";
@@ -19,7 +20,7 @@ const columns = [
     },
     {
         name: 'Fecha',
-        label: 'Fecha',
+        label: 'Vencimiento',
     },
     {
         name: 'Valor',
@@ -29,22 +30,6 @@ const columns = [
     {
         name: 'Saldo',
         label: 'Saldo',
-    },
-    {
-        name: 'ValorDescuento',
-        label: 'Valor Descuento',
-        options: {
-            filter: true,
-            sort: false
-        }
-    },
-    {
-        name: 'APagar',
-        label: 'A Pagar',
-        options: {
-            filter: true,
-            sort: false
-        }
     },
     {
         name: 'Acciones',
@@ -77,8 +62,6 @@ const CuotasAgrupadasExpandableRow = (props) => {
             Fecha: props.moment(cuotAgru.FechaVencimiento).format("DD/MM/YYYY"),
             Valor: Number(cuotAgru.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
             Saldo: Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            ValorDescuento: cuotAgru.ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            APagar:  Number(cuotAgru.Saldo - cuotAgru.ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
             Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,
         });
     });
@@ -87,7 +70,7 @@ const CuotasAgrupadasExpandableRow = (props) => {
         filterType: 'multiselect',
         selectableRowsOnClick: true,
         selectableRows: 'multiple',
-        responsive: "scrollFullHeight",
+        responsive: "scrollMaxHeight",
         print: false,
         selectableRowsHeader: false,
         download: false,
@@ -163,14 +146,28 @@ const CuotasAgrupadasExpandableRow = (props) => {
     return (
         <TableRow>
             <TableCell colSpan={props.ColSpan} >
-                <MUIDataTable
-                    title={''}
-                    data={data}
-                    columns={columns}
-                    options={options}
-                />
+                <MuiThemeProvider theme={getMuiTheme()}>
+                    <MUIDataTable
+                        title={''}
+                        data={data}
+                        columns={columns}
+                        options={options}
+                    />
+                </MuiThemeProvider>
+
             </TableCell>
         </TableRow>
     );
 }
+
+const getMuiTheme = () => createMuiTheme({
+    overrides: {
+        MUIDataTable: {
+            responsiveScrollMaxHeight: {
+                maxHeight: 'unset !important',
+            }
+        },
+    }
+});
+
 export default CuotasAgrupadasExpandableRow;

@@ -3,16 +3,7 @@ import styles from 'components/ListadoPedidos/DetallePedido.module.css';
 // import PopupState, { bindToggle, bindPopper } from 'material-ui-popup-state';
 import GoogleMapReact from 'google-map-react';
 import { FaArrowLeft } from "react-icons/fa";
-import {
-    Fab,
-    // Grow,
-    // Card,
-    // CardMedia,
-    // CardContent,
-    // Paper,
-    // Popper,
-    // Typography,
-} from "@material-ui/core";
+import { Fab } from "@material-ui/core";
 import moment from "moment";
 import 'moment/locale/es'
 moment.locale('es');
@@ -110,7 +101,7 @@ const DetallePedido = (props) => {
                             props.pedido.location ?
                                 <div style={{ height: '300px', width: '100%' }}>
                                     <GoogleMapReact
-                                        bootstrapURLKeys={{ key: "AIzaSyBFVcn8D5GEMWbyhrx2C9pmdO70tiZ2oN8" }}
+                                        bootstrapURLKeys={{ key: "AIzaSyBYe6qlu-FWB8cCAMG52pdAPVs5W2cdODU" }}
                                         defaultCenter={
                                             {
                                                 lat: props.pedido.location.latitude,

@@ -1,11 +1,12 @@
 import React from 'react';
 import ReactTextTransition, { presets } from "react-text-transition";
+import {APIURL} from 'utils/Enviroment';
 import styles from "components/Pedidos/Global/CeldaTallas.module.css";
 
 const CeldaTallas = (props) => {
     const [Focused, setFocused] = React.useState(null);
     const [Disponible, setDisponible] = React.useState(props.disponible);
-    const urlApi = "https://aventas.devcit.com:3044";
+    const urlApi = APIURL;
 
     const onFocus = () => {
         setFocused(true);

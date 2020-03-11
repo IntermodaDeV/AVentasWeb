@@ -9,73 +9,71 @@ import 'moment/locale/es';
 moment.locale('es');
 
 const RecibosBreadCrumb = (props) => {
+
     return (
-        <Switch>
-            <Route path={props.match.ur} component={(routeProps) => (
-                <div>
-                    <div className="row">
-                        <div className="col" style={{ textAlign: 'left' }}>
+        <div>
+            <div className="row">
+                <div className="col" style={{ textAlign: 'left' }}>
+                    <Switch>
+                        <Route path={props.match.url + '/TipoCredito'} exact render={(routeProps) => (
                             <NavigationBreadcrumb
                                 BreadcrumbItems={[
-                                    { Titulo: 'Cliente' }
+                                    { Click: () => { props.clickBreadCrumb("/Recibos") }, Titulo: props.cliente.Codigo },
+                                    { Titulo: "Tipo Credito" }
                                 ]}
                             />
-                        </div>
-                        {
-                            props.cliente &&
-                            <div className="col" style={{ textAlign: 'right' }}>
-                                <Dropdown
-                                    onCommand={props.cancelarRecibo}
-                                    menu={(
-                                        <Dropdown.Menu>
-                                            <Dropdown.Item command="">Cancelar</Dropdown.Item>
-                                        </Dropdown.Menu>
-                                    )}
-                                >
-                                    <span >
-                                        <FaSignOutAlt className={styles.FaSignOutAlt} />
-                                    </span>
-                                </Dropdown>
-                            </div>
-                        }
-                    </div>
-                </div>
-            )} />
-            <Route path={props.match.url + '/:'} component={(routeProps) => (
-                <div>
-                    <div className="row">
-                        <div className="col" style={{ textAlign: 'left' }}>
+                        )} />
+                        <Route path={props.match.url + '/Detalle'} exact render={(routeProps) => (
                             <NavigationBreadcrumb
                                 BreadcrumbItems={[
-                                    { Click: () => { props.clickBreadCrumb("/Pedidos/Linea") }, Titulo: props.LineaSeleccionada.Linea },
-                                    { Click: () => { props.clickBreadCrumb("/Pedidos/TipoPedido") }, Titulo: props.TipoPedido.TipoPedido },
-                                    { Click: () => { props.clickBreadCrumb("/Pedidos/Colecciones") }, Titulo: 'Colecciones' },
-                                    { Click: () => { props.clickBreadCrumb("/Pedidos/Colecciones/" + props.coleccion.ColeccionTipo + "/" + props.coleccion.CodigoColeccion) }, Titulo: props.coleccion.Nombre },
-                                    { Titulo: props.cliente.Nombre }
+                                    { Click: () => { props.clickBreadCrumb("/Recibos") }, Titulo: props.cliente.Codigo },
+                                    { Click: () => { props.clickBreadCrumb("/Recibos/TipoCredito") }, Titulo: props.cuotas[0].TipoPedido },
+                                    { Click: () => { props.clickBreadCrumb(`/Recibos/${props.cuotas[0].TipoPedido}/Facturas`) }, Titulo: 'Facturas'},
+                                    { Titulo: "Detalle" }
                                 ]}
                             />
-                        </div>
-                        {
-                            props.cliente &&
-                            <div className="col" style={{ textAlign: 'right' }}>
-                                <Dropdown
-                                    onCommand={props.cancelarRecibo}
-                                    menu={(
-                                        <Dropdown.Menu>
-                                            <Dropdown.Item command="">Cancelar</Dropdown.Item>
-                                        </Dropdown.Menu>
-                                    )}
-                                >
-                                    <span >
-                                        <FaSignOutAlt className={styles.FaSignOutAlt} />
-                                    </span>
-                                </Dropdown>
-                            </div>
-                        }
-                    </div>
+                        )} />
+                        <Route path={props.match.url + '/:TipoCredito/Facturas'} exact render={(routeProps) => (
+                            <NavigationBreadcrumb
+                                BreadcrumbItems={[
+                                    { Click: () => { props.clickBreadCrumb("/Recibos") }, Titulo: props.cliente.Codigo },
+                                    { Click: () => { props.clickBreadCrumb("/Recibos/TipoCredito") }, Titulo: props.cuotas[0].TipoPedido },
+                                    { Titulo: "Facturas" }
+                                ]}
+                            />
+                        )} />
+                         <Route path={props.match.url} component={(routeProps) => (
+                             <NavigationBreadcrumb
+                             BreadcrumbItems={[
+                                 { Titulo: 'Cliente' }
+                             ]}
+                         />
+                        )} />
+
+                    </Switch>
+
                 </div>
-            )} />
-        </Switch>
+                {
+                    props.cliente &&
+                    <div className="col" style={{ textAlign: 'right' }}>
+                        <Dropdown
+                            onCommand={props.cancelarRecibo}
+                            menu={(
+                                <Dropdown.Menu>
+                                    <Dropdown.Item command="">Cancelar</Dropdown.Item>
+                                </Dropdown.Menu>
+                            )}
+                        >
+                            <span >
+                                <FaSignOutAlt className={styles.FaSignOutAlt} />
+                            </span>
+                        </Dropdown>
+                    </div>
+                }
+            </div>
+        </div>
+
+           
     );
 }
 

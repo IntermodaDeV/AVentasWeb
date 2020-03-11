@@ -9,11 +9,12 @@ import DetallePedido from 'components/ListadoPedidos/DetallePedido';
 import { PrintOutlined } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
+import {APIURL} from 'utils/Enviroment';
 import ImprimirPedido from 'components/ListadoPedidos/ImprimirPedido';
 moment.locale('es');
 
 const ListaPedidos = () => {
-    const urlApi = "https://aventas.devcit.com:3044";
+    const urlApi = APIURL;
 
     const [state, setState] = useState({
         error: false,
@@ -158,8 +159,8 @@ const ListaPedidos = () => {
     const getMuiTheme = () => createMuiTheme({
         overrides: {
             MUIDataTable: {
-                responsiveScroll: {
-                    maxHeight: "67vh"
+                responsiveScrollMaxHeight: {
+                    maxHeight: 'unset !important',
                 }
             },
             MUIDataTableBodyRow: {
@@ -326,7 +327,7 @@ const HeadersListaPedidos = [
 
 const DatatableOptions = {
     filterType: "dropdown",
-    responsive: "scrollFullHeight",
+    responsive: "scrollMaxHeight",
     print: false,
     download: false,
     selectableRows: 'none',

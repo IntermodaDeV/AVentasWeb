@@ -20,6 +20,15 @@ const initialState = {
     AsesorId: 80,
     TiposColeccion: [],
 
+    Recibo: {
+        clientes: [],
+        clienteSelected: null,
+        cuotasXCliente: null,
+        cuotasAPagar: null,
+        facturasXCliente: null,
+        cuotasCuentaCorriente: [],
+    }
+
 }
 
 const calcularLimite = (state) => {
@@ -206,6 +215,68 @@ const reducer = (state = initialState, action) => {
             ...state,
 
             ColeccionesFiltradas: action.coleccionesFiltradas
+        }
+    }
+
+
+    if (action.type === 'STORE_RECIBO_CLIENTES') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                clientes: action.clientes
+            }
+        }
+    }
+  if (action.type === 'STORE_RECIBO_CLIENTESELECTED') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                clienteSelected: action.clienteSelected
+            }
+        }
+    }
+  if (action.type === 'STORE_RECIBO_CUOTASXCLIENTE') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                cuotasXCliente: action.cuotasXCliente
+            }
+        }
+    }
+  if (action.type === 'STORE_RECIBO_CUOTASAPAGAR') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                cuotasAPagar: action.cuotasAPagar
+            }
+        }
+    }
+  if (action.type === 'STORE_RECIBO_FACTURASXCLIENTE') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                facturasXCliente: action.facturasXCliente
+            }
+        }
+    }
+  if (action.type === 'STORE_RECIBO_CUOTASCUENTACORRIENTE') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                cuotasCuentaCorriente: action.cuotasCuentaCorriente
+            }
         }
     }
 

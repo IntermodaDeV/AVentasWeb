@@ -21,7 +21,13 @@ export default class Calendario extends Component {
 
 
     getHeight = () => {
-        var h = window.innerHeight - 90
+        let h = window.innerHeight - 130;
+        // if (window.innerWidth > 768) {
+        //     h -= 130;
+        // }
+        // else {
+        //     h -= 130
+        // }
         return h;
     }
 

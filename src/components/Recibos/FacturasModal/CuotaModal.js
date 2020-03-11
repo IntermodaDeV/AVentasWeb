@@ -1,24 +1,23 @@
 import React from "react";
 import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@material-ui/core';
 import MUIDataTable from 'mui-datatables'
-import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 
 
-const FacturasModal = (props) => {
+const CuotaModal = (props) => {
 
     const columns = [
 
         {
-            name: 'Tipo',
-            label: 'Tipo',
+            name: 'Acuerdo',
+            label: 'Acuerdo',
             options: {
                 filter: true,
                 sort: true
             }
         },
         {
-            name: 'NumeroFactura',
-            label: 'Numero Factura',
+            name: 'Cuota',
+            label: 'Cuota',
             options: {
                 filter: true,
                 sort: true
@@ -83,10 +82,9 @@ const FacturasModal = (props) => {
         }
     ]
 
-
     const options = {
         filterType: 'false',
-        responsive: "scrollMaxHeight",
+        responsive: "scrollFullHeight",
         print: false,
         download: false,
         pagination: false,
@@ -142,18 +140,16 @@ const FacturasModal = (props) => {
                 onClose={() => props.onClose(false)}>
                 <DialogTitle className="text-center" id="scroll-dialog-title">
                     <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-                        Facturas
+                        Cuotas
                 </div>
                 </DialogTitle>
                 <DialogContent>
-                    <MuiThemeProvider theme={getMuiTheme()}>
-                        <MUIDataTable
-                            title={''}
-                            data={props.Data}
-                            columns={columns}
-                            options={options}
-                        />
-                    </MuiThemeProvider>
+                    <MUIDataTable
+                        title={''}
+                        data={props.Data}
+                        columns={columns}
+                        options={options}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button variant="outlined" onClick={() => props.onClose(false)} color="primary">
@@ -181,14 +177,4 @@ const FacturasModal = (props) => {
     );
 }
 
-const getMuiTheme = () => createMuiTheme({
-    overrides: {
-        MUIDataTable: {
-            responsiveScrollMaxHeight: {
-                maxHeight: 'unset !important',
-            }
-        },
-    }
-});
-
-export default FacturasModal;
+export default CuotaModal;

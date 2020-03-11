@@ -3,6 +3,7 @@ import React, {
   useState
 } from 'react'
 import MUIDataTable from 'mui-datatables'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
 import 'moment/locale/es';
 // import { Button } from '@material-ui/core';
@@ -57,7 +58,7 @@ const CuotasAgrupadasACancelarTable = props => {
   const options = {
     sort: false,
     filterType: 'false',
-    responsive: "scrollFullHeight",
+    responsive: "scrollMaxHeight",
     print: false,
     download: false,
     pagination: false,
@@ -114,11 +115,13 @@ const CuotasAgrupadasACancelarTable = props => {
     data.push([key, numberWithCommas(Number(value.Saldo))]);
     saldoTotal += Number(value.Saldo);
   }
-  let faltante = Number(saldoTotal) - Number(props.Acumulado());
+let acumulado = props.Acumulado();
+  let faltante = Number(saldoTotal) -(Number(acumulado) + Number(props.DescuentoAplicado));
   localStorage.setItem('Faltante', faltante);
   localStorage.setItem('TotalRecibo', saldoTotal);
   data.push([(<h6 className="font-weight-bolder text-dark">Total</h6>), numberWithCommas(Number(saldoTotal))]);
-  data.push([(<h6 className="font-weight-bolder text-dark">Acumulado</h6>), numberWithCommas(Number(props.Acumulado()))]);
+  data.push([(<h6 className="font-weight-bolder text-dark">Acumulado</h6>), numberWithCommas(Number(acumulado))]);
+  data.push([(<h6 className="font-weight-bolder text-dark">Descuento</h6>), numberWithCommas(Number(props.DescuentoAplicado))]);
   data.push([(<h6 className="font-weight-bolder text-dark">Faltante</h6>), numberWithCommas(Number(faltante))]);
   const setLineasfiltradas = (allRowsSelectedIndex) => {
     let lineasFiltradas = [];
@@ -128,17 +131,26 @@ const CuotasAgrupadasACancelarTable = props => {
     props.SetLineasfiltradas(lineasFiltradas)
   }
   return (
-    <>
+    <MuiThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
         title={''}
         data={data}
         columns={columns}
         options={options}
       />
-
-    </>
+    </MuiThemeProvider>
   )
 }
+
+const getMuiTheme = () => createMuiTheme({
+  overrides: {
+    MUIDataTable: {
+      responsiveScrollMaxHeight: {
+        maxHeight: 'unset !important',
+      }
+    },
+  }
+});
 
 const numberWithCommas = (x) => {
   x = x.toFixed(2);

@@ -11,7 +11,6 @@ const Recibo = (props) => {
     //const FechaEntrega = new Date();
     const componentRef = React.useRef();
 
-
     return (
         <div className="col">
             {
@@ -222,7 +221,7 @@ const Recibo = (props) => {
                             }
                             content={() => componentRef.current}
                         />
-                        <Button onClick={() => props.Close(false)} color="primary">
+                        <Button onClick={() => props.Finalizar()} color="primary">
                             Finalizar
                         </Button>
                     </DialogActions>

@@ -9,6 +9,7 @@ import withReactContent from 'sweetalert2-react-content';
 import { StickyContainer, Sticky } from 'react-sticky';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { withStyles } from '@material-ui/core/styles';
+import { APIURL } from 'utils/Enviroment';
 import { Radio } from 'semantic-ui-react';
 //import { Link } from "react-scroll";
 import { Checkbox, Dropdown } from 'element-react';
@@ -63,7 +64,7 @@ class Pedidos extends React.Component {
     IsEncabezadoCreado = false;
     PedidoId = null;
 
-    urlApi = "https://aventas.devcit.com:3044";
+    urlApi = APIURL;
     // urlApi = "http://localhost:62630";
 
     NotFoundImage = "http://www.quesoselllanojaral.com/img/nodisponible.png";
@@ -394,6 +395,7 @@ class Pedidos extends React.Component {
         if (value[producto.ProductoId] === undefined) {
             value[producto.ProductoId] = {};
             value[producto.ProductoId].Colores = {};
+            value[producto.ProductoId].ListaTallas = producto.ListaTalla
             value[producto.ProductoId].NombreProducto = producto.NombreProducto;
             value[producto.ProductoId].Precio = producto.Precio;
             if (producto.ListaImagenes !== null && producto.ListaImagenes.length > 0) {
@@ -853,6 +855,7 @@ class Pedidos extends React.Component {
             if (value[producto.ProductoId] === undefined) {
                 value[producto.ProductoId] = {};
                 value[producto.ProductoId].Colores = {};
+                value[producto.ProductoId].ListaTallas = producto.ListaTalla
                 value[producto.ProductoId].Selected = true;
                 value[producto.ProductoId].NombreProducto = producto.NombreProducto;
                 value[producto.ProductoId].Precio = producto.Precio;
@@ -874,7 +877,7 @@ class Pedidos extends React.Component {
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = fisicoDisponible ? fisicoDisponible.Cantidad : 0;
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
-                        if (fisicoDisponible && fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0 ) {
+                        if (fisicoDisponible && fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0) {
                             value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = fisicoDisponible.PreciosEspecificos[0].Precio
                         } else {
 
@@ -1883,29 +1886,31 @@ class Pedidos extends React.Component {
 
                                                                 <div className="col-md-9 text-right" style={{ zIndex: 2 }}>
                                                                     <div className="row align-items-center justify-content-around justify-content-md-start">
-                                                                        {this.props.coleccion.Edades.map((edad, index0) => {
-                                                                            return (
-                                                                                <div
-                                                                                    key={index0}
-                                                                                    className={this.state.filtroEdad === edad.IdEdad ? "especiala especialaActive" : "especiala"}
-                                                                                    onClick={() => this.SelectFiltroEdad(edad.IdEdad)}
-                                                                                >
-                                                                                    {edad.Edad}
-                                                                                </div>
-                                                                                // <Link
-                                                                                //     key={index0}
-                                                                                //     className="especiala"
-                                                                                //     activeClass="especialaActive"
-                                                                                //     to={'section' + edad.IdEdad}
-                                                                                //     spy={true}
-                                                                                //     smooth={"easeOutCubic"}
-                                                                                //     offset={-70}
-                                                                                //     duration={1500}
-                                                                                // >
-                                                                                //     {edad.Edad}
-                                                                                // </Link>
-                                                                            )
-
+                                                                        {this.props.coleccion.Edades.map((edad, index0, self) => {
+                                                                            if (self.map(e => e.IdEdad).indexOf(edad.IdEdad) === index0) {
+                                                                                return (
+                                                                                    <div
+                                                                                        key={index0}
+                                                                                        className={this.state.filtroEdad === edad.IdEdad ? "especiala especialaActive" : "especiala"}
+                                                                                        onClick={() => this.SelectFiltroEdad(edad.IdEdad)}
+                                                                                    >
+                                                                                        {edad.Edad}
+                                                                                    </div>
+                                                                                    // <Link
+                                                                                    //     key={index0}
+                                                                                    //     className="especiala"
+                                                                                    //     activeClass="especialaActive"
+                                                                                    //     to={'section' + edad.IdEdad}
+                                                                                    //     spy={true}
+                                                                                    //     smooth={"easeOutCubic"}
+                                                                                    //     offset={-70}
+                                                                                    //     duration={1500}
+                                                                                    // >
+                                                                                    //     {edad.Edad}
+                                                                                    // </Link>
+                                                                                )
+                                                                            }
+                                                                            return null;
                                                                         })}
 
                                                                     </div>

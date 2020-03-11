@@ -4,6 +4,7 @@ import PopupState, {
     bindTrigger,
     bindPopover
 } from 'material-ui-popup-state';
+import {APIURL} from 'utils/Enviroment';
 import ToggleIcon from 'material-ui-toggle-icon'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Popover, Typography, Card, CardContent, CardMedia } from "@material-ui/core";
@@ -21,13 +22,14 @@ const ProductoTable = (props) => {
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [IsOpen, setIsOpen] = useState(false);
 
-    const urlApi = "https://aventas.devcit.com:3044";
+    const urlApi = APIURL;
 
 
     useEffect(() => {
         setDirty(props.mostrarVacios);
         cargarBackOrder();
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.mostrarVacios]);
 
     const EliminarProducto = (grupo, cod, nombre) => {

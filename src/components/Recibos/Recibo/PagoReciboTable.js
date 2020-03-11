@@ -1,5 +1,6 @@
-import React from 'react'
+import React,{useState} from 'react'
 import MUIDataTable from 'mui-datatables'
+import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
 import 'moment/locale/es';
 import { Button } from '@material-ui/core';
@@ -13,6 +14,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import InputPago from './InputPagoReciboTable';
+
 moment.locale('es')
 
 const columns = [
@@ -74,17 +76,19 @@ const columns = [
     },
     {
         // name: 'TipoPago',
-        label: '',
+        label: 'Acciones',
         options: {
             filter: false,
             sort: false
         }
     },
 ];
+
+
 const PagoReciboTable = (props) => {
     const options = {
         filterType: 'false',
-        responsive: "scrollFullHeight",
+        responsive: "scrollMaxHeight",
         print: false,
         download: false,
         pagination: false,
@@ -131,7 +135,128 @@ const PagoReciboTable = (props) => {
         //   setSelectedRowsIndex(allRowsSelected.map(row => row.dataIndex))
         // }
     }
+
+    const [habilitado,setHabilitado] = useState(true);
+    const validacionFechaPago = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray)=>{
+        /*
+            0 Cheque             [0=Cheque al dia,1=Cheque posfechado]
+            1 Deposito           [0=Cheque al dia,1=Deduccion,2=Deposito con efectivo,3=Transferencia]
+            2 Efectivo           [0=Efectivo]
+            3 Letra Cambio       [0=Efectivo,1=Transferencia]
+            4 Tarjeta de credito [0=Tarjeta de credito]
+        */
+        if(fecha!==undefined)
+        {
+            const isCheque      = indexTiposPago === 0;
+            const isDeposito    = indexTiposPago === 1;
+            const isEfectivo    = indexTiposPago === 2;
+            const isLetraCambio = indexTiposPago === 3;
+            const isTarjeta     = indexTiposPago === 4;
+
+            const fechaActual   = new Date().setHours(0,0,0,0);
+            const fechaRecibida = new Date(fecha).setHours(0,0,0,0);
+            
+            if(isEfectivo)
+            {
+                if(fechaRecibida>fechaActual)
+                {
+                    props.showAlert(true,'Efectivo: La fecha de pago no puede ser mayor que la fecha actual');
+                    return;
+                }
+
+                if(fechaRecibida<fechaActual)
+                {
+                    props.showAlert(true,'Efectivo: La fecha de pago no puede ser menor que la fecha actual');
+                    return;
+                }
+
+                props.ConfirmEditarPago(indexArray);
+                setHabilitado(false);
+            }
+            if(isTarjeta)
+            {
+                if(fechaRecibida>fechaActual)
+                {
+                    props.showAlert(true,'Tarjeta: La fecha de pago no puede ser mayor que la fecha actual');
+                    return;
+                }
+
+                if(fechaRecibida<fechaActual)
+                {
+                    props.showAlert(true,'Tarjeta: La fecha de pago no puede ser menor que la fecha actual');
+                    return;
+                }
+
+                props.ConfirmEditarPago(indexArray);
+                setHabilitado(false);
+            }
+            if(isCheque)
+            {
+                const isPosfechado = indexTiposdePagoDetalle===1;
+                const isAlDia = indexTiposdePagoDetalle ===0;
+                if(isPosfechado)
+                {
+                    if(fechaActual>fechaRecibida || fechaActual===fechaRecibida){                        
+                        props.showAlert(true,'Posfechado: La fecha de pago debe ser mayor que la fecha actual');
+                        return;
+                    }
+                }
+
+                if(isAlDia)
+                {
+                    if(fechaRecibida>fechaActual)
+                    {
+                        props.showAlert(true,'Cheque al dia: La fecha de pago no puede ser mayor que la fecha actual');
+                        return;
+                    }
+                }
+                props.ConfirmEditarPago(indexArray);
+                setHabilitado(false);
+            }
+            if(isDeposito)
+            {
+                const isChequeDia     = indexTiposdePagoDetalle === 0;
+                const isDepositoe     = indexTiposdePagoDetalle === 2;
+                const isTransferencia = indexTiposdePagoDetalle === 3;
+
+                if(isChequeDia || isDepositoe || isTransferencia)
+                {
+                    if(fechaRecibida>fechaActual){
+                        props.showAlert(true,'Deposito: La fecha de pago no debe ser mayor que la fecha actual');
+                        return;
+                    }
+                    props.ConfirmEditarPago(indexArray);
+                    setHabilitado(false);
+                }
+                props.ConfirmEditarPago(indexArray);
+                setHabilitado(false);
+            }
+            if(isLetraCambio){
+                props.ConfirmEditarPago(indexArray);
+                setHabilitado(false);
+            }
+        }
+    }
+
+    const validacionDatosRecibo = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor)=>{
+
+        if(isNaN(valor))
+        {
+            props.showAlert(true,'El valor de pago tiene que ser un numero y no contener espacios');
+            return;
+        }
+
+        if(valor==="0" || valor===0)
+        {
+            props.showAlert(true,'El valor de pago no puede ser igual a cero');
+            return;
+        }
+
+        validacionFechaPago(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray);
+    }
+
     const arrayPagoRecibo = (indexTiposPago, indexTiposdePagoDetalle, fecha, valor, indexMoneda, indexBanco, referencia, indexArray) => {
+
         return [
             props.TiposPago[indexTiposPago] ? props.TiposPago[indexTiposPago].Descripcion : '',
             props.TiposPago[indexTiposPago] ? (props.TiposPago[indexTiposPago].TiposdePagoDetalle[indexTiposdePagoDetalle] ? props.TiposPago[indexTiposPago].TiposdePagoDetalle[indexTiposdePagoDetalle].Descripcion : '') : '',
@@ -140,13 +265,14 @@ const PagoReciboTable = (props) => {
             props.Monedas[indexMoneda] ? props.Monedas[indexMoneda].Moneda : '',
             props.Bancos[indexBanco] ? props.Bancos[indexBanco].NombreBanco : '',
             referencia,
-            (<div>
-                <Button className="mr-1" onClick={() => { props.SetEditPagoXRecibo(indexArray) }}><EditIcon /></Button>
+            (<div className="d-flex">
+                <Button className="mr-1" onClick={() => { props.SetEditPagoXRecibo(indexArray); setHabilitado(true); }}><EditIcon /></Button>
                 <Button className="ml-1" onClick={() => { props.DeletePago(indexArray) }}><DeleteForeverIcon /></Button>
             </div>),
         ]
     };
-    const editarArrayPagoRecibo = (indexTiposPago, indexTiposdePagoDetalle, fecha, valor, indexMoneda, indexBanco, referencia, indexArray) => {
+    const editarArrayPagoRecibo = (indexTiposPago, indexTiposdePagoDetalle, fecha, valor, indexMoneda, indexBanco, referencia, indexArray) => {     
+
         return [
             // pagXRec.TipoPago,
             // pagXRec.Fecha,
@@ -189,7 +315,7 @@ const PagoReciboTable = (props) => {
             </Select>),
             (<Select
                 value={indexTiposdePagoDetalle}
-                onChange={(event) => {
+                onChange={(event) => {           
                     props.OnpagosXReciboChange(
                         indexArray,
                         {
@@ -331,9 +457,9 @@ const PagoReciboTable = (props) => {
                 }}
             />),
 
-            (<div>
-                <Button className="mr-1" onClick={() => { props.ConfirmEditarPago(indexArray) }}><CheckIcon /></Button>
-                <Button className="ml-1" onClick={() => { props.CancelEditarPago(indexArray) }}><CloseIcon /></Button>
+            (<div className="d-flex">
+                <Button className="mr-1" onClick={() => { /*props.ConfirmEditarPago(indexArray)*/ validacionDatosRecibo(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor) }}><CheckIcon /></Button>
+                <Button className="ml-1" onClick={() => { props.CancelEditarPago(indexArray); setHabilitado(false)}}><CloseIcon /></Button>
             </div>),
 
         ];
@@ -353,11 +479,11 @@ const PagoReciboTable = (props) => {
     data.push([
         null, null, null, null, null, null, null,
         (
-            <div>
+            <div className="d-flex">
                 <Button
                     className="mr-1"
                     style={{ textAlign: 'center' }}
-                    onClick={props.OnAddPagoXRecibo}
+                    onClick={()=>{props.OnAddPagoXRecibo(); setHabilitado(true);}}
                 >
                     <AddCircleOutlineIcon />
                 </Button>
@@ -366,6 +492,7 @@ const PagoReciboTable = (props) => {
                     className="ml-1"
                     onClick={() => { props.EnviarRecibo() }}
                     variant="contained"
+                    disabled={habilitado}
                     color="primary">
                     Pagar
                 </Button>
@@ -373,8 +500,9 @@ const PagoReciboTable = (props) => {
 
         )
     ]);
+
     return (
-        <>
+        <MuiThemeProvider theme={getMuiTheme()}>
             <MUIDataTable
                 // title={'Detalle de Pagos'}
                 title={''}
@@ -382,16 +510,18 @@ const PagoReciboTable = (props) => {
                 columns={columns}
                 options={options}
             />
-            {/* {selectedRowsIndex.length > 0 && (<Button
-
-                onClick={() => { setCuotasAPagar() }}
-                variant="contained"
-                color="primary">
-                Eliminar
-        </Button>)} */}
-        </>
+        </MuiThemeProvider>
     )
 }
 
+const getMuiTheme = () => createMuiTheme({
+    overrides: {
+        MUIDataTable: {
+            responsiveScrollMaxHeight: {
+                maxHeight: 'unset !important',
+            }
+        },
+    }
+});
 
 export default PagoReciboTable;
