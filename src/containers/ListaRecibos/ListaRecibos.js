@@ -8,6 +8,7 @@ import moment from "moment";
 import 'moment/locale/es';
 import { APIURL } from 'utils/Enviroment';
 import Listado from 'components/ListadoRecibos/Listado';
+import LoadingModal from './../../components/Global/LoadingModal';
 moment.locale('es');
 
 const ListaRecibos = (props) => {
@@ -21,6 +22,7 @@ const ListaRecibos = (props) => {
     const [recibo, setRecibo] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
     const [DialogRecibo, setDialogRecibo] = useState(null);
+    const [isLoading,setLoading] = useState(false);
 
     useEffect(() => {
         cargarRecibos();
@@ -33,6 +35,7 @@ const ListaRecibos = (props) => {
     // }
 
     const cargarRecibos = async () => {
+        setLoading(true);
         fetch(urlApi + "/api/Recibo", {
             headers: {
                 'Authorization':
@@ -52,6 +55,7 @@ const ListaRecibos = (props) => {
                                 console.log('result :', result);
                                 setRecibos(result);
                                 setIsLoaded(true);
+                                setLoading(false);
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -188,6 +192,7 @@ const ListaRecibos = (props) => {
         )
     } else {
         return (
+            <>
             <Listado
                 startDate={startDate}
                 endDate={endDate}
@@ -200,7 +205,8 @@ const ListaRecibos = (props) => {
                 hidePrint={hidePrint}
                 DialogRecibo={DialogRecibo}
             />
-
+            <LoadingModal title={'recibos'} Open={isLoading}/>
+            </>
         );
     }
 

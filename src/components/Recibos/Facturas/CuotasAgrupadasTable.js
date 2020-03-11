@@ -39,8 +39,13 @@ const columns = [
 
   },
   {
+    name: 'ValorVencido',
+    label: 'Vencido',
+
+  },
+  {
     name: '15Dias',
-    label: '-15Dias',
+    label: 'Por Vencer(15Dias)',
 
   },
 ]
@@ -144,6 +149,7 @@ const CuotasAgrupadasTable = props => {
       let cuotasAgrupadas = [];
       let cuotasSinAgrupar = [];
       let SaldoTotal = 0;
+      let ValorVencido= 0;
       //let facturas = [];
       acu.Facturas.forEach(fact => {
         fact.Cuotas.forEach(cuot => {
@@ -170,6 +176,11 @@ const CuotasAgrupadasTable = props => {
             })
           }
           SaldoTotal += cuot.Saldo;
+          if (SaldoTotal > 0) {
+            if (moment(cuot.FechaVencimiento).isBefore(moment(new Date()), 'days')) {
+              ValorVencido += cuot.Saldo;
+            }
+          }
           // let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days');
           // let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
         });
@@ -186,7 +197,6 @@ const CuotasAgrupadasTable = props => {
         return 0;
       });
       if (SaldoTotal > 0) {
-
         data.push({
           Numero: acu.Acuerdo,
           Valor: Number(acu.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
@@ -194,6 +204,7 @@ const CuotasAgrupadasTable = props => {
           SaldoTotal: Number(SaldoTotal).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
           '15Dias': 0,
           CuotasAgrupadas: cuotasAgrupadas,
+          ValorVencido: Number(ValorVencido).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
           // CuotasSinAgrupar :cuotasSinAgrupar,
 
         }

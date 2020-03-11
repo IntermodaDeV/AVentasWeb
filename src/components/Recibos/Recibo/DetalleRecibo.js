@@ -13,6 +13,8 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'sweetalert2/src/sweetalert2.scss';
 import { APIURL } from 'utils/Enviroment';
 import { FaEye } from "react-icons/fa";
+import MySnackbarContentWrapper from 'components/Global/snackbar';
+import Snackbar from '@material-ui/core/Snackbar';
 moment.locale('es');
 
 const urlApi = APIURL
@@ -32,6 +34,8 @@ const DetalleRecibo = (props) => {
         DescuentoAplicado: 0,
         TotalPorPagar: 0
     });
+    const [opens,setOpen] = useState(false);
+    const [mensaje,setMensaje] = useState('');
     const [monedas, setMonedas] = useState([]);
     const [
         //monedaSeleccionada, 
@@ -59,7 +63,7 @@ const DetalleRecibo = (props) => {
     // const [lineasfiltradas, setLineasfiltradas] = useState([])
     const [openModal, setOpenModal] = useState(false);
     const [DataModal, setDataModal] = useState([]);
-    console.log('props :', props);
+    //console.log('props :', props);
     useEffect(() => {
         let cuotasYDescuentoCalculado = {
             Cuotas: [],
@@ -112,6 +116,7 @@ const DetalleRecibo = (props) => {
         }
         // eslint-disable-next-line
     }, []);
+
     const CuotasAgrupadas = () => {
         let cuotasSinAgrupar = [];
         let cuotasAgrupadas = [];
@@ -578,6 +583,15 @@ const DetalleRecibo = (props) => {
         setDataModal(DataModal);
     }
 
+    const showAlert = (abrir,mensaje)=>{
+            setOpen(abrir);
+            setMensaje(mensaje); 
+    }
+
+    const handleClose=()=>{        
+        setOpen(false);
+    }
+
     return (
         <div>
             <h3>Pago Recibido</h3>
@@ -596,6 +610,7 @@ const DetalleRecibo = (props) => {
                         ConfirmEditarPago={confirmEditarPago}
                         CancelEditarPago={cancelEditarPago}
                         DeletePago={deletePago}
+                        showAlert={showAlert}
                     ></PagoReciboTable>
                 </Card>
 
@@ -643,6 +658,14 @@ const DetalleRecibo = (props) => {
                     Open={ModalRecibo}
                     RecibosAplicados={recibosAplicados}/>
             }
+
+            <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={opens} onClose={handleClose} autoHideDuration={6000}>
+                <MySnackbarContentWrapper
+                    variant="error"
+                    message={mensaje}
+                    onClose={handleClose}
+                />
+            </Snackbar>
         </div>);
 }
 const cargarTiposPago = new Promise((resolve, reject) => {
