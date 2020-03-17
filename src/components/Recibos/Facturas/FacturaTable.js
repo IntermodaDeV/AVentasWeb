@@ -190,7 +190,7 @@ const FacturaTable = props => {
     props.SetCuotas(cuotas)
   };
 
-  const data = [];
+  let data = [];
   const Totales = {
     Disponible: 0,
     SaldoTotal: 0,
@@ -328,7 +328,7 @@ const FacturaTable = props => {
         e.Facturas.forEach(factura=>{
 
           let diasParaVencer   = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days');
-          let isFacturaAVencer = (Math.sign(diasParaVencer)===1) && diasParaVencer<=15;
+          let isFacturaAVencer = diasParaVencer >=0 && diasParaVencer <=15;
 
           if(isFacturaAVencer){
             facturas.push(ProcesarFactura(factura,acuerdo,e.Acuerdo));
@@ -343,7 +343,7 @@ const FacturaTable = props => {
           e.Facturas.forEach(factura=>{
 
             let diasParaVencer   = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days');
-            let isFacturaAVencer = (Math.sign(diasParaVencer)===1) && diasParaVencer<=15;
+            let isFacturaAVencer = diasParaVencer >=0 && diasParaVencer <=15;
 
             if(isFacturaAVencer){
               facturas.push(ProcesarFactura(factura,acuerdo,e.Acuerdo));
@@ -397,24 +397,22 @@ const FacturaTable = props => {
     if(vencidas){
       facturasEnAcuerdo.forEach(e=>{          
         e.Facturas.forEach(factura=>{
-
           const fechaVencimiento = new Date(factura.FechaVencimiento);
           const fechaActual      = new Date();
-          const isVencida        = fechaActual>fechaVencimiento;
-
+          const isVencida        = fechaActual > fechaVencimiento;
           if(isVencida){
+            
             facturasVencidas.push(factura);  
           }    
         });
       });
       return facturasVencidas.length;
     }
-    
     facturasEnAcuerdo.forEach(e=>{
       e.Facturas.forEach(factura=>{
 
         let diasParaVencer   = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days');
-        let isFacturaAVencer = (Math.sign(diasParaVencer)===1) && diasParaVencer<=15;
+        let isFacturaAVencer = diasParaVencer >=0 && diasParaVencer <=15;
 
         if(isFacturaAVencer){
           facturasVencidas.push(factura);
@@ -422,6 +420,44 @@ const FacturaTable = props => {
       });
     });
     return facturasVencidas.length;
+  }
+
+  const RestriccionPago = (dataTmp)=>{
+    dataTmp.sort((a,b)=>(new Date(a.FechaV)-new Date(b.FechaV)));
+    
+    const creditosVencidos = dataTmp.filter(e=>Math.abs(e.DiasVencidos)>0);
+    const creditosActivos  = dataTmp.filter(e=>Math.abs(e.DiasVencidos)===0);
+
+    let tempData = [];
+
+    if(creditosVencidos.length>0){
+      creditosVencidos.forEach((e,i)=>{
+           
+            const newAction = React.cloneElement(e.Accion,{disabled:false});
+            e.Accion = newAction;
+          
+      });
+      props.CreditoVencido(true);
+
+      if(creditosVencidos.length===1 || creditosVencidos.length===0){
+        props.CreditoVencido(false);
+      }
+
+      tempData = [...creditosVencidos,...creditosActivos];
+      return [...new Set(tempData)];
+    }
+
+    if(creditosActivos.length===data.length){
+      creditosActivos.forEach(e=>{
+        const newAction = React.cloneElement(e.Accion,{disabled:false});
+        e.Accion = newAction;
+      });
+
+      tempData = creditosActivos;
+      return [...new Set(tempData)];
+    }
+
+    return tempData;
   }
 
   props.AcuerdosXTipoPedido.forEach(acuXTipPed => {
@@ -454,50 +490,33 @@ const FacturaTable = props => {
     Totales.SaldoTotal += saldo;
     Totales.Vencido += saldoVencido;
     Totales.C15Dias += saldo15DiasAvencer;
+    const dias = saldoVencido>0? "text-danger font-weight-bold":"inline-block"
 
-    if (saldoVencido > 0 ) {
+   
       data.push({
         FechaV:FechaVencido(acuXTipPed.TipoPedido,true),
+        DiasVencidos:FechaVencido(acuXTipPed.TipoPedido,false),
         Tipo: acuXTipPed.TipoPedido,
         CantFactVencidas:(<div>{FactVencidas(acuXTipPed.TipoPedido,true)}{(saldoVencido>0)?<FaEye onClick={()=>{OpenModalVencido(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
         Vencido: (<div><p style={{display:"inline-block"}}>{saldoVencido.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
-        Dias: <span className={"text-danger font-weight-bold"}>{FechaVencido(acuXTipPed.TipoPedido,false)}</span>, 
+        Dias: <span className={dias}>{FechaVencido(acuXTipPed.TipoPedido,false)}</span>, 
         C15Dias: (<div><p style={{display:"inline-block"}}>{saldo15DiasAvencer.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
         FactXVencer :(<div>{FactVencidas(acuXTipPed.TipoPedido,false)}{(saldo15DiasAvencer>0)?<FaEye onClick={()=>{OpenModalAVencer(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
         FechaVencimiento:<span className="inline-block"> {moment(FechaVencido(acuXTipPed.TipoPedido,true)).format("DD/MM/YYYY")}</span>, 
         Disponible: Number(disponible).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
         SaldoTotal: saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
         Accion: (<Button
-          onClick={() => { setCuotas(acuXTipPed.TipoPedido) }}
+          onClick={() => { setCuotas(acuXTipPed.TipoPedido); }}
           variant="contained"
+          disabled={true}
           color="primary">
           Pagar
       </Button>)
       })
-    }
-    else{
-      data.push({
-        FechaV:FechaVencido(acuXTipPed.TipoPedido,true),
-        Tipo: acuXTipPed.TipoPedido,
-        CantFactVencidas:(<div>{FactVencidas(acuXTipPed.TipoPedido,true)}{(saldoVencido>0)?<FaEye onClick={()=>{OpenModalVencido(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
-        Vencido: (<div><p style={{display:"inline-block"}}>{saldoVencido.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
-        Dias: <span className={"inline-block"}>{FechaVencido(acuXTipPed.TipoPedido,false)}</span>, 
-        C15Dias: (<div><p style={{display:"inline-block"}}>{saldo15DiasAvencer.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
-        FactXVencer :(<div>{FactVencidas(acuXTipPed.TipoPedido,false)}{(saldo15DiasAvencer>0)?<FaEye onClick={()=>{OpenModalAVencer(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
-        FechaVencimiento:  moment(FechaVencido(acuXTipPed.TipoPedido,true)).format("DD/MM/YYYY"),
-        Disponible: Number(disponible).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-        SaldoTotal: saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-        Accion: (<Button
-          onClick={() => { setCuotas(acuXTipPed.TipoPedido) }}
-          variant="contained"
-          color="primary">
-          Pagar
-      </Button>)
-      })
-    }
     data.sort((a,b)=>(new Date(a.FechaV)-new Date(b.FechaV)));
  
   });
+  data= RestriccionPago(data);
 
   data.push(
     {

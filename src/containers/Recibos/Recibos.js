@@ -8,19 +8,27 @@ import CuotasAgrupadasTable from 'components/Recibos/Facturas/CuotasAgrupadasTab
 import DetalleRecibo from 'components/Recibos/Recibo/DetalleRecibo'
 import { ClipLoader } from 'react-spinners';
 import RecibosBreadCrumb from 'components/Recibos/RecibosBreadCrumb/RecibosBreadCrumb';
+import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
 // import TableCliente from 'components/Recibos/SelectCliente/TableClienteSelected'
 import { APIURL } from 'utils/Enviroment';
 import { Route, Switch, matchPath } from 'react-router-dom';
 import CuentaCorrienteTable from '../CuentaCorriente/CuentaCorienteTable'
 import moment from 'moment';
 import 'moment/locale/es';
+import { FaEye } from "react-icons/fa";
+import {FiAlertTriangle} from 'react-icons/fi';
 moment.locale('es');
 // import styles from 'containers/Recibos/Recibos.module.css';
 const Recibos = (props) => {
   const [loading, setLoading] = useState(true);
+  const [isCreditoVencido,setCreditoVencido] = useState(false);
+  const [DataModal, setDataModal] = useState([]);
+  const [openModal, setOpenModal] = useState(false);
 
-
-
+  const creditoVencido = (vencido)=>{
+    setCreditoVencido(vencido);
+    localStorage.setItem('isVencido',vencido);
+  }
   const urlApi = APIURL;
   // const [tipoPedido, setTipoPedido] = useState(null);
   // const [clientePreSelected, setClientePreSelected] = useState(null);
@@ -140,7 +148,53 @@ const Recibos = (props) => {
 
     props.onStoreReciboCuotasCuentaCorriente(agrupacionCuentCorriente);
   }
+  const FacturasVencidas = (TipoCredito)=>{
+    const acuerdoFiltrado =  props.clienteSelected.AcuerdosXTipoPedido.filter(x=>x.TipoPedido!==TipoCredito);
+    let facturas = [];
+      acuerdoFiltrado.forEach(e=>{  
+        e.Acuerdos.forEach(acu => {
+          acu.Facturas.forEach(fact => {
+            fact.Cuotas.forEach(cuot => {
 
+              const fechaVencimiento = new Date(cuot.FechaVencimiento);
+              const fechaActual      = new Date();
+              const isVencida        = fechaActual>fechaVencimiento;
+  
+              if(isVencida)
+              {
+                facturas.push(ProcesarFactura(cuot,TipoCredito,e.TipoCredito));  
+              }
+            })
+            
+          })
+        })
+      });
+      setDataModal(facturas);
+      setOpenModal(true);
+    
+  }
+  const ProcesarFactura = (factura,credito)=>{
+    console.log(factura)
+    let dias = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days')
+    let diasDescuento = 0;
+    let fechaDescuento = moment(factura.FechaMaxDescuento);
+    if (fechaDescuento.isValid()) {
+      diasDescuento = moment(factura.FechaMaxDescuento).diff(moment(new Date()), 'days');
+    }
+
+      let facturatmp={
+        NumeroFactura: factura.Factura,
+        Dias: dias,
+        DiasDescuento: diasDescuento,
+        Tipo: factura.TipoDocumento,
+        Fecha: moment(factura.FechaFactura).format("DD/MM/YYYY"),
+        Vencimiento: moment(factura.FechaVencimiento).format("DD/MM/YYYY"),
+        FechaDescuento: fechaDescuento.isValid() ? fechaDescuento.format("DD/MM/YYYY") : "",
+        Valor: factura.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+        Saldo: factura.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')     
+      }
+      return facturatmp;
+}
   const CargarDatos = () => {
     cargarClientes()
   }
@@ -171,6 +225,7 @@ const Recibos = (props) => {
       }
     })
   }
+
   const cargarFacturasXCliente = () => {
     props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas)
     props.history.push(`/Recibos/TipoCredito`);
@@ -304,6 +359,8 @@ const Recibos = (props) => {
     );
   }
   return (
+    <>
+    <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
     <Switch>
       <Route path={props.match.url} exact render={() => (
         <div className="row">
@@ -343,14 +400,18 @@ const Recibos = (props) => {
                 Credito={props.clienteSelected.Credito}
                 AcuerdosXTipoPedido={props.clienteSelected.AcuerdosXTipoPedido}
                 SetCuotas={cargarCuotasXCliente}
+                CreditoVencido={creditoVencido}
               />
             </div>
           </div>
         </>
       )} />
+
+      
       <Route path={props.match.url + '/:TipoCredito/Facturas'} exact component={(routeProps) => (
         <>
           {
+            
             props.cuotasXCliente[0].AgrupaPorCuota ?
               (
                 <>
@@ -358,7 +419,8 @@ const Recibos = (props) => {
                   {Cliente}
                   <div className="row">
                     <div className="col-12">
-                      <CuotasAgrupadasTable Cuotas={props.cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} />
+                   {(localStorage.getItem('isVencido')==='true')? <div className="text-danger font-weight-bold alert alert-danger" role={"alert"} style={{marginBottom:'1em',textAlign:'center'}}><FiAlertTriangle style={{size:'20px',color:'red'}}/> Hay facturas vencidas en otro tipo de credito <FaEye onClick={()=>{FacturasVencidas(routeProps.match.params.TipoCredito)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/></div>:<span></span>}
+                      <CuotasAgrupadasTable Cuotas={props.cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} isVencidos={isCreditoVencido}/>
                     </div>
                   </div>
                 </>
@@ -369,7 +431,8 @@ const Recibos = (props) => {
                 {Cliente}
                 <div className="row">
                   <div className="col-12">
-                    <CuotasTable Cuotas={props.cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} />
+                    {(localStorage.getItem('isVencido')==='true')? <div className="text-danger font-weight-bold alert alert-danger"  role={"alert"} style={{marginBottom:'1em',textAlign:'center'}}><FiAlertTriangle style={{size:'20px',color:'red'}}/>Hay facturas vencidas en otro tipo de credito <FaEye onClick={()=>{FacturasVencidas(routeProps.match.params.TipoCredito)}} size={"20px"}  style={{display:"inline-block",marginLeft:'10px'}}/></div>:<span></span>}
+                    <CuotasTable Cuotas={props.cuotasXCliente} SetCuotasAPagar={CargarCuotasAPagar} isVencidos={isCreditoVencido}/>
                   </div>
                 </div>
               </>
@@ -394,6 +457,7 @@ const Recibos = (props) => {
         </>
       )} />
     </Switch>
+    </>
   )
 }
 
@@ -446,7 +510,11 @@ const mapDispatchToProps = dispatch => {
     onStoreDatosParaPedido: (colecciones, clientes, TiposPedido, maestroLineas) => dispatch(
       { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
 
+      
+
   };
+  
 };
+
 
 export default connect(mapStateToProps, mapDispatchToProps)(Recibos);

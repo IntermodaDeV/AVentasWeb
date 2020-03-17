@@ -84,11 +84,16 @@ const columns = [
 
 const CuotasTable = props => {
   const [selectedRowsIndex, setSelectedRowsIndex] = useState([])
-  const data = []
+  const data = [];
   let foundExpired = false;
   let Expired = [];
   const options = {
     filterType: 'multiselect',
+    isRowSelectable:(row)=>{
+      const isVencido = localStorage.getItem('isVencido')
+      if(isVencido==='true') return data[row].IsVencida;
+      return true;
+    },
     responsive: "scrollMaxHeight",
     print: false,
     pagination: false,
@@ -176,10 +181,7 @@ const CuotasTable = props => {
 
           let DiasVencido = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
           let ValorDescuento = cuot.Descuento;
-
-          // if (diasDescuento > 0) {
-          //   ValorDescuento = cuot.Descuento;
-          // }
+          let isVencida = DiasVencido<0;
 
           if (DiasVencido < 0) {
             foundExpired = true;
@@ -199,9 +201,10 @@ const CuotasTable = props => {
               Valor: <span className="text-danger font-weight-bold">{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Saldo: <span className="text-danger font-weight-bold">{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Cuota: cuot,
+              IsVencida:isVencida
             })
           }
-          else if (DiasVencido >= 0 && DiasVencido < 15) {
+          else if (DiasVencido >= 0 && DiasVencido <= 15) {
             data.push({
               IdSubFactura: cuot.IdSubFactura,
               Dias: <span className={"font-weight-bold " + styles.WarnRecibo}>{DiasVencido}</span>,
@@ -216,6 +219,7 @@ const CuotasTable = props => {
               Valor: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Saldo: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Cuota: cuot,
+              IsVencida:isVencida
             })
           }
           else {
@@ -233,6 +237,7 @@ const CuotasTable = props => {
               Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Cuota: cuot,
+              IsVencida:isVencida
               //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               //   Accion : (<Button
 

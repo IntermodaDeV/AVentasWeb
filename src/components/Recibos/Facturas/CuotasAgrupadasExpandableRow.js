@@ -7,6 +7,8 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import { FaEye } from "react-icons/fa";
+import moment from 'moment';
+import 'moment/locale/es';
 
 const columns = [
 
@@ -15,18 +17,41 @@ const columns = [
         label: 'Cuota',
     },
     {
+        name: 'Valor',
+        label: 'Valor Cuota',
+    },
+    {
         name: 'Factura',
         label: 'Factura',
+    },
+    /*{
+        name: 'ValorFactura',
+        label: 'Valor Factura',
+    },*/
+    {
+        name: 'FechaCreacion',
+        label: 'Fecha',
     },
     {
         name: 'Fecha',
         label: 'Vencimiento',
     },
     {
-        name: 'Valor',
-        label: 'Valor',
+        name: 'DiasVencido',
+        label: 'Dias',
     },
-
+    {
+        name: 'FechaDescuento',
+        label: 'Fecha Descuento',
+    },
+    {
+        name: 'ValorDescuento',
+        label: 'Descuento',
+    },
+    {
+        name: 'DiasDescuento',
+        label: 'Dias Descuento',
+    },
     {
         name: 'Saldo',
         label: 'Saldo',
@@ -49,25 +74,87 @@ const CuotasAgrupadasExpandableRow = (props) => {
     }
     props.CuotasAgrupadas.forEach((cuotAgru, index) => {
         let seleccionado = false;
+        let Fecha = new Date();
+        let ValorDescuento = 0;
+        let Dias = moment(cuotAgru.FechaVencimiento).diff(moment(new Date()), 'days')
+        let DiasDescuento = moment(cuotAgru.FechaMaxDescuento).diff(moment(new Date()), 'days')
+        cuotAgru.Cuotas.forEach(factura=>{
+             Fecha = factura.FechaFactura;
+             ValorDescuento = factura.Descuento;
+        });
         seleccionado = cuotAgru.IdsSubFactura.some(idsub => {
             return IdsSubFactura.includes(idsub);
         });
 
         if (seleccionado) {
             selectedRowsIndex.push(index);
+        } 
+        
+        if(Dias < 0 ){
+            data.push({
+                IsVencida:true,
+                FechaDes: cuotAgru.FechaMaxDescuento,
+                Cuota:<span className="text-danger font-weight-bold">{cuotAgru.NumeroCuota}</span>, 
+                Valor: <span className="text-danger font-weight-bold">{Number(cuotAgru.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,  
+                Factura: <span className="text-danger font-weight-bold">{cuotAgru.NumeroFactura}</span>,  
+                FechaCreacion: <span className="text-danger font-weight-bold">{props.moment(Fecha).format("DD/MM/YYYY")}</span>,   
+                Fecha: <span className="text-danger font-weight-bold">{props.moment(cuotAgru.FechaVencimiento).format("DD/MM/YYYY")}</span>,  
+                DiasVencido: <span className="text-danger font-weight-bold">{Dias}</span>,   
+                FechaDescuento: <span className="text-danger font-weight-bold">{props.moment(cuotAgru.FechaMaxDescuento).format("DD/MM/YYYY")}</span>,
+                ValorDescuento: <span className="text-danger font-weight-bold">{0}</span>,      
+                DiasDescuento: <span className="text-danger font-weight-bold">{DiasDescuento}</span>,    
+                Saldo: <span className="text-danger font-weight-bold">{Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>, 
+                Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,
+            });
+            data.sort((a,b)=>(new Date(a.FechaDes) -new Date(b.FechaDes)));
         }
-        data.push({
-            Cuota: cuotAgru.NumeroCuota,
-            Factura: cuotAgru.NumeroFactura,
-            Fecha: props.moment(cuotAgru.FechaVencimiento).format("DD/MM/YYYY"),
-            Valor: Number(cuotAgru.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            Saldo: Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-            Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,
-        });
+        else if(Dias >= 0 && Dias <=15)
+        {
+            data.push({
+                IsVencida:false,
+                FechaDes: cuotAgru.FechaMaxDescuento,
+                Cuota:<span className={"text-warning font-weight-bold "}>{cuotAgru.NumeroCuota}</span>, 
+                Valor: <span className={"text-warning font-weight-bold "}>{Number(cuotAgru.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>, 
+                Factura: <span className={"text-warning font-weight-bold "}>{cuotAgru.NumeroFactura}</span>, 
+                FechaCreacion: <span className={"text-warning font-weight-bold "}>{props.moment(Fecha).format("DD/MM/YYYY")}</span>, 
+                Fecha: <span className={"text-warning font-weight-bold "}>{props.moment(cuotAgru.FechaVencimiento).format("DD/MM/YYYY")}</span>, 
+                DiasVencido: <span className={"text-warning font-weight-bold "}>{Dias}</span>, 
+                FechaDescuento:<span className={"text-warning font-weight-bold "}>{props.moment(cuotAgru.FechaMaxDescuento).format("DD/MM/YYYY")}</span>,   
+                ValorDescuento: <span className={"text-warning font-weight-bold "}>{Number(ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>, 
+                DiasDescuento: <span className={"text-warning font-weight-bold "}>{Number(DiasDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>, 
+                Saldo: <span className={"text-warning font-weight-bold "}>{Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>, 
+                Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,
+            });
+            data.sort((a,b)=>(new Date(a.FechaDes) -new Date(b.FechaDes)));
+        }
+        else
+        {
+            data.push({
+                IsVencida:false,
+                FechaDes: cuotAgru.FechaMaxDescuento,
+                Cuota: cuotAgru.NumeroCuota,
+                Valor: Number(cuotAgru.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), 
+                Factura: cuotAgru.NumeroFactura,
+                FechaCreacion: props.moment(Fecha).format("DD/MM/YYYY"),
+                Fecha: props.moment(cuotAgru.FechaVencimiento).format("DD/MM/YYYY"),
+                DiasVencido: Dias,
+                FechaDescuento: props.moment(cuotAgru.FechaMaxDescuento).format("DD/MM/YYYY"), 
+                ValorDescuento: Number(ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                DiasDescuento: Number(DiasDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                Saldo: Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,
+            });
+            data.sort((a,b)=>(new Date(a.FechaDes) -new Date(b.FechaDes)));
+        } 
     });
 
     const options = {
         filterType: 'multiselect',
+        isRowSelectable:(row)=>{
+            const isVencido = localStorage.getItem('isVencido')
+            if(isVencido==='true') return data[row].IsVencida;
+            return true;
+          },
         selectableRowsOnClick: true,
         selectableRows: 'multiple',
         responsive: "scrollMaxHeight",
