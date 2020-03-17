@@ -41,6 +41,7 @@ const SelectCliente = (props) => {
 
         setValue(value);
         props.onSelect(val);
+        localStorage.setItem('isVencido',false);
     }
 
     props.clientes.map(el => {

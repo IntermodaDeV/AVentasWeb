@@ -240,7 +240,7 @@ const PagoReciboTable = (props) => {
 
     const validacionDatosRecibo = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor)=>{
 
-        if(isNaN(valor))
+        if(isNaN(valor) || valor === "")
         {
             props.showAlert(true,'El valor de pago tiene que ser un numero y no contener espacios');
             return;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSnackbar } from "notistack";
 import { Content, Footer, Header, Sidebar } from 'components/Layout';
+import LoadingModal from 'components/Global/LoadingModal';
 
 const MainLayout = (props) => {
   const { children } = props;
@@ -62,6 +63,7 @@ const MainLayout = (props) => {
 
   return (
     <main className="cr-app bg-light">
+      <LoadingModal/>
       <Sidebar />
       <Content fluid>
         <Header />
