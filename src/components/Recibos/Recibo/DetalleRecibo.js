@@ -462,6 +462,86 @@ const DetalleRecibo = (props) => {
 
     const EnviarRecibo = () => {
 
+        if(localStorage.getItem('isAnticipo') === 'true'){
+            let loading = Swal.fire({
+                title: 'Enviando',
+                allowOutsideClick: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                },
+            });
+    
+            fetch(urlApi + "/api/Recibo/Anticipo", {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token')
+                },
+                method: 'POST',
+                body: JSON.stringify({
+                    Fecha: pagosXRecibo[0].fecha,
+                    CodigoCliente:props.Cliente.Codigo,
+                    Tipo:"Anticipo [T-O]",
+                    FechaPago: pagosXRecibo[0].fecha,
+                    Pagos: pagosXRecibo.map(pagXRecib => {
+                        return {
+                            "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
+                            "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
+                            "Orden": 1,
+                            "Valor": pagXRecib.valor,//104613.1000,
+                            "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,//"HNL",
+                            "Referencia": pagXRecib.referencia,//"",
+                            "ReferenciaTransaccionAbierta": ""
+                        }
+                    })
+                    ,
+                    Descripcion: '',
+                    SubFacturas: props.CuotasAPagar,
+                })
+            })
+                .then(res => {
+                    loading.close();
+                    if (res.status === 200) {
+                        res.json()
+                            .then(
+                                (result) => {
+                                    setRecibosAplicados(result);
+                                    setModalRecibo(true);
+                                },
+                                // Note: it's important to handle errors here
+                                // instead of a catch() block so that we don't swallow
+                                // exceptions from actual bugs in components.
+                                (error) => {
+                                    Swal.fire({
+                                        type: 'error',
+                                        title: 'Error',
+                                        text: error.Message,
+                                    })
+                                }
+                            )
+                    }
+                    else {
+                        res.json()
+                            .then(
+                                (result) => {
+                                    Swal.fire({
+                                        type: 'error',
+                                        title: 'Error',
+                                        text: result.Message,
+                                    })
+    
+                                },
+                                // Note: it's important to handle errors here
+                                // instead of a catch() block so that we don't swallow
+                                // exceptions from actual bugs in components.
+                                (error) => {
+    
+                                }
+                            )
+                    }
+                });
+        }else{
+
         let loading = Swal.fire({
             title: 'Enviando',
             allowOutsideClick: false,
@@ -537,6 +617,7 @@ const DetalleRecibo = (props) => {
                         )
                 }
             });
+        }
     }
     const OpenModal = (event, cuotas) => {
         event.stopPropagation();

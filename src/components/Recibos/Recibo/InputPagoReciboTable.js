@@ -20,7 +20,10 @@ const InputPago = (props) => {
                 let inputVal = parseFloat(event.target.value);
                 //debugger;
                 console.log('props.indexArray :', props.indexArray);
-
+                if(localStorage.getItem('isAnticipo')==='true'){
+                    val = event.target.value;
+                    setValue(val);
+                }else{
                 if (event.target.value !== '') {
                     if (props.indexArray === 0) {
                         if (TotalRecibo >= inputVal) {
@@ -39,8 +42,9 @@ const InputPago = (props) => {
                             error = true;
                         }
                     }
+                
                     console.log('error :', error);
-
+                    
                     if (error) {
                         Swal.fire({
                             title: 'Error',
@@ -53,6 +57,7 @@ const InputPago = (props) => {
                     error = false;
                 }
                 setValue(val);
+            }
             }}
             onBlur={() => {
                 let val = value;

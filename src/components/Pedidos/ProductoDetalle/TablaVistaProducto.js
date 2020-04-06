@@ -1,10 +1,16 @@
-import React from 'react';
+import React,{useState} from 'react';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumen.module.css';
 import CeldaTallas from "components/Pedidos/Global/CeldaTallas";
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { Popover, Box, Typography } from "@material-ui/core";
 import { InfoOutlined } from "@material-ui/icons";
+import Lightbox from 'react-image-lightbox';
+import 'react-image-lightbox/style.css';
+import { FaEye } from "react-icons/fa";
 const TablaVistaProducto = (props) => {
+    const [SelectedImage, setSelectedImage] = useState(0);
+    const [imagenes,setImagenes] = useState([]);
+    const [IsOpen, setIsOpen] = useState(false);
 
     const onFocus = () => {
 
@@ -79,9 +85,18 @@ const TablaVistaProducto = (props) => {
     }
 
     let IsDist = checkDist();
+    
+    const openImagenes = (color)=>{
+        const imagenesColor = props.producto.ListaColores.filter(e=>e.NombreColor===color);
+        
+        if(imagenesColor[0].ListaImagenes.length===0) return false;
 
+        setImagenes(imagenesColor[0].ListaImagenes);
+        setIsOpen(true);
+    }
 
     return (
+        <div>
         <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
             <thead>
                 <tr className={styles.TrTest}>
@@ -144,6 +159,7 @@ const TablaVistaProducto = (props) => {
             </thead>
             <tbody >
                 {props.producto.ListaColores.map((color, index1) => {
+                    const hasImages = color.ListaImagenes.length>0;
                     var precio = props.producto.Precio.find(precioxProd => {
                         return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
                     });
@@ -167,6 +183,7 @@ const TablaVistaProducto = (props) => {
                                     margin: 'auto',
                                     backgroundColor: 'rgb(106, 40, 118)'
                                 }}></div> */}
+                                {hasImages?<FaEye onClick={()=>{openImagenes(color.NombreColor)}} size={"20px"} style={{display:'block',margin:"auto"}}/>:""}
                                 {color.NombreColor}
                             </td>
                             {
@@ -217,6 +234,21 @@ const TablaVistaProducto = (props) => {
                 })}
             </tbody>
         </table >
+        {IsOpen && (
+            <Lightbox
+                mainSrc={imagenes[SelectedImage].FotografiaProducto}
+                nextSrc={imagenes[(SelectedImage + 1) % imagenes.length].FotografiaProducto}
+                prevSrc={imagenes[(SelectedImage + imagenes.length - 1) % imagenes.length].FotografiaProducto}
+                onCloseRequest={() => setIsOpen(false)}
+                onMovePrevRequest={() =>
+                    setSelectedImage((SelectedImage + imagenes.length - 1) % imagenes.length)
+                }
+                onMoveNextRequest={() =>
+                    setSelectedImage((SelectedImage + 1) % imagenes.length)
+                }
+            />
+        )}
+        </div>
     );
 }
 const numberWithCommas = (x) => {
