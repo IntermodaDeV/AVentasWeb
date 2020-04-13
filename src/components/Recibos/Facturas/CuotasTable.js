@@ -172,6 +172,9 @@ const CuotasTable = props => {
       setSelectedRowsIndex(allRowsSelected.map(row => row.dataIndex))
     }
   }
+
+  let saldoTotal = 0;
+
   props.Cuotas.forEach(fact => {
     fact.Acuerdos.forEach(acu => {
       acu.Facturas.forEach(fact => {
@@ -182,6 +185,8 @@ const CuotasTable = props => {
           let DiasVencido = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
           let ValorDescuento = cuot.Descuento;
           let isVencida = DiasVencido<0;
+
+          saldoTotal+= parseFloat(cuot.Saldo.toFixed(2));
 
           if (DiasVencido < 0) {
             foundExpired = true;
@@ -252,6 +257,8 @@ const CuotasTable = props => {
       });
     });
   })
+
+  localStorage.setItem("totalCredito",saldoTotal.toFixed(2));
 
   const setCuotasAPagar = () => {
     let cuotasAPagar = [];

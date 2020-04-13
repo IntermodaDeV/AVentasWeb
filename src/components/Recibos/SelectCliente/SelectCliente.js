@@ -43,6 +43,8 @@ const SelectCliente = (props) => {
         props.onSelect(val);
         localStorage.setItem('isVencido',false);
         localStorage.setItem('isAnticipo',false);
+        localStorage.setItem('isFavor',false);
+        localStorage.setItem("saldoFavor",0);
     }
 
     props.clientes.map(el => {

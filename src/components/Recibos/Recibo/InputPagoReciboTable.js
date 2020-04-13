@@ -15,11 +15,13 @@ const InputPago = (props) => {
         <TextField
             value={value}
             onChange={(event) => {
-                let val = '';
-                let falt = parseFloat(faltante);
-                let inputVal = parseFloat(event.target.value);
-                //debugger;
-                console.log('props.indexArray :', props.indexArray);
+                let val = event.target.value;
+                /*let falt = parseFloat(faltante);
+                let inputVal = parseFloat(event.target.value);*/
+
+                setValue(val);
+                
+                /*console.log('props.indexArray :', props.indexArray);
                 if(localStorage.getItem('isAnticipo')==='true'){
                     val = event.target.value;
                     setValue(val);
@@ -57,7 +59,7 @@ const InputPago = (props) => {
                     error = false;
                 }
                 setValue(val);
-            }
+            }*/
             }}
             onBlur={() => {
                 let val = value;

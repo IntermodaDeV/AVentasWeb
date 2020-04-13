@@ -539,6 +539,11 @@ const FacturaTable = props => {
     }
   );
 
+  if(data.length===2)
+  {
+    localStorage.setItem("isFavor",true);
+  }
+
   const handleAnticipo=()=>{
 
     const {Codigo,EmpresaId,Moneda} = props.Cliente;
