@@ -233,6 +233,7 @@ const Recibos = (props) => {
 
   const cargarCuotasXCliente = (cuotas) => {
     props.onStoreReciboCuotasXCliente(cuotas);
+
     props.history.push(`/Recibos/${cuotas[0].TipoPedido}/Facturas`);
   }
 
@@ -401,6 +402,7 @@ const Recibos = (props) => {
                 AcuerdosXTipoPedido={props.clienteSelected.AcuerdosXTipoPedido}
                 SetCuotas={cargarCuotasXCliente}
                 CreditoVencido={creditoVencido}
+                CargarCuotasAPagar={CargarCuotasAPagar}
               />
             </div>
           </div>

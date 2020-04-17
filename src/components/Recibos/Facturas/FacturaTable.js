@@ -539,8 +539,86 @@ const FacturaTable = props => {
     }
   );
 
+  if(data.length===2)
+  {
+    localStorage.setItem("isFavor",true);
+  }
+
+  const handleAnticipo=()=>{
+
+    const {Codigo,EmpresaId,Moneda} = props.Cliente;
+
+    const anticipo = [{
+      Acuerdos:[{
+        Facturas:[{
+          IdFactura:0,
+          Factura:"Anticipo ",
+          CodigoCliente:Codigo,
+          EmpresaId:EmpresaId,
+          IdMoneda:Moneda,
+          Tipo:"Anticipo [T-O]",
+          FechaFactura:new Date(),
+          FechaVencimiento:new Date(),
+          FechaMaxDescuento:new Date(),
+          TotalFactura:0,
+          Saldo:0,
+          PendienteFactura:0,
+          Descuento:0,
+          FacturaStatus:"Ninguno",
+          NumeroPagos:0,
+          Referencia:"test",
+          IdLinea:"TPT",
+          LineaString:"Tejido de punto",
+          TipoPedidoString:"Ordinario",
+          IdTipoPedido:1,
+          Cuotas: [
+            {
+               IdSubFactura: 0,
+               Factura: "Anticipo",
+               CodigoCliente: Codigo,
+               EmpresaId: EmpresaId,
+               IdMoneda: Moneda,
+               IdAcuerdoxCliente: null,
+               FechaFactura: new Date(),
+               FechaVencimiento: new Date(),
+               FechaMaxDescuento: new Date(),
+               FechaVencimientoDescuento: new Date(),
+               Saldo: 0,
+               SaldoDivisa: 0,
+               Descuento: 0,
+               PendientePago: 0,
+               Referencia: "test",
+               TipoDocumento: "Anticipo [D-O]",
+               ReferenciaFacturas: "test",
+               ReferenciaAcuerdo: "0",
+               NumeroCuota: 0,
+               ValorCuota: 0,
+               ValorVencidoCuota: 0,
+               ReferenciaCuotas: "0",
+               IdFactura: 0,
+               TipoPedido:"Ordinario",
+               AgrupaPorCuota:false
+            }
+         ]
+      }
+   ],
+        Acuerdo:"",
+        Valor:"0",
+        Disponible:"0"
+      }],
+      IdTipoPedido:1,
+      TipoPedido:"Ordinario",
+      AgrupaPorCuota:false
+    }
+  ];
+    localStorage.setItem("isAnticipo",true);
+    props.SetCuotas(anticipo);
+    props.CargarCuotasAPagar([0]);
+  }
+
   return (
   <>
+    {data.length===1?<Button color="primary" onClick={()=>{handleAnticipo()}} variant="contained" style={{marginBottom:"20px"}}>Anticipos</Button>:""}
     <MUIDataTable title={'Resumen Cartera'} data={data} columns={columns} options={getOptions(props)} />
     <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
     <FacturasModalPrecompra Data={DataModalPrecompra} Open={openModalPrecompra} onClose={setOpenModalPrecompra}></FacturasModalPrecompra>

@@ -14,6 +14,7 @@ import CheckIcon from '@material-ui/icons/Check';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import InputPago from './InputPagoReciboTable';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 moment.locale('es')
 
@@ -239,6 +240,30 @@ const PagoReciboTable = (props) => {
     }
 
     const validacionDatosRecibo = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor)=>{
+
+        
+            const TotalRecibo = parseFloat(localStorage.getItem('TotalRecibo'));
+            const TotalCredito = parseFloat(localStorage.getItem('totalCredito')).toFixed(2);
+            const notTotal = TotalRecibo.toFixed(2)!==TotalCredito;
+            const isNotAnticipo = localStorage.getItem('isAnticipo') === 'false';
+
+            localStorage.setItem("saldoFavor",0);
+
+            if(valor>TotalRecibo && notTotal && isNotAnticipo)
+            {
+                const diferencia = (valor-TotalRecibo).toFixed(2);
+                Swal.fire({
+                    title: 'Error',
+                    text: `El valor ingresado excede el total de factura.
+                            Por favor seleccione otra factura para abonar la diferencia de ${diferencia}`,
+                    type: 'error',
+                });
+                return;
+            }
+
+            const diferencia = (valor-TotalRecibo).toFixed(2);
+            const difTotal = diferencia>0?diferencia:0;
+            localStorage.setItem("saldoFavor",difTotal);
 
         if(isNaN(valor) || valor === "")
         {
@@ -480,6 +505,7 @@ const PagoReciboTable = (props) => {
         null, null, null, null, null, null, null,
         (
             <div className="d-flex">
+                { (localStorage.getItem('isAnticipo')==='false') &&
                 <Button
                     className="mr-1"
                     style={{ textAlign: 'center' }}
@@ -487,7 +513,7 @@ const PagoReciboTable = (props) => {
                 >
                     <AddCircleOutlineIcon />
                 </Button>
-
+                }
                 <Button
                     className="ml-1"
                     onClick={() => { props.EnviarRecibo() }}

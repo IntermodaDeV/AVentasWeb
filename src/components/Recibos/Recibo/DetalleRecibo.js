@@ -462,23 +462,37 @@ const DetalleRecibo = (props) => {
 
     const EnviarRecibo = () => {
 
-        let loading = Swal.fire({
-            title: 'Enviando',
-            allowOutsideClick: false,
-            onBeforeOpen: () => {
-                Swal.showLoading()
-            },
-        });
+        const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
+        let apiURL     = urlApi + "/api/Recibo";
+        let parametros = {
+            Fecha: pagosXRecibo[0].fecha,
+            FechaPago: pagosXRecibo[0].fecha,
+            SaldoFavor:saldoAFavor,
+            Pagos: pagosXRecibo.map(pagXRecib => {
+                return {
+                    "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
+                    "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
+                    "Orden": 1,
+                    "Valor": pagXRecib.valor-saldoAFavor,//104613.1000,
+                    "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,//"HNL",
+                    "Referencia": pagXRecib.referencia,//"",
+                    "ReferenciaTransaccionAbierta": ""
+                }
+            })
+            ,
+            Descripcion: '',
+            SubFacturas: props.CuotasAPagar,
+        }
 
-        fetch(urlApi + "/api/Recibo", {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
-            },
-            method: 'POST',
-            body: JSON.stringify({
+        if(localStorage.getItem('isAnticipo') === 'true'){
+            localStorage.setItem('isAnticipo',false);
+
+            apiURL = urlApi + "/api/Recibo/Anticipo";
+
+            parametros = {
                 Fecha: pagosXRecibo[0].fecha,
+                CodigoCliente:props.Cliente.Codigo,
+                Tipo:"Anticipo [T-O]",
                 FechaPago: pagosXRecibo[0].fecha,
                 Pagos: pagosXRecibo.map(pagXRecib => {
                     return {
@@ -494,7 +508,28 @@ const DetalleRecibo = (props) => {
                 ,
                 Descripcion: '',
                 SubFacturas: props.CuotasAPagar,
-            })
+            }
+        }
+
+        console.log(apiURL);
+        console.log(parametros);
+
+        let loading = Swal.fire({
+            title: 'Enviando',
+            allowOutsideClick: false,
+            onBeforeOpen: () => {
+                Swal.showLoading()
+            },
+        });
+
+        fetch(apiURL, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization':
+                    'Bearer ' + localStorage.getItem('token')
+            },
+            method: 'POST',
+            body: JSON.stringify(parametros)  
         })
             .then(res => {
                 loading.close();
@@ -538,6 +573,7 @@ const DetalleRecibo = (props) => {
                 }
             });
     }
+
     const OpenModal = (event, cuotas) => {
         event.stopPropagation();
         setOpenModal(true);
