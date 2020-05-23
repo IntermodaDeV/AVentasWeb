@@ -29,7 +29,8 @@ import {
     StoreMallDirectoryOutlined,
     CameraAltOutlined,
     LocationOnOutlined,
-    HelpOutline
+    HelpOutline,
+    Public
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 //components
@@ -75,6 +76,7 @@ const navItems = [
     { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
     { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
     { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
+    { to: '/coordenadas-global', name: 'Clientes Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
 ];
 
 const Sidebar = (props) => {

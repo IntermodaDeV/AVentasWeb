@@ -5,22 +5,20 @@ import GoogleMapReact from 'google-map-react';
 import { ScaleLoader } from 'react-spinners';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import TextField from '@material-ui/core/TextField';
-import {APIURL} from 'utils/Enviroment';
+import {APIURL,APIKEY} from 'utils/Enviroment';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
-import {
-    Dialog,
-    DialogTitle,
-    DialogActions,
-    DialogContent,
-    Button,
-    FormGroup,
-    FormControlLabel,
-    Select,
-    FormControl,
-    MenuItem,
-    InputLabel,
-    Checkbox
-} from '@material-ui/core';
+import Dialog from '@material-ui/core/Dialog';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import Button from '@material-ui/core/Button';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Select from '@material-ui/core/Select';
+import FormControl from '@material-ui/core/FormControl';
+import MenuItem from '@material-ui/core/MenuItem';
+import Checkbox from '@material-ui/core/Checkbox';
+import InputLabel from '@material-ui/core/InputLabel';
 import styles from 'containers/Agenda/Agenda.module.css';
 import 'containers/Agenda/Agenda.css';
 import moment from "moment";
@@ -405,10 +403,6 @@ export default class Agenda extends Component {
     }
 
     onClickAgenda = (info) => {
-        // alert('Clicked on: ' + info.dateStr);
-        // alert('Coordinates: ' + info.jsEvent.pageX + ',' + info.jsEvent.pageY);
-        // alert('Current view: ' + info.view.type);
-        // change the day's background color just for fun;
         info.dayEl.style.backgroundColor = '#ddd';
     }
 
@@ -595,8 +589,7 @@ export default class Agenda extends Component {
                         scroll={'paper'}
                         open={this.state.mostarEvento}
                         onClose={() => this.state.isModalLoaded && this.setState({ mostarEvento: false })}
-                        aria-labelledby="scroll-dialog-title"
-                    //className={"AgendaContainer"}
+                        aria-labelledby="scroll-dialog-title"                    
                     >
                         <DialogTitle
                             className="text-center"
@@ -613,9 +606,13 @@ export default class Agenda extends Component {
                                         <div className="row mb-1">
                                             <div className={'col-md-6 col-12 my-md-0 mb-3'}>
                                                 <h5 className="font-weight-light">Ubicación</h5>
-                                                <div style={{ height: '300px' }}>
+                                                <div style={{ height: '300px',display:'flex',alignItems:'center' }}>
+                                                {(this.state.clienteActivo.latitud === null && this.state.clienteActivo.longitud===null)
+                                                ?
+                                                    <h1 className="font-weight-light">No hay coordenadas disponibles</h1>
+                                                :
                                                     <GoogleMapReact
-                                                        bootstrapURLKeys={{ key: "AIzaSyBYe6qlu-FWB8cCAMG52pdAPVs5W2cdODU" }}
+                                                        bootstrapURLKeys={{ key: APIKEY }}
                                                         defaultCenter={
                                                             {
                                                                 lat: this.state.clienteActivo.latitud,
@@ -631,6 +628,7 @@ export default class Agenda extends Component {
                                                         yesIWantToUseGoogleMapApiInternals={true}
                                                     >
                                                     </GoogleMapReact>
+                                                }
                                                 </div>
                                             </div>
                                             <div className={'col-md-6 col-12'}>
@@ -654,14 +652,12 @@ export default class Agenda extends Component {
 
                                                             <td style={{ color: "#B22222" }}>
 
-                                                                <b> {this.state.clienteActivo.cliente.NumeroFacturasVencidas} Facturas - HNL {this.state.clienteActivo.cliente.MontoFacturasVencidas.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</b>
-                                                                {/* {credito.Disponible.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')} */}
+                                                                <b> {this.state.clienteActivo.cliente.NumeroFacturasVencidas} Facturas - HNL {this.state.clienteActivo.cliente.MontoFacturasVencidas.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</b>                                                               
                                                             </td>
 
                                                             <td>
                                                                 <FaEye size={"20px"} style={{ color: "#B22222" }}
                                                                     onClick={() => {
-                                                                        //this.onClickModal('Recibos', this.state.clienteActivo.codigo);
                                                                         this.OpenModalFacturas(false);
                                                                     }
                                                                     } />
@@ -679,7 +675,6 @@ export default class Agenda extends Component {
                                                             <td>
                                                                 <FaEye size={"20px"} style={{ color: "#DC9609" }}
                                                                     onClick={() => {
-                                                                        //this.onClickModal('Recibos', this.state.clienteActivo.codigo);
                                                                         this.OpenModalFacturas(true);
                                                                     }
                                                                     }
@@ -720,98 +715,21 @@ export default class Agenda extends Component {
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <FormGroup row className={"mb-1"}>
-                                                    {/* <FormControlLabel
-                                                        control={
-                                                            <Checkbox color="default" checked={this.state.noAtendido} onChange={(event) => this.state.mostrarAcciones && this.setState({ noAtendido: event.target.checked })} value="Atender" />
-                                                        }
-                                                        label="No se atendió"
-                                                    /> */}
+                                                <FormGroup row className={"mb-1"}>                                                    
                                                     <FormControlLabel
                                                         control={
                                                             <Checkbox color="default" checked={this.state.noAtendido} onChange={(event) => this.setState({ noAtendido: event.target.checked, mostarNoAtendido: true })} value="Atender" />
                                                         }
                                                         label="No se Atendió"
                                                     />
-                                                    {/* {
-                                                        this.state.mostrarAcciones &&
-
-                                                        this.state.noAtendido &&
-                                                        <Button
-                                                            variant="outlined"
-                                                            color="primary"
-                                                            className={"py-1"}
-                                                            style={{ height: '35px' }}
-                                                            disabled={!this.state.razonSelected}
-                                                            onClick={() => this.guardarRazon()}>
-                                                            {
-                                                                this.state.guardandoRazon ?
-                                                                    <ScaleLoader
-                                                                        css={{ height: '25px', bottom: '5px', position: 'relative', transform: 'scale(0.6)' }}
-                                                                        size={'20px'}
-                                                                        color={'#3f51b5'}
-                                                                        loading={this.state.GuardarAsignacion} /> : 'Guardar'
-                                                            }
-                                                        </Button>
-                                                    } */}
                                                 </FormGroup>
 
-                                                {/* {
-                                                    this.state.noAtendido &&
-                                                    <>
-                                                        <h6>Razón</h6>
-                                                        <div className="row">
-                                                            <div className="col-6">
-                                                                <FormControl style={{ display: 'flex' }}>
-                                                                    <InputLabel htmlFor="demo-controlled-open-select">Tipo</InputLabel>
-                                                                    <Select
-                                                                        value={(this.state.tipo === null ? '' : this.state.tipo)}
-                                                                        disabled={tipoDisabled}
-                                                                        onChange={this.handleChangeTipo}
-                                                                    >
-                                                                        {
-                                                                            this.opcionTipos()
-                                                                        }
-
-                                                                    </Select>
-                                                                </FormControl>
-                                                            </div>
-
-                                                            <div className="col-6">
-                                                                <FormControl style={{ display: 'flex' }}>
-                                                                    <InputLabel htmlFor="demo-controlled-open-select">Causa</InputLabel>
-                                                                    <Select
-                                                                        disabled={causaDisabled}
-                                                                        value={(this.state.razon === null ? '' : this.state.razon)}
-                                                                        onChange={this.handleChangeCausa}
-                                                                    >
-                                                                        {
-                                                                            this.opcionCausas()
-                                                                        }
-                                                                    </Select>
-                                                                </FormControl>
-                                                            </div>
-                                                        </div>
-                                                        <div className="row">
-                                                            <TextField
-                                                               label="Observacion"
-                                                               multiline
-                                                               rowsMax="6"
-                                                               rows="3"
-                                                               value={""}
-                                                               onChange={()=>{}}
-                                                               margin="normal"
-                                                             />
-                                                        </div>
-                                                    </>
-                                                } */}
+                                                
 
                                             </div>
                                         </div>
 
                                     </DialogContent>
-                                    {/* {
-                                        this.state.mostrarAcciones && */}
                                     <DialogActions>
                                         {
                                             this.state.Acciones.map((accion, index) => {
@@ -826,7 +744,6 @@ export default class Agenda extends Component {
                                             })
                                         }
                                     </DialogActions>
-                                    {/* } */}
                                 </>
                                 :
                                 <>
