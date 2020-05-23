@@ -5,7 +5,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import styles from 'containers/Coordenadas/Coordenadas.module.css';
-import {APIURL} from 'utils/Enviroment';
+import {APIURL,APIKEY} from 'utils/Enviroment';
 // const CustomMarker = ({ text }) => <div>{text}</div>;
 export default class Coordenadas extends Component {
     urlApi = APIURL;
@@ -168,7 +168,8 @@ export default class Coordenadas extends Component {
                     <div className="col p-0" style={{ marginTop: '-7px', borderLeft: '1px solid #ddd' }}>
                         <div style={{ height: '100%', width: '100%' }}>
                             <GoogleMapReact
-                                bootstrapURLKeys={{ key: "AIzaSyBYe6qlu-FWB8cCAMG52pdAPVs5W2cdODU" }}
+                                bootstrapURLKeys={{ key: APIKEY }}
+                                
                                 defaultCenter={
                                     {
                                         lat: 15.497377,
@@ -186,21 +187,6 @@ export default class Coordenadas extends Component {
                                 onGoogleApiLoaded={({ map, maps }) => { this.setMapsApi(map, maps) }}
                                 yesIWantToUseGoogleMapApiInternals={true}
                             >
-                                {/* {this.state.RutaSeleccionada ? this.state.RutaSeleccionada.Clientes.map((cliente, index) => {
-                                return (
-                                    <CustomMarker
-                                    key={index}
-                                    lat={cliente.Coordenadas[0].Latitud}
-                                    lng={cliente.Coordenadas[0].Longitud}
-                                    text={cliente.Nombre}
-                                    />
-                                    )
-                        }) : null} */}
-                                {/* <CustomMarker
-                            lat={this.state.ClienteSeleccionado.Coordenadas[0].Latitud}
-                            lng={this.state.ClienteSeleccionado.Coordenadas[0].Longitud}
-                            text={this.state.ClienteSeleccionado.Nombre}
-                        /> */}
                             </GoogleMapReact>
 
                         </div>

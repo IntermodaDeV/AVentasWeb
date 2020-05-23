@@ -16,6 +16,7 @@ import CuentaCorriente from 'containers/CuentaCorriente/CuentaCorriente'
 import EstadisticaVisita from 'containers/EstadisticaVisita/EstadisticaVisita'
 import Pruebas from 'components/Global/pruebas'
 import Coordenadas from 'containers/Coordenadas/Coordenadas'
+import CoordenadasGlobal from 'containers/Coordenadas/CoordenadasGlobal'
 import ListaPedidos from 'containers/ListaPedidos/ListaPedidos'
 import ListaRecibos from 'containers/ListaRecibos/ListaRecibos'
 import AsignacionPage from 'containers/Asignacion/Asignacion'
@@ -69,6 +70,12 @@ const App = props => {
               path='/coordenadas'
               layout={MainLayout}
               component={Coordenadas}
+            />
+            <LayoutRoute
+              exact
+              path='/coordenadas-global'
+              layout={MainLayout}
+              component={CoordenadasGlobal}
             />
             <LayoutRoute
               exact

@@ -28,7 +28,6 @@ const Modal = (props) => {
 
 
     const urlApi = APIURL ;
-    // urlApi = "http://localhost:62630/";
 
 
     useEffect(() => {
@@ -40,12 +39,7 @@ const Modal = (props) => {
     }, []);
 
     const cargarTiposAsignacionCliente = () => {
-        fetch(urlApi + "/api/TipoVisitaCliente", {
-            // headers: {
-            //     'Authorization':
-            //         'Bearer ' + localStorage.getItem('token'),
-            // }
-        })
+        fetch(urlApi + "/api/TipoVisitaCliente")
             .then(res => {
                 if (res.status === 200) {
 
@@ -62,12 +56,7 @@ const Modal = (props) => {
     }
 
     const cargarTiempoEstimado = () => {
-        fetch(urlApi + "/api/Configuraciones", {
-            // headers: {
-            //     'Authorization':
-            //         'Bearer ' + localStorage.getItem('token'),
-            // }
-        })
+        fetch(urlApi + "/api/Configuraciones")
             .then(res => {
                 if (res.status === 200) {
 
@@ -84,12 +73,7 @@ const Modal = (props) => {
     }
 
     const cargarPrioridadesAsignacion = () => {
-        fetch(urlApi + "/api/PrioridadAsignacion", {
-            // headers: {
-            //     'Authorization':
-            //         'Bearer ' + localStorage.getItem('token'),
-            // }
-        })
+        fetch(urlApi + "/api/PrioridadAsignacion")
             .then(res => {
                 if (res.status === 200) {
 
