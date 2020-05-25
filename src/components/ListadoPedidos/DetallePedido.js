@@ -5,7 +5,14 @@ import GoogleMapReact from 'google-map-react';
 import { FaArrowLeft } from "react-icons/fa";
 import { Fab } from "@material-ui/core";
 import moment from "moment";
-import 'moment/locale/es'
+import 'moment/locale/es';
+import {
+    Popover,
+    Box,
+    Typography
+} from '@material-ui/core';
+import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
+import { InfoOutlined } from "@material-ui/icons";
 moment.locale('es');
 
 const DetallePedido = (props) => {
@@ -76,6 +83,77 @@ const DetallePedido = (props) => {
 
     if (maps.map !== null) {
         renderMarkers();
+    }
+
+    const checkDist = (talla) => {
+        let found = false;
+            talla.Distribucion.map(() => {
+                found = true;
+                return false;
+            })
+        return found;
+    }
+
+    const Headers = (array) => {
+        return (
+            <thead>
+                <tr>
+                    {
+                        array.map((dist, index) => {
+                            return (
+                                <th key={index} className={styles.ThTest}>{dist.NombreTalla}</th>
+                            )
+                        })
+                    }
+                </tr>
+
+            </thead>
+        )
+    }
+
+    const TableBody = (array, cantidad,Precio) => {
+        let CantDist = 0;
+        let TotalCant= 0;
+        return (
+            <tbody>
+                <tr>
+                {array.map((dist, index) => {
+                     CantDist += parseInt(dist.Cantidad)
+                            return (
+                                <td key={index} style={{ textAlign: 'center' }}>{dist.Cantidad * cantidad}</td>
+                               
+                            )
+                        })
+                }
+               </tr>
+               <tr>
+               {array.map((dist, index2) => {
+                   TotalCant = Precio / CantDist
+                            return (
+                                <td key={index2} style={{ textAlign: 'center' }}>{TotalCant}</td>
+                               
+                            )
+                        })
+                    }
+                </tr>
+            </tbody>
+        )
+    }
+
+    const TableDetails = (array) => {
+        return (
+            <tbody>
+                <tr>
+                    {
+                        array.map((dist, index) => {
+                            return (
+                                <td key={index} style={{ textAlign: 'center' }}>{dist.Cantidad}</td>
+                            )
+                        })
+                    }
+                </tr>
+            </tbody>
+        )
     }
     console.log('object :', props);
     return (
@@ -238,19 +316,63 @@ const DetallePedido = (props) => {
                 <div className="w-100 mw-100 overflow-auto">
                     {props.pedido.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
+                        let IsDist = true;
                         return (
                             <table className={'table table-bordered table-xl-responsive'} style={{ borderColor: '#aaa', overflow: "auto" }} key={index1}>
                                 <thead>
                                     <tr className={styles.TrTest}>
                                         <th className={styles.ThTest}>
-
                                         </th>
                                         {grupoTalla.ListaTalla.map((talla, index2) => {
+                                            IsDist = checkDist(talla);
                                             cantidad++;
                                             return (
-                                                <th className={styles.ThTest} key={index2}>
-                                                    {talla.Talla}
-                                                </th>
+                                                <th className={styles.ThTest} key={index2} style={{ paddingBottom: (IsDist=== true) && '1.3%' }}>
+                                                     <div className="text-center">
+                                                        {
+                                                            <div>{talla.Talla}</div>
+                                                           
+                                                         /*talla.Distribucion.length !== 0 &&
+                                                        <PopupState variant="popper" popupId={talla.Talla + index2}>
+                                                        {popupState => (
+                                                        <>
+                                                        <div variant="contained" className={"row"}>
+                                                            {talla.Talla}
+                                                            <InfoOutlined {...bindTrigger(popupState)} style={{ fontSize: '16px', cursor: 'pointer', margin: 'auto' }}> </InfoOutlined>
+                                                        </div>
+                                                            <Popover
+                                                            {...bindPopover(popupState)}
+                                                            style={{ zIndex: 900 }}
+                                                            anchorOrigin={{
+                                                            vertical: 'bottom',
+                                                            horizontal: 'center',
+                                                            }}
+                                                            transformOrigin={{
+                                                            vertical: 'top',
+                                                            horizontal: 'center',
+                                                            }}>
+                                                               <Box p={2}>
+                                                                    <div className="row mb-2">
+                                                                        <Typography component="h5" variant="h5">
+                                                                        {"Distribución de Tallas"}
+                                                                        </Typography>
+                                                                    </div>
+                                                                    <div style={{ maxWidth: '300px', overflow: 'auto' }}>
+                                                                        <table className="table table-striped table-bordered m-0">
+                                                                                {Headers(talla.Distribucion)}
+                                                                                {TableDetails(talla.Distribucion)}
+                                                                        </table>
+                                                                    </div>
+                                                                </Box>
+                                                                    
+                                                            </Popover>
+                                                            </>
+                                                        )}
+                                                        </PopupState>*/
+                                                    }
+
+                                            </div> 
+                                          </th>
                                             )
                                         })}
                                         <th className={styles.ThTest} >Cantidad</th>
@@ -321,7 +443,7 @@ const DetallePedido = (props) => {
                                                                                     </Paper>
                                                                                 </Grow>
                                                                             )}
-                                                                        </Popper>
+                                                                     {}   </Popper>
                                                                     </>
                                                                 )}
                                                             </PopupState> */}
@@ -330,11 +452,11 @@ const DetallePedido = (props) => {
                                                     </td>
                                                 </tr>
                                                 {producto.coloresXProdXDetPed.map((color, index3) => {
-                                                    let detalles = Array(grupoTalla.ListaTalla.length).fill(null);
+                                                    let detalles = Array(grupoTalla.ListaTalla.length).fill(null); 
                                                     color.DetallesXPedido.forEach(detalleXPedido => {
                                                         detalles[grupoTalla.ListaTalla.findIndex(tall => tall.Talla === detalleXPedido.Talla)] = detalleXPedido;
+                                                    
                                                     });
-
                                                     let cellSize = 100 / cantidad;
                                                     return (
                                                         <tr key={index3}>
@@ -348,9 +470,58 @@ const DetallePedido = (props) => {
                                                                 {color.NombreColor}
                                                             </td>
                                                             {detalles.map((det, index4) => {
+                                                                console.log("det",det) 
                                                                 return (
-                                                                    <td key={index4} className="p-1 text-center" style={{ width: `${cellSize}%` }}>
-                                                                        <label>{det ? det.Cantidad : 0}</label>
+                                                                    <td key={index4} className="p-1 text-center" style={{ width: `${cellSize}%`}}>
+                                                                        <div className="text-center">
+                                                                        {
+                                                                            
+                                                                                 IsDist === true && det !== null &&
+                                                                                 <PopupState variant="popper" popupId={det.Talla + index4}>
+                                                                                 {popupState => (
+                                                                                 <>
+                                                                                 <div variant="contained" className={"text-center"}>
+                                                                                 <label>{det ? det.Cantidad : 0}</label>
+                                                                                     <InfoOutlined {...bindTrigger(popupState)} style={{ fontSize: '18px', cursor: 'pointer', margin: 'auto' }}> </InfoOutlined>
+                                                                                 </div>
+                                                                                     <Popover
+                                                                                     {...bindPopover(popupState)}
+                                                                                     style={{ zIndex: 900 }}
+                                                                                     anchorOrigin={{
+                                                                                     vertical: 'bottom',
+                                                                                     horizontal: 'center',
+                                                                                     }}
+                                                                                     transformOrigin={{
+                                                                                     vertical: 'top',
+                                                                                     horizontal: 'center',
+                                                                                     }}>
+                                                                                        <Box p={2}>
+                                                                                             <div className="row mb-2">
+                                                                                                 <Typography component="h5" variant="h5">
+                                                                                                 {"Distribución de Tallas"}
+                                                                                                 </Typography>
+                                                                                             </div>
+                                                                                             <div style={{ maxWidth: '300px', overflow: 'auto' }}>
+                                                                                                 <table className="table table-striped table-bordered m-0">
+                                                                                                     
+                                                                                                 {Headers(det.TallaObject.Distribucion)}
+                                                                                                 {TableBody(det.TallaObject.Distribucion, det.Cantidad, det.PrecioUnitario)}
+                                                                                                 </table>
+                                                                                             </div>
+                                                                                         </Box>
+                                                                                             
+                                                                                     </Popover>
+                                                                                     </>
+                                                                                 )}
+                                                                                 </PopupState>
+                                                                            }
+                                                                           {
+                                                                             IsDist === true && det === null && <label>{0}</label>
+                                                                            }
+                                                                            {
+                                                                             IsDist === false && <label>{det ? det.Cantidad : 0}</label>
+                                                                            }
+                                                                        </div>
                                                                     </td>
                                                                 )
                                                             })}

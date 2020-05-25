@@ -56,6 +56,18 @@ const ResumenPedido = (props) => {
     const clearFirma = () => {
         sigPad.clear();
     }
+let GrupoTalla = "";
+let TotalUnidad = 0;
+const IsSame = (GrupoTallaId) => {
+    let found = false;
+    if(GrupoTalla === ""){
+        GrupoTalla = GrupoTallaId;
+    }
+    else if(GrupoTalla === GrupoTallaId){
+        found = true;
+    }
+    return found;
+}
     const Finalizar = () => {
         if (!props.loadingRecibo) {
             if (ErrorFecha || ErrorFirma) {
@@ -216,7 +228,7 @@ const ResumenPedido = (props) => {
                                         Color
                                 </th>
                                     {DataDetallePedido[rowMeta.dataIndex].ExpandedRow.ListaTallas.map((talla, index) => {
-                                        return (
+                                         return (
                                             <th className={'text-center'} key={index}>
                                                 {talla.Talla}
                                             </th>
@@ -303,10 +315,11 @@ const ResumenPedido = (props) => {
             },
         }
     }
-
+    let CantDist = 0;
     const getTableGroup = (productos, tallas, grupoTalla, index) => {
         let grupoTabla = { total: 0, tabla: null };
-
+        let Same = false;
+        console.log("tallas,grupoTalla :", tallas,grupoTalla)
         grupoTabla.tabla = (
             <table className={'table table-responsive-xs'} style={{ marginBottom: '0' }} key={index}>
                 <thead>
@@ -315,10 +328,29 @@ const ResumenPedido = (props) => {
 
                         </th>
                         {tallas.map((talla, index) => {
+                            Same = IsSame(talla.GrupoTallaId);
                             return (
-                                <th className={'text-center'} style={{ minWidth: 42 }} key={index}>
+                                <>
+                                {
+                                   talla.Distribucion.length !== 0  && Same === false &&
+                                   talla.Distribucion.map((dist, index3) => {
+                                   CantDist += parseInt(dist.Cantidad)
+                                      return (
+                                      <th key={index}>
+                                         {
+                                             <div key={index3}>{dist.NombreTalla}</div>
+                                         }
+                                      </th>
+                                      )
+                                  })
+                               }
+                               {
+                               talla.Distribucion.length === 0 &&
+                               <th className={'text-center'} style={{ minWidth: 42 }} key={index}>
                                     {talla.Talla}
                                 </th>
+                                }
+                              </> 
                             )
                         })}
                         <th>Cant</th>
@@ -382,7 +414,11 @@ const ResumenPedido = (props) => {
 
     const getTableColor = (color, totalXColor, index2, precio) => {
         let colorTabla = { total: 0, tabla: null };
-
+        let Count= 0;
+        let arreglo = [];
+        let totalcantidad = 0;
+        let PrecioDistribucion = 0;
+        let TotalXProdDist = 0;
         colorTabla.tabla = (
             <tr key={index2}>
                 <td style={{
@@ -394,24 +430,71 @@ const ResumenPedido = (props) => {
                     {color.NombreColor}
                 </td>
                 {
+
                     Object.keys(color.Tallas).map((codigoTalla, index3) => {
+                        Count ++;
                         var valorTalla = color.Tallas[codigoTalla];
-                        console.log('valorTalla :', valorTalla);
+                        var tallas =  Object.keys(color.Tallas).length;
+                        let TotalXTalla = 0;
                         //var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
                         totalXColor = parseInt(totalXColor, 10) + (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
                         colorTabla.total = totalXColor;
                         return (
-                            <td key={index3} style={{ textAlign: "center" }} >
+                            <>
+                            {
+                                valorTalla.Distribucion.length !== 0 &&
+                                valorTalla.Distribucion.map((dist, index4) => {
+                                TotalXTalla = dist.Cantidad *  valorTalla.Cantidad;
+                                TotalXProdDist += TotalXTalla;
+                                TotalUnidad +=  TotalXTalla;
+                                let cant = 0;
+                                    if(tallas === 1){
+                                        totalcantidad = dist.Cantidad *  valorTalla.Cantidad;
+                                        PrecioDistribucion = valorTalla.Precio/CantDist
+                                    }
+                                    else{
+                                        if(Count === 1){
+                                            arreglo.push({ NombreTalla: dist.NombreTalla, cant : dist.Cantidad *  valorTalla.Cantidad});                          
+                                            PrecioDistribucion = PrecioDistribucion === 0? valorTalla.Precio/CantDist : valorTalla.Precio/CantDist;
+                                           
+                                            return false;
+                                        }
+                                        else{
+                                            const listaTallas = arreglo.filter(x=>x.NombreTalla===dist.NombreTalla);
+                                            cant = dist.Cantidad *  valorTalla.Cantidad
+                                            totalcantidad = listaTallas[0].cant + cant;
+                                        }     
+                                    }
+
+                                return(
+                                    <td key={index4} style={{ textAlign: "center" }}>
+                                    <div className="row">
+                                        <div className="col-12 px-0">
+                                            <span>{PrecioDistribucion}</span>
+                                        </div>
+                                        <div className="col-12 px-0">
+                                            <span>{totalcantidad}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                )
+                                })
+                            }
+                            {
+                                valorTalla.Distribucion.length === 0 && 
+                                <td key={index3} style={{ textAlign: "center" }} >
                                 <div className="row">
                                     <div className="col-12 px-0">
                                         <span>{valorTalla.Precio}</span>
                                     </div>
                                     <div className="col-12 px-0">
-
                                         <span>{valorTalla.Cantidad !== "" ? valorTalla.Cantidad : 0}</span>
                                     </div>
                                 </div>
                             </td>
+                            }
+                            
+                            </>
                         )
                     })
                 }
@@ -420,7 +503,7 @@ const ResumenPedido = (props) => {
                     alignItems: 'center',
                     verticalAlign: 'middle',
                     fontWeight: 600,
-                }}>{totalXColor}</td>
+                }}>{TotalXProdDist !==0 ? TotalXProdDist : totalXColor}</td>
 
                 <td style={{
                     textAlign: 'right',
@@ -663,7 +746,7 @@ const ResumenPedido = (props) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                        {unidadesTotales}
+                                        {TotalUnidad != 0? TotalUnidad : unidadesTotales}
                                     </div>
                                 </div>
 

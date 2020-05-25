@@ -8,6 +8,26 @@ import 'moment/locale/es';
 
 const ImprimirPedido = (props) => {
 
+let TotalUnidad = 0;
+let GrupoTalla = "";
+const IsSame = (GrupoTallaId) => {
+    let found = false;
+    if(GrupoTalla === ""){
+        GrupoTalla = GrupoTallaId;
+    }
+    else if(GrupoTalla === GrupoTallaId){
+        found = true;
+    }
+    return found;
+}
+const checkDist = (talla) => {
+    let found = false;
+        talla.Distribucion.map(() => {
+            found = true;
+            return false;
+        })
+    return found;
+}
     const componentRef = React.useRef();
     return (
         <>
@@ -54,20 +74,44 @@ const ImprimirPedido = (props) => {
 
                     {props.Pedido.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
+                        let IsDist = true;
+                        let Same = false;
                         return (
                             <table className={'table table-bordered table-xl-responsive'} style={{ borderColor: '#aaa', overflow: "auto" }} key={index1}>
                                 <thead>
-                                    <tr style={{ backgroundColor: '#d9d9d9' }}>
+                                  <tr style={{ backgroundColor: '#d9d9d9' }}>
                                         <th>
-
                                         </th>
-                                        {grupoTalla.ListaTalla.map((talla, index2) => {
-                                            cantidad++;
-                                            return (
+                                     {grupoTalla.ListaTalla.map((talla, index2) => {
+                                        IsDist=false;
+                                        Same = IsSame(talla.GrupoTallaId) ;
+                                        cantidad++;
+                                        return (
+                                          <>
+                                          {
+                                             talla.Distribucion.length !== 0 && Same === false &&
+                                             talla.Distribucion.map((dist, index3) => {
+                                               IsDist = true;
+                                               cantidad++;
+                                                return (
                                                 <th key={index2}>
-                                                    {talla.Talla}
+                                                   {
+                                                       <div key={index3}>{dist.NombreTalla}</div>
+                                                   }
                                                 </th>
-                                            )
+                                                )
+                                            })
+                                         }
+                                         {
+                                         talla.Distribucion.length === 0 &&
+                                         <th key={index2}>
+                                            {
+                                             <div>{talla.Talla}</div>
+                                            }
+                                         </th>
+                                          }
+                                        </>  
+                                        )
                                         })}
                                         <th>Cant</th>
                                         <th>Total</th>
@@ -96,8 +140,12 @@ const ImprimirPedido = (props) => {
                                                     color.DetallesXPedido.forEach(detalleXPedido => {
                                                         detalles[grupoTalla.ListaTalla.findIndex(tall => tall.Talla === detalleXPedido.Talla)] = detalleXPedido;
                                                     });
-
                                                     let cellSize = 100 / cantidad;
+                                                    let TotalXTalla = 0;
+                                                    let TotalXProducto = 0;
+                                                    let count = 0;
+                                                    let arreglo = [];
+                                                    let totalcant = 0;
                                                     return (
                                                         <tr key={index3}>
                                                             <td className="p-1 text-center" style={{
@@ -108,21 +156,61 @@ const ImprimirPedido = (props) => {
                                                                 {color.NombreColor}
                                                             </td>
                                                             {detalles.map((det, index4) => {
-                                                                return (
-                                                                    <td key={index4} className="p-1 text-center" style={{
-                                                                        alignItems: 'center',
-                                                                        verticalAlign: 'middle',
-                                                                        width: `${cellSize}%`,
-                                                                    }}>
-                                                                        <label>{det ? det.Cantidad : 0}</label>
-                                                                    </td>
+                                                              count ++
+                                                                IsDist = det !== null ? checkDist(det.TallaObject) : IsDist;
+                                                                return ( 
+                                                                    <>
+                                                                       {
+                                                                        IsDist === true && det !== null &&
+                                                                        det.TallaObject.Distribucion.map((dist, index) => {
+                                                                            TotalXTalla = dist.Cantidad * det.Cantidad;
+                                                                            TotalXProducto += TotalXTalla;
+                                                                            TotalUnidad +=  TotalXTalla;
+                                                                            let cant = 0;
+                                                                            if(color.DetallesXPedido.length === 1){
+                                                                                totalcant = dist.Cantidad *  det.Cantidad;
+                                                                            }
+                                                                            else{
+                                                                                if(count === 1){
+                                                                                    arreglo.push({ NombreTalla: dist.NombreTalla, cant : dist.Cantidad *  det.Cantidad});                          
+                                                                                    return false;
+                                                                                }
+                                                                                else{
+                                                                                    const tallitas = arreglo.filter(x=>x.NombreTalla===dist.NombreTalla);
+                                                                                    cant = dist.Cantidad *  det.Cantidad;
+                                                                                    totalcant = tallitas[0].cant + cant;
+                                                                                }     
+                                                                            }
+                                                                             return (
+                                                                                <td key={index4} className="p-1 text-center" style={{
+                                                                                    alignItems: 'center',
+                                                                                    verticalAlign: 'middle',
+                                                                                    width: `${cellSize}%`,
+                                                                                }}>
+                                                                                    
+                                                                            <label>{totalcant}</label>
+                                                                            </td>
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                    { 
+                                                                        IsDist === false &&
+                                                                        <td key={index4} className="p-1 text-center" style={{
+                                                                            alignItems: 'center',
+                                                                            verticalAlign: 'middle',
+                                                                            width: `${cellSize}%`,
+                                                                        }}>
+                                                                        <label>{det? det.Cantidad : 0}</label>
+                                                                        </td>
+                                                                    }
+                                                                    </>    
                                                                 )
                                                             })}
                                                             <td className="p-1 text-center font-weight-bold" style={{
                                                                 alignItems: 'center',
                                                                 verticalAlign: 'middle',
                                                                 width: `${cellSize}%`,
-                                                            }}>{color.CantidadXColor}</td>
+                                                            }}>{TotalXProducto !== 0 ?TotalXProducto : color.CantidadXColor}</td>
 
                                                             <td className="p-1 text-right font-weight-bold  pr-2" style={{
                                                                 alignItems: 'center',
@@ -162,9 +250,8 @@ const ImprimirPedido = (props) => {
                                 <div className="col-5 labelTotal text-left">
                                     Unidades:
                                     </div>
-
                                 <div className="col-7 valueTotal">
-                                    {props.Pedido.TotalUnidades}
+                                    {TotalUnidad != 0? TotalUnidad : props.Pedido.TotalUnidades}
                                 </div>
                             </div>
 

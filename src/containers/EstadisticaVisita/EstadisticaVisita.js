@@ -16,6 +16,7 @@ import {
 import {
     FaCheck,
     //  FaTimes,
+    FaCheckDouble,
     FaTimesCircle, FaUserFriends
 } from "react-icons/fa";
 
@@ -87,9 +88,18 @@ const columns = [
             sort: true
         }
     },
+    {
+        name: 'Productivas',
+        label: 'Productivas',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
 
 ]
 const EstadisticaVisita = (props) => {
+    console.log("props:", props)
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setFechaFin] = useState(new Date((new Date()).valueOf() + (1000 * 60 * 60 * 24) * 6 + 1));
     const [estadisticasVisita, setEstadisticasVisita] = useState([]);
@@ -180,8 +190,8 @@ const EstadisticaVisita = (props) => {
 
 
     let data = [];
+    console.log("estadisticasVisita",estadisticasVisita)
     estadisticasVisita.forEach(estVis => {
-
         data.push({
             CodigoAsesor: estVis.CodigoAsesor,
             Nombre: estVis.Nombre,
@@ -191,6 +201,7 @@ const EstadisticaVisita = (props) => {
             // PorcentajeEjecucion: estVis.PorcentajeEjecucion,
             ClienteCancelo: estVis.ClienteCancelo,
             Efectivas: estVis.Efectivas,
+            Productivas: 0,
         });
     });
     return (
@@ -250,11 +261,13 @@ const EstadisticaVisita = (props) => {
 
             <hr></hr>
             <div className="row">
-                <div className="col-xl-3 col-md-6 mb-4" >
-                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkblue' }}>
+                <div className="col-xl-1 col-md-6 mb-4">
+                </div>
+                <div className="col-xl-2 col-md-6 mb-4" >
+                    <div className="card shadow h-100 py-1" style={{ borderColor: 'darkblue' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
-                                <div className="col mr-2">
+                                <div className="col mr-1">
                                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas a Clientes</div>
                                     <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.CantidadVisitas }, 0)}</div>
                                 </div>
@@ -266,7 +279,7 @@ const EstadisticaVisita = (props) => {
                         </div>
                     </div>
                 </div>
-                <div className="col-xl-3 col-md-6 mb-4">
+                <div className="col-xl-2 col-md-6 mb-4">
                     <div className="card  shadow h-100 py-2" style={{ borderColor: 'green' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
@@ -282,7 +295,7 @@ const EstadisticaVisita = (props) => {
                         </div>
                     </div>
                 </div>
-                <div className="col-xl-3 col-md-6 mb-4">
+                <div className="col-xl-2 col-md-6 mb-4">
                     <div className="card  shadow h-100 py-2" style={{ borderColor: 'red' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
@@ -298,7 +311,7 @@ const EstadisticaVisita = (props) => {
                         </div>
                     </div>
                 </div>
-                <div className="col-xl-3 col-md-6 mb-4">
+                <div className="col-xl-2 col-md-6 mb-4">
                     <div className="card shadow h-100 py-2" style={{ borderColor: 'darkgreen' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
@@ -313,6 +326,24 @@ const EstadisticaVisita = (props) => {
                             </div>
                         </div>
                     </div>
+                </div>
+                <div className="col-xl-2 col-md-6 mb-4">
+                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkgreen' }}>
+                        <div className="card-body">
+                            <div className="row no-gutters align-items-center">
+                                <div className="col mr-2">
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Productivas</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Atendidas }, 0)}</div>
+                                </div>
+                                <div className="col-auto">
+                                    <FaCheckDouble size={"25px"} style={{ color: 'darkblue' }} />
+                                    {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-xl-1 col-md-6 mb-4">
                 </div>
             </div>
 
@@ -364,6 +395,8 @@ const EstadisticaVisita = (props) => {
 const cargarEstadisticaVisita = (fechaInicio, fechaFin) => {
     var inicio = moment(fechaInicio).format();
     var fin = moment(fechaFin).format();
+    console.log("inicio",inicio, "fin:",fin)
+    console.log("fechaInicio",fechaInicio, "fechaFin:",fechaFin)
     return new Promise((resolve, reject) => {
         fetch(urlApi + `/api/EstadisticaVisita?FechaInicio=${inicio}&FechaFin=${fin}`, {
             headers: {
