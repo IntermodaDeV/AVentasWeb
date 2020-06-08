@@ -10,7 +10,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import {
     Button,
-    Dialog,
     Slide,
     Grow,
     Card,
@@ -21,6 +20,12 @@ import {
     Typography,
     Snackbar
 } from '@material-ui/core';
+import Dialog        from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle   from '@material-ui/core/DialogTitle';
+import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
+import ClienteContado from './ClienteContado';
+import {useDispatch} from 'react-redux';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -44,6 +49,8 @@ const SelectCliente = (props) => {
 
     const [open, setOpen] = useState(false);
     const [Value, setValue] = useState(null);
+    const [openContado,setOpenContado] = useState(false);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -55,7 +62,7 @@ const SelectCliente = (props) => {
                 props.onSelect((cliente));
             }
         }
-
+        //dispatch({type:'DELETE_CLIENTECONTADO'});
 
         // eslint-disable-next-line
     }, [props.clientes]);
@@ -79,6 +86,8 @@ const SelectCliente = (props) => {
 
         setValue(value);
         props.onSelect(val);
+        dispatch({type:'DELETE_CLIENTECONTADO'});
+        dispatch({type:'DELETE_REQUIEREENTREGA'});
     }
 
     props.clientes.forEach(el => {
@@ -259,6 +268,9 @@ const SelectCliente = (props) => {
                                         <td>{props.autocompleteValue.Moneda} {props.autocompleteValue.Credito.reduce((acc, cur) => { return acc + ((cur.SaldoTotal ? cur.SaldoTotal : 0)) }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</td>
                                         <td>{props.autocompleteValue.Moneda} {props.autocompleteValue.Credito.reduce((acc, cur) => { return acc + ((cur.C15Dias ? cur.C15Dias : 0)) }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</td>
                                     </tr>
+                                    <tr>
+                                        {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={()=>setOpenContado(true)} variant="contained" color="primary">Cliente Contado</Button></td>}
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -269,9 +281,26 @@ const SelectCliente = (props) => {
             </Card>
         );
     }
-    console.log('autocompleteValue :', props.autocompleteValue);
+    //console.log('autocompleteValue :', props.autocompleteValue);
     return (
         <div className="col">
+            <Dialog
+            disableBackdropClick 
+            scroll={'paper'}
+            open={openContado}
+            >
+                <CancelPresentationIcon onClick={()=>{setOpenContado(false)}}/>
+                <DialogTitle className="text-center" id="scroll-dialog-title">
+                    <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                        Cliente Contado
+                    </div>
+                </DialogTitle>
+                <DialogContent>
+                
+                   { props.autocompleteValue!==null && <ClienteContado ruta={props.autocompleteValue.CodigoRuta}/>}
+                    
+                </DialogContent>
+        </Dialog>
             <Card style={{ overflow: 'unset' }}>
 
                 <CardContent>

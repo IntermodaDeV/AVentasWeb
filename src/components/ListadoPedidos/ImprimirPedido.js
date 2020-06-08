@@ -4,9 +4,27 @@ import Logo from 'assets/img/logo/Logoinv.png';
 import ReactToPrint from 'react-to-print';
 import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
 import moment from "moment";
+import {useSelector} from 'react-redux';
 import 'moment/locale/es';
 
 const ImprimirPedido = (props) => {
+
+const clientesContado = useSelector(e=>e.clientesContado);
+let NombreCliente=props.Pedido.Cliente.Nombre;
+let DireccionCliente=props.Pedido.Cliente.Direccion;
+const clienteContado = clientesContado.find(x=>x.id===props.Pedido.ClienteContadoId);
+
+if(clienteContado!==null && clienteContado!==undefined)
+{
+    if(props.Pedido.TotalXPedido<10000)
+    {
+        NombreCliente = 'CONSUMIDOR FINAL';
+    }else{
+        NombreCliente = clienteContado.Nombre;
+    }
+
+    DireccionCliente = clienteContado.Direccion;
+}
 
 let TotalUnidad = 0;
 let GrupoTalla = "";
@@ -51,27 +69,28 @@ const checkDist = (talla) => {
                         <div className="row">
                             <div className="col-6">
                                 <div className="info">
-                                    <h2>{props.Pedido.Cliente.Nombre}</h2>
+                                    <h2>{NombreCliente}</h2>
                                     <p>
-                                        Dirección : {props.Pedido.Cliente.Direccion}<br />
+                                        Dirección : {DireccionCliente}<br />
                                         Código    : {props.Pedido.Cliente.Codigo}<br />
                                     </p>
                                 </div>
                             </div>
                             <div className="col-6">
                                 <div className="info">
-                                    <h2>Pedido {props.NumeroOrden}</h2>
+                                    <h2>Pedido {props.Pedido.PedidoId}</h2>
                                     <p>
                                         Fecha del pedido : {moment(props.Pedido.FechaActual).format('DD/MM/YYYY hh:mm a')}<br />
                                         Entrega Sugerida : {moment(props.Pedido.FechaEntrega).format('DD/MM/YYYY hh:mm a')}<br />
-                                        Asesor: {'hbenitez'}<br />
+                                        Asesor: {props.Pedido.Usuario}<br />
+                                        Modo Venta: {props.Pedido.ModoVenta}<br/>
                                     </p>
                                 </div>
                             </div >
                         </div>
 
                     </div>
-
+        
                     {props.Pedido.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
                         let IsDist = true;
@@ -251,7 +270,7 @@ const checkDist = (talla) => {
                                     Unidades:
                                     </div>
                                 <div className="col-7 valueTotal">
-                                    {TotalUnidad != 0? TotalUnidad : props.Pedido.TotalUnidades}
+                                    {TotalUnidad !== 0? TotalUnidad : props.Pedido.TotalUnidades}
                                 </div>
                             </div>
 

@@ -7,7 +7,7 @@ import CardContent from '@material-ui/core/CardContent';
 import CardHeader from '@material-ui/core/CardHeader';
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 import 'sweetalert2/src/sweetalert2.scss';
-
+import {useSelector} from 'react-redux';
 
 const MatrizResumen = (props) => {
     const [mostrarVacios, setMostrarVacios] = useState(false);
@@ -33,11 +33,30 @@ const MatrizResumen = (props) => {
             props.mostrarResumen();
         }
     }
+
+    const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
     let gruposTalla = Object.keys(props.tableValue);
     let unidadesTotales = 0;
     let totalGlobal = 0.00;
     let moneda = (props.Cliente !== null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
     let productosSinCantindad = false;
+    let impuesto = 0.15;
+    let impuestoTotal = 1.15;
+
+    if(props.Cliente.Codigo.includes('IMCR'))
+    {
+        impuesto = 0.13;
+        impuestoTotal = 1.13;
+    }else if(props.Cliente.Codigo.includes('IMGT')){
+        impuesto = 0.12;
+        impuestoTotal = 1.12;
+    }
+
+    if(props.Cliente.Codigo.includes('IMHN') && lineaSeleccionada.IdLinea === "BIO")
+    {
+        impuesto = 0;
+        impuestoTotal = 1;
+    }
 
 
     return (
@@ -143,10 +162,10 @@ const MatrizResumen = (props) => {
                     Subtotal: {moneda} {numberWithCommas(totalGlobal)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
-                    ISV: {moneda} {numberWithCommas(totalGlobal * 0.15)}
+                    ISV: {moneda} {numberWithCommas(totalGlobal *impuesto)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
-                    Total: {moneda} {numberWithCommas(totalGlobal * 1.15)}
+                    Total: {moneda} {numberWithCommas(totalGlobal * impuestoTotal)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
                     <button className="btn btn-secondary m-2" onClick={onContinuar}>Continuar</button>

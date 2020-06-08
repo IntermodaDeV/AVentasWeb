@@ -27,7 +27,11 @@ const initialState = {
         cuotasAPagar: null,
         facturasXCliente: null,
         cuotasCuentaCorriente: [],
-    }
+    },
+    clienteContado:null,
+    clientesContado:[],
+    requiereEntrega:true,
+    asesor:''
 
 }
 
@@ -277,6 +281,54 @@ const reducer = (state = initialState, action) => {
                 ...state.Recibo,
                 cuotasCuentaCorriente: action.cuotasCuentaCorriente
             }
+        }
+    }
+
+    if(action.type === "SET_CLIENTECONTADO")
+    {
+        return {
+            ...state,
+            clienteContado:action.payload
+        }
+    }
+
+    if(action.type === "DELETE_CLIENTECONTADO")
+    {
+        return {
+            ...state,
+            clienteContado:null
+        }
+    }
+
+    if(action.type === "SET_CLIENTESCONTADO")
+    {
+        return {
+            ...state,
+            clientesContado:action.payload
+        }
+    }
+
+    if(action.type === "SET_REQUIEREENTREGA")
+    {
+        return {
+            ...state,
+            requiereEntrega:action.payload
+        }
+    }
+
+    if(action.type === "DELETE_REQUIEREENTREGA")
+    {
+        return {
+            ...state,
+            requiereEntrega:false
+        }
+    }
+
+    if(action.type === "SET_ASESOR")
+    {
+        return {
+            ...state,
+            asesor:action.payload
         }
     }
 

@@ -140,7 +140,7 @@ const DetallePedido = (props) => {
         )
     }
 
-    const TableDetails = (array) => {
+    /*const TableDetails = (array) => {
         return (
             <tbody>
                 <tr>
@@ -155,7 +155,7 @@ const DetallePedido = (props) => {
             </tbody>
         )
     }
-    console.log('object :', props);
+    console.log('object :', props);*/
     return (
         <div className="px-3">
             <div>

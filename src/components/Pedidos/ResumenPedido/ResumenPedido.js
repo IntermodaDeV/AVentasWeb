@@ -22,6 +22,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import Logo from 'assets/img/logo/Logoinv.png';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import {useSelector} from 'react-redux';
 
 const ResumenPedido = (props) => {
     const [firma, setFirma] = React.useState(null);
@@ -31,6 +32,11 @@ const ResumenPedido = (props) => {
     const [FechaEntrega, setFechaEntrega] = React.useState((props.coleccion.ColeccionTipo === "F") ? moment(props.coleccion.EntregaInicio).toDate() : moment().toDate());
     var sigPad = {};
 
+    const clienteContado = useSelector(e=>e.clienteContado);
+    const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
+    const TipoCredito = useSelector(e=>e.TipoPedido);
+    const modoVenta = TipoCredito.TipoPedido === 'Contado'?'Contado':'Credito';
+
     var gruposTalla = Object.keys(props.tableValue);
     var unidadesTotales = 0;
     var totalGlobal = 0.00;
@@ -38,6 +44,23 @@ const ResumenPedido = (props) => {
     var nuevafecha = new Date();
     var fecha = moment(nuevafecha).toDate();
     var moneda = (props.Cliente != null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
+    let impuesto = 0.15;
+    let impuestoTotal = 1.15;
+
+    if(props.Cliente.Codigo.includes('IMCR'))
+    {
+        impuesto = 0.13;
+        impuestoTotal = 1.13;
+    }else if(props.Cliente.Codigo.includes('IMGT')){
+        impuesto = 0.12;
+        impuestoTotal = 1.12
+    }
+
+    if(props.Cliente.Codigo.includes('IMHN') && lineaSeleccionada.IdLinea === "BIO")
+    {
+        impuesto = 0;
+        impuestoTotal = 1;
+    }
 
     const closeDialogFirma = () => {
         if (sigPad.isEmpty()) {
@@ -606,7 +629,7 @@ const IsSame = (GrupoTallaId) => {
                                     ISV:
                                 </div>
                                 <div className="col-6">
-                                    {moneda} {numberWithCommas(totalGlobal * 0.15)}
+                                    {moneda} {numberWithCommas(totalGlobal * impuesto)}
                                 </div>
                             </div>
                             <div className="row">
@@ -614,7 +637,7 @@ const IsSame = (GrupoTallaId) => {
                                     Total:
                                 </div>
                                 <div className="col-6">
-                                    {moneda} {numberWithCommas(totalGlobal * 1.15)}
+                                    {moneda} {numberWithCommas(totalGlobal * impuestoTotal)}
                                 </div>
                             </div>
                         </div>
@@ -685,9 +708,11 @@ const IsSame = (GrupoTallaId) => {
                             <div className="row">
                                 <div className="col-6">
                                     <div className="info">
-                                        <h2>{props.Cliente.Nombre}</h2>
+                                        <h2>{
+                                            (clienteContado!==null && clienteContado!==undefined)?((totalGlobal * 1.15)<10000) ? 'Consumidor Final' : clienteContado.Nombre: props.Cliente.Nombre
+                                            }</h2>
                                         <p>
-                                            Dirección : {props.Cliente.Direccion}<br />
+                                            Dirección : {(clienteContado!==null && clienteContado!==undefined)? clienteContado.Direccion:props.Cliente.Direccion}<br />
                                             Código    : {props.Cliente.Codigo}<br />
                                         </p>
                                     </div>
@@ -698,7 +723,8 @@ const IsSame = (GrupoTallaId) => {
                                         <p>
                                             Fecha del pedido : {moment(fecha).format('DD/MM/YYYY hh:mm a')}<br />
                                             Entrega Sugerida : {moment(FechaEntrega).format('DD/MM/YYYY hh:mm a')}<br />
-                                            Asesor: {'hbenitez'}<br />
+                                            Asesor: {localStorage.getItem('asesor')}<br />
+                                            Modo Venta: {modoVenta}<br />
                                         </p>
                                     </div>
                                 </div >
@@ -746,7 +772,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                        {TotalUnidad != 0? TotalUnidad : unidadesTotales}
+                                        {TotalUnidad !== 0? TotalUnidad : unidadesTotales}
                                     </div>
                                 </div>
 
@@ -766,7 +792,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                        {numberWithCommas((totalGlobal * 0.15))}
+                                        {numberWithCommas((totalGlobal * impuesto))}
                                     </div>
                                 </div>
 
@@ -776,7 +802,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                        {numberWithCommas((totalGlobal * 1.15))}
+                                        {numberWithCommas((totalGlobal * impuestoTotal))}
                                     </div>
                                 </div>
                             </div>
