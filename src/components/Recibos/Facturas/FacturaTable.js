@@ -459,7 +459,6 @@ const FacturaTable = props => {
 
     return tempData;
   }
-
   props.AcuerdosXTipoPedido.forEach(acuXTipPed => {
     let saldo = 0;
     let saldoVencido = 0;
@@ -512,7 +511,7 @@ const FacturaTable = props => {
           color="primary">
           Pagar
       </Button>)
-      })
+       })
     data.sort((a,b)=>(new Date(a.FechaV)-new Date(b.FechaV)));
  
   });
@@ -618,7 +617,8 @@ const FacturaTable = props => {
 
   return (
   <>
-    {data.length===1?<Button color="primary" onClick={()=>{handleAnticipo()}} variant="contained" style={{marginBottom:"20px"}}>Anticipos</Button>:""}
+    {props.Cliente.Nombre.includes("CONSUMIDOR FINAL")?<Button color="primary" onClick={()=>{handleAnticipo()}} variant="contained" style={{marginBottom:"20px"}}>Pago Contado</Button>: 
+    data.length===1?<Button color="primary" onClick={()=>{handleAnticipo()}} variant="contained" style={{marginBottom:"20px"}}>Anticipos</Button>:""}
     <MUIDataTable title={'Resumen Cartera'} data={data} columns={columns} options={getOptions(props)} />
     <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
     <FacturasModalPrecompra Data={DataModalPrecompra} Open={openModalPrecompra} onClose={setOpenModalPrecompra}></FacturasModalPrecompra>

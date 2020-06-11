@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { TextField } from '@material-ui/core';
-import Swal from 'sweetalert2/dist/sweetalert2.js'
-import 'sweetalert2/src/sweetalert2.scss';
+
+/*import Swal from 'sweetalert2/dist/sweetalert2.js'
+import 'sweetalert2/src/sweetalert2.scss';*/
 
 const InputPago = (props) => {
     const [value, setValue] = useState(props.valor);
     let error = false;
-    let faltante = localStorage.getItem('Faltante');
-    let TotalRecibo = localStorage.getItem('TotalRecibo');
+    /*let faltante = localStorage.getItem('Faltante');
+    let TotalRecibo = localStorage.getItem('TotalRecibo');*/
 
     console.log('props :', props);
 

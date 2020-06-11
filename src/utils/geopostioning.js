@@ -1,6 +1,6 @@
 import store from '../store/store'
 const saveGeolocation = (position) => {
-    fetch("https://aventas.devcit.com:3044/api/Geoposicion" , {
+    fetch("http://190.109.203.183:9080/api/Geoposicion" , {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization':

@@ -30,7 +30,6 @@ class AuthForm extends React.Component {
 
   changeAuthState = authState => event => {
     event.preventDefault();
-
     this.props.onChangeAuthState(authState);
   };
 
@@ -49,6 +48,7 @@ class AuthForm extends React.Component {
       .then(
         (result) => {
           if (result.Message === 'Ok') {
+            localStorage.setItem("asesor",this.state.username.toLowerCase());
             localStorage.setItem('token', result.Data.Token);
             this.setState({ logged: true });
             window.location.reload();

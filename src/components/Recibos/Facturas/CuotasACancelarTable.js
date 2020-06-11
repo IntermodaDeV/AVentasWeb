@@ -46,10 +46,6 @@ const columns = [
     label: 'Dias Descuento',
   },
   {
-    name: 'Moneda',
-    label: 'Moneda',
-  },
-  {
     name: 'Valor',
     label: 'Valor',
   },
@@ -73,6 +69,10 @@ const columns = [
     name: 'Aplicado',
     label: 'Aplicado',
 
+  },
+  {
+    name: 'Moneda',
+    label: 'Moneda',
   }
 ]
 

@@ -22,8 +22,10 @@ const ProductoTable = (props) => {
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [IsOpen, setIsOpen] = useState(false);
 
-    const urlApi = APIURL;
 
+    const urlApi = APIURL;
+    let ArregloProductos =  Object.keys(props.producto.Colores).map((key)=>([key,props.producto.Colores[key]]));
+    ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1);
 
     useEffect(() => {
         setDirty(props.mostrarVacios);
@@ -199,9 +201,9 @@ const ProductoTable = (props) => {
 
                 </td>
             </tr>
-            {Object.keys(props.producto.Colores).map((codigoColor, index2) => {
-                let color = props.producto.Colores[codigoColor];
-
+            
+            {ArregloProductos.map((codigoColor, index2) => {
+                let color = codigoColor[1];
                 var totalXColor = 0;
                 var totalPrecioXColor = 0;
 
@@ -215,7 +217,7 @@ const ProductoTable = (props) => {
                         }}>
                             <PopupState variant="popover" popupId={props.producto.NombreProducto + props.index1}>
                                 {popupState => {
-                                    console.log('props.producto :', props.producto);
+                                    
                                     if (color.ListaImagenes.length !== 0) {
                                         return (
                                             <>
@@ -281,7 +283,7 @@ const ProductoTable = (props) => {
                                         handleArrowKeys={handleArrowKeys}
                                         precio={valorTalla.Precio}
                                         codigoProducto={props.codigoProducto}
-                                        codigoColor={codigoColor}
+                                        codigoColor={codigoColor[0]}
                                         codigoTalla={codigoTalla}
                                         grupoTalla={props.grupoTalla}
                                         cantidad={valorTalla.Cantidad}

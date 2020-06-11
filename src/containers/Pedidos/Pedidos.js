@@ -702,10 +702,20 @@ class Pedidos extends React.Component {
 
     }
     seleccionarCliente = () => {
-        this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio);
-        this.props.onSetCliente(this.state.autocompleteValue);
-        this.props.onStoreColecciones([])
-        this.props.history.push("/Pedidos/Linea");
+        if(this.state.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && this.props.clienteContado===null)
+        {
+            Swal.fire({
+                title: 'Error',
+                text: 'Debe seleccionar un cliente contado',
+                type: 'error',
+                confirmButtonText: 'Ok'
+              })
+        }else{
+            this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio);
+            this.props.onSetCliente(this.state.autocompleteValue);
+            this.props.onStoreColecciones([])
+            this.props.history.push("/Pedidos/Linea");
+        }
     }
     seleccionarTipoPedido = (tipoPedido, acuerdoVenta) => {
         this.props.history.push("/Pedidos/Colecciones");
@@ -1103,7 +1113,9 @@ class Pedidos extends React.Component {
             // Productos: [],
             DetallePedido: [],
             TipoPedido: this.props.TipoPedido,
-            TipoVenta: this.calcularTipoVenta()
+            TipoVenta: this.calcularTipoVenta(),
+            ClienteContadoId:(this.props.clienteContado!==null) ? this.props.clienteContado.id : null,
+            ModoVenta:(this.props.TipoPedido.TipoPedido==='Contado')?'Contado':'Credito'
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
 
@@ -2287,6 +2299,7 @@ const mapStateToProps = state => {
         Limite: state.Limite,
         NumeroOrden: state.NumeroOrden,
         TiposColeccion: state.TiposColeccion,
+        clienteContado:state.clienteContado
     };
 };
 const mapDispatchToProps = dispatch => {
