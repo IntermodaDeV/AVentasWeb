@@ -190,11 +190,6 @@ const FacturaTable = props => {
     props.SetCuotas(cuotas)
   };
 
-  const SetPedidos = () => {
-    const Pedidos = props.Cliente.Pedido;
-    props.SetPedidos(Pedidos)
-  };
-
   let data = [];
   const Totales = {
     Disponible: 0,
@@ -464,7 +459,6 @@ const FacturaTable = props => {
 
     return tempData;
   }
-    let LineaFactura = "";
   props.AcuerdosXTipoPedido.forEach(acuXTipPed => {
     let saldo = 0;
     let saldoVencido = 0;
@@ -477,7 +471,6 @@ const FacturaTable = props => {
         disponible = (props.Cliente.CreditoDisponible?props.Cliente.CreditoDisponible:0);
       }
       acu.Facturas.forEach(fact => {
-        LineaFactura = fact.IdLinea;
         fact.Cuotas.forEach(cuot => {
           if (cuot.Saldo > 0) {
             saldo += cuot.Saldo;
@@ -622,77 +615,6 @@ const FacturaTable = props => {
     props.CargarCuotasAPagar([0]);
   }
 
-  const PedidosBio=()=>{
-
-    const {Codigo,EmpresaId,Moneda} = props.Cliente;
-
-    const anticipo = [{
-      Acuerdos:[{
-        Facturas:[{
-          IdFactura:0,
-          Factura:"Anticipo ",
-          CodigoCliente:Codigo,
-          EmpresaId:EmpresaId,
-          IdMoneda:Moneda,
-          Tipo:"Anticipo [B-C]",
-          FechaFactura:new Date(),
-          FechaVencimiento:new Date(),
-          FechaMaxDescuento:new Date(),
-          TotalFactura:0,
-          Saldo:0,
-          PendienteFactura:0,
-          Descuento:0,
-          FacturaStatus:"Ninguno",
-          NumeroPagos:0,
-          Referencia:"test",
-          IdLinea:"TPT",
-          LineaString:"Tejido de punto",
-          TipoPedidoString:"Ordinario",
-          IdTipoPedido:1,
-          Cuotas: [
-            {
-               IdSubFactura: 0,
-               Factura: "Anticipo",
-               CodigoCliente: Codigo,
-               EmpresaId: EmpresaId,
-               IdMoneda: Moneda,
-               IdAcuerdoxCliente: null,
-               FechaFactura: new Date(),
-               FechaVencimiento: new Date(),
-               FechaMaxDescuento: new Date(),
-               FechaVencimientoDescuento: new Date(),
-               Saldo: 0,
-               SaldoDivisa: 0,
-               Descuento: 0,
-               PendientePago: 0,
-               Referencia: "test",
-               TipoDocumento: "Anticipo [D-O]",
-               ReferenciaFacturas: "test",
-               ReferenciaAcuerdo: "0",
-               NumeroCuota: 0,
-               ValorCuota: 0,
-               ValorVencidoCuota: 0,
-               ReferenciaCuotas: "0",
-               IdFactura: 0,
-               TipoPedido:"Ordinario",
-               AgrupaPorCuota:false
-            }
-         ]
-      }
-   ],
-        Acuerdo:"",
-        Valor:"0",
-        Disponible:"0"
-      }],
-      IdTipoPedido:1,
-      TipoPedido:"Ordinario",
-      AgrupaPorCuota:false
-    }
-  ];
-    localStorage.setItem("isAnticipo",true);
-    props.SetCuotas(anticipo);
-    props.CargarCuotasAPagar([0]);
-  }
   return (
   <>
     {props.Cliente.Nombre.includes("CONSUMIDOR FINAL")?<Button color="primary" onClick={()=>{handleAnticipo()}} variant="contained" style={{marginBottom:"20px"}}>Pago Contado</Button>: 

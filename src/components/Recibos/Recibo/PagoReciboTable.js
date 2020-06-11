@@ -15,8 +15,6 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import InputPago from './InputPagoReciboTable';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import {useSelector,useDispatch} from 'react-redux';
-
 moment.locale('es')
 
 const columns = [
@@ -88,7 +86,6 @@ const columns = [
 
 
 const PagoReciboTable = (props) => {
-    const pedidoSelected = useSelector(e=>e.pedidoSelected);
     const options = {
         filterType: 'false',
         responsive: "scrollMaxHeight",
