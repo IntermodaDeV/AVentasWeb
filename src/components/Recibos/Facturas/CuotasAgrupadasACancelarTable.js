@@ -111,17 +111,28 @@ const CuotasAgrupadasACancelarTable = props => {
     }
   }
   let saldoTotal = 0;
-  for (let [key, value] of cuotasAgrupadas) {
-    data.push([key, numberWithCommas(Number(value.Saldo))]);
+  if(props.PedidoSelected!== null){
+    saldoTotal = props.PedidoSelected.TotalPedido
+  }
+  else{
+    for (let [key, value] of cuotasAgrupadas) {
+      data.push([key, numberWithCommas(Number(value.Saldo))]);
     saldoTotal += Number(value.Saldo);
   }
-let acumulado = props.Acumulado();
-  let faltante = Number(saldoTotal) -(Number(acumulado) + Number(props.DescuentoAplicado));
+
+  }
+  let acumulado = props.Acumulado();
+  ///let faltante = Number(saldoTotal) -(Number(acumulado) + Number(props.DescuentoAplicado));
+  let ValorPagos = localStorage.getItem('isAnticipo') === 'true'? Number(saldoTotal) : props.ValorPagos
+  let faltante = props.DescuentoAplicado === 0 ? Number(ValorPagos) - (Number(acumulado) + Number(props.DescuentoAplicado)): Number(ValorPagos) - Number(acumulado);
+  
   localStorage.setItem('Faltante', faltante);
+
   localStorage.setItem('TotalRecibo', saldoTotal);
   data.push([(<h6 className="font-weight-bolder text-dark">Total</h6>), numberWithCommas(Number(saldoTotal))]);
-  data.push([(<h6 className="font-weight-bolder text-dark">Acumulado</h6>), numberWithCommas(Number(acumulado))]);
   data.push([(<h6 className="font-weight-bolder text-dark">Descuento</h6>), numberWithCommas(Number(props.DescuentoAplicado))]);
+  data.push([(<h6 className="font-weight-bolder text-dark">A Pagar</h6>), numberWithCommas(Number(ValorPagos))]);
+  data.push([(<h6 className="font-weight-bolder text-dark">Acumulado</h6>), numberWithCommas(Number(acumulado))]);
   data.push([(<h6 className="font-weight-bolder text-dark">Faltante</h6>), numberWithCommas(Number(faltante))]);
   const setLineasfiltradas = (allRowsSelectedIndex) => {
     let lineasFiltradas = [];

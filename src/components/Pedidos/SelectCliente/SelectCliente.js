@@ -62,7 +62,6 @@ const SelectCliente = (props) => {
                 props.onSelect((cliente));
             }
         }
-        //dispatch({type:'DELETE_CLIENTECONTADO'});
 
         // eslint-disable-next-line
     }, [props.clientes]);
@@ -281,10 +280,9 @@ const SelectCliente = (props) => {
             </Card>
         );
     }
-    //console.log('autocompleteValue :', props.autocompleteValue);
     return (
         <div className="col">
-            <Dialog
+              <Dialog
             disableBackdropClick 
             scroll={'paper'}
             open={openContado}

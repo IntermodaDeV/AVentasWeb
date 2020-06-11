@@ -138,7 +138,6 @@ const Modal = (props) => {
 
 
     const getTiempos = () => {
-
         if (Configuraciones) {
             let { IN, MV } = Configuraciones;
 
@@ -152,6 +151,7 @@ const Modal = (props) => {
                 let item = { "Label": label, "Value": valueMinutes }
 
                 Tiempos.push(item);
+
             }
 
             return Tiempos;

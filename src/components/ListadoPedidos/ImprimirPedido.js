@@ -69,7 +69,7 @@ const checkDist = (talla) => {
                         <div className="row">
                             <div className="col-6">
                                 <div className="info">
-                                    <h2>{NombreCliente}</h2>
+                                <h2>{NombreCliente}</h2>
                                     <p>
                                         Dirección : {DireccionCliente}<br />
                                         Código    : {props.Pedido.Cliente.Codigo}<br />
@@ -78,7 +78,7 @@ const checkDist = (talla) => {
                             </div>
                             <div className="col-6">
                                 <div className="info">
-                                    <h2>Pedido {props.Pedido.PedidoId}</h2>
+                                <h2>Pedido {props.Pedido.PedidoId}</h2>
                                     <p>
                                         Fecha del pedido : {moment(props.Pedido.FechaActual).format('DD/MM/YYYY hh:mm a')}<br />
                                         Entrega Sugerida : {moment(props.Pedido.FechaEntrega).format('DD/MM/YYYY hh:mm a')}<br />
@@ -90,7 +90,7 @@ const checkDist = (talla) => {
                         </div>
 
                     </div>
-        
+
                     {props.Pedido.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
                         let IsDist = true;
@@ -138,6 +138,8 @@ const checkDist = (talla) => {
                                 </thead>
                                 <tbody>
                                     {grupoTalla.prodsXDetPed.map((producto, index2) => {
+                                        let ColoresProductos =  Object.keys(producto.coloresXProdXDetPed).map((key)=>(producto.coloresXProdXDetPed[key]));
+                                        ColoresProductos.sort((a, b) => a.NombreColor < b.NombreColor ? -1 : 1);
                                         return (
                                             <React.Fragment key={index2} >
                                                 <tr >
@@ -154,7 +156,7 @@ const checkDist = (talla) => {
                                                         </div>
                                                     </td>
                                                 </tr>
-                                                {producto.coloresXProdXDetPed.map((color, index3) => {
+                                                {ColoresProductos.map((color, index3) => {
                                                     let detalles = Array(grupoTalla.ListaTalla.length).fill(null);
                                                     color.DetallesXPedido.forEach(detalleXPedido => {
                                                         detalles[grupoTalla.ListaTalla.findIndex(tall => tall.Talla === detalleXPedido.Talla)] = detalleXPedido;
@@ -270,7 +272,7 @@ const checkDist = (talla) => {
                                     Unidades:
                                     </div>
                                 <div className="col-7 valueTotal">
-                                    {TotalUnidad !== 0? TotalUnidad : props.Pedido.TotalUnidades}
+                                {TotalUnidad !== 0? TotalUnidad : props.Pedido.TotalUnidades}
                                 </div>
                             </div>
 

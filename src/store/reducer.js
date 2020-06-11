@@ -19,7 +19,7 @@ const initialState = {
     NumeroOrden: null,
     AsesorId: 80,
     TiposColeccion: [],
-
+    pedidoSelected:null,
     Recibo: {
         clientes: [],
         clienteSelected: null,
@@ -283,7 +283,7 @@ const reducer = (state = initialState, action) => {
             }
         }
     }
-
+    
     if(action.type === "SET_CLIENTECONTADO")
     {
         return {
@@ -329,6 +329,21 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             asesor:action.payload
+        }
+    }
+    if(action.type==='store_pedidoselected')
+    {
+        return{
+            ...state,
+            pedidoSelected:action.payload
+        }
+    }
+
+    if(action.type==='delete_pedidoselected')
+    {
+        return{
+            ...state,
+            pedidoSelected:null
         }
     }
 

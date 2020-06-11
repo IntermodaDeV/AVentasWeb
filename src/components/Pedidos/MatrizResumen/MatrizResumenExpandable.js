@@ -330,10 +330,10 @@ const MatrizResumen = (props) => {
                     Subtotal: {moneda} {numberWithCommas(totalGlobal)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
-                    ISV: {moneda} {numberWithCommas(totalGlobal * impuesto)}
+                   ISV: {moneda} {numberWithCommas(totalGlobal * impuesto)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
-                    Total: {moneda} {numberWithCommas(totalGlobal * impuestoTotal)}
+                Total: {moneda} {numberWithCommas(totalGlobal * impuestoTotal)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
                     <button className="btn btn-secondary m-2" onClick={onContinuar}>Continuar</button>

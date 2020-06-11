@@ -61,7 +61,7 @@ const ResumenPedido = (props) => {
         impuesto = 0;
         impuestoTotal = 1;
     }
-
+    
     const closeDialogFirma = () => {
         if (sigPad.isEmpty()) {
             setMostrarFirma(false);
@@ -175,6 +175,10 @@ const IsSame = (GrupoTallaId) => {
 
             productos.forEach((codigoProducto) => {
                 var producto = props.tableValue[grupoTalla].Productos[codigoProducto];
+
+                let ColoresProductos =  Object.keys(producto.Colores).map((key)=>(producto.Colores[key]));
+                ColoresProductos.sort((a, b) => a.NombreColor < b.NombreColor ? -1 : 1);
+                
                 var precio = producto.Precio.find(precioxProd => {
                     return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
                 });
@@ -187,17 +191,17 @@ const IsSame = (GrupoTallaId) => {
                     var totalXProducto = 0;
                     var cantidadTotal = 0;
                     var Datos = [];
-                    Object.keys(producto.Colores).forEach(codigoColor => {
+                    ColoresProductos.forEach(codigoColor => {
                         var dato = {
-                            color: producto.Colores[codigoColor].NombreColor,
+                            color: codigoColor.NombreColor,
                             tallasXcolor: [],
                             cantidadTotal: 0,
                             total: 0.00
                         }
-                        Object.keys(producto.Colores[codigoColor].Tallas).forEach(codigoTalla => {
+                        Object.keys(codigoColor.Tallas).forEach(codigoTalla => {
                             var talla = {
                                 codigoTalla: codigoTalla,
-                                cantidad: (isNaN(parseInt(producto.Colores[codigoColor].Tallas[codigoTalla].Cantidad, 10))) ? 0 : parseInt(producto.Colores[codigoColor].Tallas[codigoTalla].Cantidad, 10),
+                                cantidad: (isNaN(parseInt(codigoColor.Tallas[codigoTalla].Cantidad, 10))) ? 0 : parseInt(codigoColor.Tallas[codigoTalla].Cantidad, 10),
                                 precio: numberWithCommas(precio.Precio)
                             }
                             cantidadTotal = parseInt(cantidadTotal, 10) + talla.cantidad;
@@ -408,6 +412,8 @@ const IsSame = (GrupoTallaId) => {
     const getTableProduct = (producto, index1, codigoProducto, tallas, precio) => {
         let productosTabla = { total: 0, tabla: null };
 
+        let ArregloProductos =  Object.keys(producto.Colores).map((key)=>(producto.Colores[key]));
+        ArregloProductos.sort((a, b) => a.NombreColor < b.NombreColor ? -1 : 1);
         productosTabla.tabla = (
             <tbody key={index1}>
                 <tr className="ColorRow">
@@ -419,8 +425,9 @@ const IsSame = (GrupoTallaId) => {
                         {codigoProducto} <span className="font-weight-normal pl-4">{producto.NombreProducto}</span>
                     </td>
                 </tr>
-                {Object.keys(producto.Colores).map((codigoColor, index2) => {
-                    var color = producto.Colores[codigoColor];
+                
+                {ArregloProductos.map((codigoColor, index2) => {
+                    var color = codigoColor;
                     var totalXColor = 0;
 
                     let result = getTableColor(color, totalXColor, index2, precio);
@@ -629,7 +636,7 @@ const IsSame = (GrupoTallaId) => {
                                     ISV:
                                 </div>
                                 <div className="col-6">
-                                    {moneda} {numberWithCommas(totalGlobal * impuesto)}
+                                {moneda} {numberWithCommas(totalGlobal * impuesto)}
                                 </div>
                             </div>
                             <div className="row">
@@ -637,7 +644,7 @@ const IsSame = (GrupoTallaId) => {
                                     Total:
                                 </div>
                                 <div className="col-6">
-                                    {moneda} {numberWithCommas(totalGlobal * impuestoTotal)}
+                                {moneda} {numberWithCommas(totalGlobal * impuestoTotal)}
                                 </div>
                             </div>
                         </div>
@@ -707,7 +714,7 @@ const IsSame = (GrupoTallaId) => {
                         <div id="mid">
                             <div className="row">
                                 <div className="col-6">
-                                    <div className="info">
+                                <div className="info">
                                         <h2>{
                                             (clienteContado!==null && clienteContado!==undefined)?((totalGlobal * 1.15)<10000) ? 'Consumidor Final' : clienteContado.Nombre: props.Cliente.Nombre
                                             }</h2>
@@ -772,7 +779,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                        {TotalUnidad !== 0? TotalUnidad : unidadesTotales}
+                                    {TotalUnidad !== 0? TotalUnidad : unidadesTotales}
                                     </div>
                                 </div>
 
@@ -792,7 +799,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                        {numberWithCommas((totalGlobal * impuesto))}
+                                    {numberWithCommas((totalGlobal * impuesto))}
                                     </div>
                                 </div>
 
@@ -802,7 +809,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                        {numberWithCommas((totalGlobal * impuestoTotal))}
+                                    {numberWithCommas((totalGlobal * impuestoTotal))}
                                     </div>
                                 </div>
                             </div>

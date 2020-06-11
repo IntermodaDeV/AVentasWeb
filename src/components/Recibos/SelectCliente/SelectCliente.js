@@ -10,6 +10,7 @@ import {
     Card,
     CardContent,
 } from '@material-ui/core';
+import {useDispatch} from 'react-redux';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -18,6 +19,7 @@ const TransitionGrow = React.forwardRef(function Transition(props, ref) {
 const SelectCliente = (props) => {
 
     const [Value, setValue] = useState(null);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -45,6 +47,7 @@ const SelectCliente = (props) => {
         localStorage.setItem('isAnticipo',false);
         localStorage.setItem('isFavor',false);
         localStorage.setItem("saldoFavor",0);
+        dispatch({type:'delete_pedidoselected'});
     }
 
     props.clientes.map(el => {

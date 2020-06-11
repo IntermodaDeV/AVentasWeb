@@ -15,6 +15,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 import InputPago from './InputPagoReciboTable';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import {useSelector,useDispatch} from 'react-redux';
 
 moment.locale('es')
 
@@ -87,6 +88,7 @@ const columns = [
 
 
 const PagoReciboTable = (props) => {
+    const pedidoSelected = useSelector(e=>e.pedidoSelected);
     const options = {
         filterType: 'false',
         responsive: "scrollMaxHeight",
@@ -136,7 +138,15 @@ const PagoReciboTable = (props) => {
         //   setSelectedRowsIndex(allRowsSelected.map(row => row.dataIndex))
         // }
     }
-
+    const Validaciones = () => {
+        if(props.Pedido !== null && localStorage.getItem('Faltante') !== '0'){
+            props.showAlert(true,'El valor de pago tiene que ser igual al valor del pedido seleccionado');
+            return;
+        }
+        else{
+            props.EnviarRecibo()
+        }
+      };
     const [habilitado,setHabilitado] = useState(true);
     const validacionFechaPago = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray)=>{
         /*
@@ -505,7 +515,7 @@ const PagoReciboTable = (props) => {
         null, null, null, null, null, null, null,
         (
             <div className="d-flex">
-                { (localStorage.getItem('isAnticipo')==='false') &&
+                { (localStorage.getItem('isAnticipo')==='false' || props.Pedido !== null) &&
                 <Button
                     className="mr-1"
                     style={{ textAlign: 'center' }}
@@ -516,7 +526,7 @@ const PagoReciboTable = (props) => {
                 }
                 <Button
                     className="ml-1"
-                    onClick={() => { props.EnviarRecibo() }}
+                    onClick={() => { Validaciones() }}
                     variant="contained"
                     disabled={habilitado}
                     color="primary">

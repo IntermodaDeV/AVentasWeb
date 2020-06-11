@@ -5,16 +5,19 @@ import CuotasAgrupadasACancelarTable from 'components/Recibos/Facturas/CuotasAgr
 import CuotasACancelarAgrupadasTable from 'components/Recibos/Facturas/CuotasACancelarAgrupadasTable';
 import PagoReciboTable from 'components/Recibos/Recibo/PagoReciboTable';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
+import PedidosModal from "components/Recibos/Recibo/PedidosModal";
 import Recibo from 'components/Recibos/Recibo/Recibo'
 import { Card } from '@material-ui/core';
 import moment from 'moment';
 import 'moment/locale/es';
+import { Button } from '@material-ui/core';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'sweetalert2/src/sweetalert2.scss';
 import { APIURL } from 'utils/Enviroment';
 import { FaEye } from "react-icons/fa";
 import MySnackbarContentWrapper from 'components/Global/snackbar';
 import Snackbar from '@material-ui/core/Snackbar';
+import {useSelector,useDispatch} from 'react-redux';
 moment.locale('es');
 
 const urlApi = APIURL
@@ -28,6 +31,8 @@ const DetalleRecibo = (props) => {
     const [recibosAplicados, setRecibosAplicados] = useState([]);
     const [tipoPagoEditando, setTipoPagoEditando] = useState(null);
     const [addedNewPayment, setAddedNewPayment] = useState(false);
+    const [InfoModal, setInfoModal] = useState([]);
+    const [openPedidoModal, setOpenPedidoModal] = useState(false);
     //const [bancoSeleccionado, setBancoSeleccionado] = useState(null);
     const [cuotasYDescuentoAplicado, setCuotasYDescuentoAplicado] = useState({
         Cuotas: [],
@@ -42,6 +47,8 @@ const DetalleRecibo = (props) => {
         setMonedaSeleccionada
     ] = useState(null);
     const [tiposPago, setTiposPago] = useState([])
+    const pedidoSelected = useSelector(e=>e.pedidoSelected);
+    const dispatch = useDispatch();
     //const [tipoPagoSeleccionado, setTipoPagoSeleccionado] = useState(null)
     //const [especificacionesPago, setEspecificacionesPago] = useState([])
     //const [especificacionPagoSeleccionada, setEspecificacionPagoSeleccionada] = useState(null)
@@ -76,6 +83,7 @@ const DetalleRecibo = (props) => {
             cuotasYDescuentoCalculado = CalculoCuotasSingAgruparYDescuento();
         }
         setCuotasYDescuentoAplicado(cuotasYDescuentoCalculado);
+        console.log("cuotasYDescuentoCalculado",cuotasYDescuentoCalculado)
         // eslint-disable-next-line
     }, [pagosXRecibo]);
     useEffect(() => {
@@ -231,6 +239,7 @@ const DetalleRecibo = (props) => {
     const CalculoCuotasSingAgruparYDescuento = () => {
         let descuentoAcumulado = 0;
         let cuotasAProcesar = CuotasSinAgrupar();
+        let valorPagos = 0;
         pagosXRecibo.forEach(pago => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
@@ -238,6 +247,7 @@ const DetalleRecibo = (props) => {
                 cuotasAProcesar.forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
+                    valorPagos += montoAPagar;
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
@@ -268,18 +278,19 @@ const DetalleRecibo = (props) => {
                 cuotProc.Dias, //Dias  
                 moment(cuotProc.FechaDescuento).format("DD/MM/YYYY"), //FechaDescuento  
                 cuotProc.DiasDescuento, //DiasDescuento  
-                cuotProc.Moneda, //DiasDescuento  
                 cuotProc.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor  
                 cuotProc.ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Valor Descuento
                 cuotProc.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo 
                 cuotProc.DescuentoAplicado.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Descuento
                 (cuotProc.APagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//APagar
                 cuotProc.PagoAplicado.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Aplicado 
+                cuotProc.Moneda, //DiasDescuento  
             ]
         });
         return {
             Cuotas: cuotasProcesadas,
-            DescuentoAplicado: descuentoAcumulado
+            DescuentoAplicado: descuentoAcumulado,
+            ValorAPagar : valorPagos
         };
     }
     const CuotasSinAgrupar = () => {
@@ -353,8 +364,8 @@ const DetalleRecibo = (props) => {
         setPagosXRecibo(pagos);
     }
     const Acumulado = () => {
-        return Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0))
-    }
+            return Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0))
+        }
     const onAddPagoXRecibo = () => {
         if (!tipoPagoEditando) {
             let pagos = [...pagosXRecibo];
@@ -482,33 +493,37 @@ const DetalleRecibo = (props) => {
             ,
             Descripcion: '',
             SubFacturas: props.CuotasAPagar,
+            NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
+            EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
         }
 
         if(localStorage.getItem('isAnticipo') === 'true'){
-            localStorage.setItem('isAnticipo',false);
+                localStorage.setItem('isAnticipo',false);
 
-            apiURL = urlApi + "/api/Recibo/Anticipo";
-
-            parametros = {
-                Fecha: pagosXRecibo[0].fecha,
-                CodigoCliente:props.Cliente.Codigo,
-                Tipo:"Anticipo [T-O]",
-                FechaPago: pagosXRecibo[0].fecha,
-                Pagos: pagosXRecibo.map(pagXRecib => {
-                    return {
-                        "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
-                        "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
-                        "Orden": 1,
-                        "Valor": pagXRecib.valor,//104613.1000,
-                        "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,//"HNL",
-                        "Referencia": pagXRecib.referencia,//"",
-                        "ReferenciaTransaccionAbierta": ""
-                    }
-                })
-                ,
-                Descripcion: '',
-                SubFacturas: props.CuotasAPagar,
-            }
+                apiURL = urlApi + "/api/Recibo/Anticipo";
+    
+                parametros = {
+                    Fecha: pagosXRecibo[0].fecha,
+                    CodigoCliente:props.Cliente.Codigo,
+                    Tipo:(pedidoSelected!==null) ? "Anticipo [B-C]" : "Anticipo [T-O]",
+                    FechaPago: pagosXRecibo[0].fecha,
+                    Pagos: pagosXRecibo.map(pagXRecib => {
+                        return {
+                            "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
+                            "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
+                            "Orden": 1,
+                            "Valor": pagXRecib.valor,//104613.1000,
+                            "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,//"HNL",
+                            "Referencia": pagXRecib.referencia,//"",
+                            "ReferenciaTransaccionAbierta": ""
+                        }
+                    })
+                    ,
+                    Descripcion: '',
+                    SubFacturas: props.CuotasAPagar,
+                    NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
+                    EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
+                }
         }
 
         console.log(apiURL);
@@ -534,6 +549,7 @@ const DetalleRecibo = (props) => {
             .then(res => {
                 loading.close();
                 if (res.status === 200) {
+                    dispatch({type:'delete_pedidoselected'});
                     res.json()
                         .then(
                             (result) => {
@@ -619,6 +635,25 @@ const DetalleRecibo = (props) => {
         setDataModal(DataModal);
     }
 
+    const OpenPedidosModal = () => {
+        //event.stopPropagation();
+        setOpenPedidoModal(true);
+        let InfoModal = [];
+        
+        props.Cliente.Pedido.forEach(ped => {
+            InfoModal.push({
+                NumeroPedido: ped.PedidoId,
+                CodigoPaquete: ped.CodigoColeccion,
+                Paquete: ped.NombreColeccion,
+                FechaEntrega: moment(ped.FechaEntrega).format("DD/MM/YYYY"), 
+                Fecha: moment(ped.FechaActual).format("DD/MM/YYYY"),
+                TotalPedido: Number(ped.TotalXPedido),
+            }
+            )
+        });
+        setInfoModal(InfoModal);
+    }
+
     const showAlert = (abrir,mensaje)=>{
             setOpen(abrir);
             setMensaje(mensaje); 
@@ -630,7 +665,7 @@ const DetalleRecibo = (props) => {
 
     return (
         <div>
-            <h3>Pago Recibido</h3>
+            {props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? <h3>Pago Recibido <Button color="primary" onClick={() => { OpenPedidosModal() }} variant="contained" className="float-right" style={{marginRight: '110px'}}>Asociar Pedido</Button></h3> : <h3>Pago Recibido</h3>}
             <div className="row">
                 <Card style={{ marginTop: '10px', marginBottom: '10px' }}>
                     <PagoReciboTable
@@ -646,6 +681,7 @@ const DetalleRecibo = (props) => {
                         ConfirmEditarPago={confirmEditarPago}
                         CancelEditarPago={cancelEditarPago}
                         DeletePago={deletePago}
+                        Pedido = {pedidoSelected}
                         showAlert={showAlert}
                     ></PagoReciboTable>
                 </Card>
@@ -659,7 +695,9 @@ const DetalleRecibo = (props) => {
                         CuotasAPagar={props.CuotasAPagar}
                         SetLineasfiltradas={() => { }}
                         Acumulado={Acumulado}
+                        PedidoSelected = {pedidoSelected}
                         DescuentoAplicado={cuotasYDescuentoAplicado.DescuentoAplicado}
+                        ValorPagos = {cuotasYDescuentoAplicado.ValorAPagar}
                     />
                 </div>
                 <div className="col-lg-9 col-md-8 col-sm-7 col-12 my-2">
@@ -683,6 +721,7 @@ const DetalleRecibo = (props) => {
                     }
 
                     <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>
+                    <PedidosModal Data={InfoModal} Open={openPedidoModal} onClose={setOpenPedidoModal}></PedidosModal>
                 </div>
 
             </div>

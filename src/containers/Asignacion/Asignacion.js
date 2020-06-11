@@ -49,6 +49,7 @@ export default class Asignacion extends Component {
         TipoVisitaClienteDialogValue: '',
         TipoValues: [],
         TipoInitialValues: [],
+        ArrayTipoValues : [],
     }
 
     cargarClientes = () => {
@@ -270,7 +271,8 @@ export default class Asignacion extends Component {
 
         this.setState({
             TipoValues: ArrayValues,
-            TipoInitialValues: ArrayInitalValues
+            TipoInitialValues: ArrayInitalValues,
+            ArrayTipoValues : ArrayInitalValues
         });
     }
 
@@ -409,6 +411,7 @@ export default class Asignacion extends Component {
                         handleFechaDialogInicio={this.handleFechaDialogInicio}
                         handleInputChange={this.handleInputChange}
                         handleInputEdit={this.handleInputEdit}
+                        TipoValues={this.state.TipoInitialValues} 
                         fechaAsignacion={this.state.FechaAsignacion} />
 
                     <Dialog
@@ -625,7 +628,6 @@ export default class Asignacion extends Component {
         let olddate = new moment(this.state.HoraDialogInicio).toDate();
         let fecha = TiempoTotal;
         let date = new moment(olddate).add(fecha, 'minutes').toDate();
-
         this.setState({
             HoraDialogFin: date,
             [name]: Number(fecha),
@@ -953,9 +955,9 @@ export default class Asignacion extends Component {
             timer: 3000
         });
 
-        if (Date.parse(this.state.HoraDialogInicio) > Date.parse(this.state.HoraDialogFin)) {
-
-            Toast.fire({
+       if (Date.parse(this.state.HoraDialogInicio) > Date.parse(this.state.HoraDialogFin)) {
+            
+        Toast.fire({
                 type: 'error',
                 title: 'Ingrese Fecha Válida',
                 customClass: {
@@ -974,7 +976,7 @@ export default class Asignacion extends Component {
             let fechafinValid = this.isValidDate(this.state.HoraDialogFin);
             let finTiempoValid = this.state.FechaFinDialog !== "";
             let fechasValidas = fechainiValid && fechafinValid && finTiempoValid;
-
+            
             if (!fechasValidas) {
 
                 Toast.fire({
@@ -1064,8 +1066,9 @@ export default class Asignacion extends Component {
             this.setState({
                 Asignaciones: asignaciones,
                 ShowDialog: false,
+                TipoValues : this.state.TipoInitialValues
             })
-
+            this.cargarTiposAsignacionCliente();
 
         } else {
             if (asignaciones.length > 0) {

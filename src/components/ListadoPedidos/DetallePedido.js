@@ -154,8 +154,7 @@ const DetallePedido = (props) => {
                 </tr>
             </tbody>
         )
-    }
-    console.log('object :', props);*/
+    }*/
     return (
         <div className="px-3">
             <div>
@@ -381,6 +380,8 @@ const DetallePedido = (props) => {
                                 </thead>
                                 <tbody>
                                     {grupoTalla.prodsXDetPed.map((producto, index2) => {
+                                        let ColoresProductos =  Object.keys(producto.coloresXProdXDetPed).map((key)=>(producto.coloresXProdXDetPed[key]));
+                                        ColoresProductos.sort((a, b) => a.NombreColor < b.NombreColor ? -1 : 1);
                                         return (
                                             <React.Fragment key={index2} >
                                                 <tr className={styles["tbody"]}>
@@ -451,7 +452,7 @@ const DetallePedido = (props) => {
 
                                                     </td>
                                                 </tr>
-                                                {producto.coloresXProdXDetPed.map((color, index3) => {
+                                                {ColoresProductos.map((color, index3) => {
                                                     let detalles = Array(grupoTalla.ListaTalla.length).fill(null); 
                                                     color.DetallesXPedido.forEach(detalleXPedido => {
                                                         detalles[grupoTalla.ListaTalla.findIndex(tall => tall.Talla === detalleXPedido.Talla)] = detalleXPedido;
