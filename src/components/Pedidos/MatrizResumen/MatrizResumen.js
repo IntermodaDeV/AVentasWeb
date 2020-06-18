@@ -35,29 +35,21 @@ const MatrizResumen = (props) => {
     }
 
     const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
+    const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
+    //const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
     let gruposTalla = Object.keys(props.tableValue);
     let unidadesTotales = 0;
     let totalGlobal = 0.00;
     let moneda = (props.Cliente !== null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
     let productosSinCantindad = false;
-    let impuesto = 0.15;
-    let impuestoTotal = 1.15;
-
-    if(props.Cliente.Codigo.includes('IMCR'))
-    {
-        impuesto = 0.13;
-        impuestoTotal = 1.13;
-    }else if(props.Cliente.Codigo.includes('IMGT')){
-        impuesto = 0.12;
-        impuestoTotal = 1.12;
-    }
+    let impuesto = clienteImpuestos.find(x=>x.GRUPO === props.Cliente.GrupoImpuesto).IMPUESTO;
+    let impuestoTotal = impuesto+1;
 
     if(props.Cliente.Codigo.includes('IMHN') && lineaSeleccionada.IdLinea === "BIO")
     {
         impuesto = 0;
         impuestoTotal = 1;
     }
-
 
     return (
         <>

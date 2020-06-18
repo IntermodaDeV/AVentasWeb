@@ -286,6 +286,16 @@ const checkDist = (talla) => {
                                 </div>
                             </div>
 
+                            {(props.Pedido.Flete>0 && props.Pedido.Flete !== null ) && <div className="row TotalRow">
+                                <div className="col-5 labelTotal text-left">
+                                    Flete:
+                                    </div>
+
+                                <div className="col-7 valueTotal">
+                                    {numberWithCommas((props.Pedido.Flete))}
+                                </div>
+                            </div>}
+
                             <div className="row TotalRow">
                                 <div className="col-5 labelTotal text-left">
                                     Impuesto:

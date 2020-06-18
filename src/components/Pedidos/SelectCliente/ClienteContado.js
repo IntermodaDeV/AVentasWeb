@@ -38,28 +38,54 @@ const validationSchema = yup.object().shape(
 
 const ClienteContado = React.memo((props)=>{
 
-    const [enableEdit,setEnableEdit] = useState(true);
-    const [enableSave,setEnableSave] = useState(false);
-    const [enableNew,setEnableNew]   = useState(true);
+    let initialValues,edit,save,nuevo,habilitado;
+    if(props.cliente===null)
+    {
+        initialValues = 
+        {
+            id:0,
+            Nombre:'',
+            Direccion:'',
+            FlagClientePotencial:false,
+            RTN:'',
+            RTN2:'',
+            Telefono:'',
+            ComunidadAutonoma:'',
+            Ruta:props.ruta
+        }
+        edit = true;
+        save = false;
+        nuevo = true;
+        habilitado = false;
+    }else{
+        initialValues = 
+        {
+            id:props.cliente.id,
+            Nombre:props.cliente.Nombre,
+            Direccion:props.cliente.Direccion,
+            FlagClientePotencial:props.cliente.FlagClientePotencial,
+            RTN:props.cliente.RTN,
+            RTN2:props.cliente.RTN,
+            Telefono:props.cliente.Telefono,
+            ComunidadAutonoma:'',
+            Ruta:props.cliente.Ruta
+        }
+
+        edit = false;
+        save = true;
+        nuevo = true;
+        habilitado = true;
+    }
+
+
+    const [enableEdit,setEnableEdit] = useState(edit);
+    const [enableSave,setEnableSave] = useState(save);
+    const [enableNew,setEnableNew]   = useState(nuevo);
     const dispatch = useDispatch();
     const clientes = useSelector(e=>e.clientesContado);
     const requiereEntrega = useSelector(e=>e.requiereEntrega);
     const context = useRef();
-
-    const initialValues = 
-    {
-        id:0,
-        Nombre:'',
-        Direccion:'',
-        FlagClientePotencial:false,
-        RTN:'',
-        RTN2:'',
-        Telefono:'',
-        ComunidadAutonoma:'',
-        Ruta:props.ruta
-    }
-
-
+    
     const handleSubmit = (values)=>
     {
         axios({
@@ -165,6 +191,7 @@ const ClienteContado = React.memo((props)=>{
                         <div ref={context}>
                         <div>
                             <Dropdown
+                                disabled={habilitado}
                                 placeholder="Seleccione cliente contado"
                                 fluid
                                 search
@@ -208,6 +235,7 @@ const ClienteContado = React.memo((props)=>{
                                         }
                                         label="Cliente Potencial"
                                         style={{marginRight:'80px'}}
+                                        disabled={habilitado}
                                 />
                                 <FormControlLabel
                                         control={
@@ -219,6 +247,7 @@ const ClienteContado = React.memo((props)=>{
                                             as={CheckBox}
                                         />
                                         }
+                                        disabled={habilitado}
                                         label="Requiere Entrega"
                                 />
                             </div>
@@ -230,6 +259,7 @@ const ClienteContado = React.memo((props)=>{
                                     helperText={errors.Nombre}
                                     style={{marginRight:'80px'}}
                                     as={TextField}
+                                    disabled={habilitado}
                                 />
                                 <Field
                                     label="Telefono"
@@ -237,6 +267,7 @@ const ClienteContado = React.memo((props)=>{
                                     name="Telefono"
                                     helperText={errors.Telefono}
                                     as={TextField}
+                                    disabled={habilitado}
                                 />
                             </div>
                                 <Field
@@ -263,6 +294,7 @@ const ClienteContado = React.memo((props)=>{
                                 error={!!errors.Direccion}
                                 helperText={errors.Direccion}
                                 as={TextField}
+                                disabled={habilitado}
                             />
                         </div>
                         

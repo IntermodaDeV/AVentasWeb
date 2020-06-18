@@ -109,9 +109,13 @@ class Pedidos extends React.Component {
 
     cargarData = () => {
         Promise.all([this.cargarClientes(),
-
+        this.cargarEmpresasTransporte(),
+        this.cargarPrecioCajas(),
+        this.cargarComunidadAutonoma(),
         this.cargarMaestroLinea(),
         this.cargarTiposColeccion(),
+        this.cargarImpuestoClientes(),
+        this.cargarImpuestoProductos(),
         this.cargarTiposPedido()]).then(this.setState({
             isLoaded: true,
         }));
@@ -251,6 +255,60 @@ class Pedidos extends React.Component {
                     });
                 }
             )
+    }
+
+    cargarEmpresasTransporte = () =>{
+        const empresa = localStorage.getItem('empresa');
+
+        fetch(`${this.urlApi}/api/transporte/${empresa}/empresas`)
+        .then(res=>res.json())
+        .then(data=>this.props.onStoreEmpresasTransporte(data))
+        .catch(error=>this.setState({error}))
+    }
+
+    cargarPrecioCajas = () =>{
+        const empresa = localStorage.getItem('empresa');
+
+        fetch(`${this.urlApi}/api/transporte/${empresa}/preciocaja`)
+        .then(res=>res.json())
+        .then(data=>this.props.onStorePrecioCajas(data))
+        .catch(error=>this.setState({error}))
+    }
+
+    cargarComunidadAutonoma = () =>{
+        const empresa = localStorage.getItem('empresa');
+        let pais = "HND";
+
+        if(empresa === "imcr")
+        {
+            pais = "CRI";
+        }else if(empresa === "imgt")
+        {
+            pais = "GTM";
+        }
+
+        fetch(`${this.urlApi}/api/transporte/${pais}/comunidadautonoma`)
+        .then(res=>res.json())
+        .then(data=>this.props.onStoreComunidades(data))
+        .catch(error=>this.setState({error}))
+    }
+
+    cargarImpuestoClientes = () =>{
+        const empresa = localStorage.getItem('empresa');
+
+        fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/clientes`)
+        .then(res=>res.json())
+        .then(data=>this.props.onStoreImpuestoClientes(data))
+        .catch(error=>this.setState({error}))
+    }
+
+    cargarImpuestoProductos = () =>{
+        const empresa = localStorage.getItem('empresa');
+
+        fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/articulos`)
+        .then(res=>res.json())
+        .then(data=>this.props.onStoreImpuestoProductos(data))
+        .catch(error=>this.setState({error}))
     }
 
     Alerta = () => {
@@ -1115,7 +1173,8 @@ class Pedidos extends React.Component {
             TipoPedido: this.props.TipoPedido,
             TipoVenta: this.calcularTipoVenta(),
             ClienteContadoId:(this.props.clienteContado!==null) ? this.props.clienteContado.id : null,
-            ModoVenta:(this.props.TipoPedido.TipoPedido==='Contado')?'Contado':'Credito'
+            ModoVenta:(this.props.TipoPedido.TipoPedido==='Contado')?'Contado':'Credito',
+            Flete:this.props.flete
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
 
@@ -2299,7 +2358,8 @@ const mapStateToProps = state => {
         Limite: state.Limite,
         NumeroOrden: state.NumeroOrden,
         TiposColeccion: state.TiposColeccion,
-        clienteContado:state.clienteContado
+        clienteContado:state.clienteContado,
+        flete:state.flete
     };
 };
 const mapDispatchToProps = dispatch => {
@@ -2324,7 +2384,11 @@ const mapDispatchToProps = dispatch => {
         onStoreTiposColeccion: (TiposColeccion) => dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: TiposColeccion }),
         onStoreDatosParaPedido: (colecciones, clientes, TiposPedido, maestroLineas) => dispatch(
             { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
-
+        onStoreEmpresasTransporte:(empresas)=>dispatch({type:'SET_EMPRESASTRANSPORTE',payload:empresas}),
+        onStorePrecioCajas:(precioCajas)=>dispatch({type:'SET_PRECIOCAJAS',payload:precioCajas}),
+        onStoreComunidades:(comunidades)=>dispatch({type:'SET_COMUNIDADAUTONOMA',payload:comunidades}),
+        onStoreImpuestoClientes:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOS',payload:impuestos}),
+        onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos})
     };
 };
 /* const linkButton = {

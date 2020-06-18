@@ -33,17 +33,10 @@ const MatrizResumen = (props) => {
     let productosSinCantindad = false;
 
     const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
-    let impuesto = 0.15;
-    let impuestoTotal = 1.15;
-
-    if(props.Cliente.Codigo.includes('IMCR'))
-    {
-        impuesto = 0.13;
-        impuestoTotal = 1.13;
-    }else if(props.Cliente.Codigo.includes('IMGT')){
-        impuesto = 0.12;
-        impuestoTotal = 1.12;
-    }
+    const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
+    //const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
+    let impuesto = clienteImpuestos.find(x=>x.GRUPO === props.Cliente.GrupoImpuesto).IMPUESTO;
+    let impuestoTotal = impuesto+1;
 
     if(props.Cliente.Codigo.includes('IMHN') && lineaSeleccionada.IdLinea === "BIO")
     {
