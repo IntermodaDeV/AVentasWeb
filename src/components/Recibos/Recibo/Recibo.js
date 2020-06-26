@@ -5,9 +5,28 @@ import Logo from 'assets/img/logo/LogoSinLetrasInv.png';
 import styles from "components/Recibos/Recibo/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
-
+import {useSelector} from 'react-redux';
 
 const Recibo = (props) => {
+
+    const clientesContado = useSelector(e=>e.clientesContado);
+
+    const pedidoSelected = useSelector(k => k.pedidoSelected);
+    let NombreCliente = props.Cliente.Nombre;
+    let DireccionCliente = props.Cliente.Direccion;
+    const clienteContado = pedidoSelected !== null && pedidoSelected !== undefined ? clientesContado.find(x=>x.id=== pedidoSelected.ClienteContado) : null;
+    let Total = props.RecibosAplicados.Total;
+    if(clienteContado!==null && clienteContado!==undefined)
+    {
+        if(Total < 10000)
+        {
+            NombreCliente = 'CONSUMIDOR FINAL';
+        }else{
+            NombreCliente = clienteContado.Nombre;
+        }
+
+        DireccionCliente = clienteContado.Direccion;
+    }
     //const FechaEntrega = new Date();
     const componentRef = React.useRef();
 
@@ -51,12 +70,12 @@ const Recibo = (props) => {
                                 </div>
                                 <div className="col-12 p-0 text-left">
                                     <h3 className={"font-weight-bold " + styles.LineHeight_1_5}>
-                                        {props.Cliente.Nombre}
+                                        {NombreCliente}
                                     </h3>
                                 </div>
                                 <div className="col-12 p-0 text-left">
                                     <p>
-                                        {props.Cliente.Direccion}
+                                        {DireccionCliente}
                                     </p>
                                 </div>
                             </div>

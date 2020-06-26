@@ -468,7 +468,8 @@ const DetalleRecibo = (props) => {
 
     const Finalizar = () => {
         setModalRecibo(false);
-        props.history.push(`/Recibos`);
+        dispatch({type:'delete_pedidoselected'})
+        props.history.push(`/lista-recibos`);
     }
 
     const EnviarRecibo = () => {
@@ -498,8 +499,6 @@ const DetalleRecibo = (props) => {
         }
 
         if(localStorage.getItem('isAnticipo') === 'true'){
-                localStorage.setItem('isAnticipo',false);
-
                 apiURL = urlApi + "/api/Recibo/Anticipo";
     
                 parametros = {
@@ -549,7 +548,7 @@ const DetalleRecibo = (props) => {
             .then(res => {
                 loading.close();
                 if (res.status === 200) {
-                    dispatch({type:'delete_pedidoselected'});
+                    localStorage.setItem('isAnticipo',false);
                     res.json()
                         .then(
                             (result) => {
@@ -642,12 +641,14 @@ const DetalleRecibo = (props) => {
         
         props.Cliente.Pedido.forEach(ped => {
             InfoModal.push({
-                NumeroPedido: ped.PedidoId,
+                PedidoId : ped.PedidoId,
+                NumeroPedido: ped.NumeroPedido,
                 CodigoPaquete: ped.CodigoColeccion,
                 Paquete: ped.NombreColeccion,
                 FechaEntrega: moment(ped.FechaEntrega).format("DD/MM/YYYY"), 
                 Fecha: moment(ped.FechaActual).format("DD/MM/YYYY"),
                 TotalPedido: Number(ped.TotalXPedido),
+                ClienteContado: ped.ClienteContadoId,
             }
             )
         });
@@ -665,7 +666,7 @@ const DetalleRecibo = (props) => {
 
     return (
         <div>
-            {props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? <h3>Pago Recibido <Button color="primary" onClick={() => { OpenPedidosModal() }} variant="contained" className="float-right" style={{marginRight: '110px'}}>Asociar Pedido</Button></h3> : <h3>Pago Recibido</h3>}
+            {props.Cliente.Pedido.length !== 0? <h3>Pago Recibido <Button color="primary" onClick={() => { OpenPedidosModal() }} variant="contained" className="float-right" style={{marginRight: '110px'}}>Asociar Pedido</Button></h3> : <h3>Pago Recibido</h3>}
             <div className="row">
                 <Card style={{ marginTop: '10px', marginBottom: '10px' }}>
                     <PagoReciboTable

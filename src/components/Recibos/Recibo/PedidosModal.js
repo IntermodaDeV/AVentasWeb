@@ -13,7 +13,7 @@ const PedidosModal = (props) => {
     const columns = [
 
         {
-            name: 'NumeroPedido',
+            name: 'PedidoId',
             label: 'Numero Pedido',
             options: {
                 filter: true,
@@ -135,8 +135,7 @@ const PedidosModal = (props) => {
 const ValorApagar = () => {
     let ValoresAPagar = [];  
     selectedRowsIndex.forEach(selRowsIndex => {
-      let select = props.Data.find(element => element.NumeroPedido === props.Data[selRowsIndex].NumeroPedido);
-      console.log('select',select)
+      let select = props.Data.find(element => element.PedidoId === props.Data[selRowsIndex].PedidoId);
       if (select) {
         dispatch({type:'store_pedidoselected',payload:select})  
         ValoresAPagar.push(select);

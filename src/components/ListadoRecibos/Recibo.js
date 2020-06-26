@@ -5,12 +5,29 @@ import Logo from 'assets/img/logo/LogoSinLetrasInv.png';
 import styles from "components/ListadoRecibos/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
-
+import {useSelector} from 'react-redux';
 
 const Recibo = (props) => {
-    //const FechaEntrega = new Date();
-    const componentRef = React.useRef();
+    const clientesContado = useSelector(e=>e.clientesContado);
+    let NombreCliente = props.recibo.Cliente.Nombre;
+    let DireccionCliente=props.recibo.Cliente.Direccion; 
+    const clienteContado = props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
+    let valor = props.recibo.Valor;
+    if(clienteContado!==null && clienteContado!==undefined)
+    {
+            if(valor < 10000)
+            {
+                NombreCliente = 'CONSUMIDOR FINAL';
+            }
+            else
+            {
+                NombreCliente = clienteContado.Nombre;
+            }
+        DireccionCliente = clienteContado.Direccion;
+    }
 
+    const componentRef = React.useRef();
+    console.log("props:",props)
 
     return (
         <>
@@ -44,12 +61,12 @@ const Recibo = (props) => {
                         </div>
                         <div className="col-12 p-0 text-left">
                             <h3 className={"font-weight-bold " + styles.LineHeight_1_5}>
-                                {props.recibo.Cliente.Nombre}
+                                {NombreCliente}
                             </h3>
                         </div>
                         <div className="col-12 p-0 text-left">
                             <p>
-                                {props.recibo.Cliente.Direccion}
+                                {DireccionCliente}
                             </p>
                         </div>
                     </div>

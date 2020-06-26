@@ -430,13 +430,16 @@ const FacturaTable = props => {
 
     let tempData = [];
 
-    if(creditosVencidos.length>0){
-      creditosVencidos.forEach((e,i)=>{
+    if(creditosVencidos.length>0 ){
+      if(props.Cliente.Pedido.length === 0){
+        creditosVencidos.forEach((e,i)=>{
            
-            const newAction = React.cloneElement(e.Accion,{disabled:false});
-            e.Accion = newAction;
-          
-      });
+          const newAction = React.cloneElement(e.Accion,{disabled:false});
+          e.Accion = newAction;
+        
+        });
+      }
+      
       props.CreditoVencido(true);
 
       if(creditosVencidos.length===1 || creditosVencidos.length===0){
@@ -490,7 +493,7 @@ const FacturaTable = props => {
     Totales.Vencido += saldoVencido;
     Totales.C15Dias += saldo15DiasAvencer;
     const dias = saldoVencido>0? "text-danger font-weight-bold":"inline-block"
-
+    
    
       data.push({
         FechaV:FechaVencido(acuXTipPed.TipoPedido,true),
@@ -617,7 +620,7 @@ const FacturaTable = props => {
 
   return (
   <>
-    {props.Cliente.Nombre.includes("CONSUMIDOR FINAL")?<Button color="primary" onClick={()=>{handleAnticipo()}} variant="contained" style={{marginBottom:"20px"}}>Pago Contado</Button>: 
+    {props.Cliente.Pedido.length !== 0?<Button color="primary" onClick={()=>{handleAnticipo()}} variant="contained" style={{marginBottom:"20px"}}>Pago Contado</Button>: 
     data.length===1?<Button color="primary" onClick={()=>{handleAnticipo()}} variant="contained" style={{marginBottom:"20px"}}>Anticipos</Button>:""}
     <MUIDataTable title={'Resumen Cartera'} data={data} columns={columns} options={getOptions(props)} />
     <FacturasModal Data={DataModal} Open={openModal} onClose={setOpenModal}></FacturasModal>

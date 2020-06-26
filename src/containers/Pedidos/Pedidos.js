@@ -141,6 +141,7 @@ class Pedidos extends React.Component {
                             this.setState({
                                 loadingColecciones: false
                             });
+                            console.log(result);
                             this.props.onStoreColecciones(result);
                         })
                 }
@@ -243,6 +244,7 @@ class Pedidos extends React.Component {
             .then(res => res.json())
             .then(
                 (result) => {
+                    console.log(result);
                     this.props.onStoreTiposColeccion(result);
                 },
                 // Note: it's important to handle errors here

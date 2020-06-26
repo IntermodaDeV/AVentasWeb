@@ -48,6 +48,8 @@ const ResumenPedido = (props) => {
         }
     }
 
+    console.log(props);
+
     const dispatch = useDispatch();
     const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
     const TipoCredito = useSelector(e=>e.TipoPedido);
@@ -57,7 +59,7 @@ const ResumenPedido = (props) => {
     const precioCajas = useSelector(e=>e.precioCajas);
     const comunidadesAutonomas = useSelector(e=>e.comunidadesAutonomas);
     const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
-    //const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
+    const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
     const [transporte,setTransporte]= React.useState('');
     const [comunidad,setComunidad] = React.useState(comunidadSelected);
     const esBiomedico = (lineaSeleccionada.IdLinea === "BIO" && requiereEntrega);
@@ -69,14 +71,19 @@ const ResumenPedido = (props) => {
     var nuevafecha = new Date();
     var fecha = moment(nuevafecha).toDate();
     var moneda = (props.Cliente != null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
-    let impuesto = clienteImpuestos.find(x=>x.GRUPO === props.Cliente.GrupoImpuesto).IMPUESTO;
+    const coleccion         = useSelector(e=>e.coleccion.Edades[0].ProductosXEdad);
+    let impuestoCliente = clienteImpuestos.find(x=>x.GRUPO === props.Cliente.GrupoImpuesto).IMPUESTO;
+    let producto = Object.keys(props.tableValue[gruposTalla].Productos)[0];
+    let productoGrupo = coleccion.find(x=>x.ProductoId===producto).GrupoImpuesto;
+    let productoImpuesto = productoImpuestos.find(x=>x.GRUPO===productoGrupo).IMPUESTO;
+    let isExcento = impuestoCliente===0;
+    let impuesto = productoImpuesto; 
     let impuestoTotal = impuesto+1;
-
-
-    if(props.Cliente.Codigo.includes('IMHN') && lineaSeleccionada.IdLinea === "BIO")
+    
+    if(isExcento)
     {
-        impuesto = 0;
-        impuestoTotal = 1;
+        impuesto=0;
+        impuestoTotal=1;
     }
 
     const calcularFlete = () => {
