@@ -9,10 +9,12 @@ import {useSelector} from 'react-redux';
 
 const Recibo = (props) => {
     const clientesContado = useSelector(e=>e.clientesContado);
+    const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.Cliente.Nombre;
     let DireccionCliente=props.recibo.Cliente.Direccion; 
     const clienteContado = props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
     let valor = props.recibo.Valor;
+    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
     if(clienteContado!==null && clienteContado!==undefined)
     {
             if(valor < 10000)
@@ -43,7 +45,7 @@ const Recibo = (props) => {
                                     {'Intermoda, S.A. de C.V.'}
                                 </h2>
                                 <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                    {'RTN: 05011839482948'}
+                                {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF} 
                                 </h3>
                             </div>
                         </div>

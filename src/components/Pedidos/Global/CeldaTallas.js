@@ -69,7 +69,7 @@ const CeldaTallas = (props) => {
                             <div className="row">
                                 {/* <div class={styles.separator}></div> */}
                                 <div className="d-flex m-auto">
-                                    <ReactTextTransition
+                                    Stock: <ReactTextTransition
                                         text={Disponible}
                                         spring={presets.stiff}
                                         className="px-1 TextTransitionNoAnimation"
@@ -89,7 +89,7 @@ const CeldaTallas = (props) => {
 
                                         {/* <div class={styles.separator}></div> */}
                                         <div className="d-flex m-auto">
-                                            <span className={props.backorder ? 'text-danger' : null}>{props.backorder}</span>
+                                           <span className={props.backorder ? 'text-danger' : null}>{props.backorder}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -111,7 +111,7 @@ const CeldaTallas = (props) => {
                     <div className="row">
                         {/* <div class={styles.separator}></div> */}
                         <div className="d-flex pr-1 m-auto">
-                            {props.precio}{'.00'}
+                           Precio: {props.precio}{'.00'}
                         </div>
                     </div>
                 </div>

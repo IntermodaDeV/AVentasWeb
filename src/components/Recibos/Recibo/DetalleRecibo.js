@@ -466,10 +466,37 @@ const DetalleRecibo = (props) => {
         setMonedaSeleccionada(moneda);
     }
 
+    const cargarClientes = () => {
+        fetch(urlApi + '/api/cliente', {
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+          }
+        }).then(res => {
+          if (res.status === 401) {
+            localStorage.setItem('token', '')
+            window.location.reload()
+          }
+          if (res.status === 200) {
+            res.json().then(
+              result => {
+                dispatch({type:'STORE_RECIBO_CLIENTES',clientes:result})
+              },
+              // Note: it's important to handle errors here
+              // instead of a catch() block so that we don't swallow
+              // exceptions from actual bugs in components.
+              error => {
+    
+              }
+            )
+          }
+        })
+      }
+
     const Finalizar = () => {
         setModalRecibo(false);
+        cargarClientes();
         dispatch({type:'delete_pedidoselected'})
-        props.history.push(`/lista-recibos`);
+        props.history.push(`/recibos`);
     }
 
     const EnviarRecibo = () => {

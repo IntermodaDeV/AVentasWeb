@@ -31,6 +31,8 @@ const SelectCliente = (props) => {
                 props.onSelect((cliente));
             }
         }
+        dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'})
+        dispatch({type:'DELETE_RECIBO_CLIENTESELECTED'})
         // eslint-disable-next-line
     }, [props.clientes]);
 

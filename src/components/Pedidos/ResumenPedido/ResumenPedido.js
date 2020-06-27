@@ -37,6 +37,8 @@ const ResumenPedido = (props) => {
     const [flete,setFlete] = React.useState(0);
     const [openContado,setOpenContado] = React.useState(false);
     const clienteContado = useSelector(e=>e.clienteContado);
+    const empresas = useSelector(e=>e.Empresas);
+    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
     let comunidadSelected = "";
     let habilitado = false;
 
@@ -796,7 +798,7 @@ const IsSame = (GrupoTallaId) => {
                 <CancelPresentationIcon onClick={()=>{setOpenContado(false)}}/>
                 <DialogTitle className="text-center" id="scroll-dialog-title">
                     <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-                        Requiere RTN
+                        Requiere {empresa.FISCAL_DOCUMENT}
                     </div>
                 </DialogTitle>
                 <DialogContent>
@@ -847,7 +849,7 @@ const IsSame = (GrupoTallaId) => {
                         <div id="top">
                             <img alt={"Logo"} width={420} style={{ objectFit: 'contain' }} src={Logo} ></img>
                             <div className="info">
-                                <p>RTN: 05019995124588</p>
+                                <p>{empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}</p>
                             </div>
                         </div>
 

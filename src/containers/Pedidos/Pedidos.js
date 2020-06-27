@@ -1176,7 +1176,8 @@ class Pedidos extends React.Component {
             TipoVenta: this.calcularTipoVenta(),
             ClienteContadoId:(this.props.clienteContado!==null) ? this.props.clienteContado.id : null,
             ModoVenta:(this.props.TipoPedido.TipoPedido==='Contado')?'Contado':'Credito',
-            Flete:this.props.flete
+            Flete:this.props.flete,
+            RequiereEntrega:this.props.requiereEntrega
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
 
@@ -2361,7 +2362,8 @@ const mapStateToProps = state => {
         NumeroOrden: state.NumeroOrden,
         TiposColeccion: state.TiposColeccion,
         clienteContado:state.clienteContado,
-        flete:state.flete
+        flete:state.flete,
+        requiereEntrega:state.requiereEntrega
     };
 };
 const mapDispatchToProps = dispatch => {

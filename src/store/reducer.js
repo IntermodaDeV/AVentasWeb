@@ -37,7 +37,8 @@ const initialState = {
     comunidadesAutonomas:[],
     flete:0.0,
     ClienteImpuestos:[],
-    ProductoImpuestos:[]
+    ProductoImpuestos:[],
+    Empresas:[]
 }
 
 const calcularLimite = (state) => {
@@ -288,6 +289,28 @@ const reducer = (state = initialState, action) => {
             }
         }
     }
+
+    if (action.type === 'DELETE_RECIBO_CUOTASCUENTACORRIENTE') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                cuotasCuentaCorriente: []
+            }
+        }
+    }
+
+    if (action.type === 'DELETE_RECIBO_CLIENTESELECTED') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                clienteSelected: null
+            }
+        }
+    }
     
     if(action.type === "SET_CLIENTECONTADO")
     {
@@ -405,6 +428,14 @@ const reducer = (state = initialState, action) => {
         return{
             ...state,
             flete:0.0
+        }
+    }
+
+    if(action.type==='SET_EMPRESAS')
+    {
+        return{
+            ...state,
+            Empresas:action.payload
         }
     }
 

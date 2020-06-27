@@ -50,10 +50,6 @@ const MatrizResumen = (props) => {
         impuestoTotal=1;
     }
 
-    console.log(impuestoCliente);
-    console.log(isExcento);
-
-
     const onContinuar = () => {
         if (productosSinCantindad) {
             Swal.fire({
@@ -141,6 +137,7 @@ const MatrizResumen = (props) => {
                         {gruposTalla.map((grupoTalla, index) => {
 
                             let productos = Object.keys(props.tableValue[grupoTalla].Productos);
+                            console.log(productos)
                             if (props.tableValue[grupoTalla].Mostrar) {
                                 return (
                                     productos.map((codigoProducto, index1) => {

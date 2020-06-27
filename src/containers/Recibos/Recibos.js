@@ -511,7 +511,7 @@ const mapDispatchToProps = dispatch => {
     onStoreTiposColeccion: (TiposColeccion) => dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: TiposColeccion }),
     onStoreDatosParaPedido: (colecciones, clientes, TiposPedido, maestroLineas) => dispatch(
       { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
-
+    onDeleteCuentaCorriente: ()=> dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'})
       
 
   };

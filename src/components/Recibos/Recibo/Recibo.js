@@ -12,6 +12,8 @@ const Recibo = (props) => {
     const clientesContado = useSelector(e=>e.clientesContado);
 
     const pedidoSelected = useSelector(k => k.pedidoSelected);
+    const empresas = useSelector(e=>e.Empresas);
+    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
     let NombreCliente = props.Cliente.Nombre;
     let DireccionCliente = props.Cliente.Direccion;
     const clienteContado = pedidoSelected !== null && pedidoSelected !== undefined ? clientesContado.find(x=>x.id=== pedidoSelected.ClienteContado) : null;
@@ -52,7 +54,7 @@ const Recibo = (props) => {
                                             {'Intermoda, S.A. de C.V.'}
                                         </h2>
                                         <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                            {'RTN: 05011839482948'}
+                                        {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                                         </h3>
                                     </div>
                                 </div>
