@@ -2,12 +2,18 @@ import React from 'react';
 import ReactTextTransition, { presets } from "react-text-transition";
 import {APIURL} from 'utils/Enviroment';
 import styles from "components/Pedidos/Global/CeldaTallas.module.css";
+import {useSelector,useDispatch} from 'react-redux';
 
 const CeldaTallas = (props) => {
     const [Focused, setFocused] = React.useState(null);
     const [Disponible, setDisponible] = React.useState(props.disponible);
+    const coleccion         = useSelector(e=>e.coleccion.Edades[0].ProductosXEdad);
+    const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
+    const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
+    const cliente = useSelector(e=>e.cliente);
+    const clienteImpuesto = clienteImpuestos.find(x=>x.GRUPO===cliente.GrupoImpuesto);
+    const dispatch          = useDispatch();
     const urlApi = APIURL;
-
     const onFocus = () => {
         setFocused(true);
         props.onFocus();
@@ -41,6 +47,42 @@ const CeldaTallas = (props) => {
                     }
                 })
         }
+    }
+
+    const handleChange = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio)=>
+    {
+            const cantidad = isNaN(parseInt(text.target.value))?0:parseInt(text.target.value);
+            const propsCantidad = isNaN(parseInt(props.cantidad))?0:parseInt(props.cantidad);
+            const producto = coleccion.find(x=>x.ProductoId===codigoProducto);
+            const productoImpuesto = productoImpuestos.find(x=>x.GRUPO===producto.GrupoImpuesto).IMPUESTO;
+
+            if(clienteImpuesto.IMPUESTO!==0)
+            {
+                if(cantidad<propsCantidad)
+                {
+                    const cant = propsCantidad-cantidad;
+                    const impuesto = (precio*productoImpuesto)*cant;
+                    const tst = Math.round((impuesto + Number.EPSILON) * 100) / 100;
+                
+                    if(!isNaN(tst)){
+                        dispatch({type:'SET_RESTAIMPUESTO',payload:tst});
+                    }else{
+                        dispatch({type:'SET_IMPUESTOVACIO'});
+                    }
+                }else{
+                    const cant = cantidad-propsCantidad;
+                    const impuesto = (precio*productoImpuesto)*cant;
+                    const tst = Math.round((impuesto + Number.EPSILON) * 100) / 100;
+                
+                    if(!isNaN(tst)){
+                        dispatch({type:'SET_SUMAIMPUESTO',payload:tst});
+                    }else{
+                        dispatch({type:'SET_IMPUESTOVACIO'});
+                    }
+                }
+        }
+
+            props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
     }
 
     const isDisabled = () => {
@@ -129,7 +171,7 @@ const CeldaTallas = (props) => {
                 maxLength={4}
                 value={props.cantidad}
                 style={{ maxWidth: "100%", border: 'none', textAlign: 'center', width: '100%' }}
-                onChange={(text) => props.onChange(text, props.codigoProducto, props.codigoColor, props.grupoTalla, props.codigoTalla, props.precio)}
+                onChange={(text) => handleChange(text, props.codigoProducto, props.codigoColor, props.grupoTalla, props.codigoTalla, props.precio)}
             />
         </td >
     );

@@ -40,6 +40,7 @@ const ResumenPedido = (props) => {
     const empresas = useSelector(e=>e.Empresas);
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
     let comunidadSelected = "";
+    let modoEntrega = "";
     let habilitado = false;
 
     if(clienteContado===null)
@@ -48,11 +49,16 @@ const ResumenPedido = (props) => {
             comunidadSelected = props.Cliente.ComunidadAutonoma;
             habilitado = true;
         }
+
+        if(props.Cliente.ModoEntrega!==""){
+            modoEntrega = props.Cliente.ModoEntrega;
+        }
     }
 
     console.log(props);
 
     const dispatch = useDispatch();
+    const impuesto = useSelector(e=>e.Impuesto);
     const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
     const TipoCredito = useSelector(e=>e.TipoPedido);
     const modoVenta = TipoCredito.TipoPedido === 'Contado'?'Contado':'Credito';
@@ -60,9 +66,7 @@ const ResumenPedido = (props) => {
     const empresasTransporte = useSelector(e=>e.empresasTransporte);
     const precioCajas = useSelector(e=>e.precioCajas);
     const comunidadesAutonomas = useSelector(e=>e.comunidadesAutonomas);
-    const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
-    const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
-    const [transporte,setTransporte]= React.useState('');
+    const [transporte,setTransporte]= React.useState(modoEntrega);
     const [comunidad,setComunidad] = React.useState(comunidadSelected);
     const esBiomedico = (lineaSeleccionada.IdLinea === "BIO" && requiereEntrega);
 
@@ -73,20 +77,6 @@ const ResumenPedido = (props) => {
     var nuevafecha = new Date();
     var fecha = moment(nuevafecha).toDate();
     var moneda = (props.Cliente != null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
-    const coleccion         = useSelector(e=>e.coleccion.Edades[0].ProductosXEdad);
-    let impuestoCliente = clienteImpuestos.find(x=>x.GRUPO === props.Cliente.GrupoImpuesto).IMPUESTO;
-    let producto = Object.keys(props.tableValue[gruposTalla].Productos)[0];
-    let productoGrupo = coleccion.find(x=>x.ProductoId===producto).GrupoImpuesto;
-    let productoImpuesto = productoImpuestos.find(x=>x.GRUPO===productoGrupo).IMPUESTO;
-    let isExcento = impuestoCliente===0;
-    let impuesto = productoImpuesto; 
-    let impuestoTotal = impuesto+1;
-    
-    if(isExcento)
-    {
-        impuesto=0;
-        impuestoTotal=1;
-    }
 
     const calcularFlete = () => {
         if(comunidad==="" || transporte===""){
@@ -159,7 +149,7 @@ const IsSame = (GrupoTallaId) => {
         return clienteContado !== null 
                 && clienteContado.RTN === '' 
                 && lineaSeleccionada.IdLinea === "BIO" 
-                && ((totalGlobal * impuestoTotal)+flete)>10000;
+                && ((totalGlobal + impuesto)+flete)>10000;
     }
 
     const Finalizar = () => {
@@ -197,9 +187,12 @@ const IsSame = (GrupoTallaId) => {
     }
 
     React.useEffect(()=>{
-        const valorFlete = calcularFlete();
-        setFlete(valorFlete)
-        dispatch({type:'SET_FLETE',payload:valorFlete});
+        if(lineaSeleccionada.IdLinea === "BIO")
+        {
+            const valorFlete = calcularFlete();
+            setFlete(valorFlete)
+            dispatch({type:'SET_FLETE',payload:valorFlete});
+        }
          // eslint-disable-next-line
     },[comunidad,transporte]);
     const onChangeDate = (date) => {
@@ -702,6 +695,7 @@ const IsSame = (GrupoTallaId) => {
                                             setTransporte(value);
                                             
                                         }}
+                                        defaultValue={modoEntrega}
                                         options={empresasTransporte.filter(x=>x.ACTIVE).map(empresa => {
                                             return {key:empresa.CODE, value:empresa.CODE,text:empresa.TXT}
                                         })}
@@ -760,7 +754,7 @@ const IsSame = (GrupoTallaId) => {
                                     ISV:
                                 </div>
                                 <div className="col-6">
-                                {moneda} {numberWithCommas(totalGlobal * impuesto)}
+                                {moneda} {numberWithCommas(impuesto)}
                                 </div>
                             </div>
                             <div className="row">
@@ -768,7 +762,7 @@ const IsSame = (GrupoTallaId) => {
                                     Total:
                                 </div>
                                 <div className="col-6">
-                                {moneda} {numberWithCommas((totalGlobal * impuestoTotal)+flete)}
+                                {moneda} {numberWithCommas((totalGlobal + impuesto)+flete)}
                                 </div>
                             </div>
                         </div>
@@ -951,7 +945,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                    {numberWithCommas((totalGlobal * impuesto))}
+                                    {numberWithCommas((impuesto))}
                                     </div>
                                 </div>
 
@@ -961,7 +955,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                    {numberWithCommas((totalGlobal * impuestoTotal)+flete)}
+                                    {numberWithCommas((totalGlobal + impuesto)+flete)}
                                     </div>
                                 </div>
                             </div>

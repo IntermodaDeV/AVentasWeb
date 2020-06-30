@@ -22,7 +22,7 @@ const ProductoTable = (props) => {
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [IsOpen, setIsOpen] = useState(false);
 
-
+    
     const urlApi = APIURL;
     let ArregloProductos =  Object.keys(props.producto.Colores).map((key)=>([key,props.producto.Colores[key]]));
     ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1);

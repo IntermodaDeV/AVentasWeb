@@ -89,6 +89,7 @@ const SelectCliente = (props) => {
         dispatch({type:'DELETE_CLIENTECONTADO'});
         dispatch({type:'DELETE_REQUIEREENTREGA'});
         dispatch({type:'DELETE_FLETE'});
+        dispatch({type:'SET_IMPUESTOVACIO'});
     }
 
     props.clientes.forEach(el => {

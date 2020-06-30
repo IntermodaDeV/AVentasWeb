@@ -32,23 +32,7 @@ const MatrizResumen = (props) => {
     let moneda = (props.Cliente !== null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
     let productosSinCantindad = false;
 
-    //const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
-    const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
-    const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
-    const coleccion         = useSelector(e=>e.coleccion.Edades[0].ProductosXEdad);
-    let impuestoCliente = clienteImpuestos.find(x=>x.GRUPO === props.Cliente.GrupoImpuesto).IMPUESTO;
-    let producto = Object.keys(props.tableValue[gruposTalla].Productos)[0];
-    let productoGrupo = coleccion.find(x=>x.ProductoId===producto).GrupoImpuesto;
-    let productoImpuesto = productoImpuestos.find(x=>x.GRUPO===productoGrupo).IMPUESTO;
-    let isExcento = impuestoCliente===0;
-    let impuesto = productoImpuesto; 
-    let impuestoTotal = impuesto+1;
-    
-    if(isExcento)
-    {
-        impuesto=0;
-        impuestoTotal=1;
-    }
+    const impuesto = useSelector(e=>e.Impuesto);
 
     const onContinuar = () => {
         if (productosSinCantindad) {
@@ -330,10 +314,10 @@ const MatrizResumen = (props) => {
                     Subtotal: {moneda} {numberWithCommas(totalGlobal)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
-                   ISV: {moneda} {numberWithCommas(totalGlobal * impuesto)}
+                   ISV: {moneda} {numberWithCommas(impuesto)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
-                Total: {moneda} {numberWithCommas(totalGlobal * impuestoTotal)}
+                Total: {moneda} {numberWithCommas(totalGlobal +impuesto)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
                     <button className="btn btn-secondary m-2" onClick={onContinuar}>Continuar</button>
