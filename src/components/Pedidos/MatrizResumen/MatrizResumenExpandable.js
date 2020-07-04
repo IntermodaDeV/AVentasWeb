@@ -206,11 +206,12 @@ const MatrizResumen = (props) => {
                                                                         <thead>
                                                                             <tr className={styles.TrTest}>
                                                                                 <th className={styles.ThTest}>
-
+                                                                                    Color
                                                                                 </th>
                                                                                 {tallas.map((talla, index) => {
                                                                                     return (
                                                                                         <th className={styles.ThTest} key={index} style={{ paddingBottom: (IsDist && talla.Distribucion.length === 0) && '1.3%' }}>
+                    
                                                                                             <div className="text-center">
                                                                                                 {
                                                                                                     talla.Distribucion.length !== 0 &&
@@ -218,7 +219,7 @@ const MatrizResumen = (props) => {
                                                                                                         {popupState => (
                                                                                                             <>
                                                                                                                 <div variant="contained" className={"row"}>
-                                                                                                                    {talla.Talla}
+                                                                                                                    Talla:{talla.Talla}
                                                                                                                     <InfoOutlined {...bindTrigger(popupState)} style={{ fontSize: '16px', cursor: 'pointer', margin: 'auto' }}> </InfoOutlined>
                                                                                                                 </div>
                                                                                                                 <Popover
@@ -257,6 +258,7 @@ const MatrizResumen = (props) => {
                                                                                                 }
 
                                                                                             </div>
+                                                                                            
                                                                                         </th>
                                                                                     )
                                                                                 })}

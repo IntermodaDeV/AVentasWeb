@@ -797,7 +797,7 @@ const IsSame = (GrupoTallaId) => {
                 </DialogTitle>
                 <DialogContent>
                 
-                    <ClienteContado ruta={props.Cliente.CodigoRuta} cliente={clienteContado}/>
+                    <ClienteContado ruta={props.Cliente.CodigoRuta} cliente={clienteContado} validacion={true}/>
                     
                 </DialogContent>
             </Dialog>}

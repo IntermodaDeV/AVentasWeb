@@ -9,7 +9,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import axios from 'axios';
 import {APIURL} from 'utils/Enviroment';
 import {useDispatch,useSelector} from 'react-redux';
-import { Dropdown } from "semantic-ui-react/";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 function equalTo(ref, msg) {
@@ -73,16 +72,22 @@ const ClienteContado = React.memo((props)=>{
 
         edit = false;
         save = true;
+        nuevo = false;
+        habilitado = false;
+    }
+
+    if(props.validacion)
+    {
+        edit = false;
+        save = true;
         nuevo = true;
         habilitado = true;
     }
-
 
     const [enableEdit,setEnableEdit] = useState(edit);
     const [enableSave,setEnableSave] = useState(save);
     const [enableNew,setEnableNew]   = useState(nuevo);
     const dispatch = useDispatch();
-    const clientes = useSelector(e=>e.clientesContado);
     const requiereEntrega = useSelector(e=>e.requiereEntrega);
     const context = useRef();
     
@@ -128,7 +133,9 @@ const ClienteContado = React.memo((props)=>{
         }).then(e=>{
             if(e.status===200){
                 dispatch({type:'SET_CLIENTECONTADO',payload:e.data});
-                setEnableNew(false);
+                if(!props.validacion){
+                    setEnableNew(false);
+                }
                 setEnableEdit(true);
                 cargarClientes();
                 Swal.fire({
@@ -184,12 +191,13 @@ const ClienteContado = React.memo((props)=>{
                     handleSubmit(value);
                     setEnableSave(false);
                 }}
+                enableReinitialize
                 validationSchema={validationSchema}
             >
                 {({errors,resetForm,values,setValues})=>(
                     <Form>
                         <div ref={context}>
-                        <div>
+                        {/*<div>
                             <Dropdown
                                 disabled={habilitado}
                                 placeholder="Seleccione cliente contado"
@@ -223,7 +231,7 @@ const ClienteContado = React.memo((props)=>{
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
                             />
-                        </div>
+                        </div>*/}
                         <div>
                                 <FormControlLabel
                                         control={
@@ -305,8 +313,17 @@ const ClienteContado = React.memo((props)=>{
                             <Button 
                                 disabled={enableNew} 
                                 onClick={()=>{
-
-                                    resetForm();
+                                    resetForm({
+                                        id:0,
+                                        Nombre:'',
+                                        Direccion:'',
+                                        FlagClientePotencial:false,
+                                        RTN:'',
+                                        RTN2:'',
+                                        Telefono:'',
+                                        ComunidadAutonoma:'',
+                                        Ruta:props.ruta
+                                    });
                                     setEnableSave(false);
                                     setEnableEdit(true);
                                     setEnableNew(true);

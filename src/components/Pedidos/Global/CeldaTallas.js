@@ -7,7 +7,7 @@ import {useSelector,useDispatch} from 'react-redux';
 const CeldaTallas = (props) => {
     const [Focused, setFocused] = React.useState(null);
     const [Disponible, setDisponible] = React.useState(props.disponible);
-    const coleccion         = useSelector(e=>e.coleccion.Edades[0].ProductosXEdad);
+    const coleccion         = useSelector(e=>e.coleccion.Edades);
     const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
     const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
     const cliente = useSelector(e=>e.cliente);
@@ -19,6 +19,20 @@ const CeldaTallas = (props) => {
         props.onFocus();
         //CheckStock(props.codigoProducto, props.codigoColor, props.codigoTalla);
     }
+    const findProduct=(codigo)=>
+    {
+        for(const edades of coleccion)
+        {
+            for(const producto of edades.ProductosXEdad)
+            {
+                if(producto.ProductoId===codigo){
+                    return producto;
+                }
+            }
+        }
+    }
+    const producto = findProduct(props.codigoProducto);
+    const productoImpuesto = productoImpuestos.find(x=>x.GRUPO===producto.GrupoImpuesto).IMPUESTO;
 
     const onBlur = (text, codigoProducto, codigoColor, codigoTalla, precio) => {
         const valor = (text.target.validity.valid) ? text.target.value : 0;
@@ -53,8 +67,6 @@ const CeldaTallas = (props) => {
     {
             const cantidad = isNaN(parseInt(text.target.value))?0:parseInt(text.target.value);
             const propsCantidad = isNaN(parseInt(props.cantidad))?0:parseInt(props.cantidad);
-            const producto = coleccion.find(x=>x.ProductoId===codigoProducto);
-            const productoImpuesto = productoImpuestos.find(x=>x.GRUPO===producto.GrupoImpuesto).IMPUESTO;
 
             if(clienteImpuesto.IMPUESTO!==0)
             {
@@ -86,6 +98,11 @@ const CeldaTallas = (props) => {
     }
 
     const isDisabled = () => {
+
+        if(props.precio===0){
+            return true;
+        }
+
         if (props.futuro) {
             if (props.hasBackOrder === 'N' || props.hasBackOrder === 'n') {
                 if (props.disponible === 0) {

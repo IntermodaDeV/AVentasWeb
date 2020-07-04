@@ -101,7 +101,7 @@ const TablaVistaProducto = (props) => {
             <thead>
                 <tr className={styles.TrTest}>
 
-                    <th className={styles.ThTest} ></th>
+                    <th className={styles.ThTest} >Color</th>
                     {props.producto.ListaTalla.map((talla, index) => {
                         return (
                             <th className={styles.ThTest} key={index} style={{ paddingBottom: (IsDist && talla.Distribucion.length === 0) && '1.3%' }}>
