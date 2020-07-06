@@ -32,7 +32,7 @@ const Recibo = (props) => {
     //const FechaEntrega = new Date();
     const componentRef = React.useRef();
 
-    return (
+   return (
         <div className="col">
             {
                 props.Cliente &&
@@ -189,6 +189,9 @@ const Recibo = (props) => {
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
                                                                 {factu.IdFactura}
+                                                                { factu.NumeroFEL !== "" && factu.NumeroFEL !== null  && 
+                                                                " - FEL:" + factu.NumeroFEL                                                    
+                                                                } 
                                                             </td>
                                                             <td>
                                                                 {factu.Dias}

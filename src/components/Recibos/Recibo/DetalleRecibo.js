@@ -273,11 +273,12 @@ const DetalleRecibo = (props) => {
             return [
                 cuotProc.Tipo, //Tipo  
                 cuotProc.NumeroFactura, //Numero Factura  
+                cuotProc.NumeroFEL, //Numero Factura  
                 moment(cuotProc.Fecha).format("DD/MM/YYYY"), //Fecha  
                 moment(cuotProc.FechaVencimiento).format("DD/MM/YYYY"), //FechaVencimiento  
                 cuotProc.Dias, //Dias  
-                moment(cuotProc.FechaDescuento).format("DD/MM/YYYY"), //FechaDescuento  
-                cuotProc.DiasDescuento, //DiasDescuento  
+                moment(cuotProc.FechaDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuotProc.FechaDescuento).format("DD/MM/YYYY") : "", //FechaDescuento  
+                isNaN(cuotProc.DiasDescuento) ? "": cuotProc.DiasDescuento, //DiasDescuento  
                 cuotProc.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor  
                 cuotProc.ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Valor Descuento
                 cuotProc.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo 
@@ -314,7 +315,8 @@ const DetalleRecibo = (props) => {
                             // ]);
                             data.push({
                                 Tipo: cuot.TipoDocumento, //Tipo  
-                                NumeroFactura: cuot.Factura, //Numero Factura  
+                                NumeroFactura: cuot.Factura, //Numero Factura 
+                                NumeroFEL: cuot.NumeroFEL, //NumeroFEL 
                                 Fecha: fact.FechaFactura, //Fecha  
                                 FechaVencimiento: cuot.FechaVencimiento, //FechaVencimiento  
                                 Dias: dias, //Dias  

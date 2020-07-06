@@ -25,6 +25,15 @@ const FacturasModal = (props) => {
             }
         },
         {
+            name: 'NumeroFEL',
+            label: 'Numero FEL',
+            options: {
+                filter: true,
+                sort: true,
+                display: localStorage.getItem('empresa')==='imgt'
+            }
+        },
+        {
             name: 'Fecha',
             label: 'Fecha',
             options: {

@@ -29,7 +29,6 @@ const Recibo = (props) => {
     }
 
     const componentRef = React.useRef();
-    console.log("props:",props)
 
     return (
         <>
@@ -178,6 +177,9 @@ const Recibo = (props) => {
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
                                                                 {factu.Factura}
+                                                                {factu.NumeroFel !== "" && factu.NumeroFel !== null  && 
+                                                                " - FEL: " + factu.NumeroFel                                                    
+                                                                } 
                                                             </td>
                                                             <td>
                                                                 {factu.DiasVencimiento}

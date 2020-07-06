@@ -220,7 +220,7 @@ const FacturaTable = props => {
               cuotasTmp.push(ProcesarCuota(cuota,acuerdo));
           });
         }  
-
+       
         let facturatmp={
           NumeroFactura: factura.Factura,
           Dias: dias,
@@ -238,6 +238,7 @@ const FacturaTable = props => {
 
       let facturatmp={
         NumeroFactura: factura.Factura,
+        NumeroFEL: factura.NumeroFEL,
         Dias: dias,
         DiasDescuento: diasDescuento,
         Tipo: factura.Tipo,
@@ -260,6 +261,7 @@ const FacturaTable = props => {
 
     let cuotatmp={
       Factura: cuota.Factura,
+      NumeroFEL: cuota.NumeroFEL,
       Acuerdo: acuerdo,
       Dias: dias,
       DiasDescuento: diasDescuento,

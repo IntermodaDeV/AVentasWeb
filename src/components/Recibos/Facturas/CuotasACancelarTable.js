@@ -24,6 +24,11 @@ const columns = [
 
   },
   {
+    name: 'NumeroFEL',
+    label: 'Numero FEL',
+    options:{display: localStorage.getItem('empresa')==='imgt'},
+  },
+  {
     name: 'Fecha',
     label: 'Fecha',
   },
@@ -125,7 +130,7 @@ const CuotasACancelarTable = props => {
     },
   }
 
-
+  
   return (
     <MuiThemeProvider theme={getMuiTheme()}>
       <MUIDataTable
