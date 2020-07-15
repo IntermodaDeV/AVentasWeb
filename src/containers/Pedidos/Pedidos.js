@@ -121,10 +121,11 @@ class Pedidos extends React.Component {
         }));
     }
     cargarColecciones = (grupoPrecio) => {
+        const empresa = localStorage.getItem('empresa')
         this.setState({
             loadingColecciones: true
         });
-        fetch(this.urlApi + "/api/ColeccionesXLinea/" + grupoPrecio, {
+        fetch(this.urlApi + "/api/ColeccionesXLinea/" + grupoPrecio+"/"+empresa, {
             headers: {
                 'Accept-Encoding': 'gzip',
                 'Content-Encoding': 'gzip'

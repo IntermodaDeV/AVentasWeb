@@ -219,7 +219,7 @@ const MatrizResumen = (props) => {
                                                                                                         {popupState => (
                                                                                                             <>
                                                                                                                 <div variant="contained" className={"row"}>
-                                                                                                                    Talla:{talla.Talla}
+                                                                                                                    {talla.Talla}
                                                                                                                     <InfoOutlined {...bindTrigger(popupState)} style={{ fontSize: '16px', cursor: 'pointer', margin: 'auto' }}> </InfoOutlined>
                                                                                                                 </div>
                                                                                                                 <Popover

@@ -170,7 +170,7 @@ const CeldaTallas = (props) => {
                     <div className="row">
                         {/* <div class={styles.separator}></div> */}
                         <div className="d-flex pr-1 m-auto">
-                           Precio: {props.precio}{'.00'}
+                           Precio: {props.precio.toFixed(2)}
                         </div>
                     </div>
                 </div>

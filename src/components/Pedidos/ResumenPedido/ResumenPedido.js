@@ -187,7 +187,7 @@ const IsSame = (GrupoTallaId) => {
     }
 
     React.useEffect(()=>{
-        if(lineaSeleccionada.IdLinea === "BIO")
+        if(lineaSeleccionada.IdLinea === "BIO" && props.Cliente.Codigo.includes('IMHN'))
         {
             const valorFlete = calcularFlete();
             setFlete(valorFlete)
@@ -685,7 +685,8 @@ const IsSame = (GrupoTallaId) => {
                                         onChange={(date) => onChangeDate(date)}
                                     />
                                 </div>
-                                {esBiomedico && <><div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
+                                {(esBiomedico && props.Cliente.Codigo.includes('IMHN')) && <>
+                                <div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
                                     <Dropdown
                                         placeholder="Seleccione empresa transporte"
                                         fluid
@@ -696,7 +697,7 @@ const IsSame = (GrupoTallaId) => {
                                             
                                         }}
                                         defaultValue={modoEntrega}
-                                        options={empresasTransporte.filter(x=>x.ACTIVE).map(empresa => {
+                                        options={empresasTransporte.map(empresa => {
                                             return {key:empresa.CODE, value:empresa.CODE,text:empresa.TXT}
                                         })}
                                         noResultsMessage={"No hay resultados"}
@@ -741,7 +742,9 @@ const IsSame = (GrupoTallaId) => {
                                     {moneda} {numberWithCommas(totalGlobal)}
                                 </div>
                             </div>
-                            {(lineaSeleccionada.IdLinea === "BIO" && requiereEntrega) && <div className="row">
+                            {(lineaSeleccionada.IdLinea === "BIO" 
+                            && requiereEntrega 
+                            && props.Cliente.Codigo.includes('IMHN')) && <div className="row">
                                 <div className="col-6 text-right">
                                     Flete:
                                 </div>
