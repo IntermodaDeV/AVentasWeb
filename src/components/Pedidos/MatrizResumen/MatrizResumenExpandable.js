@@ -32,24 +32,7 @@ const MatrizResumen = (props) => {
     let moneda = (props.Cliente !== null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
     let productosSinCantindad = false;
 
-    const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
-    let impuesto = 0.15;
-    let impuestoTotal = 1.15;
-
-    if(props.Cliente.Codigo.includes('IMCR'))
-    {
-        impuesto = 0.13;
-        impuestoTotal = 1.13;
-    }else if(props.Cliente.Codigo.includes('IMGT')){
-        impuesto = 0.12;
-        impuestoTotal = 1.12;
-    }
-
-    if(props.Cliente.Codigo.includes('IMHN') && lineaSeleccionada.IdLinea === "BIO")
-    {
-        impuesto = 0;
-        impuestoTotal = 1;
-    }
+    const impuesto = useSelector(e=>e.Impuesto);
 
     const onContinuar = () => {
         if (productosSinCantindad) {
@@ -138,6 +121,7 @@ const MatrizResumen = (props) => {
                         {gruposTalla.map((grupoTalla, index) => {
 
                             let productos = Object.keys(props.tableValue[grupoTalla].Productos);
+                            console.log(productos)
                             if (props.tableValue[grupoTalla].Mostrar) {
                                 return (
                                     productos.map((codigoProducto, index1) => {
@@ -222,11 +206,12 @@ const MatrizResumen = (props) => {
                                                                         <thead>
                                                                             <tr className={styles.TrTest}>
                                                                                 <th className={styles.ThTest}>
-
+                                                                                    Color
                                                                                 </th>
                                                                                 {tallas.map((talla, index) => {
                                                                                     return (
                                                                                         <th className={styles.ThTest} key={index} style={{ paddingBottom: (IsDist && talla.Distribucion.length === 0) && '1.3%' }}>
+                    
                                                                                             <div className="text-center">
                                                                                                 {
                                                                                                     talla.Distribucion.length !== 0 &&
@@ -273,6 +258,7 @@ const MatrizResumen = (props) => {
                                                                                                 }
 
                                                                                             </div>
+                                                                                            
                                                                                         </th>
                                                                                     )
                                                                                 })}
@@ -330,10 +316,10 @@ const MatrizResumen = (props) => {
                     Subtotal: {moneda} {numberWithCommas(totalGlobal)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
-                   ISV: {moneda} {numberWithCommas(totalGlobal * impuesto)}
+                   ISV: {moneda} {numberWithCommas(impuesto)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
-                Total: {moneda} {numberWithCommas(totalGlobal * impuestoTotal)}
+                Total: {moneda} {numberWithCommas(totalGlobal +impuesto)}
                 </div>
                 <div className={`col ${styles['barraInner']}`}>
                     <button className="btn btn-secondary m-2" onClick={onContinuar}>Continuar</button>

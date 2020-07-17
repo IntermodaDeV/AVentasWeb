@@ -25,7 +25,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle   from '@material-ui/core/DialogTitle';
 import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import ClienteContado from './ClienteContado';
-import {useDispatch} from 'react-redux';
+import {useDispatch,useSelector} from 'react-redux';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -51,6 +51,8 @@ const SelectCliente = (props) => {
     const [Value, setValue] = useState(null);
     const [openContado,setOpenContado] = useState(false);
     const dispatch = useDispatch();
+    const clienteContado = useSelector(e=>e.clienteContado);
+    const clientes = useSelector(e=>e.clientesContado);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -87,6 +89,8 @@ const SelectCliente = (props) => {
         props.onSelect(val);
         dispatch({type:'DELETE_CLIENTECONTADO'});
         dispatch({type:'DELETE_REQUIEREENTREGA'});
+        dispatch({type:'DELETE_FLETE'});
+        dispatch({type:'SET_IMPUESTOVACIO'});
     }
 
     props.clientes.forEach(el => {
@@ -268,7 +272,25 @@ const SelectCliente = (props) => {
                                         <td>{props.autocompleteValue.Moneda} {props.autocompleteValue.Credito.reduce((acc, cur) => { return acc + ((cur.C15Dias ? cur.C15Dias : 0)) }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</td>
                                     </tr>
                                     <tr>
-                                        {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={()=>setOpenContado(true)} variant="contained" color="primary">Cliente Contado</Button></td>}
+                                        {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={()=>setOpenContado(true)} variant="contained" color="primary">{(clienteContado===null)?'Crear cliente contado':'Editar cliente contado'}</Button></td>}
+                                        {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td>
+                                        <Dropdown
+                                                placeholder="Seleccione cliente contado"
+                                                fluid
+                                                search
+                                                selection
+                                                onChange={(e, { value }) =>{
+                                                    let cliente = clientes.find(x=>x.id===value);
+                                                    dispatch({type:'SET_CLIENTECONTADO',payload:cliente});
+                                                }}
+                                                options={clientes.map(cliente => {
+                                                    return {key:cliente.id, value:cliente.id,text:cliente.Nombre}
+                                                })}
+                                                noResultsMessage={"No hay resultados"}
+                                                closeOnChange={true}
+                                        />
+                                            </td>}
+                                        {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td>Cliente Seleccionado: {clienteContado===null?'Ninguno':clienteContado.Nombre}</td>}
                                     </tr>
                                 </tbody>
                             </table>
@@ -282,7 +304,7 @@ const SelectCliente = (props) => {
     }
     return (
         <div className="col">
-              <Dialog
+            <Dialog
             disableBackdropClick 
             scroll={'paper'}
             open={openContado}
@@ -295,7 +317,7 @@ const SelectCliente = (props) => {
                 </DialogTitle>
                 <DialogContent>
                 
-                   { props.autocompleteValue!==null && <ClienteContado ruta={props.autocompleteValue.CodigoRuta}/>}
+                   { props.autocompleteValue!==null && <ClienteContado ruta={props.autocompleteValue.CodigoRuta} cliente={clienteContado} validacion={false}/>}
                     
                 </DialogContent>
         </Dialog>

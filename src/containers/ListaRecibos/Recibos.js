@@ -13,7 +13,7 @@ import CuentaCorrienteTable from '../CuentaCorriente/CuentaCorienteTable'
 // import styles from 'containers/Recibos/Recibos.module.css';
 const Recibos = (props) => {
   const [clientes, setClientes] = useState([])
-  const [clienteSelected, setClienteSelected] = useState(null)
+  const [clienteSelected, setClienteSelected] = useState(true)
   const [cuotasXCliente, setCuotasXCliente] = useState(null)
   const [cuotasAPagar, setCuotasAPagar] = useState(null)
   const [loading, setLoading] = useState(true)

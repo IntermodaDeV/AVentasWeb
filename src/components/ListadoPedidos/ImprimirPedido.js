@@ -10,9 +10,11 @@ import 'moment/locale/es';
 const ImprimirPedido = (props) => {
 
 const clientesContado = useSelector(e=>e.clientesContado);
+const empresas = useSelector(e=>e.Empresas);
 let NombreCliente=props.Pedido.Cliente.Nombre;
 let DireccionCliente=props.Pedido.Cliente.Direccion;
 const clienteContado = clientesContado.find(x=>x.id===props.Pedido.ClienteContadoId);
+const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
 
 if(clienteContado!==null && clienteContado!==undefined)
 {
@@ -57,7 +59,7 @@ const checkDist = (talla) => {
                         <img alt={"Logo"} width={420} style={{ objectFit: 'contain' }} src={Logo} ></img>
                         <div className="row">
                             <div className={"col p-0 text-left font-weight-bold " + styles.Rtn}>
-                                RTN: 05019995124588 
+                                {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF} 
                             </div>
                             <div className={"col p-0 text-right font-weight-bold " + styles.Rtn}>
                                 Copia
@@ -285,6 +287,16 @@ const checkDist = (talla) => {
                                     {numberWithCommas(props.Pedido.SubTotalXPedido)}
                                 </div>
                             </div>
+
+                            {(props.Pedido.Flete>0 && props.Pedido.Flete !== null ) && <div className="row TotalRow">
+                                <div className="col-5 labelTotal text-left">
+                                    Flete:
+                                    </div>
+
+                                <div className="col-7 valueTotal">
+                                    {numberWithCommas((props.Pedido.Flete))}
+                                </div>
+                            </div>}
 
                             <div className="row TotalRow">
                                 <div className="col-5 labelTotal text-left">

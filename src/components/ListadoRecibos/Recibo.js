@@ -5,12 +5,30 @@ import Logo from 'assets/img/logo/LogoSinLetrasInv.png';
 import styles from "components/ListadoRecibos/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
-
+import {useSelector} from 'react-redux';
 
 const Recibo = (props) => {
-    //const FechaEntrega = new Date();
-    const componentRef = React.useRef();
+    const clientesContado = useSelector(e=>e.clientesContado);
+    const empresas = useSelector(e=>e.Empresas);
+    let NombreCliente = props.recibo.Cliente.Nombre;
+    let DireccionCliente=props.recibo.Cliente.Direccion; 
+    const clienteContado = props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
+    let valor = props.recibo.Valor;
+    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    if(clienteContado!==null && clienteContado!==undefined)
+    {
+            if(valor < 10000)
+            {
+                NombreCliente = 'CONSUMIDOR FINAL';
+            }
+            else
+            {
+                NombreCliente = clienteContado.Nombre;
+            }
+        DireccionCliente = clienteContado.Direccion;
+    }
 
+    const componentRef = React.useRef();
 
     return (
         <>
@@ -26,7 +44,7 @@ const Recibo = (props) => {
                                     {'Intermoda, S.A. de C.V.'}
                                 </h2>
                                 <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                    {'RTN: 05011839482948'}
+                                {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF} 
                                 </h3>
                             </div>
                         </div>
@@ -44,12 +62,12 @@ const Recibo = (props) => {
                         </div>
                         <div className="col-12 p-0 text-left">
                             <h3 className={"font-weight-bold " + styles.LineHeight_1_5}>
-                                {props.recibo.Cliente.Nombre}
+                                {NombreCliente}
                             </h3>
                         </div>
                         <div className="col-12 p-0 text-left">
                             <p>
-                                {props.recibo.Cliente.Direccion}
+                                {DireccionCliente}
                             </p>
                         </div>
                     </div>
@@ -159,6 +177,9 @@ const Recibo = (props) => {
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
                                                                 {factu.Factura}
+                                                                {factu.NumeroFel !== "" && factu.NumeroFel !== null  && 
+                                                                " - FEL: " + factu.NumeroFel                                                    
+                                                                } 
                                                             </td>
                                                             <td>
                                                                 {factu.DiasVencimiento}

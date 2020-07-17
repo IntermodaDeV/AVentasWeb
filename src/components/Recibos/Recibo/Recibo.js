@@ -5,13 +5,34 @@ import Logo from 'assets/img/logo/LogoSinLetrasInv.png';
 import styles from "components/Recibos/Recibo/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
-
+import {useSelector} from 'react-redux';
 
 const Recibo = (props) => {
+
+    const clientesContado = useSelector(e=>e.clientesContado);
+
+    const pedidoSelected = useSelector(k => k.pedidoSelected);
+    const empresas = useSelector(e=>e.Empresas);
+    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    let NombreCliente = props.Cliente.Nombre;
+    let DireccionCliente = props.Cliente.Direccion;
+    const clienteContado = pedidoSelected !== null && pedidoSelected !== undefined ? clientesContado.find(x=>x.id=== pedidoSelected.ClienteContado) : null;
+    let Total = props.RecibosAplicados.Total;
+    if(clienteContado!==null && clienteContado!==undefined)
+    {
+        if(Total < 10000)
+        {
+            NombreCliente = 'CONSUMIDOR FINAL';
+        }else{
+            NombreCliente = clienteContado.Nombre;
+        }
+
+        DireccionCliente = clienteContado.Direccion;
+    }
     //const FechaEntrega = new Date();
     const componentRef = React.useRef();
 
-    return (
+   return (
         <div className="col">
             {
                 props.Cliente &&
@@ -33,7 +54,7 @@ const Recibo = (props) => {
                                             {'Intermoda, S.A. de C.V.'}
                                         </h2>
                                         <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                            {'RTN: 05011839482948'}
+                                        {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                                         </h3>
                                     </div>
                                 </div>
@@ -51,12 +72,12 @@ const Recibo = (props) => {
                                 </div>
                                 <div className="col-12 p-0 text-left">
                                     <h3 className={"font-weight-bold " + styles.LineHeight_1_5}>
-                                        {props.Cliente.Nombre}
+                                        {NombreCliente}
                                     </h3>
                                 </div>
                                 <div className="col-12 p-0 text-left">
                                     <p>
-                                        {props.Cliente.Direccion}
+                                        {DireccionCliente}
                                     </p>
                                 </div>
                             </div>
@@ -168,6 +189,9 @@ const Recibo = (props) => {
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
                                                                 {factu.IdFactura}
+                                                                { factu.NumeroFEL !== "" && factu.NumeroFEL !== null  && 
+                                                                " - FEL:" + factu.NumeroFEL                                                    
+                                                                } 
                                                             </td>
                                                             <td>
                                                                 {factu.Dias}

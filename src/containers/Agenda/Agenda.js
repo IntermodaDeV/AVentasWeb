@@ -22,10 +22,11 @@ import InputLabel from '@material-ui/core/InputLabel';
 import styles from 'containers/Agenda/Agenda.module.css';
 import 'containers/Agenda/Agenda.css';
 import moment from "moment";
+import {connect} from 'react-redux';
 
 import { FaEye } from "react-icons/fa";
 moment.locale('es');
-export default class Agenda extends Component {
+class Agenda extends Component {
     urlApi = APIURL;
     state = {
         Asignaciones: [],
@@ -86,6 +87,13 @@ export default class Agenda extends Component {
                 }
 
             })
+    }
+
+    cargarEmpresas = ()=>{
+        fetch(`${this.urlApi}/api/empresa/empresas`)
+        .then(res=>res.json())
+        .then(data=>{this.props.onSaveEmpresas(data)})
+        .catch(error=>console.log(error))
     }
 
     cargarAsignaciones = (FechaInicio, FechaFin) => {
@@ -540,6 +548,7 @@ export default class Agenda extends Component {
     componentDidMount() {
         this.cargarClientes();
         this.cargarRazonNoVenta();
+        this.cargarEmpresas();
     }
 
     render() {
@@ -865,4 +874,12 @@ export default class Agenda extends Component {
     }
 }
 
+const mapStateToProps = state => ({
+    empresas:state.empresas
+});
 
+const mapDispatchToProps = dispatch =>({
+    onSaveEmpresas:(empresas)=>{dispatch({type:'SET_EMPRESAS',payload:empresas})}
+})
+
+export default connect(mapStateToProps,mapDispatchToProps)(Agenda);

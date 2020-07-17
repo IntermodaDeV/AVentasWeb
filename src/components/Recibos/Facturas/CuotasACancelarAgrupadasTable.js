@@ -16,6 +16,11 @@ const columns = [
         label: 'Factura',
     },
     {
+        name: 'NumeroFEL',
+        label: 'Numero FEL',
+        options:{display: localStorage.getItem('empresa')==='imgt'},
+    },
+    {
         name: 'Fecha',
         label: 'Fecha',
     },

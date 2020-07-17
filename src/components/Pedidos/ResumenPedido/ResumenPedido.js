@@ -22,7 +22,10 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import Logo from 'assets/img/logo/Logoinv.png';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import {useSelector} from 'react-redux';
+import {useSelector,useDispatch} from 'react-redux';
+import { Dropdown } from "semantic-ui-react/";
+import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
+import ClienteContado from '../SelectCliente/ClienteContado';
 
 const ResumenPedido = (props) => {
     const [firma, setFirma] = React.useState(null);
@@ -31,11 +34,41 @@ const ResumenPedido = (props) => {
     const [ErrorFirma, setErrorFirma] = React.useState(true);
     const [FechaEntrega, setFechaEntrega] = React.useState((props.coleccion.ColeccionTipo === "F") ? moment(props.coleccion.EntregaInicio).toDate() : moment().toDate());
     var sigPad = {};
-
+    const [flete,setFlete] = React.useState(0);
+    const [openContado,setOpenContado] = React.useState(false);
     const clienteContado = useSelector(e=>e.clienteContado);
+    const empresas = useSelector(e=>e.Empresas);
+    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    let comunidadSelected = "";
+    let modoEntrega = "";
+    let habilitado = false;
+
+    if(clienteContado===null)
+    {
+        if(props.Cliente.ComunidadAutonoma!==""){
+            comunidadSelected = props.Cliente.ComunidadAutonoma;
+            habilitado = true;
+        }
+
+        if(props.Cliente.ModoEntrega!==""){
+            modoEntrega = props.Cliente.ModoEntrega;
+        }
+    }
+
+    console.log(props);
+
+    const dispatch = useDispatch();
+    const impuesto = useSelector(e=>e.Impuesto);
     const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
     const TipoCredito = useSelector(e=>e.TipoPedido);
     const modoVenta = TipoCredito.TipoPedido === 'Contado'?'Contado':'Credito';
+    const requiereEntrega = useSelector(e=>e.requiereEntrega);
+    const empresasTransporte = useSelector(e=>e.empresasTransporte);
+    const precioCajas = useSelector(e=>e.precioCajas);
+    const comunidadesAutonomas = useSelector(e=>e.comunidadesAutonomas);
+    const [transporte,setTransporte]= React.useState(modoEntrega);
+    const [comunidad,setComunidad] = React.useState(comunidadSelected);
+    const esBiomedico = (lineaSeleccionada.IdLinea === "BIO" && requiereEntrega);
 
     var gruposTalla = Object.keys(props.tableValue);
     var unidadesTotales = 0;
@@ -44,22 +77,42 @@ const ResumenPedido = (props) => {
     var nuevafecha = new Date();
     var fecha = moment(nuevafecha).toDate();
     var moneda = (props.Cliente != null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
-    let impuesto = 0.15;
-    let impuestoTotal = 1.15;
 
-    if(props.Cliente.Codigo.includes('IMCR'))
-    {
-        impuesto = 0.13;
-        impuestoTotal = 1.13;
-    }else if(props.Cliente.Codigo.includes('IMGT')){
-        impuesto = 0.12;
-        impuestoTotal = 1.12
-    }
+    const calcularFlete = () => {
+        if(comunidad==="" || transporte===""){
+            return 0;
+        }
 
-    if(props.Cliente.Codigo.includes('IMHN') && lineaSeleccionada.IdLinea === "BIO")
-    {
-        impuesto = 0;
-        impuestoTotal = 1;
+        const precioCaja = precioCajas.find(x=>x.STATE===comunidad && x.CODE === transporte);
+        if(precioCaja === null || precioCaja === undefined){
+            return 0;
+        }
+
+        const multiploCaja = empresasTransporte.find(x=>x.CODE === transporte);
+        if(multiploCaja === null || multiploCaja === undefined || multiploCaja.MULTIPLO === 0){
+            return 0;
+        }
+
+        let division = parseFloat(unidadesTotales) / parseFloat(multiploCaja.MULTIPLO);
+
+        if (!(division % 1 === 0))
+        {
+            division += 1;
+        }
+
+        let cajas = Math.trunc(division);
+
+        if(cajas === 0)
+        {
+            cajas = 1;
+        }
+
+        const impuestoLocal = 0.15;
+
+        const valorImpuesto = (cajas*precioCaja.UNITVALUEBOXES) * impuestoLocal;
+        const valorFlete    = (cajas*precioCaja.UNITVALUEBOXES) + valorImpuesto;
+
+        return valorFlete;
     }
     
     const closeDialogFirma = () => {
@@ -91,35 +144,57 @@ const IsSame = (GrupoTallaId) => {
     }
     return found;
 }
+
+    const ApruebaBio = () =>{
+        return clienteContado !== null 
+                && clienteContado.RTN === '' 
+                && lineaSeleccionada.IdLinea === "BIO" 
+                && ((totalGlobal + impuesto)+flete)>10000;
+    }
+
     const Finalizar = () => {
-        if (!props.loadingRecibo) {
-            if (ErrorFecha || ErrorFirma) {
-
-                var mensajeError = 'Error'
-                if (ErrorFirma) {
-                    mensajeError = 'Ingrese Firma';
+        if(ApruebaBio())
+        {
+            setOpenContado(true);
+        }else{
+            if (!props.loadingRecibo) {
+                if (ErrorFecha || ErrorFirma) {
+    
+                    var mensajeError = 'Error'
+                    if (ErrorFirma) {
+                        mensajeError = 'Ingrese Firma';
+                    }
+                    else if (ErrorFecha) {
+                        mensajeError = 'Fecha Entrega no es válida';
+                    }
+    
+                    Swal.fire({
+                        type: 'error',
+                        title: 'Error',
+                        text: mensajeError,
+                    })
                 }
-                else if (ErrorFecha) {
-                    mensajeError = 'Fecha Entrega no es válida';
-                }
-
-                Swal.fire({
-                    type: 'error',
-                    title: 'Error',
-                    text: mensajeError,
-                })
-            }
-            else {
-                if (props.NumeroOrden) {
-                    props.FinalizarPedidoOnline();
-                } else {
-                    props.enviarPedido();
-
+                else {
+                    if (props.NumeroOrden) {
+                        props.FinalizarPedidoOnline();
+                    } else {
+                        props.enviarPedido();
+    
+                    }
                 }
             }
         }
     }
 
+    React.useEffect(()=>{
+        if(lineaSeleccionada.IdLinea === "BIO" && props.Cliente.Codigo.includes('IMHN'))
+        {
+            const valorFlete = calcularFlete();
+            setFlete(valorFlete)
+            dispatch({type:'SET_FLETE',payload:valorFlete});
+        }
+         // eslint-disable-next-line
+    },[comunidad,transporte]);
     const onChangeDate = (date) => {
         setFechaEntrega(date);
     }
@@ -346,7 +421,6 @@ const IsSame = (GrupoTallaId) => {
     const getTableGroup = (productos, tallas, grupoTalla, index) => {
         let grupoTabla = { total: 0, tabla: null };
         let Same = false;
-        console.log("tallas,grupoTalla :", tallas,grupoTalla)
         grupoTabla.tabla = (
             <table className={'table table-responsive-xs'} style={{ marginBottom: '0' }} key={index}>
                 <thead>
@@ -611,7 +685,44 @@ const IsSame = (GrupoTallaId) => {
                                         onChange={(date) => onChangeDate(date)}
                                     />
                                 </div>
-
+                                {(esBiomedico && props.Cliente.Codigo.includes('IMHN')) && <>
+                                <div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
+                                    <Dropdown
+                                        placeholder="Seleccione empresa transporte"
+                                        fluid
+                                        search
+                                        selection
+                                        onChange={(e, { value }) =>{
+                                            setTransporte(value);
+                                            
+                                        }}
+                                        defaultValue={modoEntrega}
+                                        options={empresasTransporte.map(empresa => {
+                                            return {key:empresa.CODE, value:empresa.CODE,text:empresa.TXT}
+                                        })}
+                                        noResultsMessage={"No hay resultados"}
+                                        closeOnChange={true}
+                                    />
+                                </div>
+                                <div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
+                                    <Dropdown
+                                        placeholder="Seleccione comunidad autonoma"
+                                        fluid
+                                        search
+                                        selection   
+                                        onChange={(e, { value }) =>{
+                                            setComunidad(value);
+                                            
+                                        }}
+                                        defaultValue={comunidadSelected}
+                                        disabled={habilitado}
+                                        options={comunidadesAutonomas.map(comunidad => {
+                                            return {key:comunidad.STATEID, value:comunidad.STATEID,text:comunidad.NAME}
+                                        })}
+                                        noResultsMessage={"No hay resultados"}
+                                        closeOnChange={true}
+                                    />
+                                </div> </>}      
                             </div>
                         </div>
                         <div className='col-xl-3 col-lg-4 col-md-5 col-12'>
@@ -631,12 +742,22 @@ const IsSame = (GrupoTallaId) => {
                                     {moneda} {numberWithCommas(totalGlobal)}
                                 </div>
                             </div>
+                            {(lineaSeleccionada.IdLinea === "BIO" 
+                            && requiereEntrega 
+                            && props.Cliente.Codigo.includes('IMHN')) && <div className="row">
+                                <div className="col-6 text-right">
+                                    Flete:
+                                </div>
+                                <div className="col-6">
+                                    {moneda} {numberWithCommas(flete)}
+                                </div>
+                            </div>}
                             <div className="row">
                                 <div className="col-6 text-right">
                                     ISV:
                                 </div>
                                 <div className="col-6">
-                                {moneda} {numberWithCommas(totalGlobal * impuesto)}
+                                {moneda} {numberWithCommas(impuesto)}
                                 </div>
                             </div>
                             <div className="row">
@@ -644,7 +765,7 @@ const IsSame = (GrupoTallaId) => {
                                     Total:
                                 </div>
                                 <div className="col-6">
-                                {moneda} {numberWithCommas(totalGlobal * impuestoTotal)}
+                                {moneda} {numberWithCommas((totalGlobal + impuesto)+flete)}
                                 </div>
                             </div>
                         </div>
@@ -665,6 +786,24 @@ const IsSame = (GrupoTallaId) => {
                 </button>
 
             </div>
+
+            {esBiomedico && <Dialog
+            disableBackdropClick 
+            scroll={'paper'}
+            open={openContado}
+            >
+                <CancelPresentationIcon onClick={()=>{setOpenContado(false)}}/>
+                <DialogTitle className="text-center" id="scroll-dialog-title">
+                    <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                        Requiere {empresa.FISCAL_DOCUMENT}
+                    </div>
+                </DialogTitle>
+                <DialogContent>
+                
+                    <ClienteContado ruta={props.Cliente.CodigoRuta} cliente={clienteContado} validacion={true}/>
+                    
+                </DialogContent>
+            </Dialog>}
 
             <Dialog
                 open={mostrarFirma}
@@ -707,7 +846,7 @@ const IsSame = (GrupoTallaId) => {
                         <div id="top">
                             <img alt={"Logo"} width={420} style={{ objectFit: 'contain' }} src={Logo} ></img>
                             <div className="info">
-                                <p>RTN: 05019995124588</p>
+                                <p>{empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}</p>
                             </div>
                         </div>
 
@@ -793,13 +932,23 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
                                 </div>
 
+                                { (flete>0) && <div className="row TotalRow">
+                                    <div className="col-5 labelTotal text-left">
+                                        Flete:
+                                    </div>
+
+                                    <div className="col-7 valueTotal">
+                                        {numberWithCommas(flete)}
+                                    </div>
+                                </div>}
+
                                 <div className="row TotalRow">
                                     <div className="col-5 labelTotal text-left">
                                         Impuesto:
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                    {numberWithCommas((totalGlobal * impuesto))}
+                                    {numberWithCommas((impuesto))}
                                     </div>
                                 </div>
 
@@ -809,7 +958,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                    {numberWithCommas((totalGlobal * impuestoTotal))}
+                                    {numberWithCommas((totalGlobal + impuesto)+flete)}
                                     </div>
                                 </div>
                             </div>

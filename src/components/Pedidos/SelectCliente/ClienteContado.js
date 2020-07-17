@@ -9,7 +9,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import axios from 'axios';
 import {APIURL} from 'utils/Enviroment';
 import {useDispatch,useSelector} from 'react-redux';
-import { Dropdown } from "semantic-ui-react/";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 function equalTo(ref, msg) {
@@ -38,28 +37,60 @@ const validationSchema = yup.object().shape(
 
 const ClienteContado = React.memo((props)=>{
 
-    const [enableEdit,setEnableEdit] = useState(true);
-    const [enableSave,setEnableSave] = useState(false);
-    const [enableNew,setEnableNew]   = useState(true);
-    const dispatch = useDispatch();
-    const clientes = useSelector(e=>e.clientesContado);
-    const requiereEntrega = useSelector(e=>e.requiereEntrega);
-    const context = useRef();
-
-    const initialValues = 
+    let initialValues,edit,save,nuevo,habilitado;
+    if(props.cliente===null)
     {
-        id:0,
-        Nombre:'',
-        Direccion:'',
-        FlagClientePotencial:false,
-        RTN:'',
-        RTN2:'',
-        Telefono:'',
-        ComunidadAutonoma:'',
-        Ruta:props.ruta
+        initialValues = 
+        {
+            id:0,
+            Nombre:'',
+            Direccion:'',
+            FlagClientePotencial:false,
+            RTN:'',
+            RTN2:'',
+            Telefono:'',
+            ComunidadAutonoma:'',
+            Ruta:props.ruta
+        }
+        edit = true;
+        save = false;
+        nuevo = true;
+        habilitado = false;
+    }else{
+        initialValues = 
+        {
+            id:props.cliente.id,
+            Nombre:props.cliente.Nombre,
+            Direccion:props.cliente.Direccion,
+            FlagClientePotencial:props.cliente.FlagClientePotencial,
+            RTN:props.cliente.RTN,
+            RTN2:props.cliente.RTN,
+            Telefono:props.cliente.Telefono,
+            ComunidadAutonoma:'',
+            Ruta:props.cliente.Ruta
+        }
+
+        edit = false;
+        save = true;
+        nuevo = false;
+        habilitado = false;
     }
 
+    if(props.validacion)
+    {
+        edit = false;
+        save = true;
+        nuevo = true;
+        habilitado = true;
+    }
 
+    const [enableEdit,setEnableEdit] = useState(edit);
+    const [enableSave,setEnableSave] = useState(save);
+    const [enableNew,setEnableNew]   = useState(nuevo);
+    const dispatch = useDispatch();
+    const requiereEntrega = useSelector(e=>e.requiereEntrega);
+    const context = useRef();
+    
     const handleSubmit = (values)=>
     {
         axios({
@@ -102,7 +133,9 @@ const ClienteContado = React.memo((props)=>{
         }).then(e=>{
             if(e.status===200){
                 dispatch({type:'SET_CLIENTECONTADO',payload:e.data});
-                setEnableNew(false);
+                if(!props.validacion){
+                    setEnableNew(false);
+                }
                 setEnableEdit(true);
                 cargarClientes();
                 Swal.fire({
@@ -158,13 +191,15 @@ const ClienteContado = React.memo((props)=>{
                     handleSubmit(value);
                     setEnableSave(false);
                 }}
+                enableReinitialize
                 validationSchema={validationSchema}
             >
                 {({errors,resetForm,values,setValues})=>(
                     <Form>
                         <div ref={context}>
-                        <div>
+                        {/*<div>
                             <Dropdown
+                                disabled={habilitado}
                                 placeholder="Seleccione cliente contado"
                                 fluid
                                 search
@@ -196,7 +231,7 @@ const ClienteContado = React.memo((props)=>{
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
                             />
-                        </div>
+                        </div>*/}
                         <div>
                                 <FormControlLabel
                                         control={
@@ -208,6 +243,7 @@ const ClienteContado = React.memo((props)=>{
                                         }
                                         label="Cliente Potencial"
                                         style={{marginRight:'80px'}}
+                                        disabled={habilitado}
                                 />
                                 <FormControlLabel
                                         control={
@@ -219,6 +255,7 @@ const ClienteContado = React.memo((props)=>{
                                             as={CheckBox}
                                         />
                                         }
+                                        disabled={habilitado}
                                         label="Requiere Entrega"
                                 />
                             </div>
@@ -230,6 +267,7 @@ const ClienteContado = React.memo((props)=>{
                                     helperText={errors.Nombre}
                                     style={{marginRight:'80px'}}
                                     as={TextField}
+                                    disabled={habilitado}
                                 />
                                 <Field
                                     label="Telefono"
@@ -237,6 +275,7 @@ const ClienteContado = React.memo((props)=>{
                                     name="Telefono"
                                     helperText={errors.Telefono}
                                     as={TextField}
+                                    disabled={habilitado}
                                 />
                             </div>
                                 <Field
@@ -263,6 +302,7 @@ const ClienteContado = React.memo((props)=>{
                                 error={!!errors.Direccion}
                                 helperText={errors.Direccion}
                                 as={TextField}
+                                disabled={habilitado}
                             />
                         </div>
                         
@@ -273,8 +313,17 @@ const ClienteContado = React.memo((props)=>{
                             <Button 
                                 disabled={enableNew} 
                                 onClick={()=>{
-
-                                    resetForm();
+                                    resetForm({
+                                        id:0,
+                                        Nombre:'',
+                                        Direccion:'',
+                                        FlagClientePotencial:false,
+                                        RTN:'',
+                                        RTN2:'',
+                                        Telefono:'',
+                                        ComunidadAutonoma:'',
+                                        Ruta:props.ruta
+                                    });
                                     setEnableSave(false);
                                     setEnableEdit(true);
                                     setEnableNew(true);

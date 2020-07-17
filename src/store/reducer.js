@@ -31,8 +31,15 @@ const initialState = {
     clienteContado:null,
     clientesContado:[],
     requiereEntrega:true,
-    asesor:''
-
+    asesor:'',
+    empresasTransporte:[],
+    precioCajas:[],
+    comunidadesAutonomas:[],
+    flete:0.0,
+    ClienteImpuestos:[],
+    ProductoImpuestos:[],
+    Empresas:[],
+    Impuesto:0
 }
 
 const calcularLimite = (state) => {
@@ -283,6 +290,28 @@ const reducer = (state = initialState, action) => {
             }
         }
     }
+
+    if (action.type === 'DELETE_RECIBO_CUOTASCUENTACORRIENTE') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                cuotasCuentaCorriente: []
+            }
+        }
+    }
+
+    if (action.type === 'DELETE_RECIBO_CLIENTESELECTED') {
+        return {
+            ...state,
+
+            Recibo:{
+                ...state.Recibo,
+                clienteSelected: null
+            }
+        }
+    }
     
     if(action.type === "SET_CLIENTECONTADO")
     {
@@ -320,7 +349,7 @@ const reducer = (state = initialState, action) => {
     {
         return {
             ...state,
-            requiereEntrega:false
+            requiereEntrega:true
         }
     }
 
@@ -344,6 +373,94 @@ const reducer = (state = initialState, action) => {
         return{
             ...state,
             pedidoSelected:null
+        }
+    }
+
+    if(action.type==='SET_EMPRESASTRANSPORTE')
+    {
+        return{
+            ...state,
+            empresasTransporte:action.payload
+        }
+    }
+
+    if(action.type==='SET_PRECIOCAJAS')
+    {
+        return{
+            ...state,
+            precioCajas:action.payload
+        }
+    }
+
+    if(action.type==='SET_COMUNIDADAUTONOMA')
+    {
+        return{
+            ...state,
+            comunidadesAutonomas:action.payload
+        }
+    }
+
+    if(action.type==='SET_CLIENTEIMPUESTOS')
+    {
+        return{
+            ...state,
+            ClienteImpuestos:action.payload
+        }
+    }
+
+    if(action.type==='SET_PRODUCTOIMPUESTOS')
+    {
+        return{
+            ...state,
+            ProductoImpuestos:action.payload
+        }
+    }
+
+    if(action.type==='SET_FLETE')
+    {
+        return{
+            ...state,
+            flete:action.payload
+        }
+    }
+
+    if(action.type==='DELETE_FLETE')
+    {
+        return{
+            ...state,
+            flete:0.0
+        }
+    }
+
+    if(action.type==='SET_EMPRESAS')
+    {
+        return{
+            ...state,
+            Empresas:action.payload
+        }
+    }
+
+    if(action.type==='SET_SUMAIMPUESTO')
+    {
+        return{
+            ...state,
+            Impuesto:state.Impuesto+action.payload
+        }
+    }
+
+    if(action.type==='SET_RESTAIMPUESTO')
+    {
+        return{
+            ...state,
+            Impuesto:state.Impuesto-action.payload
+        }
+    }
+
+    if(action.type==='SET_IMPUESTOVACIO')
+    {
+        return{
+            ...state,
+            Impuesto:0
         }
     }
 

@@ -34,6 +34,12 @@ const columns = [
     { name: 'Moneda', label: 'Moneda', options: { customHeadRender: columnRender } },
 ]
 
+if(localStorage.getItem('empresa')==='imgt')
+{
+    columns.splice(3,0,{ name: 'Numero FEL', label: 'Numero FEL', options: { customHeadRender: columnRender } })
+}
+
+
 const CuentaCorrienteTable = props => {
     // let selectedRowsIndexXAcuerdo = null;
 
@@ -115,9 +121,8 @@ const CuentaCorrienteTable = props => {
 
     }
     data = props.CuotasCuentaCorriente.map(cuenCorr => {
-        return Object.values(cuenCorr)
+          return Object.values(cuenCorr)
     })
-    // console.log('props.CuotasCuentaCorriente', props.CuotasCuentaCorriente)
 
     return (
         <MuiThemeProvider theme={getMuiTheme()}>

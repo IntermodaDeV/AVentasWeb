@@ -273,11 +273,12 @@ const DetalleRecibo = (props) => {
             return [
                 cuotProc.Tipo, //Tipo  
                 cuotProc.NumeroFactura, //Numero Factura  
+                cuotProc.NumeroFEL, //Numero Factura  
                 moment(cuotProc.Fecha).format("DD/MM/YYYY"), //Fecha  
                 moment(cuotProc.FechaVencimiento).format("DD/MM/YYYY"), //FechaVencimiento  
                 cuotProc.Dias, //Dias  
-                moment(cuotProc.FechaDescuento).format("DD/MM/YYYY"), //FechaDescuento  
-                cuotProc.DiasDescuento, //DiasDescuento  
+                moment(cuotProc.FechaDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuotProc.FechaDescuento).format("DD/MM/YYYY") : "", //FechaDescuento  
+                isNaN(cuotProc.DiasDescuento) ? "": cuotProc.DiasDescuento, //DiasDescuento  
                 cuotProc.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor  
                 cuotProc.ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Valor Descuento
                 cuotProc.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo 
@@ -314,7 +315,8 @@ const DetalleRecibo = (props) => {
                             // ]);
                             data.push({
                                 Tipo: cuot.TipoDocumento, //Tipo  
-                                NumeroFactura: cuot.Factura, //Numero Factura  
+                                NumeroFactura: cuot.Factura, //Numero Factura 
+                                NumeroFEL: cuot.NumeroFEL, //NumeroFEL 
                                 Fecha: fact.FechaFactura, //Fecha  
                                 FechaVencimiento: cuot.FechaVencimiento, //FechaVencimiento  
                                 Dias: dias, //Dias  
@@ -466,9 +468,37 @@ const DetalleRecibo = (props) => {
         setMonedaSeleccionada(moneda);
     }
 
+    const cargarClientes = () => {
+        fetch(urlApi + '/api/cliente', {
+          headers: {
+            Authorization: 'Bearer ' + localStorage.getItem('token')
+          }
+        }).then(res => {
+          if (res.status === 401) {
+            localStorage.setItem('token', '')
+            window.location.reload()
+          }
+          if (res.status === 200) {
+            res.json().then(
+              result => {
+                dispatch({type:'STORE_RECIBO_CLIENTES',clientes:result})
+              },
+              // Note: it's important to handle errors here
+              // instead of a catch() block so that we don't swallow
+              // exceptions from actual bugs in components.
+              error => {
+    
+              }
+            )
+          }
+        })
+      }
+
     const Finalizar = () => {
         setModalRecibo(false);
-        props.history.push(`/Recibos`);
+        cargarClientes();
+        dispatch({type:'delete_pedidoselected'})
+        props.history.push(`/recibos`);
     }
 
     const EnviarRecibo = () => {
@@ -498,8 +528,6 @@ const DetalleRecibo = (props) => {
         }
 
         if(localStorage.getItem('isAnticipo') === 'true'){
-                localStorage.setItem('isAnticipo',false);
-
                 apiURL = urlApi + "/api/Recibo/Anticipo";
     
                 parametros = {
@@ -549,7 +577,7 @@ const DetalleRecibo = (props) => {
             .then(res => {
                 loading.close();
                 if (res.status === 200) {
-                    dispatch({type:'delete_pedidoselected'});
+                    localStorage.setItem('isAnticipo',false);
                     res.json()
                         .then(
                             (result) => {
@@ -642,12 +670,14 @@ const DetalleRecibo = (props) => {
         
         props.Cliente.Pedido.forEach(ped => {
             InfoModal.push({
-                NumeroPedido: ped.PedidoId,
+                PedidoId : ped.PedidoId,
+                NumeroPedido: ped.NumeroPedido,
                 CodigoPaquete: ped.CodigoColeccion,
                 Paquete: ped.NombreColeccion,
                 FechaEntrega: moment(ped.FechaEntrega).format("DD/MM/YYYY"), 
                 Fecha: moment(ped.FechaActual).format("DD/MM/YYYY"),
                 TotalPedido: Number(ped.TotalXPedido),
+                ClienteContado: ped.ClienteContadoId,
             }
             )
         });
@@ -665,7 +695,7 @@ const DetalleRecibo = (props) => {
 
     return (
         <div>
-            {props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? <h3>Pago Recibido <Button color="primary" onClick={() => { OpenPedidosModal() }} variant="contained" className="float-right" style={{marginRight: '110px'}}>Asociar Pedido</Button></h3> : <h3>Pago Recibido</h3>}
+            {props.Cliente.Pedido.length !== 0? <h3>Pago Recibido <Button color="primary" onClick={() => { OpenPedidosModal() }} variant="contained" className="float-right" style={{marginRight: '110px'}}>Asociar Pedido</Button></h3> : <h3>Pago Recibido</h3>}
             <div className="row">
                 <Card style={{ marginTop: '10px', marginBottom: '10px' }}>
                     <PagoReciboTable

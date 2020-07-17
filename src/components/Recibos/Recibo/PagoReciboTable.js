@@ -145,7 +145,7 @@ const PagoReciboTable = (props) => {
         }
       };
     const [habilitado,setHabilitado] = useState(true);
-    const validacionFechaPago = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray)=>{
+    const validacionFechaPago = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray, indexBanco, referencia)=>{
         /*
             0 Cheque             [0=Cheque al dia,1=Cheque posfechado]
             1 Deposito           [0=Cheque al dia,1=Deduccion,2=Deposito con efectivo,3=Transferencia]
@@ -194,6 +194,14 @@ const PagoReciboTable = (props) => {
                     props.showAlert(true,'Tarjeta: La fecha de pago no puede ser menor que la fecha actual');
                     return;
                 }
+                else if(indexBanco === null || indexBanco === undefined){                        
+                    props.showAlert(true,'Tarjeta: El Campo Banco no debe ir vacio');
+                    return;
+                }
+                else if(referencia === "" || referencia === undefined){                        
+                    props.showAlert(true,'Tarjeta: El referencia no debe ir vacio');
+                    return;
+                }
 
                 props.ConfirmEditarPago(indexArray);
                 setHabilitado(false);
@@ -208,6 +216,14 @@ const PagoReciboTable = (props) => {
                         props.showAlert(true,'Posfechado: La fecha de pago debe ser mayor que la fecha actual');
                         return;
                     }
+                    else if(indexBanco === null || indexBanco === undefined){                        
+                        props.showAlert(true,'Posfechado: El Campo Banco no debe ir vacio');
+                        return;
+                    }
+                    else if(referencia === "" || referencia === undefined){                        
+                        props.showAlert(true,'Posfechado: El referencia no debe ir vacio');
+                        return;
+                    }
                 }
 
                 if(isAlDia)
@@ -217,6 +233,14 @@ const PagoReciboTable = (props) => {
                         props.showAlert(true,'Cheque al dia: La fecha de pago no puede ser mayor que la fecha actual');
                         return;
                     }
+                    else if(indexBanco === null || indexBanco === undefined){                        
+                        props.showAlert(true,'Cheque al dia: El Campo Banco no debe ir vacio');
+                        return;
+                    }
+                    else if(referencia === "" || referencia === undefined){                        
+                        props.showAlert(true,'Cheque al dia: El referencia no debe ir vacio');
+                        return;
+                    }
                 }
                 props.ConfirmEditarPago(indexArray);
                 setHabilitado(false);
@@ -224,13 +248,21 @@ const PagoReciboTable = (props) => {
             if(isDeposito)
             {
                 const isChequeDia     = indexTiposdePagoDetalle === 0;
+                const isDeduccion     = indexTiposdePagoDetalle === 1;
                 const isDepositoe     = indexTiposdePagoDetalle === 2;
                 const isTransferencia = indexTiposdePagoDetalle === 3;
-
-                if(isChequeDia || isDepositoe || isTransferencia)
+                if(isChequeDia || isDepositoe || isTransferencia || isDeduccion)
                 {
                     if(fechaRecibida>fechaActual){
                         props.showAlert(true,'Deposito: La fecha de pago no debe ser mayor que la fecha actual');
+                        return;
+                    }
+                    else if(indexBanco === null || indexBanco === undefined){                        
+                        props.showAlert(true,'Deposito: El Campo Banco no debe ir vacio');
+                        return;
+                    }
+                    else if(referencia === "" || referencia === undefined){                        
+                        props.showAlert(true,'Deposito: El referencia no debe ir vacio');
                         return;
                     }
                     props.ConfirmEditarPago(indexArray);
@@ -246,7 +278,7 @@ const PagoReciboTable = (props) => {
         }
     }
 
-    const validacionDatosRecibo = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor)=>{
+    const validacionDatosRecibo = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor, indexBanco, referencia)=>{
 
         
             const TotalRecibo = parseFloat(localStorage.getItem('TotalRecibo'));
@@ -284,7 +316,7 @@ const PagoReciboTable = (props) => {
             return;
         }
 
-        validacionFechaPago(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray);
+        validacionFechaPago(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray, indexBanco, referencia);
     }
 
     const arrayPagoRecibo = (indexTiposPago, indexTiposdePagoDetalle, fecha, valor, indexMoneda, indexBanco, referencia, indexArray) => {
@@ -490,7 +522,7 @@ const PagoReciboTable = (props) => {
             />),
 
             (<div className="d-flex">
-                <Button className="mr-1" onClick={() => { /*props.ConfirmEditarPago(indexArray)*/ validacionDatosRecibo(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor) }}><CheckIcon /></Button>
+                <Button className="mr-1" onClick={() => { /*props.ConfirmEditarPago(indexArray)*/ validacionDatosRecibo(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor,indexBanco, referencia) }}><CheckIcon /></Button>
                 <Button className="ml-1" onClick={() => { props.CancelEditarPago(indexArray); setHabilitado(false)}}><CloseIcon /></Button>
             </div>),
 
