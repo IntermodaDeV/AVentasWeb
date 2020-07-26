@@ -55,10 +55,8 @@ const ResumenPedido = (props) => {
         }
     }
 
-    console.log(props);
-
     const dispatch = useDispatch();
-    const impuesto = useSelector(e=>e.Impuesto);
+    const impuesto = Number(localStorage.getItem('Impuesto'));
     const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
     const TipoCredito = useSelector(e=>e.TipoPedido);
     const modoVenta = TipoCredito.TipoPedido === 'Contado'?'Contado':'Credito';
@@ -153,6 +151,22 @@ const IsSame = (GrupoTallaId) => {
     }
 
     const Finalizar = () => {
+        if((totalGlobal + impuesto)>props.Cliente.CreditoDisponible && TipoCredito.TipoPedido !== 'Contado'){
+            Swal.fire({
+                type: 'warning',
+                title: 'Advertencia',
+                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque supero su limite de credito',
+            })
+        }
+
+        if((props.Cliente.FacturacionEntrega === "No" || props.Cliente.FacturacionEntrega === "Nunca")){
+            Swal.fire({
+                type: 'warning',
+                title: 'Advertencia',
+                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque actualment el cliente se encuentra en mora',
+            })
+        }
+        
         if(ApruebaBio())
         {
             setOpenContado(true);
@@ -179,7 +193,6 @@ const IsSame = (GrupoTallaId) => {
                         props.FinalizarPedidoOnline();
                     } else {
                         props.enviarPedido();
-    
                     }
                 }
             }

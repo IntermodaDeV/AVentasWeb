@@ -49,12 +49,7 @@ const DetalleRecibo = (props) => {
     const [tiposPago, setTiposPago] = useState([])
     const pedidoSelected = useSelector(e=>e.pedidoSelected);
     const dispatch = useDispatch();
-    //const [tipoPagoSeleccionado, setTipoPagoSeleccionado] = useState(null)
-    //const [especificacionesPago, setEspecificacionesPago] = useState([])
-    //const [especificacionPagoSeleccionada, setEspecificacionPagoSeleccionada] = useState(null)
-    //const [fechaRecibo, setFechaRecibo] = useState(moment().toDate())
-    //const [valor, setValor] = useState(0)
-    //const [referencia, setReferencia] = useState('')
+    
     const [pagosXRecibo, setPagosXRecibo] = useState([
         {
             Editar: true,
@@ -70,7 +65,7 @@ const DetalleRecibo = (props) => {
     // const [lineasfiltradas, setLineasfiltradas] = useState([])
     const [openModal, setOpenModal] = useState(false);
     const [DataModal, setDataModal] = useState([]);
-    //console.log('props :', props);
+
     useEffect(() => {
         let cuotasYDescuentoCalculado = {
             Cuotas: [],
@@ -88,36 +83,10 @@ const DetalleRecibo = (props) => {
     }, [pagosXRecibo]);
     useEffect(() => {
         CargarDatos()
-        // let totalPorPagar = 0.00;
-        // props.Cuotas.forEach(fact => {
-        //     fact.Acuerdos.forEach(acu => {
-        //         acu.Facturas.forEach(fact => {
-        //             fact.Cuotas.forEach(cuot => {
-        //                 if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
-        //                     totalPorPagar += cuot.Saldo;
-        //                 }
-        //             });
-
-        //         });
-        //     });
-        // });
-        // setTotalAPagar(totalPorPagar);
         let pago = { ...pagosXRecibo[0], valor: 1 };
         setPagosXRecibo([
             pago    //.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
         ]);
-        // const [pagosXRecibo, setPagosXRecibo] = useState([
-        //     {
-        //         indexTiposPago: 2,
-        //         indexTiposdePagoDetalle: 0,
-        //         fecha: new Date(),
-        //         valor: totalAPagar,
-        //         indexMoneda: 2,
-        //         indexBanco: null,
-        //         referencia: ''
-        //     }
-        // ])
-
         return () => {
             localStorage.removeItem("Faltante");
             localStorage.removeItem("TotalRecibo");
@@ -452,17 +421,7 @@ const DetalleRecibo = (props) => {
             setTiposPago(tiposPago);
         });
     }
-    // const tipoPagoSeleccionadoOnChange = (tipoPago) => {
-    //     var val = JSON.parse(tipoPago);
-    //     setEspecificacionesPago(val.TiposdePagoDetalle.map(el => {
-    //         return { key: el.IdTipoPagoDetalle, value: JSON.stringify(el), text: el.Descripcion }
-    //     }));
-    //     setTipoPagoSeleccionado(tipoPago);
-    // }
-    // const especificacionPagoSeleccionadaoOnChange = (especificacionPago) => {
-    //     // var val = JSON.parse(especificacionPago);
-    //     setEspecificacionPagoSeleccionada(especificacionPago);
-    // }
+ 
     const monedaOnchange = (moneda) => {
         // var val = JSON.parse(especificacionPago);
         setMonedaSeleccionada(moneda);
@@ -554,9 +513,6 @@ const DetalleRecibo = (props) => {
                 }
         }
 
-        console.log(apiURL);
-        console.log(parametros);
-
         let loading = Swal.fire({
             title: 'Enviando',
             allowOutsideClick: false,
@@ -645,21 +601,6 @@ const DetalleRecibo = (props) => {
             }
             )
         });
-
-
-        /* DataModal.push({
-          Tipo: 'Factura [D-P]',
-          NumeroFactura: '2',
-          Fecha: '18/10/2019',
-          Vencimiento: '31/12/2019',
-          Dias: '-13',
-          FechaDescuento: '16/12/2019',
-          DiasDescuento: '-28',
-          Valor: '696,969.00',
-          Saldo: '323,886.00',
-     
-        });
-     */
         setDataModal(DataModal);
     }
 

@@ -128,7 +128,7 @@ const ListaRecibos = (props) => {
                     NumeroRecibo: recib.NumeroRecibo,
                     CodigoCliente: recib.CodigoCliente,
                     Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
-                    IdTipoPago: recib.IdTipoPago,
+                    IdTipoPago: recib.TipoPago.Descripcion,
                     Referencia: recib.Referencia,
                     FechaCheque: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
                     IdBanco: recib.IdBanco,

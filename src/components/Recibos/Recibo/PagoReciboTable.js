@@ -199,7 +199,7 @@ const PagoReciboTable = (props) => {
                     return;
                 }
                 else if(referencia === "" || referencia === undefined){                        
-                    props.showAlert(true,'Tarjeta: El referencia no debe ir vacio');
+                    props.showAlert(true,'Tarjeta: La referencia no debe ir vacia');
                     return;
                 }
 
@@ -221,7 +221,7 @@ const PagoReciboTable = (props) => {
                         return;
                     }
                     else if(referencia === "" || referencia === undefined){                        
-                        props.showAlert(true,'Posfechado: El referencia no debe ir vacio');
+                        props.showAlert(true,'Posfechado: La referencia no debe ir vacia');
                         return;
                     }
                 }
@@ -238,7 +238,7 @@ const PagoReciboTable = (props) => {
                         return;
                     }
                     else if(referencia === "" || referencia === undefined){                        
-                        props.showAlert(true,'Cheque al dia: El referencia no debe ir vacio');
+                        props.showAlert(true,'Cheque al dia: La referencia no debe ir vacia');
                         return;
                     }
                 }
@@ -262,7 +262,7 @@ const PagoReciboTable = (props) => {
                         return;
                     }
                     else if(referencia === "" || referencia === undefined){                        
-                        props.showAlert(true,'Deposito: El referencia no debe ir vacio');
+                        props.showAlert(true,'Deposito: La referencia no debe ir vacia');
                         return;
                     }
                     props.ConfirmEditarPago(indexArray);

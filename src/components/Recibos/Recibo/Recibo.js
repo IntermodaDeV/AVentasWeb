@@ -227,7 +227,7 @@ const Recibo = (props) => {
                                     <div className="col-6 p-0 m-auto">
                                         <div className={styles.FirmaContainer}>
                                             <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
-                                                Hector
+                                                {localStorage.getItem('asesor')}
                                             </h4>
                                         </div>
                                     </div>

@@ -440,19 +440,11 @@ const reducer = (state = initialState, action) => {
         }
     }
 
-    if(action.type==='SET_SUMAIMPUESTO')
+    if(action.type==='SET_IMPUESTO')
     {
         return{
             ...state,
-            Impuesto:state.Impuesto+action.payload
-        }
-    }
-
-    if(action.type==='SET_RESTAIMPUESTO')
-    {
-        return{
-            ...state,
-            Impuesto:state.Impuesto-action.payload
+            Impuesto:action.payload
         }
     }
 

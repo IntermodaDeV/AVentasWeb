@@ -90,7 +90,7 @@ const SelectCliente = (props) => {
         dispatch({type:'DELETE_CLIENTECONTADO'});
         dispatch({type:'DELETE_REQUIEREENTREGA'});
         dispatch({type:'DELETE_FLETE'});
-        dispatch({type:'SET_IMPUESTOVACIO'});
+        localStorage.setItem('Impuesto',0);
     }
 
     props.clientes.forEach(el => {
@@ -134,21 +134,6 @@ const SelectCliente = (props) => {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td className={styles.InfoLabel} >
-                                            {'Departamento: '}
-                                        </td>
-                                        <td className={styles.InfoLabelDetail}>
-                                            {props.autocompleteValue.ComunidadAutonoma}
-                                        </td>
-                                    </tr>
-                                    {/* <tr>
-                                        <td className={styles.InfoLabel}>
-                                            {'Facturacion Entrega: '}
-                                        </td>
-                                        <td> {props.autocompleteValue.FacturacionEntrega}</td>
-                                    </tr> */}
-
-                                    <tr>
                                         <td className={styles.InfoLabel}>
                                             {'Nombre:'}
                                         </td>
@@ -156,14 +141,6 @@ const SelectCliente = (props) => {
                                             {props.autocompleteValue.Nombre}
                                         </td>
                                     </tr>
-                                    {/* <tr>
-                                        <td className={styles.InfoLabel}>
-                                            {'Grupo Cliente: '}
-                                        </td>
-                                        <td className={styles.InfoLabelDetail}>
-                                            {props.autocompleteValue.GrupoCliente}
-                                        </td>
-                                    </tr> */}
                                     <tr>
                                         <td className={styles.InfoLabel}>
                                             {'Estado Crediticio: '}
@@ -171,6 +148,14 @@ const SelectCliente = (props) => {
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.FacturacionEntrega}</td>
                                     </tr>
+                                    <tr>
+                                        <td className={styles.InfoLabel} >
+                                            {'Departamento: '}
+                                        </td>
+                                        <td className={styles.InfoLabelDetail}>
+                                            {props.autocompleteValue.ComunidadAutonoma}
+                                        </td>
+                                    </tr>                                                                      
                                     <tr>
                                         <td className={styles.InfoLabel}>
                                             {'Direccion: '}
@@ -182,15 +167,6 @@ const SelectCliente = (props) => {
                             </table>
 
                             <div>
-
-                                {/* <Button
-                                    onClick={handleClickOpen}
-                                    className="mb-2"
-                                    variant="outlined"
-                                    color="primary">
-                                    Histórico
-                                </Button> */}
-
                                 {FacturacionEntrega}
                             </div>
 
@@ -198,44 +174,8 @@ const SelectCliente = (props) => {
                         <div className="col-md-6">
                             <span className={styles["TCenterContainer"]}>
                                 <h5 className={styles["TCenter"]}>Información Crediticia</h5>
-                            </span>
-                            {/* <button disabled="" className="btn btn-outline-primary disabled">Ultimo Pedido Lps. 25,000.00</button> */}
-                            {/* <button disabled="" className="btn btn-outline-primary disabled">Limite de Credito Disponible Lps. 42,000.00</button> */}
+                            </span>                           
                             <table className="table table-responsive-xl">
-                                {/* <thead>
-                                    <tr>
-                                        <th>
-                                            Descripcion
-                                        </th>
-                                        <th>
-                                            Valor
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {props.autocompleteValue.CuentaCorriente.map((cuentaCorriente, index) => {
-                                        let classBold = "";
-                                        let classBoldDanger = "";
-                                        if (cuentaCorriente.Descripcion === "Saldo cupo de crédito") {
-                                            classBold += "font-weight-bold";
-                                            classBoldDanger += "font-weight-bold";
-
-                                            if (cuentaCorriente.Valor < 0) {
-                                                classBoldDanger += " text-danger";
-                                            }
-                                        }
-                                        return (
-                                            <tr key={index}>
-                                                <td className={classBold}>
-                                                    {cuentaCorriente.Descripcion}
-                                                </td>
-                                                <td className={classBoldDanger}>
-                                                    {cuentaCorriente.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody> */}
                                 <thead>
                                     <tr>
                                         <th>

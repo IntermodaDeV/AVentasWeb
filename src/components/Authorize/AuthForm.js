@@ -48,7 +48,7 @@ class AuthForm extends React.Component {
       .then(
         (result) => {
           if (result.Message === 'Ok') {
-            localStorage.setItem("asesor",this.state.username.toLowerCase());
+            localStorage.setItem("asesor",result.Data.Nombre);
             localStorage.setItem('token', result.Data.Token);
             localStorage.setItem('empresa', result.Data.Empresa);
             this.setState({ logged: true });

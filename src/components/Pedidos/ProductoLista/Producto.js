@@ -13,6 +13,7 @@ import { useSnackbar } from 'notistack';
 const Producto = (props) => {
   const { enqueueSnackbar } = useSnackbar();
 
+  const stockDisponible = props.producto.fisicaDisponible.reduce((a,b)=>(a+b.Cantidad),0);
   const toggleSelect = () => {
     if (primerRender ? (precioProductoTemporal !== undefined) : (precioProducto !== undefined)) {
       if (!(selected || isSelectedTemporal) && totalProducto + props.TotalPedido > props.LimiteVenta) {
@@ -125,7 +126,7 @@ const Producto = (props) => {
             style={{ width: 'auto', height: 220 }}
           /> */}
 
-          <div style={{ padding: 10, height: 80 }}>
+          <div style={{ padding: 10, height: 100 }}>
 
             <div style={{ fontWeight: "400", fontSize: 13, textAlign: 'left', }} >
               {props.producto.NombreProducto}
@@ -134,6 +135,11 @@ const Producto = (props) => {
             <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
               {/* Pseudo  */}Código - {props.producto.ProductoId}
             </div>
+
+            <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
+              {/* Pseudo  */}Stock Disponible - {stockDisponible}
+            </div>
+
 
             <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
               *Disponible en {props.producto.ListaColores.length} {(props.producto.ListaColores.length === 1) ? 'color' : 'colores'}
