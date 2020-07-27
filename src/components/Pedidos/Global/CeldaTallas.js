@@ -2,6 +2,7 @@ import React from 'react';
 import ReactTextTransition, { presets } from "react-text-transition";
 import {APIURL} from 'utils/Enviroment';
 import styles from "components/Pedidos/Global/CeldaTallas.module.css";
+import Swal from 'sweetalert2/dist/sweetalert2.js'
 
 const CeldaTallas = (props) => {
     const [Focused, setFocused] = React.useState(null);

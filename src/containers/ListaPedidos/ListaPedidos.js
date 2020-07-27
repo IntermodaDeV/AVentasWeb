@@ -42,7 +42,7 @@ const ListaPedidos = () => {
     }
 
     const cargarPedidos = async () => {
-        let Asesor = localStorage.getItem('asesor')
+        let Asesor = localStorage.getItem('codigo')
         fetch(urlApi + "/api/PedidosXCliente/"+ Asesor, {
             headers: {
                 'Authorization':

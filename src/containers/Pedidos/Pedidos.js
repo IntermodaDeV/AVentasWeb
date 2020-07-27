@@ -1189,13 +1189,14 @@ class Pedidos extends React.Component {
                     if (tableValue[codigoGrupoTalla].Productos[codigoProducto].Selected) {
                         this.props.coleccion.Edades.map(edad => {
                             let producto = edad.ProductosXEdad.find(prod => prod.ProductoId === codigoProducto);
-
+                            
                             if (producto) {
 
                                 producto.matriz = [];
                                 producto.ListaColores.forEach(color => {
                                     Object.keys(tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas).forEach(talla => {
                                         let detalle = {
+                                            IdProducto:producto.CodigoProducto,
                                             CodigoProducto: codigoProducto,
                                             CodigoColor: color.CodigoColor,
                                             Cantidad: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad,
