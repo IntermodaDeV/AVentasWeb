@@ -84,24 +84,48 @@ const Recibos = (props) => {
             }
             totalSaldo += cuot.Saldo;
             totalAPagar += aPagar;
-            agrupacionCuentCorriente.push({
-              Tipo: cuot.TipoDocumento,// Tipo
-              TipoPedido: acuXTip.TipoPedido,// TipoPedido
-              Factura: fact.Factura,// Factura
-              NumeroFEL: fact.NumeroFEL,// Factura
-              IdAcuerdoxCliente: acu.Acuerdo,// IdAcuerdoxCliente
-              NumeroCuota: cuot.NumeroCuota,// NumeroCuota
-              FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
-              FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
-              Dias: isNaN(diasVencimiento) ? "":diasVencimiento,// Dias
-              Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Valor
-              Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Saldo
-              FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
-              DiasV: isNaN(diasDescuento) ? "":diasDescuento, // DiasV
-              Descuento: cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Descuento
-              APagar: aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// APagar
-              idmoneda: cuot.IdMoneda,// idmoneda
-            });
+            
+            if(localStorage.getItem('empresa')==='imgt')
+            {
+              agrupacionCuentCorriente.push({
+                Tipo: cuot.TipoDocumento,// Tipo
+                TipoPedido: acuXTip.TipoPedido,// TipoPedido
+                Factura: fact.Factura,// Factura
+                NumeroFEL: fact.NumeroFEL,
+                IdAcuerdoxCliente: acu.Acuerdo,// IdAcuerdoxCliente
+                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
+                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+                Dias: isNaN(diasVencimiento) ? "":diasVencimiento,// Dias
+                Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Valor
+                Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Saldo
+                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                DiasV: isNaN(diasDescuento) ? "":diasDescuento, // DiasV
+                Descuento: cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Descuento
+                APagar: aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// APagar
+                idmoneda: cuot.IdMoneda,// idmoneda
+              });
+            }
+            else
+            {
+              agrupacionCuentCorriente.push({
+                Tipo: cuot.TipoDocumento,// Tipo
+                TipoPedido: acuXTip.TipoPedido,// TipoPedido
+                Factura: fact.Factura,// Factura
+                IdAcuerdoxCliente: acu.Acuerdo,// IdAcuerdoxCliente
+                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
+                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+                Dias: isNaN(diasVencimiento) ? "":diasVencimiento,// Dias
+                Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Valor
+                Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Saldo
+                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                DiasV: isNaN(diasDescuento) ? "":diasDescuento, // DiasV
+                Descuento: cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Descuento
+                APagar: aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// APagar
+                idmoneda: cuot.IdMoneda,// idmoneda
+              });
+            }
           });
         });
       });

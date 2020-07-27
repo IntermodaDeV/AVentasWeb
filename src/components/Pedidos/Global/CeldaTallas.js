@@ -13,6 +13,15 @@ const CeldaTallas = (props) => {
         //CheckStock(props.codigoProducto, props.codigoColor, props.codigoTalla);
     }
 
+    const alertaFisicoDisponible =() => {
+        return Swal.fire({
+            title: 'Alerta',
+            text: "Excede el fisico disponible ",
+            type: 'warning',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
     const onBlur = (text, codigoProducto, codigoColor, codigoTalla, precio) => {
         const valor = (text.target.validity.valid) ? text.target.value : 0;
 
@@ -44,7 +53,12 @@ const CeldaTallas = (props) => {
 
     const handleChange = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio)=>
     {
-            props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
+            const cantidad = isNaN(parseInt(text.target.value))?0:parseInt(text.target.value);
+            if(props.futuro === true && props.disponible < cantidad)
+            {
+                return alertaFisicoDisponible();
+            }
+            props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);         
     }
 
     const isDisabled = () => {

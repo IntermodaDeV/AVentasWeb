@@ -209,6 +209,7 @@ const DetalleRecibo = (props) => {
         let descuentoAcumulado = 0;
         let cuotasAProcesar = CuotasSinAgrupar();
         let valorPagos = 0;
+        let Descuento = 0;
         pagosXRecibo.forEach(pago => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
@@ -217,6 +218,7 @@ const DetalleRecibo = (props) => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
                     valorPagos += montoAPagar;
+                    Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0;
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
@@ -260,7 +262,8 @@ const DetalleRecibo = (props) => {
         return {
             Cuotas: cuotasProcesadas,
             DescuentoAplicado: descuentoAcumulado,
-            ValorAPagar : valorPagos
+            ValorAPagar : valorPagos,
+            DescuentoTotal: Descuento
         };
     }
     const CuotasSinAgrupar = () => {
@@ -669,6 +672,7 @@ const DetalleRecibo = (props) => {
                         PedidoSelected = {pedidoSelected}
                         DescuentoAplicado={cuotasYDescuentoAplicado.DescuentoAplicado}
                         ValorPagos = {cuotasYDescuentoAplicado.ValorAPagar}
+                        Descuento = {cuotasYDescuentoAplicado.DescuentoTotal}
                     />
                 </div>
                 <div className="col-lg-9 col-md-8 col-sm-7 col-12 my-2">
@@ -765,7 +769,8 @@ const cargarBancos = new Promise((resolve, reject) => {
     })
 });
 const cargarMonedas = new Promise((resolve, reject) => {
-    fetch(urlApi + '/api/Moneda', {
+    let empresa = localStorage.getItem('empresa');
+    fetch(urlApi + "/api/Moneda/" + empresa, {
         headers: {
             Authorization: 'Bearer ' + localStorage.getItem('token')
         }

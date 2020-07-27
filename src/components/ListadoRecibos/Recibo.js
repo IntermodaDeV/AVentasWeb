@@ -161,7 +161,7 @@ const Recibo = (props) => {
                                                                 {moment(props.recibo.FechaPago).format("DD/MM/YYYY")}
                                                             </td>
                                                             <td>
-                                                                Abono
+                                                                Cancelado
                                                             </td>
                                                             <td>
 
@@ -182,7 +182,7 @@ const Recibo = (props) => {
                                                                 } 
                                                             </td>
                                                             <td>
-                                                                {factu.DiasVencimiento}
+                                                                {"Dias: " + factu.DiasVencimiento}
                                                             </td>
                                                             <td>
                                                                 Desc
