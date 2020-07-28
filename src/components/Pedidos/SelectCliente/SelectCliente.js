@@ -26,6 +26,7 @@ import DialogTitle   from '@material-ui/core/DialogTitle';
 import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import ClienteContado from './ClienteContado';
 import {useDispatch,useSelector} from 'react-redux';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -74,9 +75,27 @@ const SelectCliente = (props) => {
     var alerta = false;
     var options = [];
 
-    // const handleClickOpen = () => {
-    //     setOpen(true);
-    // }
+   const continuarPedido = ()=>{
+    if(props.autocompleteValue.Credito[0].Disponible<=1){
+        Swal.fire({
+            title: 'Aviso',
+            text: 'El cliente no tiene credito disponible, el pedido no sera autorizado automaticamente.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Cancelar'
+          }).then((result) => {
+            if (result.value) {
+                props.setCliente();
+            }
+          })
+    }else{
+        props.setCliente();
+    }
+
+   }
 
     const handleClose = () => {
         setOpen(false);
@@ -143,7 +162,7 @@ const SelectCliente = (props) => {
                                     </tr>
                                     <tr>
                                         <td className={styles.InfoLabel}>
-                                            {'Estado Crediticio: '}
+                                            {'Bloqueo Crediticio: '}
                                         </td>
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.FacturacionEntrega}</td>
@@ -291,7 +310,7 @@ const SelectCliente = (props) => {
                         <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                             <Button
                                 disabled={props.autocompleteValue ? false : true}
-                                onClick={props.setCliente}
+                                onClick={continuarPedido}
                                 variant="contained"
                                 color="primary">
                                 Continuar

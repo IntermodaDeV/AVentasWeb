@@ -151,21 +151,7 @@ const IsSame = (GrupoTallaId) => {
     }
 
     const Finalizar = () => {
-        if((totalGlobal + impuesto)>props.Cliente.CreditoDisponible && TipoCredito.TipoPedido !== 'Contado'){
-            Swal.fire({
-                type: 'warning',
-                title: 'Advertencia',
-                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque supero su limite de credito',
-            })
-        }
-
-        if((props.Cliente.FacturacionEntrega === "No" || props.Cliente.FacturacionEntrega === "Nunca")){
-            Swal.fire({
-                type: 'warning',
-                title: 'Advertencia',
-                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque actualment el cliente se encuentra en mora',
-            })
-        }
+        
         
         if(ApruebaBio())
         {
@@ -192,7 +178,40 @@ const IsSame = (GrupoTallaId) => {
                     if (props.NumeroOrden) {
                         props.FinalizarPedidoOnline();
                     } else {
-                        props.enviarPedido();
+                        if((props.Cliente.FacturacionEntrega === "No" || props.Cliente.FacturacionEntrega === "Nunca")){
+                            Swal.fire({
+                                title: 'Aviso',
+                                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque actualmente el cliente se encuentra en mora',
+                                type: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Continuar',
+                                cancelButtonText: 'Cancelar'
+                              }).then((result) => {
+                                if (result.value) {
+                                    props.enviarPedido();
+                                }
+                              })
+                        }else if((totalGlobal + impuesto)>props.Cliente.CreditoDisponible && TipoCredito.TipoPedido !== 'Contado'){
+                            Swal.fire({
+                                title: 'Aviso',
+                                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque supero su limite de credito',
+                                type: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Continuar',
+                                cancelButtonText: 'Cancelar'
+                              }).then((result) => {
+                                if (result.value) {
+                                    props.enviarPedido();
+                                }
+                              })}
+                        else{
+                            props.enviarPedido();
+                        }
+                       
                     }
                 }
             }
@@ -719,7 +738,7 @@ const IsSame = (GrupoTallaId) => {
                                 </div>
                                 <div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
                                     <Dropdown
-                                        placeholder="Seleccione comunidad autonoma"
+                                        placeholder="Seleccione departamento"
                                         fluid
                                         search
                                         selection   

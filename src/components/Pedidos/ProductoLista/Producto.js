@@ -137,7 +137,7 @@ const Producto = (props) => {
             </div>
 
             <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
-              {/* Pseudo  */}Stock Disponible - {stockDisponible}
+              {/* Pseudo  */}Stock Disponible : {stockDisponible}
             </div>
 
 

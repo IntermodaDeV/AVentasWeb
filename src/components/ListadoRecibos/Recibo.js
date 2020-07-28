@@ -51,7 +51,7 @@ const Recibo = (props) => {
                         <div className="row">
                             <div className="col p-0 text-left">
                                 <h3 className={"font-weight-normal  m-auto " + styles.LineHeight_Normal}>
-                                    {props.recibo.Cliente.CodigoCliente}
+                                    {props.recibo.Cliente.Codigo}
                                 </h3>
                             </div>
                             <div className="col p-0 text-center">
@@ -77,7 +77,7 @@ const Recibo = (props) => {
                             <div className="col-12 py-2 p-0">
                                 <p>
 
-                                    Fecha: {moment(props.recibo.Fecha).format("DD/MM/YYYY")}
+                                    Fecha: {moment(props.recibo.Fecha).format('DD/MM/YYYY hh:mm a')}
                                 </p>
                             </div>
                             <div className="col-12 p-0">

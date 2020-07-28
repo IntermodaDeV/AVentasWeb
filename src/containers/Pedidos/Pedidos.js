@@ -2260,7 +2260,7 @@ class Pedidos extends React.Component {
 
 
     alertaLimiteCredito() {
-        return Swal.fire({
+         Swal.fire({
             title: 'Alerta',
             text: "Excede el limite ",
             type: 'warning',
@@ -2276,11 +2276,11 @@ class Pedidos extends React.Component {
         if (this.props.TipoPedido.Restrictivo) {
             if (this.props.AcuerdoVenta) {
                 if (!(this.props.AcuerdoVenta.Saldo >= totalAcumulado)) {
-                    return this.alertaLimiteCredito();
+                     this.alertaLimiteCredito();
                 }
             } else {
                 if (!(this.props.cliente.LimiteCredito >= totalAcumulado)) {
-                    return this.alertaLimiteCredito();
+                    this.alertaLimiteCredito();
                 }
 
 
