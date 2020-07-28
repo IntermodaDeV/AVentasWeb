@@ -744,7 +744,8 @@ const cargarTiposPago = new Promise((resolve, reject) => {
     })
 });
 const cargarBancos = new Promise((resolve, reject) => {
-    fetch(urlApi + '/api/banco', {
+    let empresa = localStorage.getItem('empresa')
+    fetch(urlApi + "/api/banco/" + empresa, {
         headers: {
             Authorization: 'Bearer ' + localStorage.getItem('token')
         }
