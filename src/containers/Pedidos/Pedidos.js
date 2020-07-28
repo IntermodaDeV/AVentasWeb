@@ -2262,7 +2262,7 @@ class Pedidos extends React.Component {
     alertaLimiteCredito() {
          Swal.fire({
             title: 'Alerta',
-            text: "Excede el limite ",
+            text: "Excede el limite de crédito disponible.",
             type: 'warning',
             showConfirmButton: false,
             timer: 1500
