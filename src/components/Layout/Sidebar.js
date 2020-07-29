@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from "react-router-dom";
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { Link as RouterLink } from 'react-router-dom';
 import { Tour } from 'components/Layout';
@@ -50,6 +51,11 @@ const useStyles = makeStyles(theme => ({
     },
     nested: {
         paddingLeft: theme.spacing(4),
+        color: 'white',
+        //transition: "all 0.5s",
+        "&:hover": {
+            color : "white"
+          } //Color blanco al apuntar con el mouse
     },
 }));
 
@@ -127,6 +133,10 @@ const Sidebar = (props) => {
         setIsMenuOpen(Submenu);
     };
 
+    const handleClick2 = (index) => {
+        toggleDrawer('left', false);
+    };
+
     const sideList = side => (
         <div
             className={classes.list}
@@ -173,7 +183,7 @@ const Sidebar = (props) => {
                                                 menu.expanded.map((submenu, ind) => {
 
                                                     return (
-                                                        <ListItemLink
+                                                        /*<ListItemLink
                                                             key={ind}
                                                             nested
                                                             dataTut={submenu.dataTut}
@@ -181,7 +191,13 @@ const Sidebar = (props) => {
                                                             to={submenu.to}
                                                             primary={submenu.name}
                                                             icon={<submenu.Icon className={styles.Icons} />}
-                                                        />
+                                                        />*/
+                                                        <ListItem data-tut={submenu.dataTut} nested button className={classes.nested} component={Link} to={submenu.to} onClick={() => handleClick2(index)}>
+                                                            <ListItemIcon>
+                                                                <submenu.Icon className={styles.Icons} />
+                                                            </ListItemIcon>
+                                                            <ListItemText primary={submenu.name} />
+                                                        </ListItem>
                                                     )
                                                 })
                                             }
@@ -191,13 +207,19 @@ const Sidebar = (props) => {
                             )
                         }
                         return (
-                            <ListItemLink
+                            /*<ListItemLink
                                 key={index}
                                 to={menu.to}
                                 dataTut={menu.dataTut}
                                 primary={menu.name}
                                 icon={<menu.Icon className={styles.Icons} />}
-                            />
+                            />*/
+                            <ListItem data-tut={menu.dataTut} button className={styles.Titulo} component={Link} to={menu.to} onClick={() => handleClick2(index)}>
+                                <ListItemIcon>
+                                    <menu.Icon className={styles.Icons} />
+                                </ListItemIcon>
+                                <ListItemText primary={menu.name} />
+                            </ListItem>
                         )
                     })
                 }
@@ -307,92 +329,6 @@ const Sidebar = (props) => {
             selector: '[data-tut="DataTut_HelperButton"]',
             content: `Obtener ayuda de la interfaz`
         },
-        //   {
-        //     selector: '[data-tut="reactour__style"]',
-        //     content: () => (
-        //       <div>
-        //         <Glitch data-glitch="Styled">Styled</Glitch>
-        //         <Text color="#e5e5e5">
-        //           The <Tooltip data-tooltip="this helper ⬇">tourist guide</Tooltip>{" "}
-        //           could be dressed in any way, using custom components, styles and so
-        //           on…
-        //       </Text>
-        //         <Text color="#373737" size=".7em" style={{ marginTop: ".7em" }}>
-        //           <Link
-        //             href="http://codepen.io/lbebber/full/ypgql/"
-        //             color="dark"
-        //             nospaces
-        //           >
-        //             Text effect
-        //         </Link>{" "}
-        //           by{" "}
-        //           <Link href="https://twitter.com/lucasbebber" color="dark" nospaces>
-        //             Lucas Bebber
-        //         </Link>
-        //         </Text>
-        //       </div>
-        //     ),
-        //     style: {
-        //       backgroundColor: "black",
-        //       color: "white"
-        //     }
-        //   },
-        //   {
-        //     selector: '[data-tut="reactour__goTo"]',
-        //     content: ({ goTo }) => (
-        //       <div>
-        //         If you wanna go anywhere, skipping places, it is absolutely possible.
-        //       <br /> "Oh, I forgot something inside the bus…"{" "}
-        //         <button
-        //           style={{
-        //             border: "1px solid #f7f7f7",
-        //             background: "none",
-        //             padding: ".3em .7em",
-        //             fontSize: "inherit",
-        //             display: "block",
-        //             cursor: "pointer",
-        //             margin: "1em auto"
-        //           }}
-        //           onClick={() => goTo(1)}
-        //         >
-        //           Please go back to 🚌
-        //       </button>
-        //       </div>
-        //     )
-        //   },
-        //   {
-        //     selector: '[data-tut="reactour__position"]',
-        //     content: () => (
-        //       <Text>
-        //         The <Tooltip data-tooltip="this helper ⬇">tourist guide</Tooltip> could
-        //         be positioned where you want.
-        //       <br /> In this case will try to stay in the <strong>
-        //           left side
-        //       </strong>{" "}
-        //         if there's available space, otherwise will{" "}
-        //         <strong>auto position</strong>.
-        //     </Text>
-        //     ),
-        //     position: "left"
-        //   },
-        //   {
-        //     selector: '[data-tut="reactour__action"]',
-        //     content:
-        //       "When arrived on each place you could fire an action, like… (look at the console)",
-        //     action: () =>
-        //       console.log(`
-        //                 ------------🏠🏚---------
-        //     🚌 Arrived to explore these beautiful buildings! 🚌
-        //                 ------------🏠🏚---------
-        //  🚧 This action could also fire a method in your Component 🚧
-        //   `)
-        //   },
-        //   {
-        //     selector: '[data-tut="reactour__state"]',
-        //     content:
-        //       "And the Tour could be observing changes to update the view, try clicking the button…",
-        //     observe: '[data-tut="reactour__state--observe"]'
-        //   }
     ];
 
     return (
