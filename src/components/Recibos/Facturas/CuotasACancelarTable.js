@@ -129,8 +129,12 @@ const CuotasACancelarTable = props => {
       }
     },
   }
+  props.CuotasSinAgruparACancelar.sort((a,b)=>{
+    if (moment(a[4], "DD/MM/YYYY").isSame(moment(b[4], "DD/MM/YYYY"), 'day')) {
+      return (a[1]<b[1])?-1:1
+    }
+  });
 
-  
   return (
     <MuiThemeProvider theme={getMuiTheme()}>
       <MUIDataTable

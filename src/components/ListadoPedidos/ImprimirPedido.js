@@ -95,7 +95,7 @@ const checkDist = (talla) => {
 
                     {props.Pedido.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
-                        let IsDist = true;
+                        let IsDist = false;
                         let Same = false;
                         let CantDist = 0;
                         return (
@@ -105,7 +105,6 @@ const checkDist = (talla) => {
                                         <th>
                                         </th>
                                      {grupoTalla.ListaTalla.map((talla, index2) => {
-                                        IsDist=false;
                                         Same = IsSame(talla.GrupoTallaId) ;
                                         cantidad++;
                                         return (

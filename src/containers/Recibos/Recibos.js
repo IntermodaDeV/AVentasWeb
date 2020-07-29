@@ -137,6 +137,9 @@ const Recibos = (props) => {
       if (moment(a.FechaVencimiento, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
         return -1;
       }
+      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+        return -1;
+      }
       if (a.NumeroCuota < b.NumeroCuota) {
 
         return -1;

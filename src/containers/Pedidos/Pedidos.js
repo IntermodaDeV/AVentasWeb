@@ -2257,15 +2257,18 @@ class Pedidos extends React.Component {
         this.setState({ filtroEdad: edadSelected })
     }
 
+    Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        timer: 3000,
+      })
 
 
     alertaLimiteCredito() {
-         Swal.fire({
-            title: 'Alerta',
-            text: "Excede el limite de crédito disponible.",
-            type: 'warning',
-            showConfirmButton: false,
-            timer: 1500
+        this.Toast.fire({
+            title: "Excede el limite de crédito disponible.",
+            icon: 'error',
         });
     }
     onchangeText(text, productoId, codigoColor, grupoTalla, talla, precio) {
