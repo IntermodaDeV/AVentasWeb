@@ -2261,14 +2261,16 @@ class Pedidos extends React.Component {
         toast: true,
         position: 'top',
         showConfirmButton: false,
+        background:'red',
         timer: 3000,
       })
 
 
     alertaLimiteCredito() {
+
         this.Toast.fire({
-            title: "Excede el limite de crédito disponible.",
-            icon: 'error',
+            title: "<span style='color:#FFF'>Excede el limite de crédito disponible.<span>",
+            icon: 'error'
         });
     }
     onchangeText(text, productoId, codigoColor, grupoTalla, talla, precio) {

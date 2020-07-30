@@ -26,6 +26,7 @@ const urlApi = APIURL
 
 const DetalleRecibo = (props) => {
     // const [totalAPagar, setTotalAPagar] = useState(0.00);
+    const Monedas = useSelector(e=>e.Monedas);
     const [bancos, setBancos] = useState([]);
     const [ModalRecibo, setModalRecibo] = useState(false);
     const [recibosAplicados, setRecibosAplicados] = useState([]);
@@ -57,7 +58,7 @@ const DetalleRecibo = (props) => {
             indexTiposdePagoDetalle: 0,
             fecha: new Date(),
             valor: 1,//totalAPagar - cuotasYDescuentoAplicado.DescuentoAplicado,
-            indexMoneda: 2,
+            indexMoneda: 0,
             indexBanco: null,
             referencia: ''
         }
@@ -409,18 +410,18 @@ const DetalleRecibo = (props) => {
         }
     }
     const CargarDatos = () => {
-        Promise.all([cargarBancos, cargarTiposPago, cargarMonedas]).then(values => {
+        Promise.all([cargarBancos, cargarTiposPago]).then(values => {
             let banks = values[0].map(el => {
                 return el//{ key: el.IdBanco, value: JSON.stringify(el), text: el.Descripcion }
             });
             let tiposPago = values[1].map(el => {
                 return el//{ key: el.IdTipoPago, value: JSON.stringify(el), text: el.Descripcion }
             });
-            let monedasArray = values[2].map(el => {
+            /*let monedasArray = values[2].map(el => {
                 return el // { key: el.IdMoneda, value: JSON.stringify(el), text: el.Moneda }
-            });
+            });*/
             setBancos(banks);
-            setMonedas(monedasArray);
+            setMonedas(Monedas);
             setTiposPago(tiposPago);
         });
     }
@@ -769,7 +770,7 @@ const cargarBancos = new Promise((resolve, reject) => {
         }
     })
 });
-const cargarMonedas = new Promise((resolve, reject) => {
+/*const cargarMonedas = new Promise((resolve, reject) => {
     let empresa = localStorage.getItem('empresa');
     fetch(urlApi + "/api/Moneda/" + empresa, {
         headers: {
@@ -794,5 +795,5 @@ const cargarMonedas = new Promise((resolve, reject) => {
             )
         }
     })
-});
+});*/
 export default DetalleRecibo;

@@ -24,13 +24,14 @@ const MatrizResumen = (props) => {
     const [mostrarVacios, setMostrarVacios] = useState(false);
     const [expanded, setExpanded] = React.useState(false);
 
+    const Monedas = useSelector(e=>e.Monedas);
     let referenceCantidad = [];
     let referenceTotal = [];
     let gruposTalla = Object.keys(props.tableValue);
     let unidadesTotales = 0;
     let totalGlobal = 0.00;
     let impuesto = 0;
-    let moneda = (props.Cliente !== null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
+    const moneda = Monedas.find(e=>e.IdMoneda === props.Cliente.Moneda).Abreviacion;
     let productosSinCantindad = false;
 
     const coleccion         = useSelector(e=>e.coleccion.Edades);

@@ -10,7 +10,7 @@ import {useSelector} from 'react-redux';
 const Recibo = (props) => {
 
     const clientesContado = useSelector(e=>e.clientesContado);
-
+    const Monedas = useSelector(e=>e.Monedas);
     const pedidoSelected = useSelector(k => k.pedidoSelected);
     const empresas = useSelector(e=>e.Empresas);
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
@@ -18,6 +18,7 @@ const Recibo = (props) => {
     let DireccionCliente = props.Cliente.Direccion;
     const clienteContado = pedidoSelected !== null && pedidoSelected !== undefined ? clientesContado.find(x=>x.id=== pedidoSelected.ClienteContado) : null;
     let Total = props.RecibosAplicados.Total;
+    const moneda = Monedas.find(e=>e.IdMoneda===props.Cliente.Moneda).Abreviacion;
     if(clienteContado!==null && clienteContado!==undefined)
     {
         if(Total < 10000)
@@ -220,7 +221,7 @@ const Recibo = (props) => {
                                     </div>
                                     <div className="col-12 p-0">
                                         <h3 className={"font-weight-bold text-right " + styles.LineHeight_Normal}>
-                                            Total Recibo: {props.Cliente.Moneda} {numberWithCommas(props.RecibosAplicados.Total)}
+                                            Total Recibo: {moneda} {numberWithCommas(props.RecibosAplicados.Total)}
                                         </h3>
                                     </div>
 

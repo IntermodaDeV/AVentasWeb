@@ -96,6 +96,14 @@ class Agenda extends Component {
         .catch(error=>console.log(error))
     }
 
+    cargarMonedas = () =>{
+        let empresa = localStorage.getItem('empresa');
+        fetch(`${this.urlApi}/api/moneda/${empresa}`)
+        .then(res=>res.json())
+        .then(data=>{this.props.onSaveMonedas(data)})
+        .catch(error=>console.log(error))
+    }
+
     cargarAsignaciones = (FechaInicio, FechaFin) => {
         var inicio = moment(FechaInicio).format();
         var fin = moment(FechaFin).format();
@@ -549,6 +557,7 @@ class Agenda extends Component {
         this.cargarClientes();
         this.cargarRazonNoVenta();
         this.cargarEmpresas();
+        this.cargarMonedas();
     }
 
     render() {
@@ -879,7 +888,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>({
-    onSaveEmpresas:(empresas)=>{dispatch({type:'SET_EMPRESAS',payload:empresas})}
+    onSaveEmpresas:(empresas)=>{dispatch({type:'SET_EMPRESAS',payload:empresas})},
+    onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})}
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(Agenda);

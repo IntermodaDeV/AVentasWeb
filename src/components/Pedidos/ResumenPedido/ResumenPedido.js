@@ -66,6 +66,7 @@ const ResumenPedido = (props) => {
     const [transporte, setTransporte] = React.useState(modoEntrega);
     const [comunidad, setComunidad] = React.useState(comunidadSelected);
     const esBiomedico = (lineaSeleccionada.IdLinea === "BIO" && requiereEntrega);
+    const Monedas = useSelector(e=>e.Monedas);
 
     var gruposTalla = Object.keys(props.tableValue);
     var unidadesTotales = 0;
@@ -73,8 +74,7 @@ const ResumenPedido = (props) => {
     const componentRef = React.useRef();
     var nuevafecha = new Date();
     var fecha = moment(nuevafecha).toDate();
-    var moneda = (props.Cliente != null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
-
+    const moneda = Monedas.find(e=>e.IdMoneda === props.Cliente.Moneda).Abreviacion;
     const calcularFlete = () => {
         if (comunidad === "" || transporte === "") {
             return 0;
@@ -979,11 +979,11 @@ const ResumenPedido = (props) => {
 
                                 <div className="row TotalRow">
                                     <div className="col-5 labelTotal text-left">
-                                        Total {moneda}:
+                                        Total:
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                        {numberWithCommas((totalGlobal + impuesto) + flete)}
+                                    {moneda} {numberWithCommas((totalGlobal + impuesto) + flete)}
                                     </div>
                                 </div>
                             </div>

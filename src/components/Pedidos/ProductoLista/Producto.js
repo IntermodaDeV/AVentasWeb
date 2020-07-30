@@ -13,7 +13,12 @@ import { useSnackbar } from 'notistack';
 const Producto = (props) => {
   const { enqueueSnackbar } = useSnackbar();
 
-  const stockDisponible = props.producto.fisicaDisponible.reduce((a,b)=>(a+b.Cantidad),0);
+  let stockDisponible = 0;
+  
+  if(!props.isFuture){
+    stockDisponible = props.producto.fisicaDisponible.reduce((a,b)=>(a+b.Cantidad),0);
+  }
+
   const toggleSelect = () => {
     if (primerRender ? (precioProductoTemporal !== undefined) : (precioProducto !== undefined)) {
       if (!(selected || isSelectedTemporal) && totalProducto + props.TotalPedido > props.LimiteVenta) {
@@ -136,9 +141,9 @@ const Producto = (props) => {
               {/* Pseudo  */}Código - {props.producto.ProductoId}
             </div>
 
-            <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
+            {(!props.isFuture) && <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
               {/* Pseudo  */}Stock Disponible : {stockDisponible}
-            </div>
+            </div>}
 
 
             <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >

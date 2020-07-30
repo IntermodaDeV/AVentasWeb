@@ -9,12 +9,14 @@ import 'moment/locale/es';
 
 const ImprimirPedido = (props) => {
 
+const Monedas = useSelector(e=>e.Monedas);
 const clientesContado = useSelector(e=>e.clientesContado);
 const empresas = useSelector(e=>e.Empresas);
 let NombreCliente=props.Pedido.Cliente.Nombre;
 let DireccionCliente=props.Pedido.Cliente.Direccion;
 const clienteContado = clientesContado.find(x=>x.id===props.Pedido.ClienteContadoId);
 const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+const moneda = Monedas.find(e=>e.IdMoneda === props.Pedido.Cliente.Moneda).Abreviacion;
 
 if(clienteContado!==null && clienteContado!==undefined)
 {
@@ -316,11 +318,11 @@ const checkDist = (talla) => {
 
                             <div className="row TotalRow">
                                 <div className="col-5 labelTotal text-left">
-                                    Total {props.Pedido.Cliente.Moneda}:
+                                    Total:
                                     </div>
 
                                 <div className="col-7 valueTotal">
-                                    {numberWithCommas((props.Pedido.TotalXPedido))}
+                                    {moneda}{numberWithCommas((props.Pedido.TotalXPedido))}
                                 </div>
                             </div>
                         </div>

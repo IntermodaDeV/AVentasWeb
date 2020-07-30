@@ -8,6 +8,7 @@ import 'moment/locale/es';
 import {useSelector} from 'react-redux';
 
 const Recibo = (props) => {
+    const Monedas = useSelector(e=>e.Monedas);
     const clientesContado = useSelector(e=>e.clientesContado);
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.Cliente.Nombre;
@@ -15,6 +16,7 @@ const Recibo = (props) => {
     const clienteContado = props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
     let valor = props.recibo.Valor;
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Cliente.Moneda).Abreviacion;
     if(clienteContado!==null && clienteContado!==undefined)
     {
             if(valor < 10000)
@@ -209,7 +211,7 @@ const Recibo = (props) => {
                             <div className="col-12 p-0">
                                 <h3 className={"font-weight-bold text-right " + styles.LineHeight_Normal}>
                                     Total Recibo:
-                                    {props.recibo.Cliente.Moneda}
+                                    {moneda}
                                     {numberWithCommas(props.recibo.Valor)}
                                 </h3>
                             </div>

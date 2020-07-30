@@ -39,7 +39,7 @@ const initialState = {
     ClienteImpuestos:[],
     ProductoImpuestos:[],
     Empresas:[],
-    Impuesto:0
+    Monedas:[]
 }
 
 const calcularLimite = (state) => {
@@ -440,19 +440,12 @@ const reducer = (state = initialState, action) => {
         }
     }
 
-    if(action.type==='SET_IMPUESTO')
+    
+    if(action.type==='SET_MONEDAS')
     {
         return{
             ...state,
-            Impuesto:action.payload
-        }
-    }
-
-    if(action.type==='SET_IMPUESTOVACIO')
-    {
-        return{
-            ...state,
-            Impuesto:0
+            Monedas:action.payload
         }
     }
 

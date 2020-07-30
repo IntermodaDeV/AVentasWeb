@@ -129,6 +129,8 @@ const CuotasACancelarTable = props => {
       }
     },
   }
+  
+  // eslint-disable-next-line
   props.CuotasSinAgruparACancelar.sort((a,b)=>{
     if (moment(a[4], "DD/MM/YYYY").isSame(moment(b[4], "DD/MM/YYYY"), 'day')) {
       return (a[1]<b[1])?-1:1

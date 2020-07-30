@@ -158,6 +158,15 @@ const Productos = (props) => {
         return null;
     });
 
+    if (props.coleccion.ColeccionTipo !== "F" || props.coleccion.ColeccionTipo !== 'f') {
+        productosList.forEach((e,i)=>{
+            const stock = e.fisicaDisponible.reduce((a,b)=>(a+b.Cantidad),0);
+            e.stockDisponible = stock;
+        });
+    
+        productosList.sort((a,b)=>((a.stockDisponible>b.stockDisponible)?-1:1));
+    };
+
     let productos = (
         <div style={{ height: "80vh" }}>
             <AutoSizer>
