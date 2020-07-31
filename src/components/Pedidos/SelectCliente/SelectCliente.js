@@ -27,6 +27,7 @@ import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import ClienteContado from './ClienteContado';
 import {useDispatch,useSelector} from 'react-redux';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import logo from './iconfinder_Close_2001866.png'
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -268,7 +269,7 @@ const SelectCliente = (props) => {
             scroll={'paper'}
             open={openContado}
             >
-                <CancelPresentationIcon onClick={()=>{setOpenContado(false)}}/>
+                <img src={logo} style={{width:'30px',height:'30px',marginLeft:'500px'}} onClick={()=>{setOpenContado(false)}}/>
                 <DialogTitle className="text-center" id="scroll-dialog-title">
                     <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
                         Cliente Contado

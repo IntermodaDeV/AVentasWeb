@@ -65,16 +65,16 @@ const columns = [
     }
   },
   {
-    name: 'C15Dias',
-    label: 'Por Vencer(15 Dias)',
+    name: 'FactXVencer',
+    label: 'Facturas A Vencer',
     options: {
       filter: true,
       sort: false
     }
   },
   {
-    name: 'FactXVencer',
-    label: 'Facturas A Vencer',
+    name: 'C15Dias',
+    label: 'Por Vencer(15 Dias)',
     options: {
       filter: true,
       sort: false
@@ -504,8 +504,8 @@ const FacturaTable = props => {
         CantFactVencidas:(<div>{FactVencidas(acuXTipPed.TipoPedido,true)}{(saldoVencido>0)?<FaEye onClick={()=>{OpenModalVencido(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
         Vencido: (<div><p style={{display:"inline-block"}}>{saldoVencido.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
         Dias: <span className={dias}>{FechaVencido(acuXTipPed.TipoPedido,false)}</span>, 
-        C15Dias: (<div><p style={{display:"inline-block"}}>{saldo15DiasAvencer.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
         FactXVencer :(<div>{FactVencidas(acuXTipPed.TipoPedido,false)}{(saldo15DiasAvencer>0)?<FaEye onClick={()=>{OpenModalAVencer(acuXTipPed.TipoPedido)}} size={"20px"} style={{display:"inline-block",marginLeft:'10px'}}/>:<span style={{display:"inline-block"}}></span>}</div>),
+        C15Dias: (<div><p style={{display:"inline-block"}}>{saldo15DiasAvencer.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</p></div>),
         FechaVencimiento:<span className="inline-block"> {moment(FechaVencido(acuXTipPed.TipoPedido,true)).format("DD/MM/YYYY")}</span>, 
         Disponible: Number(disponible).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
         SaldoTotal: saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),

@@ -50,6 +50,7 @@ const DetalleRecibo = (props) => {
     const [tiposPago, setTiposPago] = useState([])
     const pedidoSelected = useSelector(e=>e.pedidoSelected);
     const dispatch = useDispatch();
+    let calculo =React.useRef(1);
     
     const [pagosXRecibo, setPagosXRecibo] = useState([
         {
@@ -57,7 +58,7 @@ const DetalleRecibo = (props) => {
             indexTiposPago: 2,
             indexTiposdePagoDetalle: 0,
             fecha: new Date(),
-            valor: 1,//totalAPagar - cuotasYDescuentoAplicado.DescuentoAplicado,
+            valor: '',//totalAPagar - cuotasYDescuentoAplicado.DescuentoAplicado,
             indexMoneda: 0,
             indexBanco: null,
             referencia: ''
@@ -77,14 +78,15 @@ const DetalleRecibo = (props) => {
             cuotasYDescuentoCalculado = CalculoCuotasAgrupadasYDescuento();//CalculoCuotasAgrupadasYDescuento()
         } else {
             cuotasYDescuentoCalculado = CalculoCuotasSingAgruparYDescuento();
+        
         }
         setCuotasYDescuentoAplicado(cuotasYDescuentoCalculado);
-        console.log("cuotasYDescuentoCalculado",cuotasYDescuentoCalculado)
+        calculo.current+=1;
         // eslint-disable-next-line
     }, [pagosXRecibo]);
     useEffect(() => {
         CargarDatos()
-        let pago = { ...pagosXRecibo[0], valor: 1 };
+        let pago = { ...pagosXRecibo[0], valor: 0 };
         setPagosXRecibo([
             pago    //.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
         ]);
@@ -160,7 +162,7 @@ const DetalleRecibo = (props) => {
         pagosXRecibo.forEach(pago => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
-            if (PagoAcumulado > 0) {
+            if (PagoAcumulado >= 0) {
                 cuotasAProcesar.forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
@@ -214,12 +216,18 @@ const DetalleRecibo = (props) => {
         pagosXRecibo.forEach(pago => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
-            if (PagoAcumulado > 0) {
+            if (PagoAcumulado >= 0) {
                 cuotasAProcesar.forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
-                    valorPagos += montoAPagar;
-                    Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0;
+                    
+                    console.log("calculo",calculo.current)
+                    if(calculo.current===2){
+                        valorPagos += montoAPagar;  
+                        Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0; 
+                        localStorage.setItem('valorPagos',valorPagos);
+                        localStorage.setItem('DescuentoFacturas',Descuento);                
+                    }
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
@@ -263,8 +271,8 @@ const DetalleRecibo = (props) => {
         return {
             Cuotas: cuotasProcesadas,
             DescuentoAplicado: descuentoAcumulado,
-            ValorAPagar : valorPagos,
-            DescuentoTotal: Descuento
+            ValorAPagar : Number(localStorage.getItem('valorPagos')),
+            DescuentoTotal: Number(localStorage.getItem('DescuentoFacturas'))
         };
     }
     const CuotasSinAgrupar = () => {

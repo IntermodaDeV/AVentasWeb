@@ -165,6 +165,7 @@ const Recibo = (props) => {
 
                                             <tbody>
                                                 {props.RecibosAplicados.Facturas.map((factu, index) => (
+                                                    
                                                     <React.Fragment key={index}>
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
@@ -174,7 +175,8 @@ const Recibo = (props) => {
                                                                 {moment(factu.Fecha).format("DD/MM/YYYY")}
                                                             </td>
                                                             <td>
-                                                                Cancelado
+                                                             {factu.EsAbono === true && "Abono"}
+                                                             {factu.EsAbono === false && "Cancelado"}
                                                             </td>
                                                             <td>
 

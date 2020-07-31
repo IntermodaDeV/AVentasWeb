@@ -163,7 +163,8 @@ const Recibo = (props) => {
                                                                 {moment(props.recibo.FechaPago).format("DD/MM/YYYY")}
                                                             </td>
                                                             <td>
-                                                                Cancelado
+                                                             {factu.EsAbono === true && "Abono"}
+                                                             {factu.EsAbono === false && "Cancelado"}
                                                             </td>
                                                             <td>
 

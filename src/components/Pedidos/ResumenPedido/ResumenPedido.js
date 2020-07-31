@@ -556,6 +556,9 @@ const ResumenPedido = (props) => {
                     verticalAlign: 'middle',
                     //fontWeight: 600,
                 }}>
+                    <div className="col-12 px-0">
+                        <span>{"Precio"}</span>
+                    </div>
                     {color.NombreColor}
                 </td>
                 {

@@ -177,8 +177,10 @@ const checkDist = (talla) => {
                                                             <td className="p-1 text-center" style={{
                                                                 alignItems: 'center',
                                                                 verticalAlign: 'middle',
-                                                                width: `${cellSize}%`,
-                                                            }}>
+                                                                width: `${cellSize}%`,}}>
+                                                                <div className="col-12 px-0">
+                                                                    <span>{"Precio"}</span>
+                                                                </div>
                                                                 {color.NombreColor}
                                                             </td>
                                                             {detalles.map((det, index4) => {
@@ -211,13 +213,12 @@ const checkDist = (talla) => {
                                                                                 <td key={index4} className="p-1 text-center" style={{
                                                                                     alignItems: 'center',
                                                                                     verticalAlign: 'middle',
-                                                                                    width: `${cellSize}%`,
-                                                                                }}>
-                                                                            <div className="col-12 px-0">
-                                                                                <span>{det? det.PrecioUnitario/CantDist : "--"}</span>
-                                                                            </div>
-                                                                            <label>{totalcant}</label>
-                                                                            </td>
+                                                                                    width: `${cellSize}%`,}}>
+                                                                                        <div className="col-12 px-0">
+                                                                                            <span>{det? det.PrecioUnitario/CantDist : "--"}</span>
+                                                                                        </div>
+                                                                                        <label>{totalcant}</label>
+                                                                                </td>
                                                                             )
                                                                         })
                                                                     }
