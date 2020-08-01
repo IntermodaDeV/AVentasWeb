@@ -4,7 +4,7 @@ import PopupState, {
     bindTrigger,
     bindPopover
 } from 'material-ui-popup-state';
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import ToggleIcon from 'material-ui-toggle-icon'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Popover, Typography, Card, CardContent, CardMedia } from "@material-ui/core";
@@ -22,16 +22,16 @@ const ProductoTable = (props) => {
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [IsOpen, setIsOpen] = useState(false);
 
-    
+
     const urlApi = APIURL;
-    let ArregloProductos =  Object.keys(props.producto.Colores).map((key)=>([key,props.producto.Colores[key]]));
+    let ArregloProductos = Object.keys(props.producto.Colores).map((key) => ([key, props.producto.Colores[key]]));
     ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1);
 
     useEffect(() => {
         setDirty(props.mostrarVacios);
         cargarBackOrder();
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.mostrarVacios]);
 
     const EliminarProducto = (grupo, cod, nombre) => {
@@ -201,7 +201,7 @@ const ProductoTable = (props) => {
 
                 </td>
             </tr>
-            
+
             {ArregloProductos.map((codigoColor, index2) => {
                 let color = codigoColor[1];
                 var totalXColor = 0;
@@ -217,7 +217,7 @@ const ProductoTable = (props) => {
                         }}>
                             <PopupState variant="popover" popupId={props.producto.NombreProducto + props.index1}>
                                 {popupState => {
-                                    
+
                                     if (color.ListaImagenes.length !== 0) {
                                         return (
                                             <>

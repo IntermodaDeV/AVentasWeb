@@ -142,7 +142,7 @@ class Pedidos extends React.Component {
                             this.setState({
                                 loadingColecciones: false
                             });
-                            console.log(result);
+                            console.log("COLECCIONES", result);
                             this.props.onStoreColecciones(result);
                         })
                 }
@@ -477,6 +477,7 @@ class Pedidos extends React.Component {
                     value[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = fisicoDisponible ? fisicoDisponible.Cantidad : 0;
                     value[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
                     value[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
+                    debugger;
                     if (fisicoDisponible ? fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0 : false) {
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = fisicoDisponible.PreciosEspecificos[0].Precio
                     } else {
