@@ -311,7 +311,6 @@ const CuotasAgrupadasTable = props => {
   }
   const setCuotasAPagar = () => {
 
-    debugger;
     let array = IdsSubFacturaArray();
 
     if (array) {
