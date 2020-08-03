@@ -42,6 +42,11 @@ const VistaRapidaProducto = (props) => {
             let precio = props.producto.Precio.find(precioxProd => {
                 return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
             });
+            let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis=> fsDis.PreciosEspecificos.find(ps=>ps.Precio>0))
+
+            if(precioFisicoDisponible){
+                precio={Precio: precioFisicoDisponible.PreciosEspecificos.find(ps=>ps.Precio>0).Precio};
+              }
             if (precio) {
                 setPrecio(precio);
             }
@@ -49,7 +54,14 @@ const VistaRapidaProducto = (props) => {
         // eslint-disable-next-line
     }, [props.producto]);
     if (props.imagenProducto === '' && props.visible) {
-        props.changeImageProducto(props.producto.ListaImagenes?props.producto.ListaImagenes[0].FotografiaProducto:null)
+        if(props.producto.ListaImagenes && props.producto.ListaImagenes.length > 0)
+        {
+            props.changeImageProducto(props.producto.ListaImagenes[0].FotografiaProducto);
+        }
+        else
+        {
+            props.changeImageProducto(null);
+        }
     }
     if (!props.visible) {
         return null;

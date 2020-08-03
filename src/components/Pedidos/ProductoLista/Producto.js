@@ -63,6 +63,12 @@ const Producto = (props) => {
     let precio = props.producto.Precio.find(precioxProd => {
       return precioxProd.GrupoPrecio === props.GrupoPrecioCliente;
     });
+    if(!precio && props.producto.fisicaDisponible.length>0){
+      let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis=> fsDis.PreciosEspecificos.find(ps=>ps.Precio>0))
+      if(precioFisicoDisponible){
+        precio={Precio: precioFisicoDisponible.PreciosEspecificos.find(ps=>ps.Precio>0).Precio};
+      }
+    }
     if (precio) {
       try {
         let tempTotal = 0.00;

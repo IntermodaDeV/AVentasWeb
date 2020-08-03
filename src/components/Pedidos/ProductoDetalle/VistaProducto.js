@@ -24,6 +24,12 @@ const VistaProducto = (props) => {
         let precio = props.producto.Precio.find(precioxProd => {
             return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
         });
+        if(!precio && props.producto.fisicaDisponible.length>0){
+            let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis=> fsDis.PreciosEspecificos.find(ps=>ps.Precio>0))
+            if(precioFisicoDisponible){
+              precio={Precio: precioFisicoDisponible.PreciosEspecificos.find(ps=>ps.Precio>0).Precio};
+            }
+          }
         if (precio) {
             setPrecio(precio);
         }
