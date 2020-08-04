@@ -482,12 +482,13 @@ const DetalleRecibo = (props) => {
             SaldoFavor:saldoAFavor,
             Pagos: pagosXRecibo.map(pagXRecib => {
                 return {
-                    "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
-                    "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
+                    "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,
+                    "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
+                    "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,
                     "Orden": 1,
-                    "Valor": pagXRecib.valor-saldoAFavor,//104613.1000,
-                    "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,//"HNL",
-                    "Referencia": pagXRecib.referencia,//"",
+                    "Valor": pagXRecib.valor-saldoAFavor,
+                    "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,
+                    "Referencia": pagXRecib.referencia,
                     "ReferenciaTransaccionAbierta": ""
                 }
             })
@@ -509,6 +510,7 @@ const DetalleRecibo = (props) => {
                     Pagos: pagosXRecibo.map(pagXRecib => {
                         return {
                             "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
+                            "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
                             "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
                             "Orden": 1,
                             "Valor": pagXRecib.valor,//104613.1000,

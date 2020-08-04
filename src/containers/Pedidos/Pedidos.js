@@ -1864,7 +1864,7 @@ class Pedidos extends React.Component {
                         <Route path={this.props.match.url + '/Colecciones/:TipoColeccion/:CodigoColeccion/:CodigoProducto'} render={(routeProps) => {
                             let listFiltros = [...this.Filtros()];
                             return (
-                                <Container fluid={true}>
+                                <Container fluid={true} key={routeProps.match.params.CodigoProducto}>
                                     <VistaProducto
                                         // filtroEdad={this.state.filtroEdad}
                                         Click={this.getProducto}
