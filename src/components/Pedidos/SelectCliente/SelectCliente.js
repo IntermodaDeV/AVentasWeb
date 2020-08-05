@@ -23,7 +23,6 @@ import {
 import Dialog        from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle   from '@material-ui/core/DialogTitle';
-import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import ClienteContado from './ClienteContado';
 import {useDispatch,useSelector} from 'react-redux';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -202,11 +201,15 @@ const SelectCliente = (props) => {
                                             Tipo
                                     </th>
                                         <th>
-                                            Disponible
+                                            Valor Credito
+                                    </th>
+                                    <th>
+                                            Saldo Total
                                     </th>
                                         <th>
-                                            SaldoTotal
+                                            Disponible
                                     </th>
+                                       
                                         <th>
                                             -15 Dias
                                     </th>
@@ -218,8 +221,9 @@ const SelectCliente = (props) => {
                                             <tr key={index}>
 
                                                 <td>{credito.Tipo}</td>
-                                                <td>{credito.Disponible ? credito.Disponible.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
+                                                <td>{credito.Valor ? credito.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
                                                 <td>{credito.SaldoTotal ? credito.SaldoTotal.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
+                                                <td>{credito.Disponible ? credito.Disponible.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
                                                 <td>{credito.C15Dias ? credito.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
                                             </tr>
                                         )
@@ -269,7 +273,7 @@ const SelectCliente = (props) => {
             scroll={'paper'}
             open={openContado}
             >
-                <img src={logo} style={{width:'30px',height:'30px',marginLeft:'500px'}} onClick={()=>{setOpenContado(false)}}/>
+                <img alt="closeicon" src={logo} style={{width:'30px',height:'30px',marginLeft:'500px'}} onClick={()=>{setOpenContado(false)}}/>
                 <DialogTitle className="text-center" id="scroll-dialog-title">
                     <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
                         Cliente Contado

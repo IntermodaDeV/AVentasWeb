@@ -20,7 +20,7 @@ const TotalXPedido = (props) => {
         // }
         // eslint-disable-next-line
     }, []);
-
+    let Disponible = props.cliente.Credito.find(a => a.Tipo === props.TipoPedido.TipoPedido).Disponible
     let tempTotal = props.TotalPedido||0;
     let colorDiferencia = (((Limite ? Limite : 0) - tempTotal)) < 0 ? 'red' : (props.color ? props.color : 'black');
     if (props.row) {
@@ -33,7 +33,7 @@ const TotalXPedido = (props) => {
                     {props.AcuerdoVenta ? `Saldo Acuerdo: ${moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
                 </div>
                 <div className='col' style={{ color: colorDiferencia }}>
-                    {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Limite ? Limite : 0) - tempTotal)).toString()}
+                    {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
                 </div>
             </div>
         );
@@ -48,7 +48,7 @@ const TotalXPedido = (props) => {
                     {props.AcuerdoVenta ? `Saldo Acuerdo: ${moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
                 </div>
                 <div className="mx-3" style={{ color: colorDiferencia }}>
-                    {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Limite ? Limite : 0) - tempTotal)).toString()}
+                    {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
                 </div>
             </div>
         );
@@ -63,7 +63,7 @@ const TotalXPedido = (props) => {
                     {"Límite Crédito: " + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
                 </div>
                 <div>
-                    {"Saldo Disponible: " + (numberWithCommas((Limite ? Limite : 0) - tempTotal)).toString()}
+                    {"Saldo Disponible: " + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
                 </div>
             </>
         );
