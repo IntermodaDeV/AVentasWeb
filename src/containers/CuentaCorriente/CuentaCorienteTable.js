@@ -1,10 +1,12 @@
-import React, {
-    //  useEffect, 
-
-} from 'react'
+import React from 'react'
 import MUIDataTable from 'mui-datatables';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
+import {useSelector} from 'react-redux';
+import Button from '@material-ui/core/Button';
+import jsPDF from "jspdf";
+import Logo from './LogoSinLetrasInv.png';
+import "jspdf-autotable";
 import 'moment/locale/es';
 
 
@@ -41,33 +43,7 @@ if(localStorage.getItem('empresa')==='imgt')
 
 
 const CuentaCorrienteTable = props => {
-    // let selectedRowsIndexXAcuerdo = null;
-
-    /*
-    useEffect(() => {
-        fetch(urlApi + '/api/Cliente/CuentaCorriente/' + props.clienteSelected.Codigo, {
-            headers: {
-                Authorization: 'Bearer ' + localStorage.getItem('token')
-            }
-        }).then(res => {
-            if (res.status === 401) {
-                localStorage.setItem('token', '')
-                window.location.reload()
-            }
-            if (res.status === 200) {
-                res.json().then(
-                    result => {
-                        setCuentaCorriente(result)
-                    },
-                    error => {
-
-                    }
-                )
-            }
-        });
-        // eslint-disable-next-line
-    }, [props.clienteSelected]);
-    */
+    const cuentaCorriente = useSelector(e=>e.CuentaImprimir);
     let data = []
     const options = {
         filterType: 'none',
@@ -124,8 +100,45 @@ const CuentaCorrienteTable = props => {
           return Object.values(cuenCorr)
     })
 
+    console.log(cuentaCorriente);
+    const generatePDF = () =>{
+        const unit = "pt";
+        const size = "A4"; 
+        const orientation = "portrait";
+
+        const doc = new jsPDF(orientation, unit, size);
+        doc.setFontSize(7);
+
+        const title = `
+                                                ESTADO DE CUENTA PROVISIONAL
+
+            Codigo:    ${props.clienteSelected.Codigo}              Fecha: ${moment(new Date()).format("DD/MM/YYYY")}
+            Nombre:    ${props.clienteSelected.Nombre}
+            Direcciòn: ${props.clienteSelected.Direccion}
+        `;
+
+        const headers = [['Documento','Numero','Fecha','Vencimiento','Dias','Valor','Saldo','Descuento','Dias','Descuento','A Pagar']];
+        const data = cuentaCorriente.map(e=>[e.Tipo,e.Factura,e.FechaFactura,e.FechaVencimiento,e.Dias,e.Valor,e.Saldo,e.FechaMaxDescuento,e.DiasV,e.Descuento,e.APagar]);
+
+        let content = {
+            styles:{fontSize:8},
+            startY: 50,
+            head: headers,
+            body: data,
+            didDrawPage:function (data) {
+                if (Logo) {
+                    doc.addImage(Logo, 'PNG', 40, 15, 33, 33);
+                }
+        }}
+
+        doc.text(title, 180, 0);
+        doc.autoTable(content);
+        doc.save(`Reporte-${props.clienteSelected.Codigo}.pdf`)
+    }
+
     return (
         <MuiThemeProvider theme={getMuiTheme()}>
+            {(cuentaCorriente.length>0)&&<Button onClick={generatePDF} style={{marginBottom:'10px'}} variant="contained" color="primary">Generar Reporte</Button>}
             <MUIDataTable
                 title={''}
                 data={data}

@@ -70,6 +70,7 @@ const Recibos = (props) => {
 
   const calcularCuotasCuentaCorriente = () => {
     let agrupacionCuentCorriente = [];
+    let agrupacionCuentaCorriente = [];
     let totalSaldo = 0;
     let totalAPagar = 0;
     props.clienteSelected.AcuerdosXTipoPedido.forEach(acuXTip => {
@@ -105,6 +106,25 @@ const Recibos = (props) => {
                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
               });
+
+              agrupacionCuentaCorriente.push({
+                Tipo: cuot.TipoDocumento, // Tipo
+                TipoPedido: acuXTip.TipoPedido,// TipoPedido
+                Factura: fact.Factura,// Factura
+                NumeroFEL: fact.NumeroFEL,
+                IdAcuerdoxCliente: acu.Acuerdo,// IdAcuerdoxCliente
+                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
+                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+                Dias: isNaN(diasVencimiento) ? "":diasVencimiento,// Dias
+                Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Valor
+                Saldo:cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Saldo
+                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                DiasV: isNaN(diasDescuento) ? "":diasDescuento, // DiasV
+                Descuento: cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Descuento
+                APagar: aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// APagar
+                idmoneda: cuot.IdMoneda,// idmoneda
+              });
             }
             else
             { 
@@ -125,12 +145,52 @@ const Recibos = (props) => {
                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
               });
+
+              agrupacionCuentaCorriente.push({
+                Tipo: cuot.TipoDocumento, // Tipo
+                TipoPedido: acuXTip.TipoPedido,// TipoPedido
+                Factura: fact.Factura,// Factura
+                IdAcuerdoxCliente: acu.Acuerdo,// IdAcuerdoxCliente
+                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
+                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+                Dias: isNaN(diasVencimiento) ? "":diasVencimiento,// Dias
+                Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Valor
+                Saldo:cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Saldo
+                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                DiasV: isNaN(diasDescuento) ? "":diasDescuento, // DiasV
+                Descuento: cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// Descuento
+                APagar: aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),// APagar
+                idmoneda: cuot.IdMoneda,// idmoneda
+              });
             }
           });
         });
       });
     });
     agrupacionCuentCorriente.sort((a, b) => {
+      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+        return 1;
+      }
+      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+        return -1;
+      }
+      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+        return -1;
+      }
+      if (a.NumeroCuota < b.NumeroCuota) {
+
+        return -1;
+      }
+      if (a.NumeroCuota > b.NumeroCuota) {
+
+        return 1;
+      }
+      return 0;
+
+    });
+
+    agrupacionCuentaCorriente.sort((a, b) => {
       if (moment(a.FechaVencimiento, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
         return 1;
       }
@@ -175,6 +235,7 @@ const Recibos = (props) => {
     });
 
     props.onStoreReciboCuotasCuentaCorriente(agrupacionCuentCorriente);
+    props.onStoreCuotasImprimir(agrupacionCuentaCorriente);
   }
   const FacturasVencidas = (TipoCredito)=>{
     const acuerdoFiltrado =  props.clienteSelected.AcuerdosXTipoPedido.filter(x=>x.TipoPedido!==TipoCredito);
@@ -516,7 +577,7 @@ const mapDispatchToProps = dispatch => {
     onStoreReciboCuotasAPagar: (cuotasAPagar) => dispatch({ type: 'STORE_RECIBO_CUOTASAPAGAR', cuotasAPagar: cuotasAPagar }),
     onStoreReciboFacturasXCliente: (facturasXCliente) => dispatch({ type: 'STORE_RECIBO_FACTURASXCLIENTE', facturasXCliente: facturasXCliente }),
     onStoreReciboCuotasCuentaCorriente: (cuotasCuentaCorriente) => dispatch({ type: 'STORE_RECIBO_CUOTASCUENTACORRIENTE', cuotasCuentaCorriente: cuotasCuentaCorriente }),
-
+    onStoreCuotasImprimir: (cuotasCuentaCorriente) => dispatch({ type: 'SET_CUENTAIMPRIMIR', payload: cuotasCuentaCorriente }),
 
     onStoreReciboLoading: (loading) => dispatch({ type: 'STORE_RECIBO_LOADING', loading: loading }),
 
