@@ -149,6 +149,8 @@ const DetalleRecibo = (props) => {
 
     }
     const CalculoCuotasAgrupadasYDescuento = () => {
+        let valorPagos = 0;
+        let Descuento = 0;
         let descuentoAcumulado = 0;
         let cuotasAProcesar = CuotasAgrupadas().sort((a, b) => {
             if (a.NumeroCuota > b.NumeroCuota) {
@@ -166,6 +168,12 @@ const DetalleRecibo = (props) => {
                 cuotasAProcesar.forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
+                    if(calculo.current===2){
+                    valorPagos += montoAPagar;
+                    Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0;
+                    localStorage.setItem('valorPagos',valorPagos);
+                    localStorage.setItem('DescuentoFacturas',Descuento);  
+                    }
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
@@ -205,7 +213,9 @@ const DetalleRecibo = (props) => {
         });
         return {
             Cuotas: cuotas,
-            DescuentoAplicado: descuentoAcumulado
+            DescuentoAplicado: descuentoAcumulado,
+            ValorAPagar : Number(localStorage.getItem('valorPagos')),
+            DescuentoTotal: Number(localStorage.getItem('DescuentoFacturas'))
         }
     }
     const CalculoCuotasSingAgruparYDescuento = () => {
@@ -221,7 +231,6 @@ const DetalleRecibo = (props) => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
                     
-                    console.log("calculo",calculo.current)
                     if(calculo.current===2){
                         valorPagos += montoAPagar;  
                         Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0; 
