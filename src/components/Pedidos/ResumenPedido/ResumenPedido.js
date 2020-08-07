@@ -828,7 +828,7 @@ const ResumenPedido = (props) => {
                 </DialogTitle>
                 <DialogContent>
 
-                    <ClienteContado ruta={props.Cliente.CodigoRuta} cliente={clienteContado} validacion={true} />
+                    <ClienteContado cliente={clienteContado} validacion={true} />
 
                 </DialogContent>
             </Dialog>}

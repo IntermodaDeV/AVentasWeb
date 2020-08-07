@@ -50,7 +50,7 @@ const ClienteContado = React.memo((props)=>{
             RTN2:'',
             Telefono:'',
             ComunidadAutonoma:'',
-            Ruta:props.ruta
+            Asesor:localStorage.getItem('codigo')
         }
         edit = true;
         save = false;
@@ -67,7 +67,7 @@ const ClienteContado = React.memo((props)=>{
             RTN2:props.cliente.RTN,
             Telefono:props.cliente.Telefono,
             ComunidadAutonoma:'',
-            Ruta:props.cliente.Ruta
+            Asesor:localStorage.getItem('codigo')
         }
 
         edit = false;
@@ -166,7 +166,7 @@ const ClienteContado = React.memo((props)=>{
     const cargarClientes = ()=>
     {
         axios({
-            url:`${APIURL}/api/clientecontado/${props.ruta}`,
+            url:`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`,
             method:'GET',
         }).then(e=>{
             if(e.status===200){
@@ -178,7 +178,6 @@ const ClienteContado = React.memo((props)=>{
 
     useEffect(()=>{
         dispatch({type:'SET_REQUIEREENTREGA',payload:true});
-        cargarClientes();
         // eslint-disable-next-line
     },[])
    
@@ -196,42 +195,7 @@ const ClienteContado = React.memo((props)=>{
             >
                 {({errors,resetForm,values,setValues})=>(
                     <Form>
-                        <div ref={context}>
-                        {/*<div>
-                            <Dropdown
-                                disabled={habilitado}
-                                placeholder="Seleccione cliente contado"
-                                fluid
-                                search
-                                selection
-                                onChange={(e, { value }) =>{
-                                    let cliente = clientes.find(x=>x.id===value);
-                                    const cliente2 = 
-                                    {
-                                        id:cliente.id,
-                                        Nombre:cliente.Nombre,
-                                        Direccion:cliente.Direccion,
-                                        FlagClientePotencial:cliente.FlagClientePotencial,
-                                        requiereEntrega:true,
-                                        RTN:cliente.RTN,
-                                        RTN2:cliente.RTN,
-                                        Telefono:cliente.Telefono,
-                                        ComunidadAutonoma:cliente.ComunidadAutonoma,
-                                        Ruta:cliente.Ruta
-                                    }
-                                    dispatch({type:'SET_CLIENTECONTADO',payload:cliente});
-                                    setValues(cliente2);
-                                    setEnableNew(false);
-                                    setEnableEdit(false);
-                                    setEnableSave(true);
-                                }}
-                                options={clientes.map(cliente => {
-                                    return {key:cliente.id, value:cliente.id,text:cliente.Nombre}
-                                })}
-                                noResultsMessage={"No hay resultados"}
-                                closeOnChange={true}
-                            />
-                        </div>*/}
+                        <div ref={context}>                        
                         <div>
                                 <FormControlLabel
                                         control={
@@ -322,7 +286,7 @@ const ClienteContado = React.memo((props)=>{
                                         RTN2:'',
                                         Telefono:'',
                                         ComunidadAutonoma:'',
-                                        Ruta:props.ruta
+                                        Asesor:localStorage.getItem('codigo')
                                     });
                                     setEnableSave(false);
                                     setEnableEdit(true);

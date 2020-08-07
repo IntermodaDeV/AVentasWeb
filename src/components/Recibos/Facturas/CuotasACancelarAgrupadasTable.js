@@ -78,6 +78,7 @@ const CuotasACancelarAgrupadasTable = (props) => {
         }
     });
 
+    // eslint-disable-next-line
     props.CuotasAgrupadas.sort((a,b)=>{
         if (moment(a[3], "DD/MM/YYYY").isSame(moment(b[3], "DD/MM/YYYY"), 'day')) {
           return (a[1]<b[1])?-1:1

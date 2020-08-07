@@ -281,7 +281,7 @@ const SelectCliente = (props) => {
                 </DialogTitle>
                 <DialogContent>
                 
-                   { props.autocompleteValue!==null && <ClienteContado ruta={props.autocompleteValue.CodigoRuta} cliente={clienteContado} validacion={false}/>}
+                   { props.autocompleteValue!==null && <ClienteContado cliente={clienteContado} validacion={false}/>}
                     
                 </DialogContent>
         </Dialog>
