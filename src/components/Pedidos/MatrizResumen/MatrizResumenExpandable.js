@@ -211,7 +211,7 @@ const MatrizResumen = (props) => {
                                                                 </div>
                                                                 <div className="col-xl-3 col-6 pr-0">
                                                                     <Typography className={styles.BorderHeader}>
-                                                                        Totalaaa: {moneda}
+                                                                        Total: {moneda}
                                                                         <span ref={(input) => { referenceTotal[index + '' + index1] = input }}>
                                                                             {numberWithCommas(Totales.totalPrecio)}
                                                                         </span>

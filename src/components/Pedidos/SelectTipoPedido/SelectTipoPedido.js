@@ -3,13 +3,15 @@ import {
     Button,
 } from 'reactstrap';
 import { Menu, MenuItem, Divider, Typography, Zoom } from '@material-ui/core';
+import {useSelector} from 'react-redux';
 
 const SelectTipoPedido = (props) => {
+    const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const handleClick = event => {
         setAnchorEl(event.currentTarget);
     };
-
+    const acuerdosFiltrados = props.Cliente.AcuerdosVenta.filter(x=>x.Linea===lineaSeleccionada.IdLinea || x.Linea===null || x.Linea===undefined);
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -36,13 +38,13 @@ const SelectTipoPedido = (props) => {
                             </div>
                         );
                     }
-                    if (props.Cliente.AcuerdosVenta != null && props.Cliente.AcuerdosVenta.length > 0) {
+                    if (props.Cliente.AcuerdosVenta != null && acuerdosFiltrados.length > 0) {
                         let acuertosVenta = [];
-                        props.Cliente.AcuerdosVenta.forEach(ac => {
+                        acuerdosFiltrados.forEach(ac => {
                             if (ac.IdTipoPedido === tipoPedido.IdTipoPedido) {
                                 acuertosVenta.push(ac);
                             }
-                        });//(ac => ac.IdTipoPedido === tipoPedido.IdTipoPedido);
+                        });
 
                         if (acuertosVenta.length > 0) {
                             let plural = acuertosVenta.length === 1 ? "Acuerdo" : "Acuerdos";
