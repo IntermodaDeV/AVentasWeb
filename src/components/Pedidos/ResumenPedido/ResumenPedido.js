@@ -293,6 +293,7 @@ const ResumenPedido = (props) => {
                     var totalXProducto = 0;
                     var cantidadTotal = 0;
                     var Datos = [];
+                    let TotalPrecio = 0;
                     ColoresProductos.forEach(codigoColor => {
                         var dato = {
                             color: codigoColor.NombreColor,
@@ -304,17 +305,18 @@ const ResumenPedido = (props) => {
                             var talla = {
                                 codigoTalla: codigoTalla,
                                 cantidad: (isNaN(parseInt(codigoColor.Tallas[codigoTalla].Cantidad, 10))) ? 0 : parseInt(codigoColor.Tallas[codigoTalla].Cantidad, 10),
-                                precio: numberWithCommas(precio.Precio)
+                                precio: numberWithCommas(codigoColor.Tallas[codigoTalla].Precio)
                             }
                             cantidadTotal = parseInt(cantidadTotal, 10) + talla.cantidad;
                             dato.tallasXcolor.push(talla);
                             dato.cantidadTotal += talla.cantidad;
-                            dato.total = dato.total + (precio.Precio * talla.cantidad)
+                            dato.total = dato.total + (codigoColor.Tallas[codigoTalla].Precio * talla.cantidad)
+                            TotalPrecio+=((codigoColor.Tallas[codigoTalla].Precio * talla.cantidad));
                         });
                         Datos.push(dato);
                     });
                     if (cantidadTotal > 0) {
-                        totalXProducto = precio.Precio * cantidadTotal;
+                        totalXProducto = TotalPrecio;
                         unidadesTotales = unidadesTotales + cantidadTotal;
                         totalGlobal = totalGlobal + totalXProducto;
                         DataDetallePedido.push({

@@ -54,7 +54,9 @@ const reducer = (state = initialState, action) => {
     if (action.type === 'STORE_COLECCIONES') {
         return {
             ...state,
-            colecciones: action.colecciones
+            colecciones: action.colecciones,
+            TableValue: {},
+            TotalPedido: 0.0
         }
     }
     if (action.type === 'SET_PRODUCTO') {

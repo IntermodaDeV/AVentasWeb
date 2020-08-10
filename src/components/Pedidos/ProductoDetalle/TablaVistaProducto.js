@@ -159,14 +159,9 @@ const TablaVistaProducto = (props) => {
                 </thead>
                 <tbody >
                     {props.producto.ListaColores.map((color, index1) => {
-                        const hasImages = color.ListaImagenes.length > 0;
-                        var precio = props.producto.Precio.find(precioxProd => {
-                            return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
-                        });
-                        if (precio === undefined) {
-                            precio = { Precio: 0 };
-                        }
-                        var totalXColor = 0;
+                        const hasImages = color.ListaImagenes.length > 0;                      
+                        let totalXColor = 0;
+                        let cantidadTotalXColor = 0;
 
                         return (
                             <tr key={index1}>
@@ -189,9 +184,11 @@ const TablaVistaProducto = (props) => {
                                 {
                                     Object.keys(props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Colores[color.CodigoColor].Tallas).map((talla, index2) => {
                                         var valorTalla = props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Colores[color.CodigoColor].Tallas[talla];
-
                                         var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
-                                        totalXColor = parseInt(totalXColor, 10) + (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+                                        let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+                                        cantidadTotalXColor+=cantidadXTalla;
+                                        let totalXTalla = cantidadXTalla*valorTalla.Precio;
+                                        totalXColor =  parseInt(totalXColor, 10) +totalXTalla;
                                         return (
 
                                             <CeldaTallas
@@ -220,14 +217,14 @@ const TablaVistaProducto = (props) => {
                                     alignItems: 'center',
                                     verticalAlign: 'middle',
                                     fontWeight: 600,
-                                }}>{totalXColor}</td>
+                                }}>{cantidadTotalXColor}</td>
 
                                 <td style={{
                                     textAlign: 'right',
                                     alignItems: 'center',
                                     verticalAlign: 'middle',
                                     fontWeight: 600,
-                                }}>{numberWithCommas(precio ? precio.Precio * totalXColor : 0)}</td>
+                                }}>{numberWithCommas( totalXColor )}</td>
                             </tr>
 
                         )

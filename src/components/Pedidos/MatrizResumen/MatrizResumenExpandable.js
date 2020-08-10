@@ -153,14 +153,10 @@ const MatrizResumen = (props) => {
                                         if (producto.Selected) {
                                             Object.keys(producto.Colores).forEach((codigoColor) => {
                                                 let color = producto.Colores[codigoColor];
-                                                let precio = producto.Precio.find(precioxProd => {
-                                                    return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
-                                                });
-                                                if (precio === undefined) {
-                                                    precio = { Precio: 0 };
-                                                }
                                                 Object.keys(color.Tallas).forEach((codigoTalla) => {
                                                     let valorTalla = color.Tallas[codigoTalla];
+                                                    let precio = { Precio: (valorTalla.Precio? valorTalla.Precio:0) };
+                                                        
                                                     let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
                                                     productoConCantindad = productoConCantindad || (cantidadXTalla > 0);
                                                     unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
@@ -215,7 +211,7 @@ const MatrizResumen = (props) => {
                                                                 </div>
                                                                 <div className="col-xl-3 col-6 pr-0">
                                                                     <Typography className={styles.BorderHeader}>
-                                                                        Total: {moneda}
+                                                                        Totalaaa: {moneda}
                                                                         <span ref={(input) => { referenceTotal[index + '' + index1] = input }}>
                                                                             {numberWithCommas(Totales.totalPrecio)}
                                                                         </span>
@@ -361,21 +357,13 @@ const getTotales = (producto, Cliente) => {
 
     Object.keys(producto.Colores).map((codigoColor, index2) => {
         let color = producto.Colores[codigoColor];
-        let precio = producto.Precio.find(precioxProd => {
-            return precioxProd.GrupoPrecio === Cliente.GrupoPrecio;
-        });
-        if (precio === undefined) {
-            precio = { Precio: 0 };
-        }
         var totalXColor = 0;
         var totalPrecioXColor = 0;
-
-
 
         Object.keys(color.Tallas).map((codigoTalla, index3) => {
             var valorTalla = color.Tallas[codigoTalla];
             totalXColor = parseInt(totalXColor, 10) + (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-            totalPrecioXColor = (precio ? precio.Precio * totalXColor : 0);
+            totalPrecioXColor += (valorTalla.Precio ? valorTalla.Precio: 0)*valorTalla.Cantidad;
             return false;
         })
         Totales.totalCantidad += totalXColor;

@@ -205,7 +205,9 @@ const ProductoTable = (props) => {
             {ArregloProductos.map((codigoColor, index2) => {
                 let color = codigoColor[1];
                 var totalXColor = 0;
-                var totalPrecioXColor = 0;
+                let cantidadTotalXColor = 0;
+
+                // var totalPrecioXColor = 0;
 
                 return (
                     <tr key={index2}>
@@ -268,9 +270,11 @@ const ProductoTable = (props) => {
                                 var valorTalla = color.Tallas[codigoTalla];
                                 var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
 
-                                totalXColor = parseInt(totalXColor, 10) + (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-
-                                totalPrecioXColor = (valorTalla.Precio * totalXColor);
+                                
+                                let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+                                let totalXTalla = cantidadXTalla*valorTalla.Precio;
+                                cantidadTotalXColor+=cantidadXTalla;
+                                totalXColor =  parseInt(totalXColor, 10) +totalXTalla;
 
 
                                 return (
@@ -300,14 +304,14 @@ const ProductoTable = (props) => {
                             alignItems: 'center',
                             verticalAlign: 'middle',
                             fontWeight: 600,
-                        }}>{totalXColor}</td>
+                        }}>{cantidadTotalXColor}</td>
 
                         <td className="p-1" style={{
                             textAlign: 'right',
                             alignItems: 'center',
                             verticalAlign: 'middle',
                             fontWeight: 600,
-                        }}>{props.numberWithCommas(totalPrecioXColor)}</td>
+                        }}>{props.numberWithCommas(totalXColor)}</td>
                     </tr>
                 )
             })}
