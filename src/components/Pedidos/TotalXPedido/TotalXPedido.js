@@ -20,7 +20,11 @@ const TotalXPedido = (props) => {
         // }
         // eslint-disable-next-line
     }, []);
-    let Disponible = props.cliente.Credito.find(a => a.Tipo === props.TipoPedido.TipoPedido).Disponible
+    let Disponible = 0;
+    if(!props.cliente.Nombre.includes('CONSUMIDOR FINAL'))
+    {
+        Disponible = props.cliente.Credito.find(a => a.Tipo === props.TipoPedido.TipoPedido).Disponible
+    }
     let tempTotal = props.TotalPedido||0;
     let colorDiferencia = (((Limite ? Limite : 0) - tempTotal)) < 0 ? 'red' : (props.color ? props.color : 'black');
     if (props.row) {
