@@ -40,7 +40,8 @@ const initialState = {
     ProductoImpuestos:[],
     Empresas:[],
     Monedas:[],
-    CuentaImprimir:[]
+    CuentaImprimir:[],
+    Bloqueo:false
 }
 
 const calcularLimite = (state) => {
@@ -456,6 +457,13 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             CuentaImprimir:action.payload
+        }
+    }
+
+    if(action.type==='SET_BLOQUEO'){
+        return {
+            ...state,
+            Bloqueo:action.payload
         }
     }
 

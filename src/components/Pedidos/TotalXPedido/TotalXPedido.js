@@ -25,8 +25,9 @@ const TotalXPedido = (props) => {
     {
         Disponible = props.cliente.Credito.find(a => a.Tipo === props.TipoPedido.TipoPedido).Disponible
     }
-    let tempTotal = props.TotalPedido||0;
-    let colorDiferencia = (((Limite ? Limite : 0) - tempTotal)) < 0 ? 'red' : (props.color ? props.color : 'black');
+    let tempTotal =props.TotalPedido|| 0;
+
+    let colorDiferencia = (((Disponible ? Disponible : 0) - tempTotal)) < 0 ? 'red' : (props.color ? props.color : 'black');
     if (props.row) {
         return (
             <div className="row" style={{ color: props.color ? props.color : 'black' }}>

@@ -1123,7 +1123,6 @@ class Pedidos extends React.Component {
                 }
             });
         });
-
         this.props.onSetTotalPedido(totalAcumulado)
         this.props.onSetTableValue(tableValue);
     }
@@ -2273,7 +2272,9 @@ class Pedidos extends React.Component {
             icon: 'error'
         });
     }
+
     onchangeText(text, productoId, codigoColor, grupoTalla, talla, precio) {
+        this.props.onSetBloqueo(false);
         let tableValue = { ...this.props.TableValue };
         const valor = (text.target.validity.valid) ? text.target.value : tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla].Cantidad;
         let valorPrevio = tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla];
@@ -2281,7 +2282,8 @@ class Pedidos extends React.Component {
         if (this.props.TipoPedido.Restrictivo) {
             if (this.props.AcuerdoVenta) {
                 if (!(this.props.AcuerdoVenta.Saldo >= totalAcumulado)) {
-                     this.alertaLimiteCredito();
+                    this.props.onSetBloqueo(true);
+                    this.alertaLimiteCredito();
                 }
             } else {
                 if (!(this.props.cliente.LimiteCredito >= totalAcumulado)) {
@@ -2377,6 +2379,7 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = dispatch => {
     return {
+        onSetBloqueo:(valor)=>dispatch({ type: 'SET_BLOQUEO', payload: valor }),
         onStoreColecciones: (colecciones) => dispatch({ type: 'STORE_COLECCIONES', colecciones: colecciones }),
         onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),
         onStoreTipoPedido: (TipoPedido) => dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: TipoPedido }),

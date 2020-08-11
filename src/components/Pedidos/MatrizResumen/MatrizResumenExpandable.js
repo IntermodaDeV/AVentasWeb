@@ -25,6 +25,7 @@ const MatrizResumen = (props) => {
     const [expanded, setExpanded] = React.useState(false);
 
     const Monedas = useSelector(e=>e.Monedas);
+    const Bloqueo = useSelector(e=>e.Bloqueo);
     let referenceCantidad = [];
     let referenceTotal = [];
     let gruposTalla = Object.keys(props.tableValue);
@@ -54,25 +55,33 @@ const MatrizResumen = (props) => {
     }
 
     const onContinuar = () => {
-        if (productosSinCantindad) {
+        if(Bloqueo){
             Swal.fire({
                 title: 'Aviso',
-                text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
+                text: 'No puede proceder a confirmar el pedido ya que excedio el limite del acuerdo.',
                 type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Continuar',
-                cancelButtonText: 'Corregir',
-            }).then((result) => {
-                if (result.value) {
-                    props.mostrarResumen();
-                } else {
-                    setMostrarVacios(true);
-                }
-            })
-        } else {
-            props.mostrarResumen();
+            });
+        }else{
+            if (productosSinCantindad) {
+                Swal.fire({
+                    title: 'Aviso',
+                    text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Continuar',
+                    cancelButtonText: 'Corregir',
+                }).then((result) => {
+                    if (result.value) {
+                        props.mostrarResumen();
+                    } else {
+                        setMostrarVacios(true);
+                    }
+                })
+            } else {
+                props.mostrarResumen();
+            }
         }
     }
 
