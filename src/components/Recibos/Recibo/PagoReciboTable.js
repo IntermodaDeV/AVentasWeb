@@ -178,6 +178,10 @@ const PagoReciboTable = (props) => {
                     return;
                 }
 
+                if(indexTiposdePagoDetalle === null || indexTiposdePagoDetalle === undefined || indexTiposdePagoDetalle !== 0){                        
+                    props.showAlert(true,'Especificacion de Pago: El Campo Especificacion de pago no debe ir vacio');
+                    return;
+                }
                 props.ConfirmEditarPago(indexArray);
                 setHabilitado(false);
             }
@@ -200,6 +204,11 @@ const PagoReciboTable = (props) => {
                 }
                 else if(referencia === "" || referencia === undefined){                        
                     props.showAlert(true,'Tarjeta: La referencia no debe ir vacia');
+                    return;
+                }
+
+                if(indexTiposdePagoDetalle === null || indexTiposdePagoDetalle === undefined || indexTiposdePagoDetalle > 1){                        
+                    props.showAlert(true,'Especificacion de Pago: El Campo Especificacion de pago no debe ir vacio');
                     return;
                 }
 
@@ -242,6 +251,11 @@ const PagoReciboTable = (props) => {
                         return;
                     }
                 }
+
+                if(indexTiposdePagoDetalle === null || indexTiposdePagoDetalle === undefined || indexTiposdePagoDetalle > 1){                        
+                    props.showAlert(true,'Especificacion de Pago: El Campo Especificacion de pago no debe ir vacio');
+                    return;
+                }
                 props.ConfirmEditarPago(indexArray);
                 setHabilitado(false);
             }
@@ -278,7 +292,7 @@ const PagoReciboTable = (props) => {
         }
     }
 
-    const validacionDatosRecibo = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor, indexBanco, referencia)=>{
+    const validacionDatosRecibo = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor, indexBanco, referencia, indexMoneda)=>{
 
         
             const TotalRecibo = parseFloat(localStorage.getItem('TotalRecibo'));
@@ -307,6 +321,12 @@ const PagoReciboTable = (props) => {
         if(isNaN(valor) || valor === "")
         {
             props.showAlert(true,'El valor de pago tiene que ser un numero y no contener espacios');
+            return;
+        }
+
+        if(indexMoneda === 2 || indexMoneda === undefined || indexMoneda === null)
+        {
+            props.showAlert(true,'El campo moneda no puede ir vacio');
             return;
         }
 
@@ -522,7 +542,7 @@ const PagoReciboTable = (props) => {
             />),
 
             (<div className="d-flex">
-                <Button className="mr-1" onClick={() => { /*props.ConfirmEditarPago(indexArray)*/ validacionDatosRecibo(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor,indexBanco, referencia) }}><CheckIcon /></Button>
+                <Button className="mr-1" onClick={() => { /*props.ConfirmEditarPago(indexArray)*/ validacionDatosRecibo(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor,indexBanco, referencia,indexMoneda) }}><CheckIcon /></Button>
                 <Button className="ml-1" onClick={() => { props.CancelEditarPago(indexArray); setHabilitado(false)}}><CloseIcon /></Button>
             </div>),
 
