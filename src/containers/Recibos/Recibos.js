@@ -191,25 +191,11 @@ const Recibos = (props) => {
     });
 
     agrupacionCuentaCorriente.sort((a, b) => {
-      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-        return 1;
-      }
-      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-        return -1;
-      }
-      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-        return -1;
-      }
-      if (a.NumeroCuota < b.NumeroCuota) {
+      return moment(a.FechaVencimiento).diff(b.FechaVencimiento);
+    });
 
-        return -1;
-      }
-      if (a.NumeroCuota > b.NumeroCuota) {
-
-        return 1;
-      }
-      return 0;
-
+    agrupacionCuentaCorriente.sort((a, b) => {
+      return a.Factura<b.Factura?-1:1;
     });
 
     agrupacionCuentCorriente.push({
