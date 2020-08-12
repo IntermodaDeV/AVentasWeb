@@ -481,7 +481,18 @@ const DetalleRecibo = (props) => {
         props.history.push(`/recibos`);
     }
 
-    const EnviarRecibo = () => {
+    const EnviarRecibo = () =>{
+        ObtenerCoordenadas((position) => {
+            EnviarReciboApi({
+                longitude: position.coords.longitude,
+                latitude: position.coords.latitude
+            })
+        }, (error) => {
+            EnviarReciboApi(null);
+        });
+    }
+
+    const EnviarReciboApi = (location) => {
 
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
         let apiURL     = urlApi + "/api/Recibo";
@@ -503,6 +514,7 @@ const DetalleRecibo = (props) => {
             })
             ,
             Descripcion: '',
+            location:location,
             SubFacturas: props.CuotasAPagar,
             NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
             EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
@@ -530,6 +542,7 @@ const DetalleRecibo = (props) => {
                     })
                     ,
                     Descripcion: '',
+                    location:location,
                     SubFacturas: props.CuotasAPagar,
                     NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
                     EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
@@ -789,6 +802,22 @@ const cargarBancos = new Promise((resolve, reject) => {
         }
     })
 });
+const ObtenerCoordenadas = (resolve, reject) => {
+    const timeout = new Promise((resolve, reject) => {
+        setTimeout(reject, 10000);
+    });
+
+    const geolocationPromise = new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve(position);
+            },
+            (error) => { reject(error) },
+            { enableHighAccuracy: true, timeout: 10000 }
+        )
+    });
+    Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
+}
 /*const cargarMonedas = new Promise((resolve, reject) => {
     let empresa = localStorage.getItem('empresa');
     fetch(urlApi + "/api/Moneda/" + empresa, {
