@@ -28,11 +28,24 @@ import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import ClienteContado from '../SelectCliente/ClienteContado';
 
 const ResumenPedido = (props) => {
+
+    let fechaInicioEntrega = moment().toDate();
+
+    if(props.coleccion.ColeccionTipo === "F"){
+        fechaInicioEntrega = moment(props.coleccion.EntregaFinal).toDate();
+    }else{
+        fechaInicioEntrega = moment(fechaInicioEntrega, "DD-MM-YYYY").add(3, 'days');
+        
+        if(fechaInicioEntrega.day()===0){
+            fechaInicioEntrega = moment(fechaInicioEntrega, "DD-MM-YYYY").add(1, 'days');
+        }
+    }
+
     const [firma, setFirma] = React.useState(null);
     const [mostrarFirma, setMostrarFirma] = React.useState(false);
     const [ErrorFecha, setErrorFecha] = React.useState(false);
     const [ErrorFirma, setErrorFirma] = React.useState(true);
-    const [FechaEntrega, setFechaEntrega] = React.useState((props.coleccion.ColeccionTipo === "F") ? moment(props.coleccion.EntregaInicio).toDate() : moment().toDate());
+    const [FechaEntrega, setFechaEntrega] = React.useState(fechaInicioEntrega);
     var sigPad = {};
     const [flete, setFlete] = React.useState(0);
     const [openContado, setOpenContado] = React.useState(false);
@@ -705,6 +718,7 @@ const ResumenPedido = (props) => {
                                         variant="inline"
                                         format={"DD/MM/YYYY"}
                                         invalidDateMessage={"Fecha no es válida"}
+                                        shouldDisableDate={(e)=>(e.day()===0)}
                                         onError={(error) => onErrorDate(error)}
                                         onAccept={(date) => onAcceptDate(date)}
                                         maxDateMessage={(props.coleccion.ColeccionTipo === "F") ? "La fecha es menor que la fecha final de entrega" : "Fecha no es válida"}

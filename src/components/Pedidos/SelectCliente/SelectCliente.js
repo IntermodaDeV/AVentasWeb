@@ -204,14 +204,10 @@ const SelectCliente = (props) => {
                                             Valor Credito
                                     </th>
                                     <th>
-                                            Saldo Total
+                                            Saldo CxC
                                     </th>
                                         <th>
                                             Disponible
-                                    </th>
-                                       
-                                        <th>
-                                            -15 Dias
                                     </th>
                                     </tr>
                                 </thead>
@@ -224,7 +220,6 @@ const SelectCliente = (props) => {
                                                 <td>{credito.Valor ? credito.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
                                                 <td>{credito.SaldoTotal ? credito.SaldoTotal.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
                                                 <td>{credito.Disponible ? credito.Disponible.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
-                                                <td>{credito.C15Dias ? credito.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
                                             </tr>
                                         )
                                     })}

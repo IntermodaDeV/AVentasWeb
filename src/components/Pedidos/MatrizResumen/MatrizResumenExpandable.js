@@ -58,7 +58,7 @@ const MatrizResumen = (props) => {
         if(Bloqueo){
             Swal.fire({
                 title: 'Aviso',
-                text: 'No puede proceder a confirmar el pedido ya que excedio el limite del acuerdo.',
+                text: 'No se puede procesar el pedido ya que excede el limite del acuerdo.',
                 type: 'warning',
             });
         }else{
