@@ -173,6 +173,7 @@ const DetalleRecibo = (props) => {
                 <tr className={styles.TrTest}>
                   <th className={styles.ThTest}>Documento</th>
                   <th className={styles.ThTest}>Factura</th>
+                  <th className={styles.ThTest}>Fecha</th>
                   <th className={styles.ThTest}>Parcial</th>
                   <th className={styles.ThTest}>Descuento</th>
                   <th className={styles.ThTest}>Aplicado</th>
@@ -183,6 +184,7 @@ const DetalleRecibo = (props) => {
                   <tr key={index}>
                     <th style={{ textAlign: "center" }}>{re.Tipo}</th>
                     <th style={{ textAlign: "center" }}>{re.Factura}</th>
+                    <th style={{ textAlign: "center" }}>{moment(re.FechaFactura).format("DD/MM/YYYY")}</th>
                     <th style={{ textAlign: "center" }}>
                       {numberWithCommas(re.ValorSinDescuento)}
                     </th>
