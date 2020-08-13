@@ -30,9 +30,9 @@ const ListaRecibos = (props) => {
         // eslint-disable-next-line
     }, []);
 
-    // const cambiarRecibo = (recibo) => {
-    //     setRecibo(recibo);
-    // }
+    const cambiarRecibo = (recibo) => {
+         setRecibo(recibo);
+     }
 
     const cargarRecibos = async () => {
         setLoading(true);
@@ -142,9 +142,9 @@ const ListaRecibos = (props) => {
                     Acciones:
                         <div>
 
-                            {/* <span className="mr-1">
+                             <span className="mr-1">
                                 <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
-                            </span> */}
+                            </span> 
 
                             <span className="ml-1">
                                 <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
