@@ -30,12 +30,15 @@ import ClienteContado from '../SelectCliente/ClienteContado';
 const ResumenPedido = (props) => {
 
     let fechaInicioEntrega = moment().toDate();
+    let fechaMinimaEntrega = moment().toDate();
 
     if(props.coleccion.ColeccionTipo === "F"){
         fechaInicioEntrega = moment(props.coleccion.EntregaFinal).toDate();
+        fechaMinimaEntrega = moment(props.coleccion.EntregaInicio).toDate()
     }else{
         fechaInicioEntrega = moment(fechaInicioEntrega, "DD-MM-YYYY").add(3, 'days');
-        
+        fechaMinimaEntrega = moment(fechaMinimaEntrega, "DD-MM-YYYY").add(2, 'days');
+
         if(fechaInicioEntrega.day()===0){
             fechaInicioEntrega = moment(fechaInicioEntrega, "DD-MM-YYYY").add(1, 'days');
         }
@@ -724,7 +727,7 @@ const ResumenPedido = (props) => {
                                         maxDateMessage={(props.coleccion.ColeccionTipo === "F") ? "La fecha es menor que la fecha final de entrega" : "Fecha no es válida"}
                                         minDateMessage={(props.coleccion.ColeccionTipo === "F") ? "La fecha es menor que la fecha inicial de entrega" : "Fecha no es válida"}
                                         value={FechaEntrega}
-                                        minDate={(props.coleccion.ColeccionTipo === "F") ? moment(props.coleccion.EntregaInicio).toDate() : moment().toDate()}
+                                        minDate={fechaMinimaEntrega}
                                         maxDate={(props.coleccion.ColeccionTipo === "F") ? moment(props.coleccion.EntregaFinal).toDate() : moment('2100-01-01').toDate()}
                                         onChange={(date) => onChangeDate(date)}
                                     />

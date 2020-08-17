@@ -471,7 +471,6 @@ const DetallePedido = (props) => {
                                                                 {color.NombreColor}
                                                             </td>
                                                             {detalles.map((det, index4) => {
-                                                                console.log("det",det) 
                                                                 return (
                                                                     <td key={index4} className="p-1 text-center" style={{ width: `${cellSize}%`}}>
                                                                         <div className="text-center">

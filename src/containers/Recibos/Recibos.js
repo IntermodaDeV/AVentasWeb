@@ -539,7 +539,6 @@ const Recibos = (props) => {
 }
 
 const mapStateToProps = state => {
-console.log("state.cuotasCuentaCorriente", state.Recibo.cuotasCuentaCorriente)
 
 
   return {

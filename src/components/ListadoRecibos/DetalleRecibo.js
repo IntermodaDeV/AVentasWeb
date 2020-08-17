@@ -7,7 +7,6 @@ import "moment/locale/es";
 import styles from "components/ListadoRecibos/DetalleRecibo.module.css";
 
 const DetalleRecibo = (props) => {
-  console.log("RECIBO", props.recibo);
   const { recibo } = props;
   const [maps, setMaps] = useState({ map: null, maps: null });
 
