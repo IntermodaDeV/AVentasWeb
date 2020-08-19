@@ -135,7 +135,7 @@ const ListaRecibos = (props) => {
                     IdCuentaBancaria: recib.IdCuentaBancaria,
                     Valor: recib.Valor,
                     IdMoneda: recib.IdMoneda,
-                    Sincronizado: recib.Sincronizado,
+                    Sincronizado: recib.Sincronizado?"Si":"No",
                     CodigoAsesor: recib.CodigoAsesor,
                     IdFactura: recib.IdFactura,
                     Descuento: recib.Descuento,

@@ -13,7 +13,9 @@ import {
 } from '@material-ui/core';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { InfoOutlined } from "@material-ui/icons";
+import {APIKEY} from 'utils/Enviroment';
 moment.locale('es');
+
 
 const DetallePedido = (props) => {
 
@@ -178,7 +180,7 @@ const DetallePedido = (props) => {
                             props.pedido.location ?
                                 <div style={{ height: '300px', width: '100%' }}>
                                     <GoogleMapReact
-                                        bootstrapURLKeys={{ key: "AIzaSyBYe6qlu-FWB8cCAMG52pdAPVs5W2cdODU" }}
+                                        bootstrapURLKeys={{ key: APIKEY }}
                                         defaultCenter={
                                             {
                                                 lat: props.pedido.location.latitude,

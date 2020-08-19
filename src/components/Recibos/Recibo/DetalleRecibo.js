@@ -752,7 +752,8 @@ const DetalleRecibo = (props) => {
         </div>);
 }
 const cargarTiposPago = new Promise((resolve, reject) => {
-    fetch(urlApi + '/api/TipoPago', {
+    let empresa = localStorage.getItem('empresa')
+    fetch(urlApi + '/api/TipoPago/'+empresa, {
         headers: {
             Authorization: 'Bearer ' + localStorage.getItem('token')
         }
