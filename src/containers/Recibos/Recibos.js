@@ -249,7 +249,6 @@ const Recibos = (props) => {
     
   }
   const ProcesarFactura = (factura,credito)=>{
-    console.log(factura)
     let dias = moment(factura.FechaVencimiento).diff(moment(new Date()), 'days')
     let diasDescuento = 0;
     let fechaDescuento = moment(factura.FechaMaxDescuento);

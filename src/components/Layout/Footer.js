@@ -16,14 +16,14 @@ const Footer = () => {
               <>
                 {
                   matches.mobile &&
-                  <a className="text-decoration-none" href="https://cit.hn">
-                    © {year} CIT
+                  <a className="text-decoration-none" href="https://www.intermoda.hn/">
+                    © {year} INTERMODA SA DE CV
                     </a>
                 }
                 {
                   matches.desktop &&
-                  <a className="text-decoration-none" href="https://cit.hn">
-                    © {year} Creative Information Technologies
+                  <a className="text-decoration-none" href="https://www.intermoda.hn/">
+                    © {year} INTERMODA SA DE CV
                     </a>
                 }
               </>

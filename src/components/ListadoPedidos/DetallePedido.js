@@ -164,7 +164,7 @@ const DetallePedido = (props) => {
                     <FaArrowLeft size={"15px"} />
                 </Fab>
                 <h3 className="m-auto" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                    {props.pedido.PedidoId}
+                    Num. Pedido: {props.pedido.PedidoId}
                 </h3>
                 <hr />
             </div>
@@ -239,6 +239,26 @@ const DetallePedido = (props) => {
                                     </td>
                                     <td className={styles.InfoLabelDetail}>
                                         {props.pedido.EmpresaId}
+                                    </td>
+                                </tr>
+                                <tr>
+
+
+                                    <td className={styles.InfoLabel}>
+                                        {'Sincronizado: '}
+                                    </td>
+                                    <td className={styles.InfoLabelDetail}>
+                                        {(props.pedido.Sincronizado)?"Si":"No"}
+                                    </td>
+                                </tr>
+                                <tr>
+
+
+                                    <td className={styles.InfoLabel}>
+                                        {'Num. Pedido Ax: '}
+                                    </td>
+                                    <td className={styles.InfoLabelDetail}>
+                                        {(props.pedido.NumeroPedido==="")?"No Disponible":props.pedido.NumeroPedido}
                                     </td>
                                 </tr>
                                 <tr>

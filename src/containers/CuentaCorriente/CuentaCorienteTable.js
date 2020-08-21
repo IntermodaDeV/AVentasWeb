@@ -100,7 +100,7 @@ const CuentaCorrienteTable = props => {
           return Object.values(cuenCorr)
     })
 
-    console.log(cuentaCorriente);
+    
     const generatePDF = () =>{
         const unit = "pt";
         const size = "A4"; 

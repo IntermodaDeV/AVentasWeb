@@ -52,7 +52,7 @@ const ListaRecibos = (props) => {
                     res.json()
                         .then(
                             (result) => {
-                                console.log('result :', result);
+                                
                                 setRecibos(result);
                                 setIsLoaded(true);
                                 setLoading(false);
@@ -185,6 +185,7 @@ const ListaRecibos = (props) => {
         return <div>Error: {error.message}</div>;
     }
     if (recibo != null) {
+        
         return (
             <DetalleRecibo
                 recibo={recibo}
