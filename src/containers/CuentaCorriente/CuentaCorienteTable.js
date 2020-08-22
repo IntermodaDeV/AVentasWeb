@@ -41,6 +41,7 @@ if(localStorage.getItem('empresa')==='imgt')
     columns.splice(3,0,{ name: 'Numero FEL', label: 'Numero FEL', options: { customHeadRender: columnRender } })
 }
 
+const numberWithCommas = (numero)=>(numero.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
 
 const CuentaCorrienteTable = props => {
     const cuentaCorriente = useSelector(e=>e.CuentaImprimir);
@@ -118,7 +119,23 @@ const CuentaCorrienteTable = props => {
         `;
 
         const headers = [['Documento','Numero','Fecha','Vencimiento','Dias','Valor','Saldo','Descuento','Dias','Descuento','A Pagar']];
-        const data = cuentaCorriente.map(e=>[e.Tipo,e.Factura,e.FechaFactura,e.FechaVencimiento,e.Dias,e.Valor,e.Saldo,e.FechaMaxDescuento,e.DiasV,e.Descuento,e.APagar]);
+        const data = cuentaCorriente.map(e=>[e.Tipo,
+            e.Factura,
+            e.FechaFactura,
+            e.FechaVencimiento,
+            e.Dias,
+            numberWithCommas(e.Valor),
+            numberWithCommas(e.Saldo),
+            e.FechaMaxDescuento,
+            e.DiasV,
+            numberWithCommas(e.Descuento),
+            numberWithCommas(e.APagar)
+        ]);
+        const cantidadFacturas = data.length;
+        const totalValor = cuentaCorriente.reduce((pre,curr)=>(pre+curr.Valor),0);
+        const totalSaldo = cuentaCorriente.reduce((pre,curr)=>(pre+curr.Saldo),0);
+        const totalDescuento = cuentaCorriente.reduce((pre,curr)=>(pre+curr.Descuento),0);
+        const totalPagar = cuentaCorriente.reduce((pre,curr)=>(pre+curr.APagar),0);
 
         let content = {
             styles:{fontSize:8},
@@ -131,8 +148,12 @@ const CuentaCorrienteTable = props => {
                 }
         }}
 
+        const footer = `Facturas: ${cantidadFacturas}                                                                                                       ${numberWithCommas(totalValor)}       ${numberWithCommas(totalSaldo)}                                                ${numberWithCommas(totalDescuento)}         ${numberWithCommas(totalPagar)}`;
+
         doc.text(title, 180, 0);
         doc.autoTable(content);
+        let finalY = doc.lastAutoTable.finalY; // The y position on the page
+        doc.text(50, finalY+10, footer)
         doc.save(`Reporte-${props.clienteSelected.Codigo}.pdf`)
     }
 
