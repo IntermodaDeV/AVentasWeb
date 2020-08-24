@@ -23,9 +23,10 @@ import {
 import Dialog        from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle   from '@material-ui/core/DialogTitle';
-import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import ClienteContado from './ClienteContado';
 import {useDispatch,useSelector} from 'react-redux';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import logo from './iconfinder_Close_2001866.png'
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -74,9 +75,27 @@ const SelectCliente = (props) => {
     var alerta = false;
     var options = [];
 
-    // const handleClickOpen = () => {
-    //     setOpen(true);
-    // }
+   const continuarPedido = ()=>{
+    if(props.autocompleteValue.Credito[0].Disponible<=1){
+        Swal.fire({
+            title: 'Aviso',
+            text: 'El cliente no tiene credito disponible, el pedido no sera autorizado automaticamente.',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Cancelar'
+          }).then((result) => {
+            if (result.value) {
+                props.setCliente();
+            }
+          })
+    }else{
+        props.setCliente();
+    }
+
+   }
 
     const handleClose = () => {
         setOpen(false);
@@ -90,7 +109,7 @@ const SelectCliente = (props) => {
         dispatch({type:'DELETE_CLIENTECONTADO'});
         dispatch({type:'DELETE_REQUIEREENTREGA'});
         dispatch({type:'DELETE_FLETE'});
-        dispatch({type:'SET_IMPUESTOVACIO'});
+        localStorage.setItem('Impuesto',0);
     }
 
     props.clientes.forEach(el => {
@@ -134,21 +153,6 @@ const SelectCliente = (props) => {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td className={styles.InfoLabel} >
-                                            {'Departamento: '}
-                                        </td>
-                                        <td className={styles.InfoLabelDetail}>
-                                            {props.autocompleteValue.ComunidadAutonoma}
-                                        </td>
-                                    </tr>
-                                    {/* <tr>
-                                        <td className={styles.InfoLabel}>
-                                            {'Facturacion Entrega: '}
-                                        </td>
-                                        <td> {props.autocompleteValue.FacturacionEntrega}</td>
-                                    </tr> */}
-
-                                    <tr>
                                         <td className={styles.InfoLabel}>
                                             {'Nombre:'}
                                         </td>
@@ -156,21 +160,21 @@ const SelectCliente = (props) => {
                                             {props.autocompleteValue.Nombre}
                                         </td>
                                     </tr>
-                                    {/* <tr>
-                                        <td className={styles.InfoLabel}>
-                                            {'Grupo Cliente: '}
-                                        </td>
-                                        <td className={styles.InfoLabelDetail}>
-                                            {props.autocompleteValue.GrupoCliente}
-                                        </td>
-                                    </tr> */}
                                     <tr>
                                         <td className={styles.InfoLabel}>
-                                            {'Estado Crediticio: '}
+                                            {'Bloqueo Crediticio: '}
                                         </td>
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.FacturacionEntrega}</td>
                                     </tr>
+                                    <tr>
+                                        <td className={styles.InfoLabel} >
+                                            {'Departamento: '}
+                                        </td>
+                                        <td className={styles.InfoLabelDetail}>
+                                            {props.autocompleteValue.ComunidadAutonoma}
+                                        </td>
+                                    </tr>                                                                      
                                     <tr>
                                         <td className={styles.InfoLabel}>
                                             {'Direccion: '}
@@ -182,15 +186,6 @@ const SelectCliente = (props) => {
                             </table>
 
                             <div>
-
-                                {/* <Button
-                                    onClick={handleClickOpen}
-                                    className="mb-2"
-                                    variant="outlined"
-                                    color="primary">
-                                    Histórico
-                                </Button> */}
-
                                 {FacturacionEntrega}
                             </div>
 
@@ -198,57 +193,21 @@ const SelectCliente = (props) => {
                         <div className="col-md-6">
                             <span className={styles["TCenterContainer"]}>
                                 <h5 className={styles["TCenter"]}>Información Crediticia</h5>
-                            </span>
-                            {/* <button disabled="" className="btn btn-outline-primary disabled">Ultimo Pedido Lps. 25,000.00</button> */}
-                            {/* <button disabled="" className="btn btn-outline-primary disabled">Limite de Credito Disponible Lps. 42,000.00</button> */}
+                            </span>                           
                             <table className="table table-responsive-xl">
-                                {/* <thead>
-                                    <tr>
-                                        <th>
-                                            Descripcion
-                                        </th>
-                                        <th>
-                                            Valor
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {props.autocompleteValue.CuentaCorriente.map((cuentaCorriente, index) => {
-                                        let classBold = "";
-                                        let classBoldDanger = "";
-                                        if (cuentaCorriente.Descripcion === "Saldo cupo de crédito") {
-                                            classBold += "font-weight-bold";
-                                            classBoldDanger += "font-weight-bold";
-
-                                            if (cuentaCorriente.Valor < 0) {
-                                                classBoldDanger += " text-danger";
-                                            }
-                                        }
-                                        return (
-                                            <tr key={index}>
-                                                <td className={classBold}>
-                                                    {cuentaCorriente.Descripcion}
-                                                </td>
-                                                <td className={classBoldDanger}>
-                                                    {cuentaCorriente.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody> */}
                                 <thead>
                                     <tr>
                                         <th>
                                             Tipo
                                     </th>
                                         <th>
+                                            Valor Credito
+                                    </th>
+                                    <th>
+                                            Saldo CxC
+                                    </th>
+                                        <th>
                                             Disponible
-                                    </th>
-                                        <th>
-                                            SaldoTotal
-                                    </th>
-                                        <th>
-                                            -15 Dias
                                     </th>
                                     </tr>
                                 </thead>
@@ -258,9 +217,9 @@ const SelectCliente = (props) => {
                                             <tr key={index}>
 
                                                 <td>{credito.Tipo}</td>
-                                                <td>{credito.Disponible ? credito.Disponible.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
+                                                <td>{credito.Valor ? credito.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
                                                 <td>{credito.SaldoTotal ? credito.SaldoTotal.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
-                                                <td>{credito.C15Dias ? credito.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
+                                                <td>{credito.Disponible ? credito.Disponible.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
                                             </tr>
                                         )
                                     })}
@@ -309,7 +268,7 @@ const SelectCliente = (props) => {
             scroll={'paper'}
             open={openContado}
             >
-                <CancelPresentationIcon onClick={()=>{setOpenContado(false)}}/>
+                <img alt="closeicon" src={logo} style={{width:'30px',height:'30px',marginLeft:'500px'}} onClick={()=>{setOpenContado(false)}}/>
                 <DialogTitle className="text-center" id="scroll-dialog-title">
                     <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
                         Cliente Contado
@@ -317,7 +276,7 @@ const SelectCliente = (props) => {
                 </DialogTitle>
                 <DialogContent>
                 
-                   { props.autocompleteValue!==null && <ClienteContado ruta={props.autocompleteValue.CodigoRuta} cliente={clienteContado} validacion={false}/>}
+                   { props.autocompleteValue!==null && <ClienteContado cliente={clienteContado} validacion={false}/>}
                     
                 </DialogContent>
         </Dialog>
@@ -351,7 +310,7 @@ const SelectCliente = (props) => {
                         <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                             <Button
                                 disabled={props.autocompleteValue ? false : true}
-                                onClick={props.setCliente}
+                                onClick={continuarPedido}
                                 variant="contained"
                                 color="primary">
                                 Continuar

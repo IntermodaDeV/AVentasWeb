@@ -142,7 +142,7 @@ class Pedidos extends React.Component {
                             this.setState({
                                 loadingColecciones: false
                             });
-                            console.log(result);
+                            
                             this.props.onStoreColecciones(result);
                         })
                 }
@@ -245,7 +245,7 @@ class Pedidos extends React.Component {
             .then(res => res.json())
             .then(
                 (result) => {
-                    console.log(result);
+                    
                     this.props.onStoreTiposColeccion(result);
                 },
                 // Note: it's important to handle errors here
@@ -1123,7 +1123,6 @@ class Pedidos extends React.Component {
                 }
             });
         });
-
         this.props.onSetTotalPedido(totalAcumulado)
         this.props.onSetTableValue(tableValue);
     }
@@ -1178,7 +1177,8 @@ class Pedidos extends React.Component {
             ClienteContadoId:(this.props.clienteContado!==null) ? this.props.clienteContado.id : null,
             ModoVenta:(this.props.TipoPedido.TipoPedido==='Contado')?'Contado':'Credito',
             Flete:this.props.flete,
-            RequiereEntrega:this.props.requiereEntrega
+            RequiereEntrega:this.props.requiereEntrega,
+            Impuesto:Number(localStorage.getItem('Impuesto'))
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
 
@@ -1188,13 +1188,14 @@ class Pedidos extends React.Component {
                     if (tableValue[codigoGrupoTalla].Productos[codigoProducto].Selected) {
                         this.props.coleccion.Edades.map(edad => {
                             let producto = edad.ProductosXEdad.find(prod => prod.ProductoId === codigoProducto);
-
+                            
                             if (producto) {
 
                                 producto.matriz = [];
                                 producto.ListaColores.forEach(color => {
                                     Object.keys(tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas).forEach(talla => {
                                         let detalle = {
+                                            IdProducto:producto.CodigoProducto,
                                             CodigoProducto: codigoProducto,
                                             CodigoColor: color.CodigoColor,
                                             Cantidad: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad,
@@ -1862,7 +1863,7 @@ class Pedidos extends React.Component {
                         <Route path={this.props.match.url + '/Colecciones/:TipoColeccion/:CodigoColeccion/:CodigoProducto'} render={(routeProps) => {
                             let listFiltros = [...this.Filtros()];
                             return (
-                                <Container fluid={true}>
+                                <Container fluid={true} key={routeProps.match.params.CodigoProducto}>
                                     <VistaProducto
                                         // filtroEdad={this.state.filtroEdad}
                                         Click={this.getProducto}
@@ -2255,18 +2256,25 @@ class Pedidos extends React.Component {
         this.setState({ filtroEdad: edadSelected })
     }
 
+    Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        background:'red',
+        timer: 3000,
+      })
 
 
     alertaLimiteCredito() {
-        return Swal.fire({
-            title: 'Alerta',
-            text: "Excede el limite ",
-            type: 'warning',
-            showConfirmButton: false,
-            timer: 1500
+
+        this.Toast.fire({
+            title: "<span style='color:#FFF'>Excede el limite de crédito disponible.<span>",
+            icon: 'error'
         });
     }
+
     onchangeText(text, productoId, codigoColor, grupoTalla, talla, precio) {
+        this.props.onSetBloqueo(false);
         let tableValue = { ...this.props.TableValue };
         const valor = (text.target.validity.valid) ? text.target.value : tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla].Cantidad;
         let valorPrevio = tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla];
@@ -2274,11 +2282,12 @@ class Pedidos extends React.Component {
         if (this.props.TipoPedido.Restrictivo) {
             if (this.props.AcuerdoVenta) {
                 if (!(this.props.AcuerdoVenta.Saldo >= totalAcumulado)) {
-                    return this.alertaLimiteCredito();
+                    this.props.onSetBloqueo(true);
+                    this.alertaLimiteCredito();
                 }
             } else {
                 if (!(this.props.cliente.LimiteCredito >= totalAcumulado)) {
-                    return this.alertaLimiteCredito();
+                    this.alertaLimiteCredito();
                 }
 
 
@@ -2364,11 +2373,13 @@ const mapStateToProps = state => {
         TiposColeccion: state.TiposColeccion,
         clienteContado:state.clienteContado,
         flete:state.flete,
-        requiereEntrega:state.requiereEntrega
+        requiereEntrega:state.requiereEntrega,
+        impuesto:state.Impuesto
     };
 };
 const mapDispatchToProps = dispatch => {
     return {
+        onSetBloqueo:(valor)=>dispatch({ type: 'SET_BLOQUEO', payload: valor }),
         onStoreColecciones: (colecciones) => dispatch({ type: 'STORE_COLECCIONES', colecciones: colecciones }),
         onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),
         onStoreTipoPedido: (TipoPedido) => dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: TipoPedido }),

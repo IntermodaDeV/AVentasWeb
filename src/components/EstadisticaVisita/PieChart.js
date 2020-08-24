@@ -3,7 +3,6 @@ import { Pie } from "react-chartjs-2"
 import "chartjs-plugin-labels";
 
 const PieChart = (props) => {
-    console.log("propsPastel:", props)
     if (props.Selected) {
         let Selected = JSON.parse(props.Selected);
 

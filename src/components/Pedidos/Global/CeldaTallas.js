@@ -2,38 +2,27 @@ import React from 'react';
 import ReactTextTransition, { presets } from "react-text-transition";
 import {APIURL} from 'utils/Enviroment';
 import styles from "components/Pedidos/Global/CeldaTallas.module.css";
-import {useSelector,useDispatch} from 'react-redux';
+import Swal from 'sweetalert2/dist/sweetalert2.js'
 
 const CeldaTallas = (props) => {
     const [Focused, setFocused] = React.useState(null);
     const [Disponible, setDisponible] = React.useState(props.disponible);
-    const coleccion         = useSelector(e=>e.coleccion.Edades);
-    const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
-    const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
-    const cliente = useSelector(e=>e.cliente);
-    const clienteImpuesto = clienteImpuestos.find(x=>x.GRUPO===cliente.GrupoImpuesto);
-    const dispatch          = useDispatch();
     const urlApi = APIURL;
     const onFocus = () => {
         setFocused(true);
         props.onFocus();
         //CheckStock(props.codigoProducto, props.codigoColor, props.codigoTalla);
     }
-    const findProduct=(codigo)=>
-    {
-        for(const edades of coleccion)
-        {
-            for(const producto of edades.ProductosXEdad)
-            {
-                if(producto.ProductoId===codigo){
-                    return producto;
-                }
-            }
-        }
-    }
-    const producto = findProduct(props.codigoProducto);
-    const productoImpuesto = productoImpuestos.find(x=>x.GRUPO===producto.GrupoImpuesto).IMPUESTO;
 
+    const alertaFisicoDisponible =() => {
+        return Swal.fire({
+            title: 'Alerta',
+            text: "Excede el fisico disponible ",
+            type: 'warning',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    }
     const onBlur = (text, codigoProducto, codigoColor, codigoTalla, precio) => {
         const valor = (text.target.validity.valid) ? text.target.value : 0;
 
@@ -66,35 +55,11 @@ const CeldaTallas = (props) => {
     const handleChange = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio)=>
     {
             const cantidad = isNaN(parseInt(text.target.value))?0:parseInt(text.target.value);
-            const propsCantidad = isNaN(parseInt(props.cantidad))?0:parseInt(props.cantidad);
-
-            if(clienteImpuesto.IMPUESTO!==0)
+            if(props.futuro === true && props.disponible < cantidad)
             {
-                if(cantidad<propsCantidad)
-                {
-                    const cant = propsCantidad-cantidad;
-                    const impuesto = (precio*productoImpuesto)*cant;
-                    const tst = Math.round((impuesto + Number.EPSILON) * 100) / 100;
-                
-                    if(!isNaN(tst)){
-                        dispatch({type:'SET_RESTAIMPUESTO',payload:tst});
-                    }else{
-                        dispatch({type:'SET_IMPUESTOVACIO'});
-                    }
-                }else{
-                    const cant = cantidad-propsCantidad;
-                    const impuesto = (precio*productoImpuesto)*cant;
-                    const tst = Math.round((impuesto + Number.EPSILON) * 100) / 100;
-                
-                    if(!isNaN(tst)){
-                        dispatch({type:'SET_SUMAIMPUESTO',payload:tst});
-                    }else{
-                        dispatch({type:'SET_IMPUESTOVACIO'});
-                    }
-                }
-        }
-
-            props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
+                return alertaFisicoDisponible();
+            }
+            props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);         
     }
 
     const isDisabled = () => {

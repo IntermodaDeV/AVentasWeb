@@ -39,7 +39,9 @@ const initialState = {
     ClienteImpuestos:[],
     ProductoImpuestos:[],
     Empresas:[],
-    Impuesto:0
+    Monedas:[],
+    CuentaImprimir:[],
+    Bloqueo:false
 }
 
 const calcularLimite = (state) => {
@@ -53,7 +55,9 @@ const reducer = (state = initialState, action) => {
     if (action.type === 'STORE_COLECCIONES') {
         return {
             ...state,
-            colecciones: action.colecciones
+            colecciones: action.colecciones,
+            TableValue: {},
+            TotalPedido: 0.0
         }
     }
     if (action.type === 'SET_PRODUCTO') {
@@ -440,27 +444,26 @@ const reducer = (state = initialState, action) => {
         }
     }
 
-    if(action.type==='SET_SUMAIMPUESTO')
+    
+    if(action.type==='SET_MONEDAS')
     {
         return{
             ...state,
-            Impuesto:state.Impuesto+action.payload
+            Monedas:action.payload
         }
     }
 
-    if(action.type==='SET_RESTAIMPUESTO')
-    {
-        return{
+    if(action.type==='SET_CUENTAIMPRIMIR'){
+        return {
             ...state,
-            Impuesto:state.Impuesto-action.payload
+            CuentaImprimir:action.payload
         }
     }
 
-    if(action.type==='SET_IMPUESTOVACIO')
-    {
-        return{
+    if(action.type==='SET_BLOQUEO'){
+        return {
             ...state,
-            Impuesto:0
+            Bloqueo:action.payload
         }
     }
 

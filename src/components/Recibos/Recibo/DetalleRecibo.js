@@ -26,6 +26,7 @@ const urlApi = APIURL
 
 const DetalleRecibo = (props) => {
     // const [totalAPagar, setTotalAPagar] = useState(0.00);
+    const Monedas = useSelector(e=>e.Monedas);
     const [bancos, setBancos] = useState([]);
     const [ModalRecibo, setModalRecibo] = useState(false);
     const [recibosAplicados, setRecibosAplicados] = useState([]);
@@ -49,20 +50,16 @@ const DetalleRecibo = (props) => {
     const [tiposPago, setTiposPago] = useState([])
     const pedidoSelected = useSelector(e=>e.pedidoSelected);
     const dispatch = useDispatch();
-    //const [tipoPagoSeleccionado, setTipoPagoSeleccionado] = useState(null)
-    //const [especificacionesPago, setEspecificacionesPago] = useState([])
-    //const [especificacionPagoSeleccionada, setEspecificacionPagoSeleccionada] = useState(null)
-    //const [fechaRecibo, setFechaRecibo] = useState(moment().toDate())
-    //const [valor, setValor] = useState(0)
-    //const [referencia, setReferencia] = useState('')
+    let calculo =React.useRef(1);
+    
     const [pagosXRecibo, setPagosXRecibo] = useState([
         {
             Editar: true,
             indexTiposPago: 2,
             indexTiposdePagoDetalle: 0,
             fecha: new Date(),
-            valor: 1,//totalAPagar - cuotasYDescuentoAplicado.DescuentoAplicado,
-            indexMoneda: 2,
+            valor: '',//totalAPagar - cuotasYDescuentoAplicado.DescuentoAplicado,
+            indexMoneda: 0,
             indexBanco: null,
             referencia: ''
         }
@@ -70,7 +67,7 @@ const DetalleRecibo = (props) => {
     // const [lineasfiltradas, setLineasfiltradas] = useState([])
     const [openModal, setOpenModal] = useState(false);
     const [DataModal, setDataModal] = useState([]);
-    //console.log('props :', props);
+
     useEffect(() => {
         let cuotasYDescuentoCalculado = {
             Cuotas: [],
@@ -81,43 +78,18 @@ const DetalleRecibo = (props) => {
             cuotasYDescuentoCalculado = CalculoCuotasAgrupadasYDescuento();//CalculoCuotasAgrupadasYDescuento()
         } else {
             cuotasYDescuentoCalculado = CalculoCuotasSingAgruparYDescuento();
+        
         }
         setCuotasYDescuentoAplicado(cuotasYDescuentoCalculado);
-        console.log("cuotasYDescuentoCalculado",cuotasYDescuentoCalculado)
+        calculo.current+=1;
         // eslint-disable-next-line
     }, [pagosXRecibo]);
     useEffect(() => {
         CargarDatos()
-        // let totalPorPagar = 0.00;
-        // props.Cuotas.forEach(fact => {
-        //     fact.Acuerdos.forEach(acu => {
-        //         acu.Facturas.forEach(fact => {
-        //             fact.Cuotas.forEach(cuot => {
-        //                 if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
-        //                     totalPorPagar += cuot.Saldo;
-        //                 }
-        //             });
-
-        //         });
-        //     });
-        // });
-        // setTotalAPagar(totalPorPagar);
-        let pago = { ...pagosXRecibo[0], valor: 1 };
+        let pago = { ...pagosXRecibo[0], valor: 0 };
         setPagosXRecibo([
             pago    //.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
         ]);
-        // const [pagosXRecibo, setPagosXRecibo] = useState([
-        //     {
-        //         indexTiposPago: 2,
-        //         indexTiposdePagoDetalle: 0,
-        //         fecha: new Date(),
-        //         valor: totalAPagar,
-        //         indexMoneda: 2,
-        //         indexBanco: null,
-        //         referencia: ''
-        //     }
-        // ])
-
         return () => {
             localStorage.removeItem("Faltante");
             localStorage.removeItem("TotalRecibo");
@@ -177,6 +149,8 @@ const DetalleRecibo = (props) => {
 
     }
     const CalculoCuotasAgrupadasYDescuento = () => {
+        let valorPagos = 0;
+        let Descuento = 0;
         let descuentoAcumulado = 0;
         let cuotasAProcesar = CuotasAgrupadas().sort((a, b) => {
             if (a.NumeroCuota > b.NumeroCuota) {
@@ -190,10 +164,16 @@ const DetalleRecibo = (props) => {
         pagosXRecibo.forEach(pago => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
-            if (PagoAcumulado > 0) {
+            if (PagoAcumulado >= 0) {
                 cuotasAProcesar.forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
+                    if(calculo.current===2){
+                    valorPagos += montoAPagar;
+                    Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0;
+                    localStorage.setItem('valorPagos',valorPagos);
+                    localStorage.setItem('DescuentoFacturas',Descuento);  
+                    }
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
@@ -233,21 +213,30 @@ const DetalleRecibo = (props) => {
         });
         return {
             Cuotas: cuotas,
-            DescuentoAplicado: descuentoAcumulado
+            DescuentoAplicado: descuentoAcumulado,
+            ValorAPagar : Number(localStorage.getItem('valorPagos')),
+            DescuentoTotal: Number(localStorage.getItem('DescuentoFacturas'))
         }
     }
     const CalculoCuotasSingAgruparYDescuento = () => {
         let descuentoAcumulado = 0;
         let cuotasAProcesar = CuotasSinAgrupar();
         let valorPagos = 0;
+        let Descuento = 0;
         pagosXRecibo.forEach(pago => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
-            if (PagoAcumulado > 0) {
+            if (PagoAcumulado >= 0) {
                 cuotasAProcesar.forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
-                    valorPagos += montoAPagar;
+                    
+                    if(calculo.current===2){
+                        valorPagos += montoAPagar;  
+                        Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0; 
+                        localStorage.setItem('valorPagos',valorPagos);
+                        localStorage.setItem('DescuentoFacturas',Descuento);                
+                    }
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
@@ -291,7 +280,8 @@ const DetalleRecibo = (props) => {
         return {
             Cuotas: cuotasProcesadas,
             DescuentoAplicado: descuentoAcumulado,
-            ValorAPagar : valorPagos
+            ValorAPagar : Number(localStorage.getItem('valorPagos')),
+            DescuentoTotal: Number(localStorage.getItem('DescuentoFacturas'))
         };
     }
     const CuotasSinAgrupar = () => {
@@ -437,32 +427,22 @@ const DetalleRecibo = (props) => {
         }
     }
     const CargarDatos = () => {
-        Promise.all([cargarBancos, cargarTiposPago, cargarMonedas]).then(values => {
+        Promise.all([cargarBancos, cargarTiposPago]).then(values => {
             let banks = values[0].map(el => {
                 return el//{ key: el.IdBanco, value: JSON.stringify(el), text: el.Descripcion }
             });
             let tiposPago = values[1].map(el => {
                 return el//{ key: el.IdTipoPago, value: JSON.stringify(el), text: el.Descripcion }
             });
-            let monedasArray = values[2].map(el => {
+            /*let monedasArray = values[2].map(el => {
                 return el // { key: el.IdMoneda, value: JSON.stringify(el), text: el.Moneda }
-            });
+            });*/
             setBancos(banks);
-            setMonedas(monedasArray);
+            setMonedas(Monedas);
             setTiposPago(tiposPago);
         });
     }
-    // const tipoPagoSeleccionadoOnChange = (tipoPago) => {
-    //     var val = JSON.parse(tipoPago);
-    //     setEspecificacionesPago(val.TiposdePagoDetalle.map(el => {
-    //         return { key: el.IdTipoPagoDetalle, value: JSON.stringify(el), text: el.Descripcion }
-    //     }));
-    //     setTipoPagoSeleccionado(tipoPago);
-    // }
-    // const especificacionPagoSeleccionadaoOnChange = (especificacionPago) => {
-    //     // var val = JSON.parse(especificacionPago);
-    //     setEspecificacionPagoSeleccionada(especificacionPago);
-    // }
+ 
     const monedaOnchange = (moneda) => {
         // var val = JSON.parse(especificacionPago);
         setMonedaSeleccionada(moneda);
@@ -501,7 +481,18 @@ const DetalleRecibo = (props) => {
         props.history.push(`/recibos`);
     }
 
-    const EnviarRecibo = () => {
+    const EnviarRecibo = () =>{
+        ObtenerCoordenadas((position) => {
+            EnviarReciboApi({
+                longitude: position.coords.longitude,
+                latitude: position.coords.latitude
+            })
+        }, (error) => {
+            EnviarReciboApi(null);
+        });
+    }
+
+    const EnviarReciboApi = (location) => {
 
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
         let apiURL     = urlApi + "/api/Recibo";
@@ -511,17 +502,19 @@ const DetalleRecibo = (props) => {
             SaldoFavor:saldoAFavor,
             Pagos: pagosXRecibo.map(pagXRecib => {
                 return {
-                    "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
-                    "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
+                    "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,
+                    "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
+                    "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,
                     "Orden": 1,
-                    "Valor": pagXRecib.valor-saldoAFavor,//104613.1000,
-                    "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,//"HNL",
-                    "Referencia": pagXRecib.referencia,//"",
+                    "Valor": pagXRecib.valor-saldoAFavor,
+                    "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,
+                    "Referencia": pagXRecib.referencia,
                     "ReferenciaTransaccionAbierta": ""
                 }
             })
             ,
             Descripcion: '',
+            location:location,
             SubFacturas: props.CuotasAPagar,
             NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
             EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
@@ -538,6 +531,7 @@ const DetalleRecibo = (props) => {
                     Pagos: pagosXRecibo.map(pagXRecib => {
                         return {
                             "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
+                            "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
                             "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
                             "Orden": 1,
                             "Valor": pagXRecib.valor,//104613.1000,
@@ -548,14 +542,12 @@ const DetalleRecibo = (props) => {
                     })
                     ,
                     Descripcion: '',
+                    location:location,
                     SubFacturas: props.CuotasAPagar,
                     NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
                     EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
                 }
         }
-
-        console.log(apiURL);
-        console.log(parametros);
 
         let loading = Swal.fire({
             title: 'Enviando',
@@ -645,21 +637,6 @@ const DetalleRecibo = (props) => {
             }
             )
         });
-
-
-        /* DataModal.push({
-          Tipo: 'Factura [D-P]',
-          NumeroFactura: '2',
-          Fecha: '18/10/2019',
-          Vencimiento: '31/12/2019',
-          Dias: '-13',
-          FechaDescuento: '16/12/2019',
-          DiasDescuento: '-28',
-          Valor: '696,969.00',
-          Saldo: '323,886.00',
-     
-        });
-     */
         setDataModal(DataModal);
     }
 
@@ -728,6 +705,7 @@ const DetalleRecibo = (props) => {
                         PedidoSelected = {pedidoSelected}
                         DescuentoAplicado={cuotasYDescuentoAplicado.DescuentoAplicado}
                         ValorPagos = {cuotasYDescuentoAplicado.ValorAPagar}
+                        Descuento = {cuotasYDescuentoAplicado.DescuentoTotal}
                     />
                 </div>
                 <div className="col-lg-9 col-md-8 col-sm-7 col-12 my-2">
@@ -774,7 +752,8 @@ const DetalleRecibo = (props) => {
         </div>);
 }
 const cargarTiposPago = new Promise((resolve, reject) => {
-    fetch(urlApi + '/api/TipoPago', {
+    let empresa = localStorage.getItem('empresa')
+    fetch(urlApi + '/api/TipoPago/'+empresa, {
         headers: {
             Authorization: 'Bearer ' + localStorage.getItem('token')
         }
@@ -799,7 +778,8 @@ const cargarTiposPago = new Promise((resolve, reject) => {
     })
 });
 const cargarBancos = new Promise((resolve, reject) => {
-    fetch(urlApi + '/api/banco', {
+    let empresa = localStorage.getItem('empresa')
+    fetch(urlApi + "/api/banco/" + empresa, {
         headers: {
             Authorization: 'Bearer ' + localStorage.getItem('token')
         }
@@ -823,8 +803,25 @@ const cargarBancos = new Promise((resolve, reject) => {
         }
     })
 });
-const cargarMonedas = new Promise((resolve, reject) => {
-    fetch(urlApi + '/api/Moneda', {
+const ObtenerCoordenadas = (resolve, reject) => {
+    const timeout = new Promise((resolve, reject) => {
+        setTimeout(reject, 10000);
+    });
+
+    const geolocationPromise = new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve(position);
+            },
+            (error) => { reject(error) },
+            { enableHighAccuracy: true, timeout: 10000 }
+        )
+    });
+    Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
+}
+/*const cargarMonedas = new Promise((resolve, reject) => {
+    let empresa = localStorage.getItem('empresa');
+    fetch(urlApi + "/api/Moneda/" + empresa, {
         headers: {
             Authorization: 'Bearer ' + localStorage.getItem('token')
         }
@@ -847,5 +844,5 @@ const cargarMonedas = new Promise((resolve, reject) => {
             )
         }
     })
-});
+});*/
 export default DetalleRecibo;

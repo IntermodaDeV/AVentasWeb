@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-
+import {useSelector} from 'react-redux';
 const TotalXPedido = (props) => {
-
+    const Monedas = useSelector(e=>e.Monedas);
+    const moneda = Monedas.find(e=>e.IdMoneda === props.cliente.Moneda).Abreviacion;
     const [Limite, setLimite] = useState(null);
 
     useEffect(() => {
@@ -19,20 +20,25 @@ const TotalXPedido = (props) => {
         // }
         // eslint-disable-next-line
     }, []);
+    let Disponible = 0;
+    if(!props.cliente.Nombre.includes('CONSUMIDOR FINAL'))
+    {
+        Disponible = props.cliente.Credito.find(a => a.Tipo === props.TipoPedido.TipoPedido).Disponible
+    }
+    let tempTotal =props.TotalPedido|| 0;
 
-    let tempTotal = props.TotalPedido||0;
-    let colorDiferencia = (((Limite ? Limite : 0) - tempTotal)) < 0 ? 'red' : (props.color ? props.color : 'black');
+    let colorDiferencia = (((Disponible ? Disponible : 0) - tempTotal)) < 0 ? 'red' : (props.color ? props.color : 'black');
     if (props.row) {
         return (
             <div className="row" style={{ color: props.color ? props.color : 'black' }}>
                 <div className='col'>
-                    {`Total Pedido: ${props.cliente.Moneda} ` + numberWithCommas(tempTotal)}
+                    {`Total Pedido: ${moneda} ` + numberWithCommas(tempTotal)}
                 </div>
                 <div className='col'>
-                    {props.AcuerdoVenta ? `Saldo Acuerdo: ${props.cliente.Moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${props.cliente.Moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
+                    {props.AcuerdoVenta ? `Saldo Acuerdo: ${moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
                 </div>
                 <div className='col' style={{ color: colorDiferencia }}>
-                    {`Saldo Disponible: ${props.cliente.Moneda} ` + (numberWithCommas((Limite ? Limite : 0) - tempTotal)).toString()}
+                    {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
                 </div>
             </div>
         );
@@ -41,13 +47,13 @@ const TotalXPedido = (props) => {
         return (
             <div className="row " style={{ color: props.color ? props.color : 'black', display: 'flex', justifyContent: 'flex-end' }}>
                 <div className="mx-3">
-                    {`Total Pedido: ${props.cliente.Moneda} ` + numberWithCommas(tempTotal)}
+                    {`Total Pedido: ${moneda} ` + numberWithCommas(tempTotal)}
                 </div>
                 <div className="mx-3">
-                    {props.AcuerdoVenta ? `Saldo Acuerdo: ${props.cliente.Moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${props.cliente.Moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
+                    {props.AcuerdoVenta ? `Saldo Acuerdo: ${moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
                 </div>
                 <div className="mx-3" style={{ color: colorDiferencia }}>
-                    {`Saldo Disponible: ${props.cliente.Moneda} ` + (numberWithCommas((Limite ? Limite : 0) - tempTotal)).toString()}
+                    {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
                 </div>
             </div>
         );
@@ -62,7 +68,7 @@ const TotalXPedido = (props) => {
                     {"Límite Crédito: " + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
                 </div>
                 <div>
-                    {"Saldo Disponible: " + (numberWithCommas((Limite ? Limite : 0) - tempTotal)).toString()}
+                    {"Saldo Disponible: " + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
                 </div>
             </>
         );

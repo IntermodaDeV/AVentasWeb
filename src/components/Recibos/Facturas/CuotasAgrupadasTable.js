@@ -57,7 +57,6 @@ const columns = [
 
 const CuotasAgrupadasTable = props => {
   // let selectedRowsIndexXAcuerdo = null;
-  let idsSubFacturaArray = [];
   const [openModal, setOpenModal] = useState(false);
   const [rowExpandidas, setRowExpandidas] = useState([]);
   const [DataModal, setDataModal] = useState([]);
@@ -311,7 +310,6 @@ const CuotasAgrupadasTable = props => {
   }
   const setCuotasAPagar = () => {
 
-    debugger;
     let array = IdsSubFacturaArray();
 
     if (array) {
@@ -345,8 +343,7 @@ const CuotasAgrupadasTable = props => {
     newSelectedRowsIndexXAcuerdo[idAcuerdo] = newArray;
     setSelectedRowsIndexXAcuerdo(newSelectedRowsIndexXAcuerdo);
     // selectedRowsIndexXAcuerdo = newSelectedRowsIndexXAcuerdo;
-    idsSubFacturaArray = IdsSubFacturaArray();
-    console.log(idsSubFacturaArray && '');
+    
     // IdsSubFacturaArray().length > 0)
     // let cuotasAPagar = [];
     // selectedRowsIndex.forEach(selRowsIndex => {

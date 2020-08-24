@@ -24,36 +24,64 @@ const MatrizResumen = (props) => {
     const [mostrarVacios, setMostrarVacios] = useState(false);
     const [expanded, setExpanded] = React.useState(false);
 
+    const Monedas = useSelector(e=>e.Monedas);
+    const Bloqueo = useSelector(e=>e.Bloqueo);
     let referenceCantidad = [];
     let referenceTotal = [];
     let gruposTalla = Object.keys(props.tableValue);
     let unidadesTotales = 0;
     let totalGlobal = 0.00;
-    let moneda = (props.Cliente !== null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
+    let impuesto = 0;
+    const moneda = Monedas.find(e=>e.IdMoneda === props.Cliente.Moneda).Abreviacion;
     let productosSinCantindad = false;
 
-    const impuesto = useSelector(e=>e.Impuesto);
+    const coleccion         = useSelector(e=>e.coleccion.Edades);
+    const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
+    const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
+    const cliente = useSelector(e=>e.cliente);
+    const clienteImpuesto = clienteImpuestos.find(x=>x.GRUPO===cliente.GrupoImpuesto);
+
+    const findProduct=(codigo)=>
+    {
+        for(const edades of coleccion)
+        {
+            for(const producto of edades.ProductosXEdad)
+            {
+                if(producto.ProductoId===codigo){
+                    return producto;
+                }
+            }
+        }
+    }
 
     const onContinuar = () => {
-        if (productosSinCantindad) {
+        if(Bloqueo){
             Swal.fire({
                 title: 'Aviso',
-                text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
+                text: 'No se puede procesar el pedido ya que excede el limite del acuerdo.',
                 type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Continuar',
-                cancelButtonText: 'Corregir',
-            }).then((result) => {
-                if (result.value) {
-                    props.mostrarResumen();
-                } else {
-                    setMostrarVacios(true);
-                }
-            })
-        } else {
-            props.mostrarResumen();
+            });
+        }else{
+            if (productosSinCantindad) {
+                Swal.fire({
+                    title: 'Aviso',
+                    text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Continuar',
+                    cancelButtonText: 'Corregir',
+                }).then((result) => {
+                    if (result.value) {
+                        props.mostrarResumen();
+                    } else {
+                        setMostrarVacios(true);
+                    }
+                })
+            } else {
+                props.mostrarResumen();
+            }
         }
     }
 
@@ -121,10 +149,12 @@ const MatrizResumen = (props) => {
                         {gruposTalla.map((grupoTalla, index) => {
 
                             let productos = Object.keys(props.tableValue[grupoTalla].Productos);
-                            console.log(productos)
+                            
                             if (props.tableValue[grupoTalla].Mostrar) {
                                 return (
                                     productos.map((codigoProducto, index1) => {
+                                        const prod = findProduct(codigoProducto);
+                                        const productoImpuesto = productoImpuestos.find(x=>x.GRUPO===prod.GrupoImpuesto).IMPUESTO;
                                         let producto = props.tableValue[grupoTalla].Productos[codigoProducto];
                                         let tallas = props.tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
                                         let IsDist = checkDist(tallas);
@@ -132,18 +162,19 @@ const MatrizResumen = (props) => {
                                         if (producto.Selected) {
                                             Object.keys(producto.Colores).forEach((codigoColor) => {
                                                 let color = producto.Colores[codigoColor];
-                                                let precio = producto.Precio.find(precioxProd => {
-                                                    return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
-                                                });
-                                                if (precio === undefined) {
-                                                    precio = { Precio: 0 };
-                                                }
                                                 Object.keys(color.Tallas).forEach((codigoTalla) => {
                                                     let valorTalla = color.Tallas[codigoTalla];
+                                                    let precio = { Precio: (valorTalla.Precio? valorTalla.Precio:0) };
+                                                        
                                                     let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
                                                     productoConCantindad = productoConCantindad || (cantidadXTalla > 0);
                                                     unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
                                                     totalGlobal = (precio.Precio * cantidadXTalla) + totalGlobal;
+
+                                                    if(clienteImpuesto.IMPUESTO!==0){
+                                                        impuesto = ((precio.Precio * cantidadXTalla)*productoImpuesto)+impuesto;
+                                                        localStorage.setItem('Impuesto',impuesto);
+                                                    }
                                                 });
                                             });
                                             productosSinCantindad = productosSinCantindad || (!productoConCantindad);
@@ -335,21 +366,13 @@ const getTotales = (producto, Cliente) => {
 
     Object.keys(producto.Colores).map((codigoColor, index2) => {
         let color = producto.Colores[codigoColor];
-        let precio = producto.Precio.find(precioxProd => {
-            return precioxProd.GrupoPrecio === Cliente.GrupoPrecio;
-        });
-        if (precio === undefined) {
-            precio = { Precio: 0 };
-        }
         var totalXColor = 0;
         var totalPrecioXColor = 0;
-
-
 
         Object.keys(color.Tallas).map((codigoTalla, index3) => {
             var valorTalla = color.Tallas[codigoTalla];
             totalXColor = parseInt(totalXColor, 10) + (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-            totalPrecioXColor = (precio ? precio.Precio * totalXColor : 0);
+            totalPrecioXColor += (valorTalla.Precio ? valorTalla.Precio: 0)*valorTalla.Cantidad;
             return false;
         })
         Totales.totalCantidad += totalXColor;

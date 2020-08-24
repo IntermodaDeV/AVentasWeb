@@ -13,6 +13,12 @@ import { useSnackbar } from 'notistack';
 const Producto = (props) => {
   const { enqueueSnackbar } = useSnackbar();
 
+  let stockDisponible = 0;
+  
+  if(!props.isFuture){
+    stockDisponible = props.producto.fisicaDisponible.reduce((a,b)=>(a+b.Cantidad),0);
+  }
+
   const toggleSelect = () => {
     if (primerRender ? (precioProductoTemporal !== undefined) : (precioProducto !== undefined)) {
       if (!(selected || isSelectedTemporal) && totalProducto + props.TotalPedido > props.LimiteVenta) {
@@ -57,6 +63,12 @@ const Producto = (props) => {
     let precio = props.producto.Precio.find(precioxProd => {
       return precioxProd.GrupoPrecio === props.GrupoPrecioCliente;
     });
+    if(!precio && props.producto.fisicaDisponible.length>0){
+      let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis=> fsDis.PreciosEspecificos.find(ps=>ps.Precio>0))
+      if(precioFisicoDisponible){
+        precio={Precio: precioFisicoDisponible.PreciosEspecificos.find(ps=>ps.Precio>0).Precio};
+      }
+    }
     if (precio) {
       try {
         let tempTotal = 0.00;
@@ -125,7 +137,7 @@ const Producto = (props) => {
             style={{ width: 'auto', height: 220 }}
           /> */}
 
-          <div style={{ padding: 10, height: 80 }}>
+          <div style={{ padding: 10, height: 100 }}>
 
             <div style={{ fontWeight: "400", fontSize: 13, textAlign: 'left', }} >
               {props.producto.NombreProducto}
@@ -134,6 +146,11 @@ const Producto = (props) => {
             <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
               {/* Pseudo  */}Código - {props.producto.ProductoId}
             </div>
+
+            {(!props.isFuture) && <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
+              {/* Pseudo  */}Stock Disponible : {stockDisponible}
+            </div>}
+
 
             <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
               *Disponible en {props.producto.ListaColores.length} {(props.producto.ListaColores.length === 1) ? 'color' : 'colores'}

@@ -4,7 +4,8 @@ import React, {
 } from 'react';
 import MUIDataTable from 'mui-datatables';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-
+import moment from 'moment';
+import 'moment/locale/es';
 const columns = [
 
     {
@@ -15,11 +16,11 @@ const columns = [
         name: 'Factura',
         label: 'Factura',
     },
-    {
+    /*{
         name: 'NumeroFEL',
         label: 'Numero FEL',
         options:{display: localStorage.getItem('empresa')==='imgt'},
-    },
+    },*/
     {
         name: 'Fecha',
         label: 'Fecha',
@@ -77,6 +78,12 @@ const CuotasACancelarAgrupadasTable = (props) => {
         }
     });
 
+    // eslint-disable-next-line
+    props.CuotasAgrupadas.sort((a,b)=>{
+        if (moment(a[3], "DD/MM/YYYY").isSame(moment(b[3], "DD/MM/YYYY"), 'day')) {
+          return (a[1]<b[1])?-1:1
+        }
+      });
 
     const options = {
         filterType: 'multiselect',

@@ -36,7 +36,7 @@ const CoordenadasGlobal = (props)=>
     }
 
     const renderMarkers = (clientes)=>{
-        console.log(clientes.length);
+        
         if(marcadores.length>0){
             marcadores.forEach(marcador => {
                 marcador.setMap(null);

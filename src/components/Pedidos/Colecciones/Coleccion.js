@@ -62,25 +62,7 @@ const Coleccion = (props) => {
               <div className="col px-1">
                 <div className="row mb-2 text-center">
                   <div className="col-12 p-0">
-                    <h5 className={styles.TitleColeccion} >Entrega Inicio:</h5>
-                  </div>
-                  <div className="col-12 p-0">
-                    {moment(props.coleccion.EntregaInicio).calendar()}
-                  </div>
-                </div>
-                <div className="row text-center">
-                  <div className="col-12 p-0">
-                    <h5 className={styles.TitleColeccion}>Entrega Fin:</h5>
-                  </div>
-                  <div className="col-12 p-0">
-                    {moment(props.coleccion.EntregaFinal).calendar()}
-                  </div>
-                </div>
-              </div>
-              <div className="col px-1">
-                <div className="row mb-2 text-center">
-                  <div className="col-12 p-0">
-                    <h5 className={styles.TitleColeccion}>Venta Inicio:</h5>
+                    <h5 className={styles.TitleColeccion} >Venta Inicio:</h5>
                   </div>
                   <div className="col-12 p-0">
                     {moment(props.coleccion.VentaInicio).calendar()}
@@ -88,10 +70,28 @@ const Coleccion = (props) => {
                 </div>
                 <div className="row text-center">
                   <div className="col-12 p-0">
-                    <h5 className={styles.TitleColeccion}> Venta Fin: </h5>
+                    <h5 className={styles.TitleColeccion}>Venta Fin:</h5>
                   </div>
                   <div className="col-12 p-0">
                     {moment(props.coleccion.VentaFinal).calendar()}
+                  </div>
+                </div>
+              </div>
+              <div className="col px-1">
+                <div className="row mb-2 text-center">
+                  <div className="col-12 p-0">
+                    <h5 className={styles.TitleColeccion}>Entrega Inicio:</h5>
+                  </div>
+                  <div className="col-12 p-0">
+                    {moment(props.coleccion.EntregaInicio).calendar()}
+                  </div>
+                </div>
+                <div className="row text-center">
+                  <div className="col-12 p-0">
+                    <h5 className={styles.TitleColeccion}> Entrega Fin: </h5>
+                  </div>
+                  <div className="col-12 p-0">
+                    {moment(props.coleccion.EntregaFinal).calendar()}
                   </div>
                 </div>
               </div>

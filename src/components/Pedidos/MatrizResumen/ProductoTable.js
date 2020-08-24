@@ -4,7 +4,7 @@ import PopupState, {
     bindTrigger,
     bindPopover
 } from 'material-ui-popup-state';
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import ToggleIcon from 'material-ui-toggle-icon'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Popover, Typography, Card, CardContent, CardMedia } from "@material-ui/core";
@@ -22,16 +22,16 @@ const ProductoTable = (props) => {
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [IsOpen, setIsOpen] = useState(false);
 
-    
+
     const urlApi = APIURL;
-    let ArregloProductos =  Object.keys(props.producto.Colores).map((key)=>([key,props.producto.Colores[key]]));
+    let ArregloProductos = Object.keys(props.producto.Colores).map((key) => ([key, props.producto.Colores[key]]));
     ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1);
 
     useEffect(() => {
         setDirty(props.mostrarVacios);
         cargarBackOrder();
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.mostrarVacios]);
 
     const EliminarProducto = (grupo, cod, nombre) => {
@@ -201,11 +201,13 @@ const ProductoTable = (props) => {
 
                 </td>
             </tr>
-            
+
             {ArregloProductos.map((codigoColor, index2) => {
                 let color = codigoColor[1];
                 var totalXColor = 0;
-                var totalPrecioXColor = 0;
+                let cantidadTotalXColor = 0;
+
+                // var totalPrecioXColor = 0;
 
                 return (
                     <tr key={index2}>
@@ -217,7 +219,7 @@ const ProductoTable = (props) => {
                         }}>
                             <PopupState variant="popover" popupId={props.producto.NombreProducto + props.index1}>
                                 {popupState => {
-                                    
+
                                     if (color.ListaImagenes.length !== 0) {
                                         return (
                                             <>
@@ -268,9 +270,11 @@ const ProductoTable = (props) => {
                                 var valorTalla = color.Tallas[codigoTalla];
                                 var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
 
-                                totalXColor = parseInt(totalXColor, 10) + (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-
-                                totalPrecioXColor = (valorTalla.Precio * totalXColor);
+                                
+                                let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+                                let totalXTalla = cantidadXTalla*valorTalla.Precio;
+                                cantidadTotalXColor+=cantidadXTalla;
+                                totalXColor =  parseInt(totalXColor, 10) +totalXTalla;
 
 
                                 return (
@@ -300,14 +304,14 @@ const ProductoTable = (props) => {
                             alignItems: 'center',
                             verticalAlign: 'middle',
                             fontWeight: 600,
-                        }}>{totalXColor}</td>
+                        }}>{cantidadTotalXColor}</td>
 
                         <td className="p-1" style={{
                             textAlign: 'right',
                             alignItems: 'center',
                             verticalAlign: 'middle',
                             fontWeight: 600,
-                        }}>{props.numberWithCommas(totalPrecioXColor)}</td>
+                        }}>{props.numberWithCommas(totalXColor)}</td>
                     </tr>
                 )
             })}

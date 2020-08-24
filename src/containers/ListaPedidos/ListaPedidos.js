@@ -42,7 +42,8 @@ const ListaPedidos = () => {
     }
 
     const cargarPedidos = async () => {
-        fetch(urlApi + "/api/PedidosXCliente", {
+        let Asesor = localStorage.getItem('codigo')
+        fetch(urlApi + "/api/PedidosXCliente/"+ Asesor, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -186,6 +187,8 @@ const ListaPedidos = () => {
                     pedido.PedidoId,
                     pedido.Cliente.Nombre,
                     moment(pedido.FechaActual).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaActual).format('DD/MM/YYYY') : "",
+                    (pedido.Sincronizado)?"Si":"No",
+                    (pedido.NumeroPedido==="")?"No disponible":pedido.NumeroPedido,
                     pedido.Linea.Linea,
                     pedido.NombreColeccion,
                     pedido.TotalUnidades,
@@ -310,6 +313,8 @@ const HeadersListaPedidos = [
     "No. Pedido",
     "Cliente",
     "Fecha Pedido",
+    "Sincronizado",
+    "Num. Pedido Ax",
     "Línea",
     "Paquete",
     "Total Unidades",

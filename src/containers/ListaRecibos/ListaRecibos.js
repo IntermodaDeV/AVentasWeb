@@ -30,9 +30,9 @@ const ListaRecibos = (props) => {
         // eslint-disable-next-line
     }, []);
 
-    // const cambiarRecibo = (recibo) => {
-    //     setRecibo(recibo);
-    // }
+    const cambiarRecibo = (recibo) => {
+         setRecibo(recibo);
+     }
 
     const cargarRecibos = async () => {
         setLoading(true);
@@ -52,7 +52,7 @@ const ListaRecibos = (props) => {
                     res.json()
                         .then(
                             (result) => {
-                                console.log('result :', result);
+                                
                                 setRecibos(result);
                                 setIsLoaded(true);
                                 setLoading(false);
@@ -128,23 +128,23 @@ const ListaRecibos = (props) => {
                     NumeroRecibo: recib.NumeroRecibo,
                     CodigoCliente: recib.CodigoCliente,
                     Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
-                    IdTipoPago: recib.IdTipoPago,
+                    IdTipoPago: recib.TipoPago.Descripcion,
                     Referencia: recib.Referencia,
                     FechaCheque: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
                     IdBanco: recib.IdBanco,
                     IdCuentaBancaria: recib.IdCuentaBancaria,
                     Valor: recib.Valor,
                     IdMoneda: recib.IdMoneda,
-                    Sincronizado: recib.Sincronizado,
+                    Sincronizado: recib.Sincronizado?"Si":"No",
                     CodigoAsesor: recib.CodigoAsesor,
                     IdFactura: recib.IdFactura,
                     Descuento: recib.Descuento,
                     Acciones:
                         <div>
 
-                            {/* <span className="mr-1">
+                             <span className="mr-1">
                                 <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
-                            </span> */}
+                            </span> 
 
                             <span className="ml-1">
                                 <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
@@ -185,6 +185,7 @@ const ListaRecibos = (props) => {
         return <div>Error: {error.message}</div>;
     }
     if (recibo != null) {
+        
         return (
             <DetalleRecibo
                 recibo={recibo}

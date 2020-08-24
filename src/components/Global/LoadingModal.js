@@ -11,7 +11,7 @@ const LoadingModal =(props)=>{
     const nativeFetch = window.fetch;
     window.fetch = (...args)=>{
         
-        if(args[0].includes("Geoposicion"))
+        if(args[0].includes("Geoposicion") || args[0].includes("Configuraciones"))
         {
             return nativeFetch.apply(window,args);
         }

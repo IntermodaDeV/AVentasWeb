@@ -11,6 +11,19 @@ import {useSelector} from 'react-redux';
 
 const MatrizResumen = (props) => {
     const [mostrarVacios, setMostrarVacios] = useState(false);
+
+    const coleccion         = useSelector(e=>e.coleccion.Edades);
+    const productoImpuestos = useSelector(e=>e.ProductoImpuestos);
+    const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
+    const cliente = useSelector(e=>e.cliente);
+    const clienteImpuesto = clienteImpuestos.find(x=>x.GRUPO===cliente.GrupoImpuesto);
+    let gruposTalla = Object.keys(props.tableValue);
+    let unidadesTotales = 0;
+    let totalGlobal = 0.00;
+    let impuesto = 0;
+    let moneda = (props.Cliente !== null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
+    let productosSinCantindad = false;
+
     const onContinuar = () => {
         if (productosSinCantindad) {
             Swal.fire({
@@ -33,14 +46,19 @@ const MatrizResumen = (props) => {
             props.mostrarResumen();
         }
     }
-
-    const impuesto = useSelector(e=>e.Impuesto);
-    let gruposTalla = Object.keys(props.tableValue);
-    let unidadesTotales = 0;
-    let totalGlobal = 0.00;
-    let moneda = (props.Cliente !== null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
-    let productosSinCantindad = false;
     
+    const findProduct=(codigo)=>
+    {
+        for(const edades of coleccion)
+        {
+            for(const producto of edades.ProductosXEdad)
+            {
+                if(producto.ProductoId===codigo){
+                    return producto;
+                }
+            }
+        }
+    }
 
     return (
         <>
@@ -81,6 +99,8 @@ const MatrizResumen = (props) => {
                                             </thead>
                                             <tbody>
                                                 {productos.map((codigoProducto, index1) => {
+                                                    let prod = findProduct(codigoProducto);
+                                                    const productoImpuesto = productoImpuestos.find(x=>x.GRUPO===prod.GrupoImpuesto).IMPUESTO;
                                                     let producto = props.tableValue[grupoTalla].Productos[codigoProducto];
                                                     let productoConCantindad = false;
                                                     let precio = producto.Precio.find(precioxProd => {
@@ -98,6 +118,11 @@ const MatrizResumen = (props) => {
                                                                 productoConCantindad = productoConCantindad || (cantidadXTalla > 0);
                                                                 unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
                                                                 totalGlobal = (precio.Precio * cantidadXTalla) + totalGlobal;
+
+                                                                if(clienteImpuesto.IMPUESTO!==0){
+                                                                    impuesto = ((precio.Precio * cantidadXTalla)*productoImpuesto)+impuesto;
+                                                                    localStorage.setItem('Impuesto',impuesto);
+                                                                } 
                                                             });
                                                         });
                                                         productosSinCantindad = productosSinCantindad || (!productoConCantindad);

@@ -8,6 +8,7 @@ import 'moment/locale/es';
 import {useSelector} from 'react-redux';
 
 const Recibo = (props) => {
+    const Monedas = useSelector(e=>e.Monedas);
     const clientesContado = useSelector(e=>e.clientesContado);
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.Cliente.Nombre;
@@ -15,6 +16,7 @@ const Recibo = (props) => {
     const clienteContado = props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
     let valor = props.recibo.Valor;
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Cliente.Moneda).Abreviacion;
     if(clienteContado!==null && clienteContado!==undefined)
     {
             if(valor < 10000)
@@ -51,7 +53,7 @@ const Recibo = (props) => {
                         <div className="row">
                             <div className="col p-0 text-left">
                                 <h3 className={"font-weight-normal  m-auto " + styles.LineHeight_Normal}>
-                                    {props.recibo.Cliente.CodigoCliente}
+                                    {props.recibo.Cliente.Codigo}
                                 </h3>
                             </div>
                             <div className="col p-0 text-center">
@@ -77,7 +79,7 @@ const Recibo = (props) => {
                             <div className="col-12 py-2 p-0">
                                 <p>
 
-                                    Fecha: {moment(props.recibo.Fecha).format("DD/MM/YYYY")}
+                                    Fecha: {moment(props.recibo.Fecha).format('DD/MM/YYYY hh:mm a')}
                                 </p>
                             </div>
                             <div className="col-12 p-0">
@@ -158,10 +160,11 @@ const Recibo = (props) => {
                                                                 {factu.Tipo}
                                                             </td>
                                                             <td>
-                                                                {moment(props.recibo.FechaPago).format("DD/MM/YYYY")}
+                                                                {moment(factu.FechaFactura).format("DD/MM/YYYY")}
                                                             </td>
                                                             <td>
-                                                                Abono
+                                                             {factu.EsAbono === true && "Abono"}
+                                                             {factu.EsAbono === false && "Cancelado"}
                                                             </td>
                                                             <td>
 
@@ -182,7 +185,7 @@ const Recibo = (props) => {
                                                                 } 
                                                             </td>
                                                             <td>
-                                                                {factu.DiasVencimiento}
+                                                                {"Dias: " + factu.DiasVencimiento}
                                                             </td>
                                                             <td>
                                                                 Desc
@@ -209,7 +212,7 @@ const Recibo = (props) => {
                             <div className="col-12 p-0">
                                 <h3 className={"font-weight-bold text-right " + styles.LineHeight_Normal}>
                                     Total Recibo:
-                                    {props.recibo.Cliente.Moneda}
+                                    {moneda}
                                     {numberWithCommas(props.recibo.Valor)}
                                 </h3>
                             </div>
@@ -217,7 +220,7 @@ const Recibo = (props) => {
                             <div className="col-6 p-0 m-auto">
                                 <div className={styles.FirmaContainer}>
                                     <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
-                                        {props.recibo.CodigoAsesor}
+                                        {localStorage.getItem('asesor')}
                                     </h4>
                                 </div>
                             </div>

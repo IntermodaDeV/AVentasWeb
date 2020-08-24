@@ -9,12 +9,14 @@ import 'moment/locale/es';
 
 const ImprimirPedido = (props) => {
 
+const Monedas = useSelector(e=>e.Monedas);
 const clientesContado = useSelector(e=>e.clientesContado);
 const empresas = useSelector(e=>e.Empresas);
 let NombreCliente=props.Pedido.Cliente.Nombre;
 let DireccionCliente=props.Pedido.Cliente.Direccion;
 const clienteContado = clientesContado.find(x=>x.id===props.Pedido.ClienteContadoId);
 const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+const moneda = Monedas.find(e=>e.IdMoneda === props.Pedido.Cliente.Moneda).Abreviacion;
 
 if(clienteContado!==null && clienteContado!==undefined)
 {
@@ -95,8 +97,9 @@ const checkDist = (talla) => {
 
                     {props.Pedido.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
-                        let IsDist = true;
+                        let IsDist = false;
                         let Same = false;
+                        let CantDist = 0;
                         return (
                             <table className={'table table-bordered table-xl-responsive'} style={{ borderColor: '#aaa', overflow: "auto" }} key={index1}>
                                 <thead>
@@ -104,7 +107,6 @@ const checkDist = (talla) => {
                                         <th>
                                         </th>
                                      {grupoTalla.ListaTalla.map((talla, index2) => {
-                                        IsDist=false;
                                         Same = IsSame(talla.GrupoTallaId) ;
                                         cantidad++;
                                         return (
@@ -112,6 +114,7 @@ const checkDist = (talla) => {
                                           {
                                              talla.Distribucion.length !== 0 && Same === false &&
                                              talla.Distribucion.map((dist, index3) => {
+                                               CantDist += parseInt(dist.Cantidad)
                                                IsDist = true;
                                                cantidad++;
                                                 return (
@@ -174,12 +177,14 @@ const checkDist = (talla) => {
                                                             <td className="p-1 text-center" style={{
                                                                 alignItems: 'center',
                                                                 verticalAlign: 'middle',
-                                                                width: `${cellSize}%`,
-                                                            }}>
+                                                                width: `${cellSize}%`,}}>
+                                                                <div className="col-12 px-0">
+                                                                    <span>{"Precio"}</span>
+                                                                </div>
                                                                 {color.NombreColor}
                                                             </td>
                                                             {detalles.map((det, index4) => {
-                                                              count ++
+                                                             count ++
                                                                 IsDist = det !== null ? checkDist(det.TallaObject) : IsDist;
                                                                 return ( 
                                                                     <>
@@ -208,11 +213,12 @@ const checkDist = (talla) => {
                                                                                 <td key={index4} className="p-1 text-center" style={{
                                                                                     alignItems: 'center',
                                                                                     verticalAlign: 'middle',
-                                                                                    width: `${cellSize}%`,
-                                                                                }}>
-                                                                                    
-                                                                            <label>{totalcant}</label>
-                                                                            </td>
+                                                                                    width: `${cellSize}%`,}}>
+                                                                                        <div className="col-12 px-0">
+                                                                                            <span>{det? det.PrecioUnitario/CantDist : "--"}</span>
+                                                                                        </div>
+                                                                                        <label>{totalcant}</label>
+                                                                                </td>
                                                                             )
                                                                         })
                                                                     }
@@ -223,7 +229,10 @@ const checkDist = (talla) => {
                                                                             verticalAlign: 'middle',
                                                                             width: `${cellSize}%`,
                                                                         }}>
-                                                                        <label>{det? det.Cantidad : 0}</label>
+                                                                            <div className="col-12 px-0">
+                                                                                <span>{det? det.PrecioUnitario : "--"}</span>
+                                                                            </div>
+                                                                            <label>{det? det.Cantidad : 0}</label>
                                                                         </td>
                                                                     }
                                                                     </>    
@@ -310,11 +319,11 @@ const checkDist = (talla) => {
 
                             <div className="row TotalRow">
                                 <div className="col-5 labelTotal text-left">
-                                    Total {props.Pedido.Cliente.Moneda}:
+                                    Total:
                                     </div>
 
                                 <div className="col-7 valueTotal">
-                                    {numberWithCommas((props.Pedido.TotalXPedido))}
+                                    {moneda}{numberWithCommas((props.Pedido.TotalXPedido))}
                                 </div>
                             </div>
                         </div>

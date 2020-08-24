@@ -22,53 +22,67 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import Logo from 'assets/img/logo/Logoinv.png';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import {useSelector,useDispatch} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Dropdown } from "semantic-ui-react/";
 import CancelPresentationIcon from '@material-ui/icons/CancelPresentation';
 import ClienteContado from '../SelectCliente/ClienteContado';
 
 const ResumenPedido = (props) => {
+
+    let fechaInicioEntrega = moment().toDate();
+    let fechaMinimaEntrega = moment().toDate();
+
+    if(props.coleccion.ColeccionTipo === "F"){
+        fechaInicioEntrega = moment(props.coleccion.EntregaFinal).toDate();
+        fechaMinimaEntrega = moment(props.coleccion.EntregaInicio).toDate()
+    }else{
+        fechaInicioEntrega = moment(fechaInicioEntrega, "DD-MM-YYYY").add(3, 'days');
+        fechaMinimaEntrega = moment(fechaMinimaEntrega, "DD-MM-YYYY").add(2, 'days');
+
+        if(fechaInicioEntrega.day()===0){
+            fechaInicioEntrega = moment(fechaInicioEntrega, "DD-MM-YYYY").add(1, 'days');
+        }
+    }
+
     const [firma, setFirma] = React.useState(null);
     const [mostrarFirma, setMostrarFirma] = React.useState(false);
     const [ErrorFecha, setErrorFecha] = React.useState(false);
     const [ErrorFirma, setErrorFirma] = React.useState(true);
-    const [FechaEntrega, setFechaEntrega] = React.useState((props.coleccion.ColeccionTipo === "F") ? moment(props.coleccion.EntregaInicio).toDate() : moment().toDate());
+    const [FechaEntrega, setFechaEntrega] = React.useState(fechaInicioEntrega);
     var sigPad = {};
-    const [flete,setFlete] = React.useState(0);
-    const [openContado,setOpenContado] = React.useState(false);
-    const clienteContado = useSelector(e=>e.clienteContado);
-    const empresas = useSelector(e=>e.Empresas);
-    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    const [flete, setFlete] = React.useState(0);
+    const [openContado, setOpenContado] = React.useState(false);
+    const clienteContado = useSelector(e => e.clienteContado);
+    const empresas = useSelector(e => e.Empresas);
+    const empresa = empresas.find(x => x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
     let comunidadSelected = "";
     let modoEntrega = "";
     let habilitado = false;
 
-    if(clienteContado===null)
-    {
-        if(props.Cliente.ComunidadAutonoma!==""){
+    if (clienteContado === null) {
+        if (props.Cliente.ComunidadAutonoma !== "") {
             comunidadSelected = props.Cliente.ComunidadAutonoma;
             habilitado = true;
         }
 
-        if(props.Cliente.ModoEntrega!==""){
+        if (props.Cliente.ModoEntrega !== "") {
             modoEntrega = props.Cliente.ModoEntrega;
         }
     }
 
-    console.log(props);
-
     const dispatch = useDispatch();
-    const impuesto = useSelector(e=>e.Impuesto);
-    const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
-    const TipoCredito = useSelector(e=>e.TipoPedido);
-    const modoVenta = TipoCredito.TipoPedido === 'Contado'?'Contado':'Credito';
-    const requiereEntrega = useSelector(e=>e.requiereEntrega);
-    const empresasTransporte = useSelector(e=>e.empresasTransporte);
-    const precioCajas = useSelector(e=>e.precioCajas);
-    const comunidadesAutonomas = useSelector(e=>e.comunidadesAutonomas);
-    const [transporte,setTransporte]= React.useState(modoEntrega);
-    const [comunidad,setComunidad] = React.useState(comunidadSelected);
+    const impuesto = Number(localStorage.getItem('Impuesto'));
+    const lineaSeleccionada = useSelector(e => e.LineaSeleccionada);
+    const TipoCredito = useSelector(e => e.TipoPedido);
+    const modoVenta = TipoCredito.TipoPedido === 'Contado' ? 'Contado' : 'Credito';
+    const requiereEntrega = useSelector(e => e.requiereEntrega);
+    const empresasTransporte = useSelector(e => e.empresasTransporte);
+    const precioCajas = useSelector(e => e.precioCajas);
+    const comunidadesAutonomas = useSelector(e => e.comunidadesAutonomas);
+    const [transporte, setTransporte] = React.useState(modoEntrega);
+    const [comunidad, setComunidad] = React.useState(comunidadSelected);
     const esBiomedico = (lineaSeleccionada.IdLinea === "BIO" && requiereEntrega);
+    const Monedas = useSelector(e=>e.Monedas);
 
     var gruposTalla = Object.keys(props.tableValue);
     var unidadesTotales = 0;
@@ -76,45 +90,42 @@ const ResumenPedido = (props) => {
     const componentRef = React.useRef();
     var nuevafecha = new Date();
     var fecha = moment(nuevafecha).toDate();
-    var moneda = (props.Cliente != null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
-
+    const moneda = Monedas.find(e=>e.IdMoneda === props.Cliente.Moneda).Abreviacion;
     const calcularFlete = () => {
-        if(comunidad==="" || transporte===""){
+        if (comunidad === "" || transporte === "") {
             return 0;
         }
 
-        const precioCaja = precioCajas.find(x=>x.STATE===comunidad && x.CODE === transporte);
-        if(precioCaja === null || precioCaja === undefined){
+        const precioCaja = precioCajas.find(x => x.STATE === comunidad && x.CODE === transporte);
+        if (precioCaja === null || precioCaja === undefined) {
             return 0;
         }
 
-        const multiploCaja = empresasTransporte.find(x=>x.CODE === transporte);
-        if(multiploCaja === null || multiploCaja === undefined || multiploCaja.MULTIPLO === 0){
+        const multiploCaja = empresasTransporte.find(x => x.CODE === transporte);
+        if (multiploCaja === null || multiploCaja === undefined || multiploCaja.MULTIPLO === 0) {
             return 0;
         }
 
         let division = parseFloat(unidadesTotales) / parseFloat(multiploCaja.MULTIPLO);
 
-        if (!(division % 1 === 0))
-        {
+        if (!(division % 1 === 0)) {
             division += 1;
         }
 
         let cajas = Math.trunc(division);
 
-        if(cajas === 0)
-        {
+        if (cajas === 0) {
             cajas = 1;
         }
 
         const impuestoLocal = 0.15;
 
-        const valorImpuesto = (cajas*precioCaja.UNITVALUEBOXES) * impuestoLocal;
-        const valorFlete    = (cajas*precioCaja.UNITVALUEBOXES) + valorImpuesto;
+        const valorImpuesto = (cajas * precioCaja.UNITVALUEBOXES) * impuestoLocal;
+        const valorFlete = (cajas * precioCaja.UNITVALUEBOXES) + valorImpuesto;
 
         return valorFlete;
     }
-    
+
     const closeDialogFirma = () => {
         if (sigPad.isEmpty()) {
             setMostrarFirma(false);
@@ -132,34 +143,35 @@ const ResumenPedido = (props) => {
     const clearFirma = () => {
         sigPad.clear();
     }
-let GrupoTalla = "";
-let TotalUnidad = 0;
-const IsSame = (GrupoTallaId) => {
-    let found = false;
-    if(GrupoTalla === ""){
-        GrupoTalla = GrupoTallaId;
+    let GrupoTalla = "";
+    let TotalUnidad = 0;
+    const IsSame = (GrupoTallaId) => {
+        let found = false;
+        if (GrupoTalla === "") {
+            GrupoTalla = GrupoTallaId;
+        }
+        else if (GrupoTalla === GrupoTallaId) {
+            found = true;
+        }
+        return found;
     }
-    else if(GrupoTalla === GrupoTallaId){
-        found = true;
-    }
-    return found;
-}
 
-    const ApruebaBio = () =>{
-        return clienteContado !== null 
-                && clienteContado.RTN === '' 
-                && lineaSeleccionada.IdLinea === "BIO" 
-                && ((totalGlobal + impuesto)+flete)>10000;
+    const ApruebaBio = () => {
+        return clienteContado !== null
+            && clienteContado.RTN === ''
+            && lineaSeleccionada.IdLinea === "BIO"
+            && ((totalGlobal + impuesto) + flete) > 10000;
     }
 
     const Finalizar = () => {
-        if(ApruebaBio())
-        {
+
+
+        if (ApruebaBio()) {
             setOpenContado(true);
-        }else{
+        } else {
             if (!props.loadingRecibo) {
                 if (ErrorFecha || ErrorFirma) {
-    
+
                     var mensajeError = 'Error'
                     if (ErrorFirma) {
                         mensajeError = 'Ingrese Firma';
@@ -167,7 +179,7 @@ const IsSame = (GrupoTallaId) => {
                     else if (ErrorFecha) {
                         mensajeError = 'Fecha Entrega no es válida';
                     }
-    
+
                     Swal.fire({
                         type: 'error',
                         title: 'Error',
@@ -178,23 +190,55 @@ const IsSame = (GrupoTallaId) => {
                     if (props.NumeroOrden) {
                         props.FinalizarPedidoOnline();
                     } else {
-                        props.enviarPedido();
-    
+                        if ((props.Cliente.FacturacionEntrega !== "No" && props.Cliente.FacturacionEntrega !== "Nunca")) {
+                            Swal.fire({
+                                title: 'Aviso',
+                                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque actualmente el cliente se encuentra en mora.',
+                                type: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Continuar',
+                                cancelButtonText: 'Cancelar'
+                            }).then((result) => {
+                                if (result.value) {
+                                    props.enviarPedido();
+                                }
+                            })
+                        } else if ((totalGlobal + impuesto) > props.Cliente.CreditoDisponible && TipoCredito.TipoPedido !== 'Contado') {
+                            Swal.fire({
+                                title: 'Aviso',
+                                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque supero su limite de credito.',
+                                type: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Continuar',
+                                cancelButtonText: 'Cancelar'
+                            }).then((result) => {
+                                if (result.value) {
+                                    props.enviarPedido();
+                                }
+                            })
+                        }
+                        else {
+                            props.enviarPedido();
+                        }
+
                     }
                 }
             }
         }
     }
 
-    React.useEffect(()=>{
-        if(lineaSeleccionada.IdLinea === "BIO" && props.Cliente.Codigo.includes('IMHN'))
-        {
+    React.useEffect(() => {
+        if (lineaSeleccionada.IdLinea === "BIO" && props.Cliente.Codigo.includes('IMHN')) {
             const valorFlete = calcularFlete();
             setFlete(valorFlete)
-            dispatch({type:'SET_FLETE',payload:valorFlete});
+            dispatch({ type: 'SET_FLETE', payload: valorFlete });
         }
-         // eslint-disable-next-line
-    },[comunidad,transporte]);
+        // eslint-disable-next-line
+    }, [comunidad, transporte]);
     const onChangeDate = (date) => {
         setFechaEntrega(date);
     }
@@ -250,10 +294,9 @@ const IsSame = (GrupoTallaId) => {
 
             productos.forEach((codigoProducto) => {
                 var producto = props.tableValue[grupoTalla].Productos[codigoProducto];
-
-                let ColoresProductos =  Object.keys(producto.Colores).map((key)=>(producto.Colores[key]));
+                let ColoresProductos = Object.keys(producto.Colores).map((key) => (producto.Colores[key]));
                 ColoresProductos.sort((a, b) => a.NombreColor < b.NombreColor ? -1 : 1);
-                
+
                 var precio = producto.Precio.find(precioxProd => {
                     return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
                 });
@@ -266,6 +309,7 @@ const IsSame = (GrupoTallaId) => {
                     var totalXProducto = 0;
                     var cantidadTotal = 0;
                     var Datos = [];
+                    let TotalPrecio = 0;
                     ColoresProductos.forEach(codigoColor => {
                         var dato = {
                             color: codigoColor.NombreColor,
@@ -277,27 +321,27 @@ const IsSame = (GrupoTallaId) => {
                             var talla = {
                                 codigoTalla: codigoTalla,
                                 cantidad: (isNaN(parseInt(codigoColor.Tallas[codigoTalla].Cantidad, 10))) ? 0 : parseInt(codigoColor.Tallas[codigoTalla].Cantidad, 10),
-                                precio: numberWithCommas(precio.Precio)
+                                precio: numberWithCommas(codigoColor.Tallas[codigoTalla].Precio)
                             }
                             cantidadTotal = parseInt(cantidadTotal, 10) + talla.cantidad;
                             dato.tallasXcolor.push(talla);
                             dato.cantidadTotal += talla.cantidad;
-                            dato.total = dato.total + (precio.Precio * talla.cantidad)
+                            dato.total = dato.total + (codigoColor.Tallas[codigoTalla].Precio * talla.cantidad)
+                            TotalPrecio+=((codigoColor.Tallas[codigoTalla].Precio * talla.cantidad));
                         });
                         Datos.push(dato);
                     });
                     if (cantidadTotal > 0) {
-                        totalXProducto = precio.Precio * cantidadTotal;
+                        totalXProducto = TotalPrecio;
                         unidadesTotales = unidadesTotales + cantidadTotal;
                         totalGlobal = totalGlobal + totalXProducto;
-
                         DataDetallePedido.push({
                             Producto: codigoProducto,
                             Nombre: producto.NombreProducto,
                             Cantidad: numberWithCommasNoDec(cantidadTotal),
                             Total: numberWithCommas(totalXProducto),
                             ExpandedRow: {
-                                ListaTallas: props.tableValue[grupoTalla].ListaTallas,
+                                ListaTallas: producto.ListaTallas,
                                 Datos: Datos
                             }
                         });
@@ -318,7 +362,6 @@ const IsSame = (GrupoTallaId) => {
         expandableRowsOnClick: true,
         selectableRows: 'none',
         renderExpandableRow: (rowData, rowMeta) => {
-
             const colSpan = rowData.length + 1;
             return (
                 <TableRow>
@@ -330,7 +373,7 @@ const IsSame = (GrupoTallaId) => {
                                         Color
                                 </th>
                                     {DataDetallePedido[rowMeta.dataIndex].ExpandedRow.ListaTallas.map((talla, index) => {
-                                         return (
+                                        return (
                                             <th className={'text-center'} key={index}>
                                                 {talla.Talla}
                                             </th>
@@ -402,7 +445,7 @@ const IsSame = (GrupoTallaId) => {
                 filterTable: "Filtrar Tabla",
             },
             filter: {
-                all: "Todos",
+                all: "Click para Todos >",
                 title: "Filtros",
                 reset: "Quitar",
             },
@@ -432,26 +475,26 @@ const IsSame = (GrupoTallaId) => {
                             Same = IsSame(talla.GrupoTallaId);
                             return (
                                 <>
-                                {
-                                   talla.Distribucion.length !== 0  && Same === false &&
-                                   talla.Distribucion.map((dist, index3) => {
-                                   CantDist += parseInt(dist.Cantidad)
-                                      return (
-                                      <th key={index}>
-                                         {
-                                             <div key={index3}>{dist.NombreTalla}</div>
-                                         }
-                                      </th>
-                                      )
-                                  })
-                               }
-                               {
-                               talla.Distribucion.length === 0 &&
-                               <th className={'text-center'} style={{ minWidth: 42 }} key={index}>
-                                    {talla.Talla}
-                                </th>
-                                }
-                              </> 
+                                    {
+                                        talla.Distribucion.length !== 0 && Same === false &&
+                                        talla.Distribucion.map((dist, index3) => {
+                                            CantDist += parseInt(dist.Cantidad)
+                                            return (
+                                                <th key={index}>
+                                                    {
+                                                        <div key={index3}>{dist.NombreTalla}</div>
+                                                    }
+                                                </th>
+                                            )
+                                        })
+                                    }
+                                    {
+                                        talla.Distribucion.length === 0 &&
+                                        <th className={'text-center'} style={{ minWidth: 42 }} key={index}>
+                                            {talla.Talla}
+                                        </th>
+                                    }
+                                </>
                             )
                         })}
                         <th>Cant</th>
@@ -486,7 +529,7 @@ const IsSame = (GrupoTallaId) => {
     const getTableProduct = (producto, index1, codigoProducto, tallas, precio) => {
         let productosTabla = { total: 0, tabla: null };
 
-        let ArregloProductos =  Object.keys(producto.Colores).map((key)=>(producto.Colores[key]));
+        let ArregloProductos = Object.keys(producto.Colores).map((key) => (producto.Colores[key]));
         ArregloProductos.sort((a, b) => a.NombreColor < b.NombreColor ? -1 : 1);
         productosTabla.tabla = (
             <tbody key={index1}>
@@ -499,7 +542,7 @@ const IsSame = (GrupoTallaId) => {
                         {codigoProducto} <span className="font-weight-normal pl-4">{producto.NombreProducto}</span>
                     </td>
                 </tr>
-                
+
                 {ArregloProductos.map((codigoColor, index2) => {
                     var color = codigoColor;
                     var totalXColor = 0;
@@ -518,7 +561,7 @@ const IsSame = (GrupoTallaId) => {
 
     const getTableColor = (color, totalXColor, index2, precio) => {
         let colorTabla = { total: 0, tabla: null };
-        let Count= 0;
+        let Count = 0;
         let arreglo = [];
         let totalcantidad = 0;
         let PrecioDistribucion = 0;
@@ -531,73 +574,76 @@ const IsSame = (GrupoTallaId) => {
                     verticalAlign: 'middle',
                     //fontWeight: 600,
                 }}>
+                    <div className="col-12 px-0">
+                        <span>{"Precio"}</span>
+                    </div>
                     {color.NombreColor}
                 </td>
                 {
 
                     Object.keys(color.Tallas).map((codigoTalla, index3) => {
-                        Count ++;
+                        Count++;
                         var valorTalla = color.Tallas[codigoTalla];
-                        var tallas =  Object.keys(color.Tallas).length;
+                        var tallas = Object.keys(color.Tallas).length;
                         let TotalXTalla = 0;
                         //var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
                         totalXColor = parseInt(totalXColor, 10) + (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
                         colorTabla.total = totalXColor;
                         return (
                             <>
-                            {
-                                valorTalla.Distribucion.length !== 0 &&
-                                valorTalla.Distribucion.map((dist, index4) => {
-                                TotalXTalla = dist.Cantidad *  valorTalla.Cantidad;
-                                TotalXProdDist += TotalXTalla;
-                                TotalUnidad +=  TotalXTalla;
-                                let cant = 0;
-                                    if(tallas === 1){
-                                        totalcantidad = dist.Cantidad *  valorTalla.Cantidad;
-                                        PrecioDistribucion = valorTalla.Precio/CantDist
-                                    }
-                                    else{
-                                        if(Count === 1){
-                                            arreglo.push({ NombreTalla: dist.NombreTalla, cant : dist.Cantidad *  valorTalla.Cantidad});                          
-                                            PrecioDistribucion = PrecioDistribucion === 0? valorTalla.Precio/CantDist : valorTalla.Precio/CantDist;
-                                           
-                                            return false;
+                                {
+                                    valorTalla.Distribucion.length !== 0 &&
+                                    valorTalla.Distribucion.map((dist, index4) => {
+                                        TotalXTalla = dist.Cantidad * valorTalla.Cantidad;
+                                        TotalXProdDist += TotalXTalla;
+                                        TotalUnidad += TotalXTalla;
+                                        let cant = 0;
+                                        if (tallas === 1) {
+                                            totalcantidad = dist.Cantidad * valorTalla.Cantidad;
+                                            PrecioDistribucion = valorTalla.Precio / CantDist
                                         }
-                                        else{
-                                            const listaTallas = arreglo.filter(x=>x.NombreTalla===dist.NombreTalla);
-                                            cant = dist.Cantidad *  valorTalla.Cantidad
-                                            totalcantidad = listaTallas[0].cant + cant;
-                                        }     
-                                    }
+                                        else {
+                                            if (Count === 1) {
+                                                arreglo.push({ NombreTalla: dist.NombreTalla, cant: dist.Cantidad * valorTalla.Cantidad });
+                                                PrecioDistribucion = PrecioDistribucion === 0 ? valorTalla.Precio / CantDist : valorTalla.Precio / CantDist;
 
-                                return(
-                                    <td key={index4} style={{ textAlign: "center" }}>
-                                    <div className="row">
-                                        <div className="col-12 px-0">
-                                            <span>{PrecioDistribucion}</span>
+                                                return false;
+                                            }
+                                            else {
+                                                const listaTallas = arreglo.filter(x => x.NombreTalla === dist.NombreTalla);
+                                                cant = dist.Cantidad * valorTalla.Cantidad
+                                                totalcantidad = listaTallas[0].cant + cant;
+                                            }
+                                        }
+
+                                        return (
+                                            <td key={index4} style={{ textAlign: "center" }}>
+                                                <div className="row">
+                                                    <div className="col-12 px-0">
+                                                        <span>{PrecioDistribucion}</span>
+                                                    </div>
+                                                    <div className="col-12 px-0">
+                                                        <span>{totalcantidad}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        )
+                                    })
+                                }
+                                {
+                                    valorTalla.Distribucion.length === 0 &&
+                                    <td key={index3} style={{ textAlign: "center" }} >
+                                        <div className="row">
+                                            <div className="col-12 px-0">
+                                                <span>{valorTalla.Precio}</span>
+                                            </div>
+                                            <div className="col-12 px-0">
+                                                <span>{valorTalla.Cantidad !== "" ? valorTalla.Cantidad : 0}</span>
+                                            </div>
                                         </div>
-                                        <div className="col-12 px-0">
-                                            <span>{totalcantidad}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                )
-                                })
-                            }
-                            {
-                                valorTalla.Distribucion.length === 0 && 
-                                <td key={index3} style={{ textAlign: "center" }} >
-                                <div className="row">
-                                    <div className="col-12 px-0">
-                                        <span>{valorTalla.Precio}</span>
-                                    </div>
-                                    <div className="col-12 px-0">
-                                        <span>{valorTalla.Cantidad !== "" ? valorTalla.Cantidad : 0}</span>
-                                    </div>
-                                </div>
-                            </td>
-                            }
-                            
+                                    </td>
+                                }
+
                             </>
                         )
                     })
@@ -607,7 +653,7 @@ const IsSame = (GrupoTallaId) => {
                     alignItems: 'center',
                     verticalAlign: 'middle',
                     fontWeight: 600,
-                }}>{TotalXProdDist !==0 ? TotalXProdDist : totalXColor}</td>
+                }}>{TotalXProdDist !== 0 ? TotalXProdDist : totalXColor}</td>
 
                 <td style={{
                     textAlign: 'right',
@@ -675,54 +721,55 @@ const IsSame = (GrupoTallaId) => {
                                         variant="inline"
                                         format={"DD/MM/YYYY"}
                                         invalidDateMessage={"Fecha no es válida"}
+                                        shouldDisableDate={(e)=>(e.day()===0)}
                                         onError={(error) => onErrorDate(error)}
                                         onAccept={(date) => onAcceptDate(date)}
                                         maxDateMessage={(props.coleccion.ColeccionTipo === "F") ? "La fecha es menor que la fecha final de entrega" : "Fecha no es válida"}
                                         minDateMessage={(props.coleccion.ColeccionTipo === "F") ? "La fecha es menor que la fecha inicial de entrega" : "Fecha no es válida"}
                                         value={FechaEntrega}
-                                        minDate={(props.coleccion.ColeccionTipo === "F") ? moment(props.coleccion.EntregaInicio).toDate() : moment().toDate()}
+                                        minDate={fechaMinimaEntrega}
                                         maxDate={(props.coleccion.ColeccionTipo === "F") ? moment(props.coleccion.EntregaFinal).toDate() : moment('2100-01-01').toDate()}
                                         onChange={(date) => onChangeDate(date)}
                                     />
                                 </div>
                                 {(esBiomedico && props.Cliente.Codigo.includes('IMHN')) && <>
-                                <div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
-                                    <Dropdown
-                                        placeholder="Seleccione empresa transporte"
-                                        fluid
-                                        search
-                                        selection
-                                        onChange={(e, { value }) =>{
-                                            setTransporte(value);
-                                            
-                                        }}
-                                        defaultValue={modoEntrega}
-                                        options={empresasTransporte.map(empresa => {
-                                            return {key:empresa.CODE, value:empresa.CODE,text:empresa.TXT}
-                                        })}
-                                        noResultsMessage={"No hay resultados"}
-                                        closeOnChange={true}
-                                    />
-                                </div>
-                                <div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
-                                    <Dropdown
-                                        placeholder="Seleccione comunidad autonoma"
-                                        fluid
-                                        search
-                                        selection   
-                                        onChange={(e, { value }) =>{
-                                            setComunidad(value);
-                                            
-                                        }}
-                                        defaultValue={comunidadSelected}
-                                        disabled={habilitado}
-                                        options={comunidadesAutonomas.map(comunidad => {
-                                            return {key:comunidad.STATEID, value:comunidad.STATEID,text:comunidad.NAME}
-                                        })}
-                                        noResultsMessage={"No hay resultados"}
-                                        closeOnChange={true}
-                                    />
-                                </div> </>}      
+                                    <div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
+                                        <Dropdown
+                                            placeholder="Seleccione empresa transporte"
+                                            fluid
+                                            search
+                                            selection
+                                            onChange={(e, { value }) => {
+                                                setTransporte(value);
+
+                                            }}
+                                            defaultValue={modoEntrega}
+                                            options={empresasTransporte.map(empresa => {
+                                                return { key: empresa.CODE, value: empresa.CODE, text: empresa.TXT }
+                                            })}
+                                            noResultsMessage={"No hay resultados"}
+                                            closeOnChange={true}
+                                        />
+                                    </div>
+                                    <div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
+                                        <Dropdown
+                                            placeholder="Seleccione departamento"
+                                            fluid
+                                            search
+                                            selection
+                                            onChange={(e, { value }) => {
+                                                setComunidad(value);
+
+                                            }}
+                                            defaultValue={comunidadSelected}
+                                            disabled={habilitado}
+                                            options={comunidadesAutonomas.map(comunidad => {
+                                                return { key: comunidad.STATEID, value: comunidad.STATEID, text: comunidad.NAME }
+                                            })}
+                                            noResultsMessage={"No hay resultados"}
+                                            closeOnChange={true}
+                                        />
+                                    </div> </>}
                             </div>
                         </div>
                         <div className='col-xl-3 col-lg-4 col-md-5 col-12'>
@@ -742,22 +789,22 @@ const IsSame = (GrupoTallaId) => {
                                     {moneda} {numberWithCommas(totalGlobal)}
                                 </div>
                             </div>
-                            {(lineaSeleccionada.IdLinea === "BIO" 
-                            && requiereEntrega 
-                            && props.Cliente.Codigo.includes('IMHN')) && <div className="row">
-                                <div className="col-6 text-right">
-                                    Flete:
+                            {(lineaSeleccionada.IdLinea === "BIO"
+                                && requiereEntrega
+                                && props.Cliente.Codigo.includes('IMHN')) && <div className="row">
+                                    <div className="col-6 text-right">
+                                        Flete:
                                 </div>
-                                <div className="col-6">
-                                    {moneda} {numberWithCommas(flete)}
-                                </div>
-                            </div>}
+                                    <div className="col-6">
+                                        {moneda} {numberWithCommas(flete)}
+                                    </div>
+                                </div>}
                             <div className="row">
                                 <div className="col-6 text-right">
                                     ISV:
                                 </div>
                                 <div className="col-6">
-                                {moneda} {numberWithCommas(impuesto)}
+                                    {moneda} {numberWithCommas(impuesto)}
                                 </div>
                             </div>
                             <div className="row">
@@ -765,7 +812,7 @@ const IsSame = (GrupoTallaId) => {
                                     Total:
                                 </div>
                                 <div className="col-6">
-                                {moneda} {numberWithCommas((totalGlobal + impuesto)+flete)}
+                                    {moneda} {numberWithCommas((totalGlobal + impuesto) + flete)}
                                 </div>
                             </div>
                         </div>
@@ -788,20 +835,20 @@ const IsSame = (GrupoTallaId) => {
             </div>
 
             {esBiomedico && <Dialog
-            disableBackdropClick 
-            scroll={'paper'}
-            open={openContado}
+                disableBackdropClick
+                scroll={'paper'}
+                open={openContado}
             >
-                <CancelPresentationIcon onClick={()=>{setOpenContado(false)}}/>
+                <CancelPresentationIcon onClick={() => { setOpenContado(false) }} />
                 <DialogTitle className="text-center" id="scroll-dialog-title">
                     <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
                         Requiere {empresa.FISCAL_DOCUMENT}
                     </div>
                 </DialogTitle>
                 <DialogContent>
-                
-                    <ClienteContado ruta={props.Cliente.CodigoRuta} cliente={clienteContado} validacion={true}/>
-                    
+
+                    <ClienteContado cliente={clienteContado} validacion={true} />
+
                 </DialogContent>
             </Dialog>}
 
@@ -853,12 +900,12 @@ const IsSame = (GrupoTallaId) => {
                         <div id="mid">
                             <div className="row">
                                 <div className="col-6">
-                                <div className="info">
+                                    <div className="info">
                                         <h2>{
-                                            (clienteContado!==null && clienteContado!==undefined)?((totalGlobal * 1.15)<10000) ? 'Consumidor Final' : clienteContado.Nombre: props.Cliente.Nombre
-                                            }</h2>
+                                            (clienteContado !== null && clienteContado !== undefined) ? ((totalGlobal * 1.15) < 10000) ? 'Consumidor Final' : clienteContado.Nombre : props.Cliente.Nombre
+                                        }</h2>
                                         <p>
-                                            Dirección : {(clienteContado!==null && clienteContado!==undefined)? clienteContado.Direccion:props.Cliente.Direccion}<br />
+                                            Dirección : {(clienteContado !== null && clienteContado !== undefined) ? clienteContado.Direccion : props.Cliente.Direccion}<br />
                                             Código    : {props.Cliente.Codigo}<br />
                                         </p>
                                     </div>
@@ -918,7 +965,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                    {TotalUnidad !== 0? TotalUnidad : unidadesTotales}
+                                        {TotalUnidad !== 0 ? TotalUnidad : unidadesTotales}
                                     </div>
                                 </div>
 
@@ -932,7 +979,7 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
                                 </div>
 
-                                { (flete>0) && <div className="row TotalRow">
+                                {(flete > 0) && <div className="row TotalRow">
                                     <div className="col-5 labelTotal text-left">
                                         Flete:
                                     </div>
@@ -948,17 +995,17 @@ const IsSame = (GrupoTallaId) => {
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                    {numberWithCommas((impuesto))}
+                                        {numberWithCommas((impuesto))}
                                     </div>
                                 </div>
 
                                 <div className="row TotalRow">
                                     <div className="col-5 labelTotal text-left">
-                                        Total {moneda}:
+                                        Total:
                                     </div>
 
                                     <div className="col-7 valueTotal">
-                                    {numberWithCommas((totalGlobal + impuesto)+flete)}
+                                    {moneda} {numberWithCommas((totalGlobal + impuesto) + flete)}
                                     </div>
                                 </div>
                             </div>

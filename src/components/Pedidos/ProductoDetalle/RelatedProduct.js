@@ -8,6 +8,12 @@ import { MdCheck } from "react-icons/md";
 
 
 const Producto = (props) => {
+
+    let stockDisponible = 0;
+    
+    if(!props.producto.CodigoColeccion.includes('F')){
+        stockDisponible = props.producto.fisicaDisponible.reduce((a,b)=>(a+b.Cantidad),0);
+    }
     
     useEffect(() => {
 
@@ -22,7 +28,7 @@ const Producto = (props) => {
 
     return (
         //className="col-xl-3 col-md-6 col-lg-4 col-sm-6 col-12"
-        <div style={{ maxWidth: '360px' }} id={props.producto.Primero ? props.producto.Edad.Codigo : ""}>
+        <div style={{ maxWidth: '400px' }} id={props.producto.Primero ? props.producto.Edad.Codigo : ""}>
             <Card
                 onClick={props.Click}
                 className={styles.card}
@@ -48,10 +54,15 @@ const Producto = (props) => {
                             </div>
                         </div>
                         <div className="row">
-                            <div style={{ fontWeight: "300", fontSize: 10, textAlign: 'left', color: '#a7a4a4', marginTop: 2 }} >
+                            <div style={{ fontWeight: "300", fontSize: 10, textAlign: 'left', marginTop: 2 }} >
                                 {props.producto.ProductoId}
                             </div>
                         </div>
+                        {(stockDisponible>0)&& <div className="row">
+                            <div style={{ fontWeight: "300", fontSize: 10, textAlign: 'left', marginTop: 2 }} >
+                                {"Disponible: "+stockDisponible}
+                            </div>
+                        </div>}
                         <div className="align-items-end d-flex flex-grow-1">
                             <div className="row w-100">
                                 <div className="col-12 p-0">

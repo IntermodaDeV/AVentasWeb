@@ -10,7 +10,6 @@ const InputPago = (props) => {
     /*let faltante = localStorage.getItem('Faltante');
     let TotalRecibo = localStorage.getItem('TotalRecibo');*/
 
-    console.log('props :', props);
 
     return (
         <TextField

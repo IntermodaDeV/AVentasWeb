@@ -99,7 +99,7 @@ const columns = [
 
 ]
 const EstadisticaVisita = (props) => {
-    console.log("props:", props)
+    
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setFechaFin] = useState(new Date((new Date()).valueOf() + (1000 * 60 * 60 * 24) * 6 + 1));
     const [estadisticasVisita, setEstadisticasVisita] = useState([]);
@@ -190,7 +190,7 @@ const EstadisticaVisita = (props) => {
 
 
     let data = [];
-    console.log("estadisticasVisita",estadisticasVisita)
+    
     estadisticasVisita.forEach(estVis => {
         data.push({
             CodigoAsesor: estVis.CodigoAsesor,
@@ -395,8 +395,7 @@ const EstadisticaVisita = (props) => {
 const cargarEstadisticaVisita = (fechaInicio, fechaFin) => {
     var inicio = moment(fechaInicio).format();
     var fin = moment(fechaFin).format();
-    console.log("inicio",inicio, "fin:",fin)
-    console.log("fechaInicio",fechaInicio, "fechaFin:",fechaFin)
+    
     return new Promise((resolve, reject) => {
         fetch(urlApi + `/api/EstadisticaVisita?FechaInicio=${inicio}&FechaFin=${fin}`, {
             headers: {

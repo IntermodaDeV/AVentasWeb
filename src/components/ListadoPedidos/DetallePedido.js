@@ -13,7 +13,9 @@ import {
 } from '@material-ui/core';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { InfoOutlined } from "@material-ui/icons";
+import {APIKEY} from 'utils/Enviroment';
 moment.locale('es');
+
 
 const DetallePedido = (props) => {
 
@@ -162,7 +164,7 @@ const DetallePedido = (props) => {
                     <FaArrowLeft size={"15px"} />
                 </Fab>
                 <h3 className="m-auto" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
-                    {props.pedido.PedidoId}
+                    Num. Pedido: {props.pedido.PedidoId}
                 </h3>
                 <hr />
             </div>
@@ -178,7 +180,7 @@ const DetallePedido = (props) => {
                             props.pedido.location ?
                                 <div style={{ height: '300px', width: '100%' }}>
                                     <GoogleMapReact
-                                        bootstrapURLKeys={{ key: "AIzaSyBYe6qlu-FWB8cCAMG52pdAPVs5W2cdODU" }}
+                                        bootstrapURLKeys={{ key: APIKEY }}
                                         defaultCenter={
                                             {
                                                 lat: props.pedido.location.latitude,
@@ -237,6 +239,26 @@ const DetallePedido = (props) => {
                                     </td>
                                     <td className={styles.InfoLabelDetail}>
                                         {props.pedido.EmpresaId}
+                                    </td>
+                                </tr>
+                                <tr>
+
+
+                                    <td className={styles.InfoLabel}>
+                                        {'Sincronizado: '}
+                                    </td>
+                                    <td className={styles.InfoLabelDetail}>
+                                        {(props.pedido.Sincronizado)?"Si":"No"}
+                                    </td>
+                                </tr>
+                                <tr>
+
+
+                                    <td className={styles.InfoLabel}>
+                                        {'Num. Pedido Ax: '}
+                                    </td>
+                                    <td className={styles.InfoLabelDetail}>
+                                        {(props.pedido.NumeroPedido==="")?"No Disponible":props.pedido.NumeroPedido}
                                     </td>
                                 </tr>
                                 <tr>
@@ -471,7 +493,6 @@ const DetallePedido = (props) => {
                                                                 {color.NombreColor}
                                                             </td>
                                                             {detalles.map((det, index4) => {
-                                                                console.log("det",det) 
                                                                 return (
                                                                     <td key={index4} className="p-1 text-center" style={{ width: `${cellSize}%`}}>
                                                                         <div className="text-center">
