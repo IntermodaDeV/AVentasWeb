@@ -165,6 +165,36 @@ class Agenda extends Component {
             })
     }
 
+    enviarCheckinApi = (location,check)=>{
+        const parametros = {
+            IdAsignacionxAsesor:this.state.IdAsignacion,
+            location:location,
+            Fecha:new Date()
+        }
+
+        fetch(`${this.urlApi}/api/Asignaciones/${check}`,{
+            headers:{
+                "Content-type":"application/json"
+            },
+            body:JSON.stringify(parametros),
+            method:"POST"
+        }).then(res=>res.json())
+        .then(data=>console.log(true))
+        .catch(err=>console.log(err))
+        
+    }
+
+    enviarCheckin = (check)=>{
+        ObtenerCoordenadas((position) => {
+            this.enviarCheckinApi({
+                longitude: position.coords.longitude,
+                latitude: position.coords.latitude
+            },check)
+        }, (error) => {
+            this.enviarCheckinApi(null,check);
+        });
+    }
+
     getFechas = (meses) => {
         var actual = new Date();
         var inicio = new Date(actual.getFullYear(), actual.getMonth(), 1);
@@ -748,6 +778,9 @@ class Agenda extends Component {
                                                         }
                                                         label="No se Atendió"
                                                     />
+
+                                                    <Button  onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
+                                                    <Button  onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>
                                                 </FormGroup>
 
                                                 
@@ -889,6 +922,23 @@ class Agenda extends Component {
         )
 
     }
+}
+
+const ObtenerCoordenadas = (resolve, reject) => {
+    const timeout = new Promise((resolve, reject) => {
+        setTimeout(reject, 10000);
+    });
+
+    const geolocationPromise = new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve(position);
+            },
+            (error) => { reject(error) },
+            { enableHighAccuracy: true, timeout: 10000 }
+        )
+    });
+    Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
 }
 
 const mapStateToProps = state => ({
