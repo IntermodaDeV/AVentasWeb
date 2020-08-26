@@ -564,7 +564,7 @@ class Agenda extends Component {
         this.cargarClientes();
         this.cargarRazonNoVenta();
         this.cargarEmpresas();
-        this.cargarMonedas();
+        //this.cargarMonedas();
         this.cargarClientesContado();
     }
 
@@ -897,7 +897,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch =>({
     onSaveEmpresas:(empresas)=>{dispatch({type:'SET_EMPRESAS',payload:empresas})},
-    onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
+    //onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
     onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})}
 })
 

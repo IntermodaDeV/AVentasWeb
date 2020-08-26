@@ -300,8 +300,16 @@ const Recibos = (props) => {
     })
   }
 
+  const cargarMonedas = () =>{
+    let empresa = localStorage.getItem('EmpresaCliente');
+    fetch(`${urlApi}/api/moneda/${empresa}`)
+    .then(res=>res.json())
+    .then(data=>{props.onSaveMonedas(data)})
+    .catch(error=>console.log(error))
+  }
   const cargarFacturasXCliente = () => {
-    props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas)
+    props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas);
+    cargarMonedas();
     props.history.push(`/Recibos/TipoCredito`);
   }
 
@@ -538,7 +546,7 @@ const Recibos = (props) => {
 }
 
 const mapStateToProps = state => {
-
+console.log("state.Recibo",state.Recibo)
 
   return {
 
@@ -562,7 +570,7 @@ const mapDispatchToProps = dispatch => {
     onStoreReciboFacturasXCliente: (facturasXCliente) => dispatch({ type: 'STORE_RECIBO_FACTURASXCLIENTE', facturasXCliente: facturasXCliente }),
     onStoreReciboCuotasCuentaCorriente: (cuotasCuentaCorriente) => dispatch({ type: 'STORE_RECIBO_CUOTASCUENTACORRIENTE', cuotasCuentaCorriente: cuotasCuentaCorriente }),
     onStoreCuotasImprimir: (cuotasCuentaCorriente) => dispatch({ type: 'SET_CUENTAIMPRIMIR', payload: cuotasCuentaCorriente }),
-
+    onSaveMonedas:(monedas)=> dispatch({type:'SET_MONEDAS',payload:monedas}),
     onStoreReciboLoading: (loading) => dispatch({ type: 'STORE_RECIBO_LOADING', loading: loading }),
 
     onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),

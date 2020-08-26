@@ -109,19 +109,15 @@ class Pedidos extends React.Component {
 
     cargarData = () => {
         Promise.all([this.cargarClientes(),
-        this.cargarEmpresasTransporte(),
-        this.cargarPrecioCajas(),
-        this.cargarComunidadAutonoma(),
         this.cargarMaestroLinea(),
         this.cargarTiposColeccion(),
-        this.cargarImpuestoClientes(),
-        this.cargarImpuestoProductos(),
+        
         this.cargarTiposPedido()]).then(this.setState({
             isLoaded: true,
         }));
     }
-    cargarColecciones = (grupoPrecio) => {
-        const empresa = localStorage.getItem('empresa')
+    cargarColecciones = (grupoPrecio, empresa) => {
+        //const empresa = localStorage.getItem('empresa')
         this.setState({
             loadingColecciones: true
         });
@@ -240,6 +236,14 @@ class Pedidos extends React.Component {
                 }
             )
     }
+
+    cargarMonedas = (empresa) =>{
+        ///let empresa = localStorage.getItem('empresa');
+        fetch(`${this.urlApi}/api/moneda/${empresa}`)
+        .then(res=>res.json())
+        .then(data=>{this.props.onSaveMonedas(data)})
+        .catch(error=>console.log(error))
+    }
     cargarTiposColeccion = () => {
         fetch(this.urlApi + "/api/TiposColeccion")
             .then(res => res.json())
@@ -260,8 +264,8 @@ class Pedidos extends React.Component {
             )
     }
 
-    cargarEmpresasTransporte = () =>{
-        const empresa = localStorage.getItem('empresa');
+    cargarEmpresasTransporte = (empresa) =>{
+        //const empresa = localStorage.getItem('empresa');
 
         fetch(`${this.urlApi}/api/transporte/${empresa}/empresas`)
         .then(res=>res.json())
@@ -269,8 +273,8 @@ class Pedidos extends React.Component {
         .catch(error=>this.setState({error}))
     }
 
-    cargarPrecioCajas = () =>{
-        const empresa = localStorage.getItem('empresa');
+    cargarPrecioCajas = (empresa) =>{
+        //const empresa = localStorage.getItem('empresa');
 
         fetch(`${this.urlApi}/api/transporte/${empresa}/preciocaja`)
         .then(res=>res.json())
@@ -278,8 +282,8 @@ class Pedidos extends React.Component {
         .catch(error=>this.setState({error}))
     }
 
-    cargarComunidadAutonoma = () =>{
-        const empresa = localStorage.getItem('empresa');
+    cargarComunidadAutonoma = (empresa) =>{
+        ///const empresa = localStorage.getItem('empresa');
         let pais = "HND";
 
         if(empresa === "imcr")
@@ -296,17 +300,16 @@ class Pedidos extends React.Component {
         .catch(error=>this.setState({error}))
     }
 
-    cargarImpuestoClientes = () =>{
-        const empresa = localStorage.getItem('empresa');
-
+    cargarImpuestoClientes = (empresa) =>{
+        //const empresa = localStorage.getItem('empresa');
         fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/clientes`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreImpuestoClientes(data))
         .catch(error=>this.setState({error}))
     }
 
-    cargarImpuestoProductos = () =>{
-        const empresa = localStorage.getItem('empresa');
+    cargarImpuestoProductos = (empresa) =>{
+        //const empresa = localStorage.getItem('empresa');
 
         fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/articulos`)
         .then(res=>res.json())
@@ -772,7 +775,13 @@ class Pedidos extends React.Component {
                 confirmButtonText: 'Ok'
               })
         }else{
-            this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio);
+            this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
+            this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
+            this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
+            this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
+            this.cargarEmpresasTransporte(this.state.autocompleteValue.EmpresaId);
+            this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
+            this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
             this.props.onSetCliente(this.state.autocompleteValue);
             this.props.onStoreColecciones([])
             this.props.history.push("/Pedidos/Linea");
@@ -2404,7 +2413,8 @@ const mapDispatchToProps = dispatch => {
         onStorePrecioCajas:(precioCajas)=>dispatch({type:'SET_PRECIOCAJAS',payload:precioCajas}),
         onStoreComunidades:(comunidades)=>dispatch({type:'SET_COMUNIDADAUTONOMA',payload:comunidades}),
         onStoreImpuestoClientes:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOS',payload:impuestos}),
-        onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos})
+        onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos}),
+        onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
     };
 };
 /* const linkButton = {

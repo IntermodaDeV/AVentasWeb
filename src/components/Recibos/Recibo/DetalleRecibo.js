@@ -426,8 +426,58 @@ const DetalleRecibo = (props) => {
             setTipoPagoEditando(pago);
         }
     }
+    const cargarBancos = () => {
+        let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa')
+        fetch(urlApi + "/api/banco/" + empresa, {
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then(res => {
+            if (res.status === 401) {
+                localStorage.setItem('token', '')
+                window.location.reload()
+            }
+            if (res.status === 200) {
+                res.json().then(
+                    result => {
+                        setBancos(result)
+                    },
+    
+                    error => {
+                        console.log(error);
+                    }
+                )
+            }
+        })
+    };
+
+    const cargarTiposPago = () => {
+        let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa')
+        fetch(urlApi + '/api/TipoPago/'+empresa, {
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then(res => {
+            if (res.status === 401) {
+                localStorage.setItem('token', '')
+                window.location.reload()
+            }
+            if (res.status === 200) {
+                res.json().then(
+                    result => {
+                        setTiposPago(result)
+                    },
+    
+                    error => {
+                        console.log(error);
+                    }
+                )
+            }
+        })
+    };
+
     const CargarDatos = () => {
-        Promise.all([cargarBancos, cargarTiposPago]).then(values => {
+        /*Promise.all([cargarBancos, cargarTiposPago]).then(values => {
             let banks = values[0].map(el => {
                 return el//{ key: el.IdBanco, value: JSON.stringify(el), text: el.Descripcion }
             });
@@ -436,11 +486,14 @@ const DetalleRecibo = (props) => {
             });
             /*let monedasArray = values[2].map(el => {
                 return el // { key: el.IdMoneda, value: JSON.stringify(el), text: el.Moneda }
-            });*/
+            });
             setBancos(banks);
             setMonedas(Monedas);
             setTiposPago(tiposPago);
-        });
+        });*/
+        cargarBancos();
+        cargarTiposPago();
+        setMonedas(Monedas);
     }
  
     const monedaOnchange = (moneda) => {
@@ -751,58 +804,8 @@ const DetalleRecibo = (props) => {
             </Snackbar>
         </div>);
 }
-const cargarTiposPago = new Promise((resolve, reject) => {
-    let empresa = localStorage.getItem('empresa')
-    fetch(urlApi + '/api/TipoPago/'+empresa, {
-        headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('token')
-        }
-    }).then(res => {
-        if (res.status === 401) {
-            localStorage.setItem('token', '')
-            window.location.reload()
-        }
-        if (res.status === 200) {
-            res.json().then(
-                result => {
-                    resolve(result)
-                },
 
-                error => {
-                    reject({
-                        error
-                    })
-                }
-            )
-        }
-    })
-});
-const cargarBancos = new Promise((resolve, reject) => {
-    let empresa = localStorage.getItem('empresa')
-    fetch(urlApi + "/api/banco/" + empresa, {
-        headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('token')
-        }
-    }).then(res => {
-        if (res.status === 401) {
-            localStorage.setItem('token', '')
-            window.location.reload()
-        }
-        if (res.status === 200) {
-            res.json().then(
-                result => {
-                    resolve(result)
-                },
 
-                error => {
-                    reject({
-                        error
-                    })
-                }
-            )
-        }
-    })
-});
 const ObtenerCoordenadas = (resolve, reject) => {
     const timeout = new Promise((resolve, reject) => {
         setTimeout(reject, 10000);
@@ -820,7 +823,7 @@ const ObtenerCoordenadas = (resolve, reject) => {
     Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
 }
 /*const cargarMonedas = new Promise((resolve, reject) => {
-    let empresa = localStorage.getItem('empresa');
+    let empresa = localStorage.getItem('EmpresaCliente');
     fetch(urlApi + "/api/Moneda/" + empresa, {
         headers: {
             Authorization: 'Bearer ' + localStorage.getItem('token')

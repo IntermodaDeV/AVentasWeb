@@ -72,7 +72,9 @@ const SelectCliente = (props) => {
     const classes = useStyles();
     let infoCliente = null;
     let FacturacionEntrega = null;
+    let empresa = localStorage.getItem('empresa');
     var alerta = false;
+    var EsVisible = false;
     var options = [];
 
    const continuarPedido = ()=>{
@@ -131,6 +133,9 @@ const SelectCliente = (props) => {
 
     };
 
+    if (props.autocompleteValue != null && props.autocompleteValue.EmpresaId.toUpperCase() !== empresa.toUpperCase() && props.autocompleteValue !== false) {
+        EsVisible = true;
+    }
 
     if (props.autocompleteValue) {
 
@@ -340,6 +345,13 @@ const SelectCliente = (props) => {
                     variant="error"
                     message="El cliente actualmente se encuentra en mora"
                 />
+            </Snackbar>
+
+            <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} style={{ zIndex: 10 }} open={EsVisible} TransitionComponent={TransitionGrow}>
+                        <MySnackbarContentWrapper
+                            variant="error"
+                            message="El cliente seleccionado no pertenece a su pais"
+                        />
             </Snackbar>
 
             {
