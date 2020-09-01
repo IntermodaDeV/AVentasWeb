@@ -49,7 +49,13 @@ class Agenda extends Component {
         guardandoRazon: false,
         estadoFacturasClienteActivo: null,
         mostarNoAtendido: false,
+        IdAsignacion:0,
+        checkin:null,
+        checkout:null
     }
+
+    myRef = React.createRef();
+
     cargarClientes = async () => {
         fetch(this.urlApi + "/api/cliente", {
             headers: {
@@ -178,9 +184,33 @@ class Agenda extends Component {
             },
             body:JSON.stringify(parametros),
             method:"POST"
-        }).then(res=>res.json())
-        .then(data=>console.log(true))
-        .catch(err=>console.log(err))
+        }).then(res=>{
+            if(res.status===200){
+                res.json()
+                .then(resultado=>{
+                    Swal.fire({
+                        title: 'Confirmado',
+                        text: resultado.Message,
+                        type: 'success',
+                        confirmButtonText: 'Ok',
+                        target:this.myRef.current
+                      })
+                });
+            }
+
+            if(res.status===400){
+                res.json()
+                .then(resultado=>{
+                    Swal.fire({
+                        title: 'Error',
+                        text: resultado.Message,
+                        type: 'error',
+                        confirmButtonText: 'Ok',
+                        target:this.myRef.current
+                      })
+                });
+            }
+        })
         
     }
 
@@ -251,6 +281,8 @@ class Agenda extends Component {
                 let longitud = 0;
                 let IdAsignacion = asignacion.IdAsignacionxAsesor;
                 let objetoCliente = {};
+                let Checkin = asignacion.Checkin;
+                let Checkout = asignacion.Checkout;
 
 
                 this.state.clientes.some(clien => {
@@ -282,6 +314,8 @@ class Agenda extends Component {
                         Latitud: latitud,
                         IdAsignacion: IdAsignacion,
                         Prioridad: prioridad,
+                        Checkin,
+                        Checkout
                     },
                     cliente: objetoCliente
                 }
@@ -312,6 +346,12 @@ class Agenda extends Component {
                 prioridad = "Baja";
                 break;
         }
+
+        this.setState((prevState)=>({...prevState,
+            IdAsignacion:info.event.extendedProps.IdAsignacion,
+            checkin:info.event.extendedProps.Checkin,
+            checkout:info.event.extendedProps.Checkout
+        }));
 
         let clienteActivo = {
             nombre: info.event.title,
@@ -645,7 +685,8 @@ class Agenda extends Component {
                         scroll={'paper'}
                         open={this.state.mostarEvento}
                         onClose={() => this.state.isModalLoaded && this.setState({ mostarEvento: false })}
-                        aria-labelledby="scroll-dialog-title"                    
+                        aria-labelledby="scroll-dialog-title" 
+                        ref={this.myRef}                   
                     >
                         <DialogTitle
                             className="text-center"
@@ -779,8 +820,8 @@ class Agenda extends Component {
                                                         label="No se Atendió"
                                                     />
 
-                                                    <Button  onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
-                                                    <Button  onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>
+                                                    <Button disabled={this.state.checkin} onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
+                                                    <Button disabled={this.state.checkout} onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>
                                                 </FormGroup>
 
                                                 

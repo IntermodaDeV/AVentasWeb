@@ -12,6 +12,7 @@ import Loader from 'components/Global/Loader';
 import 'containers/Asignacion/Asignacion.css';
 import styles from './Asignacion.module.css';
 import AsignacionModal from 'components/Agenda/AsignacionModal';
+import CargarAsignaciones from 'components/Agenda/CargarAsignaciones';
 
 import 'sweetalert2/src/sweetalert2.scss'
 
@@ -50,6 +51,11 @@ export default class Asignacion extends Component {
         TipoValues: [],
         TipoInitialValues: [],
         ArrayTipoValues : [],
+        showCargar:false
+    }
+
+    setCargar = (show)=>{
+        this.setState((prevState)=>({...prevState,showCargar:show}))
     }
 
     cargarClientes = () => {
@@ -387,7 +393,14 @@ export default class Asignacion extends Component {
                                             }
                                         </Button>
                                     </div>
-
+                                    <div style={{ paddingTop: 15 }}>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"                                           
+                                            onClick={() =>{this.setCargar(true)}}>
+                                            Cargar asignaciones
+                                        </Button>
+                                    </div>      
                                 </div>
                                 <div>
                                     {
@@ -413,6 +426,11 @@ export default class Asignacion extends Component {
                         handleInputEdit={this.handleInputEdit}
                         TipoValues={this.state.TipoInitialValues} 
                         fechaAsignacion={this.state.FechaAsignacion} />
+
+                        <CargarAsignaciones
+                            showDialog={this.state.showCargar}
+                            setDialog={this.setCargar}
+                        />
 
                     <Dialog
                         fullWidth={false}
