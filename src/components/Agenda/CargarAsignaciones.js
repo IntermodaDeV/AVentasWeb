@@ -15,6 +15,17 @@ const CargarAsignaciones = (props)=>{
 
     const handleUpload = (event) => {
         const file = event.target.files[0];
+        if(!file.name.includes(".xlsx") || !file.name.includes(".xls")){
+            Swal.fire({
+                title: 'Error',
+                text: "El formato del archivo no es permitido",
+                type: 'error',
+                confirmButtonText: 'Ok',
+                target:context.current
+              });
+
+              return;
+        }
         //read excel file
         readFile(file)
           .then((readedData) => setInitialData(readedData))

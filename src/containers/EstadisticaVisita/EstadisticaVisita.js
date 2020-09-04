@@ -40,14 +40,14 @@ const columns = [
             sort: true
         }
     },
-    {
+    /*{
         name: 'Usuario',
         label: 'Usuario',
         options: {
             filter: true,
             sort: true
         }
-    },
+    },*/
     {
         name: 'CantidadVisitas',
         label: 'Cantidad Visitas',
@@ -74,7 +74,7 @@ const columns = [
     // },
     {
         name: 'ClienteCancelo',
-        label: 'Cliente Cancelo',
+        label: 'Canceladas',
         options: {
             filter: true,
             sort: true
@@ -91,6 +91,38 @@ const columns = [
     {
         name: 'Productivas',
         label: 'Productivas',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'Pedidos',
+        label: 'Cantidad Pedidos',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'ValorPedidos',
+        label: 'Valor Pedidos',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'Recibos',
+        label: 'Cantidad Recibos',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'ValorRecibos',
+        label: 'Valor Recibos',
         options: {
             filter: true,
             sort: true
@@ -195,13 +227,17 @@ const EstadisticaVisita = (props) => {
         data.push({
             CodigoAsesor: estVis.CodigoAsesor,
             Nombre: estVis.Nombre,
-            Usuario: estVis.Usuario,
+            //Usuario: estVis.Usuario,
             CantidadVisitas: estVis.CantidadVisitas,
             Atendidas: estVis.Atendidas,
             // PorcentajeEjecucion: estVis.PorcentajeEjecucion,
             ClienteCancelo: estVis.ClienteCancelo,
             Efectivas: estVis.Efectivas,
-            Productivas: 0,
+            Productivas:estVis.Productivas,
+            Pedidos : estVis.Pedidos,
+            Recibos: estVis.Recibos,
+            ValorPedidos : numberWithCommas(Number(estVis.TotalPedidos)),
+            ValorRecibos : numberWithCommas(Number(estVis.TotalRecibos))
         });
     });
     return (
@@ -333,7 +369,7 @@ const EstadisticaVisita = (props) => {
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
                                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Productivas</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Atendidas }, 0)}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Productivas }, 0)}</div>
                                 </div>
                                 <div className="col-auto">
                                     <FaCheckDouble size={"25px"} style={{ color: 'darkblue' }} />
@@ -432,5 +468,10 @@ const getMuiTheme = () => createMuiTheme({
         },
     }
 });
-
+const numberWithCommas = (x) => {
+    x = x.toFixed(2);
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
+  }
 export default EstadisticaVisita;

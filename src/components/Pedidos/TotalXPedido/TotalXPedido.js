@@ -21,7 +21,7 @@ const TotalXPedido = (props) => {
         // eslint-disable-next-line
     }, []);
     let Disponible = 0;
-    if(!props.cliente.Nombre.includes('CONSUMIDOR FINAL'))
+    if(!props.cliente.Nombre.includes('CONSUMIDOR FINAL') && props.TipoPedido.TipoPedido.toUpperCase() !== "CONTADO")
     {
         Disponible = props.cliente.Credito.find(a => a.Tipo === props.TipoPedido.TipoPedido).Disponible
     }

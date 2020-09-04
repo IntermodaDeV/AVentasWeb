@@ -171,7 +171,7 @@ const Recibo = (props) => {
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
                                                                 {/* 6,182.40 */}
-                                                                {numberWithCommas(Number(factu.ValorSinDescuento))}
+                                                                {numberWithCommas(Number(factu.ValorFactura))}
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
 

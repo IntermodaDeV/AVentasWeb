@@ -8,14 +8,14 @@ const PieChart = (props) => {
 
         const data = {
             labels: [
-                "Visitas", "Atendidas", "Canceladas", "Efectivas","Productivas"
+                /*"Visitas",*/ "Atendidas", "Canceladas", "Efectivas","Productivas"
             ],
             datasets: [
                 {
                     data: [
-                        Selected.CantidadVisitas, Selected.Atendidas, Selected.ClienteCancelo, Selected.Efectivas, Selected.Atendidas
+                        /*Selected.CantidadVisitas,*/ Selected.Atendidas, Selected.ClienteCancelo, Selected.Efectivas, Selected.Productivas
                     ],
-                    backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#949FB1","#C4FF33"]
+                    backgroundColor: [ "#46BFBD", "#F7464A","#FDB45C", "#C4FF33"]
                 }
             ]
         }
@@ -32,14 +32,14 @@ const PieChart = (props) => {
     else {
         const data = {
             labels: [
-                "Visitas", "Atendidas", "Canceladas", "Efectivas","Productivas"
+                /*"Visitas",*/ "Atendidas", "Canceladas", "Efectivas","Productivas"
             ],
             datasets: [
                 {
                     data: [
-                        props.Users.reduce((acc, cur) => { return acc + cur.CantidadVisitas }, 0), props.Users.reduce((acc, cur) => { return acc + cur.Atendidas }, 0), props.Users.reduce((acc, cur) => { return acc + cur.ClienteCancelo }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Efectivas }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Atendidas }, 0)
+                        /*props.Users.reduce((acc, cur) => { return acc + cur.CantidadVisitas }, 0),*/ props.Users.reduce((acc, cur) => { return acc + cur.Atendidas }, 0), props.Users.reduce((acc, cur) => { return acc + cur.ClienteCancelo }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Efectivas }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Productivas }, 0)
                     ],
-                    backgroundColor: ["#F7464A", "#46BFBD", "#FDB45C", "#949FB1","#C4FF33"]
+                    backgroundColor: ["#46BFBD", "#F7464A", "#FDB45C", "#C4FF33"]
                 }
             ]
         }
