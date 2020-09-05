@@ -14,22 +14,28 @@ const CargarAsignaciones = (props)=>{
     const context = useRef();
 
     const handleUpload = (event) => {
-        const file = event.target.files[0];
-        if(!file.name.includes(".xlsx") || !file.name.includes(".xls")){
-            Swal.fire({
-                title: 'Error',
-                text: "El formato del archivo no es permitido",
-                type: 'error',
-                confirmButtonText: 'Ok',
-                target:context.current
-              });
+        let file = event.target.files[0];
 
-              return;
+        if(file!==undefined && file!==null){
+
+            const extension = file.name.split('.')[1];
+
+            if(extension!=="xlsx" && extension!=="xls"){
+                Swal.fire({
+                    title: 'Error',
+                    text: "El formato del archivo no es permitido",
+                    type: 'error',
+                    confirmButtonText: 'Ok',
+                    target:context.current
+                  });
+                  setInitialData(undefined);
+                  return;
+            }
+
+            readFile(file)
+              .then((readedData) => setInitialData(readedData))
+              .catch((error) => console.error(error));
         }
-        //read excel file
-        readFile(file)
-          .then((readedData) => setInitialData(readedData))
-          .catch((error) => console.error(error));
       };
     
       const save = () => {
@@ -85,7 +91,6 @@ const CargarAsignaciones = (props)=>{
         <Dialog
             open={showDialog}
             onClose={closeDialog}
-            fullWidth={true}
         >
             <DialogTitle id="scroll-dialog-title">
                 <h2>Cargar asignaciones</h2>
@@ -94,7 +99,7 @@ const CargarAsignaciones = (props)=>{
             <div ref={context}></div>
                 <input
                     type='file'
-                    accept='.xlsx'
+                    accept='.xlsx,.xls'
                     onChange={handleUpload}
             
                 />
