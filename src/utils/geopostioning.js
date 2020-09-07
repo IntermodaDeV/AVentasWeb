@@ -1,6 +1,8 @@
-import store from '../store/store'
+import store from '../store/store';
+import {APIURL} from 'utils/Enviroment';
+
 const saveGeolocation = (position) => {
-    fetch("http://190.109.203.183:9080/api/Geoposicion" , {
+    fetch(`${APIURL}/api/Geoposicion` , {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization':

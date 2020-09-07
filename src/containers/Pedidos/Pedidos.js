@@ -65,7 +65,6 @@ class Pedidos extends React.Component {
     PedidoId = null;
 
     urlApi = APIURL;
-    // urlApi = "http://localhost:62630";
 
     NotFoundImage = "http://www.quesoselllanojaral.com/img/nodisponible.png";
 
@@ -1306,7 +1305,7 @@ class Pedidos extends React.Component {
     }
     CrearDetallePedidoOnline = (productoId, codigoColor, talla, valor, precio, cantidad = 0) => {
         if (this.props.NumeroOrden && cantidad < 3) {
-            // fetch('http://localhost:62630' + "/api/PedidoOnline/CrearDetalle", {
+            
             fetch(this.urlApi + "/api/PedidoOnline/CrearDetalle", {
                 headers: {
                     'Authorization':

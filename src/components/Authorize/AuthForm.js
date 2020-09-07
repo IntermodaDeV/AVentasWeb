@@ -10,7 +10,6 @@ import {APIURL} from 'utils/Enviroment';
 
 class AuthForm extends React.Component {
   urlApi = APIURL;
-  // urlApi="http://localhost:62630";
 
   state = {
     username: '',

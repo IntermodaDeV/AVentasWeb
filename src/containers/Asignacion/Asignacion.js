@@ -27,7 +27,6 @@ moment.locale('es');
 
 export default class Asignacion extends Component {
     urlApi = APIURL;
-    // urlApi = "http://localhost:62630/";
     state = {
         startDate: new Date(),
         endDate: new Date((new Date()).valueOf() + (1000 * 60 * 60 * 24) * 6 + 1),
