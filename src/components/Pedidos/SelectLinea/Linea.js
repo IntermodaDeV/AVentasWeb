@@ -9,9 +9,12 @@ import {
     Typography
 } from "@material-ui/core";
 import nodisponible from 'assets/nodisponible.png';
+import { APIURL } from 'utils/Enviroment';
+import {useDispatch} from 'react-redux';
 
 const Linea = (props) => {
     const [Raised, setRaised] = React.useState(false);
+    const dispatch = useDispatch();
     let imagen = props.Linea.Imagen !== null ? props.Linea.Imagen : nodisponible;
 
     if (props.Linea.Imagen === null) {
@@ -34,9 +37,16 @@ const Linea = (props) => {
         }
     }
 
+    const cargarColecciones = () => {
+        props.setLinea(props.Linea);
+        fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}`)
+        .then(res=>res.json())
+        .then(data=>dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
+    }
+
     return (
         <Card raised={Raised} onMouseEnter={() => setRaised(true)} onMouseLeave={() => setRaised(false)}>
-            <CardActionArea onClick={() => props.setLinea(props.Linea)}>
+            <CardActionArea onClick={cargarColecciones}>
                 <CardHeader
                     title={
                         <Typography gutterBottom variant="h5" component="h2">

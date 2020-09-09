@@ -58,7 +58,7 @@ export default class Asignacion extends Component {
     }
 
     cargarClientes = () => {
-        fetch(this.urlApi + "/api/cliente", {
+        fetch(this.urlApi + "/api/cliente/agenda", {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')

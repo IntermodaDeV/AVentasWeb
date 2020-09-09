@@ -274,7 +274,7 @@ const Recibos = (props) => {
   }
 
   const cargarClientes = () => {
-    fetch(urlApi + '/api/cliente', {
+    fetch(urlApi + '/api/cliente/cuenta', {
       headers: {
         Authorization: 'Bearer ' + localStorage.getItem('token')
       }

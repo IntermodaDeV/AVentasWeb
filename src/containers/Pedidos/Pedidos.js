@@ -184,7 +184,7 @@ class Pedidos extends React.Component {
             })
     }
     cargarClientes = () => {
-        fetch(this.urlApi + "/api/cliente", {
+        fetch(this.urlApi + "/api/cliente/pedido", {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -774,7 +774,7 @@ class Pedidos extends React.Component {
                 confirmButtonText: 'Ok'
               })
         }else{
-            this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
+            //this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
             this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
@@ -2215,7 +2215,7 @@ class Pedidos extends React.Component {
                                 )
                             }
                             return (
-                                <Container fluid={true}>
+                                <Container fluid={true} >
                                     <Colecciones
                                         {...routeProps}
                                         Click={this.getColeccion}

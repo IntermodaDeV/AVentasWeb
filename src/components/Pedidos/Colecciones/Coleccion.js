@@ -11,6 +11,8 @@ import {
   CardMedia,
 } from '@material-ui/core';
 import styles from "components/Pedidos/Colecciones/Coleccion.module.css";
+import {useSelector,useDispatch} from 'react-redux';
+import { APIURL } from 'utils/Enviroment';
 
 import 'moment/locale/es'
 moment.locale('es');
@@ -24,13 +26,25 @@ const CardHeader = withStyles({
 
 const Coleccion = (props) => {
   const [Raised, setRaised] = React.useState(false);
+  const cliente = useSelector(e=>e.cliente);
+  const dispatch = useDispatch();
+
+  const selectColeccion = ()=>{
+    fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${localStorage.getItem('empresa')}`)
+        .then(res=>res.json())
+        .then(data=>{
+          props.Click();
+          dispatch({type:'SET_PRODUCTOSCOLECCION',payload:data});
+        });
+  }
+
   return (
     <div className="col-lg-4 col-md-6 col-12 mb-3 mt-1">
       <Card raised={Raised}
         onMouseEnter={() => setRaised(true)}
         onMouseLeave={() => setRaised(false)}>
         <CardActionArea
-          onClickCapture={props.Click}>
+          onClickCapture={selectColeccion}>
           <CardHeader
             titleTypographyProps={{ fontWeight: 'bold' }}
             title={props.coleccion.Nombre}

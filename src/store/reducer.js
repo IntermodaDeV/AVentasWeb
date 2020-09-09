@@ -467,6 +467,16 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if(action.type==='SET_PRODUCTOSCOLECCION'){
+        return {
+            ...state,
+            coleccion:{
+                ...state.coleccion,
+                Edades:action.payload
+            }
+        }
+    }
+
     return state;
 };
 
