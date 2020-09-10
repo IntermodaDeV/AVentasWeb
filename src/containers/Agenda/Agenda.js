@@ -51,7 +51,7 @@ class Agenda extends Component {
         mostarNoAtendido: false,
         IdAsignacion:0,
         checkin:null,
-        checkout:null
+        checkout:null,
     }
 
     myRef = React.createRef();
@@ -196,6 +196,21 @@ class Agenda extends Component {
                         target:this.myRef.current
                       })
                 });
+
+                if(check==="checkin"){
+                    let asignaciones    = this.props.asignaciones.filter(x=>x.IdAsignacion!==this.state.IdAsignacion);
+                    let asignacion      = this.props.asignaciones.find(x=>x.IdAsignacion===this.state.IdAsignacion);
+                    asignacion.Checkin  = true;
+                    asignacion.Checkout = false;
+                    asignaciones = [...asignaciones,asignacion];
+                    this.props.onSaveAsignaciones(asignaciones);
+                }else{
+                    let asignaciones    = this.props.asignaciones.filter(x=>x.IdAsignacion!==this.state.IdAsignacion);
+                    let asignacion      = this.props.asignaciones.find(x=>x.IdAsignacion===this.state.IdAsignacion);
+                    asignacion.Checkout = true;
+                    asignaciones = [...asignaciones,asignacion];
+                    this.props.onSaveAsignaciones(asignaciones);
+                }
             }
 
             if(res.status===400){
@@ -268,6 +283,7 @@ class Agenda extends Component {
 
     setAsignaciones = (asignaciones) => {
         var eventos = [];
+        let tareas = [];
 
         asignaciones.map(dia => {
             dia.asignaciones.map(asignacion => {
@@ -319,12 +335,21 @@ class Agenda extends Component {
                     },
                     cliente: objetoCliente
                 }
+
+                let tarea = {
+                    Codigo: asignacion.cliente,
+                    IdAsignacion: IdAsignacion,
+                    Checkin,
+                    Checkout
+                }
+
+                tareas.push(tarea);
                 eventos.push(evento);
                 return false;
             })
             return false;
         })
-
+        this.props.onSaveAsignaciones(tareas);
         return eventos;
     }
 
@@ -638,6 +663,16 @@ class Agenda extends Component {
         this.cargarClientesContado();
     }
 
+    verifyBlock = (action)=>{
+        const asignacion = this.props.asignaciones.find(x=>x.IdAsignacion===this.state.IdAsignacion);
+
+        if(action==="checkin"){
+            return asignacion.Checkin;
+        }
+
+        return asignacion.Checkout;
+    }
+
     render() {
         let tipoDisabled = false;
         let causaDisabled = false;
@@ -820,8 +855,8 @@ class Agenda extends Component {
                                                         label="No se Atendió"
                                                     />
 
-                                                    <Button disabled={this.state.checkin} onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
-                                                    <Button disabled={this.state.checkout} onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>
+                                                    <Button disabled={this.verifyBlock("checkin")} onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
+                                                    <Button disabled={this.verifyBlock("checkout")} onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>
                                                 </FormGroup>
 
                                                 
@@ -983,13 +1018,15 @@ const ObtenerCoordenadas = (resolve, reject) => {
 }
 
 const mapStateToProps = state => ({
-    empresas:state.empresas
+    empresas:state.empresas,
+    asignaciones:state.Asignaciones
 });
 
 const mapDispatchToProps = dispatch =>({
     onSaveEmpresas:(empresas)=>{dispatch({type:'SET_EMPRESAS',payload:empresas})},
     //onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
-    onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})}
+    onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})},
+    onSaveAsignaciones:(asignaciones)=>{dispatch({type:'SET_ASIGNACIONES',payload:asignaciones})}
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(Agenda);

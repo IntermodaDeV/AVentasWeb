@@ -41,7 +41,8 @@ const initialState = {
     Empresas:[],
     Monedas:[],
     CuentaImprimir:[],
-    Bloqueo:false
+    Bloqueo:false,
+    Asignaciones:[]
 }
 
 const calcularLimite = (state) => {
@@ -474,6 +475,13 @@ const reducer = (state = initialState, action) => {
                 ...state.coleccion,
                 Edades:action.payload
             }
+        }
+    }
+
+    if(action.type==='SET_ASIGNACIONES'){
+        return {
+            ...state,
+            Asignaciones:action.payload
         }
     }
 
