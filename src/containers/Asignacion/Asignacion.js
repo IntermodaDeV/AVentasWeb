@@ -74,17 +74,24 @@ export default class Asignacion extends Component {
                     res.json()
                         .then(
                             (result) => {
-                                let RutaCodigo = '';
+                                /*let RutaCodigo = '';
                                 let Rutas = result.map(cliente => {
                                     return { Ruta: cliente.Ruta, Codigo: cliente.CodigoRuta };
-                                })
-                                    .filter((value, index, self) => {
+                                }).filter((value, index, self) => {
                                         if (self[self.indexOf(value)].Codigo !== RutaCodigo) {
                                             RutaCodigo = self[self.indexOf(value)].Codigo;
                                             return true;
                                         }
                                         return false;
-                                    });
+                                    });*/
+                                let Rutas = Array.from(new Set(result.map(s=> s.CodigoRuta)))
+                                .map(CodigoRuta => {
+                                    return {
+                                        Ruta : result.find(s => s.CodigoRuta === CodigoRuta).Ruta,
+                                        Codigo : CodigoRuta
+                                    };
+                                });
+
                                 let DropdownRutas = [];
                                 let RutaSelected = null;
 

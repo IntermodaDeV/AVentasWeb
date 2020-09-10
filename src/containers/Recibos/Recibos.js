@@ -6,6 +6,7 @@ import FacturaTable from 'components/Recibos/Facturas/FacturaTable'
 import CuotasTable from 'components/Recibos/Facturas/CuotasTable'
 import CuotasAgrupadasTable from 'components/Recibos/Facturas/CuotasAgrupadasTable'
 import DetalleRecibo from 'components/Recibos/Recibo/DetalleRecibo'
+import Recibo from 'components/Recibos/Recibo/Recibo'
 import { ClipLoader } from 'react-spinners';
 import RecibosBreadCrumb from 'components/Recibos/RecibosBreadCrumb/RecibosBreadCrumb';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
@@ -18,13 +19,14 @@ import 'moment/locale/es';
 import { FaEye } from "react-icons/fa";
 import {FiAlertTriangle} from 'react-icons/fi';
 import styles from "components/Recibos/Facturas/CuotasTable.module.css";
+import {useDispatch} from 'react-redux';
 moment.locale('es');
 const Recibos = (props) => {
   const [loading, setLoading] = useState(true);
   const [isCreditoVencido,setCreditoVencido] = useState(false);
   const [DataModal, setDataModal] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-
+  const dispatch = useDispatch();
   const creditoVencido = (vencido)=>{
     setCreditoVencido(vencido);
     localStorage.setItem('isVencido',vencido);
@@ -323,12 +325,21 @@ const Recibos = (props) => {
     props.onStoreReciboCuotasAPagar(cuotas);
     props.history.push(`/Recibos/Detalle`);
   }
+  const CargarImpresion = (recibosAplicados) => {
+    props.history.push({pathname:`/Recibos/ImprimirRecibo`,state:recibosAplicados});
+  }
 
+  const Finalizar = () => {
+    //setModalRecibo(false);
+    cargarClientes();
+    dispatch({type:'delete_pedidoselected'})
+    props.history.push(`/recibos`);
+}
   const NavHome = () => {
     props.history.push(`/Recibos`);
   }
 
-
+  
   const BreadCrumb = () => {
     return (
       <RecibosBreadCrumb
@@ -534,8 +545,23 @@ const Recibos = (props) => {
                 Cliente={props.clienteSelected}
                 Cuotas={props.cuotasXCliente}
                 CuotasAPagar={props.cuotasAPagar}
+                CargarImpresion ={CargarImpresion}
                 EliminarCuota={() => { }}
               />
+            </div>
+          </div>
+        </>
+      )} />
+
+    <Route path={props.match.url + '/ImprimirRecibo'} exact component={(routeProps) => (
+        <>
+          <div className="row">
+            <div className="col-12">
+            <Recibo
+                    Finalizar = {Finalizar}
+                    Cliente={props.clienteSelected}
+                    Open={true}
+                    RecibosAplicados={routeProps.location.state}/>
             </div>
           </div>
         </>
@@ -546,7 +572,6 @@ const Recibos = (props) => {
 }
 
 const mapStateToProps = state => {
-console.log("state.Recibo",state.Recibo)
 
   return {
 
