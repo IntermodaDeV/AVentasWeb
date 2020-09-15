@@ -22,6 +22,10 @@ import {
     FeaturedPlayListOutlined,
     PostAdd,
     AddBoxOutlined,
+    Sync,
+    Dvr,
+    FlashAuto,
+    Book,
     ListAlt,
     EventNote,
     EventAvailable,
@@ -83,6 +87,14 @@ const navItems = [
     { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
     { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
     { to: '/coordenadas-global', name: 'Clientes Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
+    {
+        to: '/sincronizacion', name: 'Sincronizacion', dataTut: 'DataTut_Sinc', Icon: Sync,
+        expanded: [
+            { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto },
+            { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr },
+            { to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
+        ]
+    },
 ];
 
 const Sidebar = (props) => {

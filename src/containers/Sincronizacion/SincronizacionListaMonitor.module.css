@@ -1,0 +1,35 @@
+.StickyHeader {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: white;
+    -webkit-box-shadow: 0px 1px 0px 0px #ddd;
+    -moz-box-shadow: 0px 1px 0px 0px #ddd;
+    box-shadow: 0px 1px 0px 0px #ddd;
+}
+
+.ToastOnTopModal {
+    z-index: 1300;
+}
+
+.ComboBoxOnTop {
+    z-index: 11 !important;
+}
+
+.ComboBoxContainer {
+    margin-top: -2px !important;
+}
+
+.TableContainer {
+    border: 1px solid #dee2e6
+}
+
+.PaperDialog {
+    min-width: 550px;
+}
+
+@media(max-width:768px) {
+    .PaperDialog {
+        min-width: 300px;
+    }
+}
