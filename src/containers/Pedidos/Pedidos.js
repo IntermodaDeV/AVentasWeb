@@ -44,7 +44,8 @@ import PedidosBreadCrumb from 'components/Pedidos/PedidosBreadCrumb/PedidosBread
 import SearchButton from 'components/Pedidos/ProductoLista/SearchButton'
 import Countdown from "components/Pedidos/Global/Countdown";
 import GuardPedidoActivo from 'containers/Pedidos/GuardPedidoActivo';
-import Loader from 'components/Global/Loader'
+import Loader from 'components/Global/Loader';
+import ImprimirPedidoOriginal from 'components/Pedidos/ResumenPedido/ImprimirPedidoOriginal';
 
 //Styles
 import styles from './Pedidos.module.css'
@@ -343,6 +344,10 @@ class Pedidos extends React.Component {
     InactivoErase = () => {
         this.props.history.push("/Pedidos/Cliente");
         this.cancelarPedido();
+    }
+
+    CargarImpresionPedido = (ValoresPedido) =>{
+        this.props.history.push({pathname:`/Pedidos/ImprimirPedido`,state : JSON.stringify(ValoresPedido)});
     }
 
     countdownHTML = () => {
@@ -808,7 +813,7 @@ class Pedidos extends React.Component {
         this.props.history.push("/Pedidos/Colecciones/" + this.props.coleccion.ColeccionTipo + "/" + this.props.coleccion.CodigoColeccion);
 
     }
-
+    
 
     cambiarTabColecciones = (tab) => {
         if (this.state.activeTab !== tab) {
@@ -1792,7 +1797,25 @@ class Pedidos extends React.Component {
                                         guardarFecha={this.setFechaEntregaPedido}
                                         NumeroOrden={this.props.NumeroOrden}
                                         FinalizarPedidoOnline={this.FinalizarPedidoOnline}
+                                        CargarImpresionPedido = {this.CargarImpresionPedido}
                                     ></ResumenPedido>
+                                )
+                            }}
+                        />
+                          <Route
+                            exact
+                            path={this.props.match.url + '/ImprimirPedido'}
+                            render={(routeProps) => {
+                                return (
+                                    <ImprimirPedidoOriginal 
+                                        tableValue={this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]}
+                                        firma = {this.state.firmaPedido}
+                                        Cliente = {this.props.cliente}
+                                        ValoresPedido={JSON.parse(routeProps.location.state)}
+                                        NumeroOrden = {this.props.NumeroOrden}
+                                        reiniciarPedido={this.reiniciarPedido}
+                                        cancelarPedido={this.cancelarPedido}>
+                                    </ImprimirPedidoOriginal>
                                 )
                             }}
                         />

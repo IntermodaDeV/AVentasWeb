@@ -7,6 +7,8 @@ import moment from "moment";
 import 'moment/locale/es';
 import {useSelector} from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
+import {FiArrowRightCircle} from "react-icons/fi";
+import { FaPrint } from "react-icons/fa";
 
 const Recibo = (props) => {
     const clientesContado = useSelector(e=>e.clientesContado);
@@ -48,14 +50,14 @@ const Recibo = (props) => {
                             <div className="col">
                                     <ReactToPrint
                                         trigger={() =>
-                                        <Button variant="contained" size="large" color="info">
+                                        <Button variant="contained" size="large" color="primary" endIcon = {<FaPrint/>}>
                                             Imprimir
                                         </Button>
                                         }
                                         content={() => componentRef.current}
                                     />
 
-                                <Button onClick={() => props.Finalizar()} className = {classes.button} variant="contained" size="large" color="primary">
+                                <Button onClick={() => props.Finalizar()} className = {classes.button} variant="contained" size="large" color="primary" endIcon ={<FiArrowRightCircle/>}>
                                         Finalizar
                                 </Button>
                             </div>

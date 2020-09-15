@@ -452,10 +452,13 @@ const FacturaTable = props => {
       return [...new Set(tempData)];
     }
 
-    if(creditosActivos.length===data.length){
+    if(creditosActivos.length===data.length ){
+     
       creditosActivos.forEach(e=>{
+        if(props.Cliente.Pedido.length === 0){
         const newAction = React.cloneElement(e.Accion,{disabled:false});
         e.Accion = newAction;
+        }
       });
 
       tempData = creditosActivos;
