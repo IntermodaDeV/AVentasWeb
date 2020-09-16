@@ -2,19 +2,13 @@ import React,{useEffect,useState} from 'react';
 import { Dropdown } from "semantic-ui-react";
 import {APIURL} from 'utils/Enviroment';
 import { DatePicker } from "@material-ui/pickers";
-import Swal from 'sweetalert2/dist/sweetalert2.js';
-import {Table} from 'reactstrap';
-import { SyncLoader } from 'react-spinners';
 
-import { withStyles } from '@material-ui/core/styles';
 import {
     Card as CardR,
     CardBody,
     CardHeader
 } from 'reactstrap';
-import { Radio, RadioGroup, FormControl, FormLabel, FormControlLabel } from '@material-ui/core';
 import {
-    Button,
     Card,
     CardContent
 } from '@material-ui/core';

@@ -12,7 +12,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { DatePicker } from "@material-ui/pickers";
 import { ScaleLoader } from 'react-spinners';
-import ReactToPrint from 'react-to-print';
 import moment from "moment";
 import 'moment/locale/es';
 import SignatureCanvas from 'react-signature-canvas';
@@ -86,7 +85,6 @@ const ResumenPedido = (props) => {
     var gruposTalla = Object.keys(props.tableValue);
     var unidadesTotales = 0;
     var totalGlobal = 0.00;
-    const componentRef = React.useRef();
 
     const moneda = Monedas.find(e=>e.IdMoneda === props.Cliente.Moneda).Abreviacion;
     const calcularFlete = () => {

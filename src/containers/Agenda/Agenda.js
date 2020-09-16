@@ -172,10 +172,16 @@ class Agenda extends Component {
     }
 
     enviarCheckinApi = (location,check)=>{
+
+        const fechas = this.getFechas(2);
+
         const parametros = {
             IdAsignacionxAsesor:this.state.IdAsignacion,
             location:location,
-            Fecha:new Date()
+            Fecha:new Date(),
+            Asesor:localStorage.getItem('codigo'),
+            Inicio:fechas.Inicio,
+            Fin:fechas.Fin
         }
 
         fetch(`${this.urlApi}/api/Asignaciones/${check}`,{
@@ -197,20 +203,8 @@ class Agenda extends Component {
                       })
                 });
 
-                if(check==="checkin"){
-                    let asignaciones    = this.props.asignaciones.filter(x=>x.IdAsignacion!==this.state.IdAsignacion);
-                    let asignacion      = this.props.asignaciones.find(x=>x.IdAsignacion===this.state.IdAsignacion);
-                    asignacion.Checkin  = true;
-                    asignacion.Checkout = false;
-                    asignaciones = [...asignaciones,asignacion];
-                    this.props.onSaveAsignaciones(asignaciones);
-                }else{
-                    let asignaciones    = this.props.asignaciones.filter(x=>x.IdAsignacion!==this.state.IdAsignacion);
-                    let asignacion      = this.props.asignaciones.find(x=>x.IdAsignacion===this.state.IdAsignacion);
-                    asignacion.Checkout = true;
-                    asignaciones = [...asignaciones,asignacion];
-                    this.props.onSaveAsignaciones(asignaciones);
-                }
+                this.cargarAsignaciones(fechas.Inicio,fechas.Fin);
+                
             }
 
             if(res.status===400){
@@ -340,7 +334,10 @@ class Agenda extends Component {
                     Codigo: asignacion.cliente,
                     IdAsignacion: IdAsignacion,
                     Checkin,
-                    Checkout
+                    Checkout,
+                    CheckinApi:Checkin,
+                    CheckoutApi:Checkout,
+                    Bloqueo:Checkout
                 }
 
                 tareas.push(tarea);
@@ -629,6 +626,9 @@ class Agenda extends Component {
                         mostarNoAtendido: false,
                     });
 
+                    var fecha = this.getFechas(2);
+                    this.cargarAsignaciones(fecha.Inicio, fecha.Fin);
+
                     Toast.fire({
                         type: 'success',
                         title: 'Razón Guardada',
@@ -668,6 +668,10 @@ class Agenda extends Component {
 
         if(action==="checkin"){
             return asignacion.Checkin;
+        }
+
+        if(action==="bloqueo"){
+            return asignacion.Bloqueo;
         }
 
         return asignacion.Checkout;
@@ -855,8 +859,9 @@ class Agenda extends Component {
                                                         label="No se Atendió"
                                                     />
 
-                                                    <Button disabled={this.verifyBlock("checkin")} onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
-                                                    <Button disabled={this.verifyBlock("checkout")} onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>
+                                                    {!this.verifyBlock("checkin")
+                                                    ?<Button disabled={this.verifyBlock("checkin")}  variant="outlined" onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
+                                                    :<Button disabled={this.verifyBlock("checkout")} variant="outlined" onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>}
                                                 </FormGroup>
 
                                                 
@@ -870,8 +875,8 @@ class Agenda extends Component {
                                             this.state.Acciones.map((accion, index) => {
                                                 if (accion.Estado) {
                                                     return (
-                                                        <Button key={index} disabled={this.state.noAtendido} onClick={() => this.onClickModal(accion.UrlRedirect, this.state.clienteActivo.codigo)} color="primary">
-                                                            {accion.Accion}
+                                                        <Button key={index} variant="outlined" disabled={this.verifyBlock("bloqueo")} onClick={() => this.onClickModal(accion.UrlRedirect, this.state.clienteActivo.codigo)} color="primary">
+                                                         {accion.Accion}
                                                         </Button>
                                                     )
                                                 }
