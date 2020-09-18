@@ -20,7 +20,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 const VistaRapidaProducto = (props) => {
     const toggleSelect = () => {
         if (precioProducto !== undefined) {
-            if (props.producto.fisicaDisponible.reduce((acc, curr) => { return acc + curr.Cantidad }, 0) > 0) {
+            if (props.futuro === false || props.producto.fisicaDisponible.reduce((acc, curr) => { return acc + curr.Cantidad }, 0) > 0) {
                 props.toggleSelectProducto({...props.producto});
                 setselected(!selected);
             } else {

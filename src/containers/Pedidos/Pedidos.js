@@ -13,7 +13,8 @@ import { APIURL } from 'utils/Enviroment';
 import { Radio } from 'semantic-ui-react';
 //import { Link } from "react-scroll";
 import { Checkbox, Dropdown } from 'element-react';
-import { Button, Col, Container, Row, } from 'reactstrap';
+import { /*Button,*/ Col, Container, Row, } from 'reactstrap';
+import {Button } from '@material-ui/core';
 import html2canvas from 'html2canvas';
 import pdfMake from 'pdfmake/build/pdfmake';
 import { FaSignOutAlt, FaShoppingCart, FaArrowCircleLeft, FaAlignJustify } from 'react-icons/fa';
@@ -767,7 +768,7 @@ class Pedidos extends React.Component {
     getColeccion = (coleccion) => {
         this.props.onSetColeccion(coleccion);
         this.props.history.push("/Pedidos/Colecciones/" + coleccion.ColeccionTipo + "/" + coleccion.CodigoColeccion);
-
+        localStorage.setItem('ProdEnCarrito', 0)
     }
     seleccionarCliente = () => {
         if(this.state.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && this.props.clienteContado===null)
@@ -811,7 +812,6 @@ class Pedidos extends React.Component {
         // this.props.onSetProducto(null);
         // this.changeImageProducto('');
         this.props.history.push("/Pedidos/Colecciones/" + this.props.coleccion.ColeccionTipo + "/" + this.props.coleccion.CodigoColeccion);
-
     }
     
 
@@ -823,18 +823,18 @@ class Pedidos extends React.Component {
         }
     }
     isPedidoActivo = () => {
-        let isProductosSeleccionados = false;
-        let tableValue = { ...this.props.TableValue };
+        let isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true :false;
+        /*let tableValue = { ...this.props.TableValue };
         if (this.props.LineaSeleccionada && this.props.coleccion) {
             if (tableValue[this.props.LineaSeleccionada.IdLinea] === undefined || tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion] === undefined) {
-                return isProductosSeleccionados;
+               return isProductosSeleccionados;
             }
             const gruposTalla = Object.keys(tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]);
             isProductosSeleccionados = gruposTalla.length > 0 && gruposTalla.every(grupoTalla => {
                 return tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Mostrar === true;
             });
 
-        }
+        }*/
         return isProductosSeleccionados;
     }
     toggle = () => {
@@ -900,8 +900,8 @@ class Pedidos extends React.Component {
     }
     toggleSelectProducto = (producto) => {
         let tableValue = { ...this.props.TableValue };
-
-        let isSelected = false;
+        let isSelected = true;
+        let carrito = parseInt(localStorage.getItem('ProdEnCarrito'));
         try {
             let value = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId]
             value.Selected = isSelected = !value.Selected;
@@ -914,10 +914,11 @@ class Pedidos extends React.Component {
                     tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Mostrar = true;
                 }
             } else {
+                
                 tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Mostrar = true;
             }
+         
         } catch{
-
             if (tableValue[producto.Linea.IdLinea] === undefined) {
                 tableValue[producto.Linea.IdLinea] = {};
             }
@@ -1000,8 +1001,9 @@ class Pedidos extends React.Component {
             }
         }
         let totalAcumulado = this.props.TotalPedido;
-
+        
         if (isSelected) {
+            localStorage.setItem('ProdEnCarrito', parseInt(carrito + 1))
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
 
@@ -1011,7 +1013,7 @@ class Pedidos extends React.Component {
                 });
             });
         } else {
-
+            localStorage.setItem('ProdEnCarrito', parseInt(carrito - 1))
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
 
@@ -1987,8 +1989,9 @@ class Pedidos extends React.Component {
                                                                 <div className="order-md-last col-md-1 col-6 text-right py-1 pl-0" style={{ zIndex: 3 }}>
                                                                     <SearchButton onSearch={this.SearchProductos} clear={this.ClearSearch} />
                                                                     {/* {!this.props.NumeroOrden ? <Button style={{ marginLeft: '0.5rem', display: 'inline' }} onClick={() => { this.CrearEncabezadoPedidoOnline() }} outline>C</Button> : null} */}
-                                                                    <Button outline color="secondary" size="md" onClick={this.toggle} style={{ marginLeft: '0.5rem' }}><FaShoppingCart /></Button>
-
+                                                                    <Button variant="outlined" color="primary" onClick={this.toggle} style={{ marginLeft: '0.5rem' }}  startIcon ={<FaShoppingCart/>}>
+                                                                        {parseInt(localStorage.getItem('ProdEnCarrito'))}
+                                                                    </Button>                   
                                                                 </div>
 
                                                                 <div className="col-md-9 text-right" style={{ zIndex: 2 }}>
@@ -2185,6 +2188,7 @@ class Pedidos extends React.Component {
                                                                 alertaPrecio={this.alertaPrecio}
                                                                 Cliente={this.props.cliente}
                                                                 CerrarDialog={this.CerrarDialog.bind(this)}
+                                                                futuro={this.NoEsFuturo()}
                                                             />
                                                             <Productos
                                                                 filtroEdad={this.state.filtroEdad}
@@ -2341,7 +2345,7 @@ class Pedidos extends React.Component {
 
         var found = false;
         var agregados = this.props.listaProductosAgregados;
-
+        
 
         var contador = this.state.unidadesCarrito;
 
