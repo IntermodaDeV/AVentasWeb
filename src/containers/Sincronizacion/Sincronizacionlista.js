@@ -119,8 +119,8 @@ const Sincronizacionlista = (props)=>{
                             <hr />
                         </div>
                     </div>
-                    <div className={'row mb-3'}>
-                        <div className={'col-xl-12 col-lg-12 col-sm-12 col-12 mt-2'} >
+                    <div style={{display:'flex',alignItems:'center'}}>
+                        <div className={'col-xl-10 col-lg-10 col-sm-10 col-10 mt-2'} >
                         <Dropdown
                         placeholder="Escoja el módulo de sincronización:"
                         fluid
@@ -139,7 +139,9 @@ const Sincronizacionlista = (props)=>{
                         closeOnChange={true}
                         />
                         </div>
-
+                        <div>
+                            <Button variant="contained" color="primary" onClick={()=>{props.history.push('/sincronizacionListaMonitor')}}>Monitor de sincronización</Button>
+                        </div>
                     </div>
 
                     {

@@ -42,7 +42,8 @@ const initialState = {
     Monedas:[],
     CuentaImprimir:[],
     Bloqueo:false,
-    Asignaciones:[]
+    Asignaciones:[],
+    AbreviacionMonedas:[]
 }
 
 const calcularLimite = (state) => {
@@ -482,6 +483,14 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             Asignaciones:action.payload
+        }
+    }
+
+    if(action.type==='SET_ABREVACIONMONEDAS')
+    {
+        return{
+            ...state,
+            AbreviacionMonedas:action.payload
         }
     }
 

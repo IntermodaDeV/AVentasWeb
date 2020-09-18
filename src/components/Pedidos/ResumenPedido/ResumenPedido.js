@@ -80,7 +80,7 @@ const ResumenPedido = (props) => {
     const [transporte, setTransporte] = React.useState(modoEntrega);
     const [comunidad, setComunidad] = React.useState(comunidadSelected);
     const esBiomedico = (lineaSeleccionada.IdLinea === "BIO" && requiereEntrega);
-    const Monedas = useSelector(e=>e.Monedas);
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
 
     var gruposTalla = Object.keys(props.tableValue);
     var unidadesTotales = 0;

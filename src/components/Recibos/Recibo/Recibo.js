@@ -12,7 +12,7 @@ import { FaPrint } from "react-icons/fa";
 
 const Recibo = (props) => {
     const clientesContado = useSelector(e=>e.clientesContado);
-    const Monedas = useSelector(e=>e.Monedas);
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const pedidoSelected = useSelector(k => k.pedidoSelected);
     const empresas = useSelector(e=>e.Empresas);
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());

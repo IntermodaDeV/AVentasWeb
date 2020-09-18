@@ -9,7 +9,7 @@ import 'moment/locale/es';
 
 const ImprimirPedido = (props) => {
 
-const Monedas = useSelector(e=>e.Monedas);
+const Monedas = useSelector(e=>e.AbreviacionMonedas);
 const clientesContado = useSelector(e=>e.clientesContado);
 const empresas = useSelector(e=>e.Empresas);
 let NombreCliente=props.Pedido.Cliente.Nombre;

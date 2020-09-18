@@ -10,7 +10,8 @@ import {
 } from 'reactstrap';
 import {
     Card,
-    CardContent
+    CardContent,
+    Button
 } from '@material-ui/core';
 import 'semantic-ui-css/semantic.min.css';
 import styles from './SincronizacionListaMonitor.module.css';
@@ -89,7 +90,7 @@ const SincronizacionListaMonitor = (props)=>{
                     <row>
                     <CardR>
                         <CardHeader>
-                            Asignar Trabajo
+                            Filtros de Búsqueda
                         </CardHeader>
 
                         <CardBody>
@@ -126,6 +127,9 @@ const SincronizacionListaMonitor = (props)=>{
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
                                     />
+                            </div>
+                            <div>
+                                <Button color="primary" variant="contained" onClick={()=>{props.history.push('/sincronizacionlista')}}>Asignar nuevo</Button>
                             </div>
                         </div>
                         </CardBody>

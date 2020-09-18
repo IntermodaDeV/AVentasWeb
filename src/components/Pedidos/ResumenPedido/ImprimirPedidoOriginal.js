@@ -11,7 +11,7 @@ import { FaPrint } from "react-icons/fa";
 
 const ImprimirPedidoOriginal = (props) => {
     const clientesContado = useSelector(e=>e.clientesContado);
-    const Monedas = useSelector(e=>e.Monedas);
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const pedidoSelected = useSelector(k => k.pedidoSelected);
     const empresas = useSelector(e=>e.Empresas);
     const TipoCredito = useSelector(e => e.TipoPedido);
