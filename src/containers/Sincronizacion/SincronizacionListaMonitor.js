@@ -93,38 +93,40 @@ const SincronizacionListaMonitor = (props)=>{
                         </CardHeader>
 
                         <CardBody>
-                        <div className='col-lg-2 col-sm-4 col-6'>
-                            <DatePicker
-                                disableToolbar
-                                className={"w-100"}
-                                autoOk
-                                label={"Fecha"}
-                                variant="inline"
-                                format={"DD/MM/YYYY"}
-                                //disablePast
-                                value={fechaSelected}
-                                onChange={(date) => setFechaSelected(date)}
-                            />
-                            
-                        </div>
-                        <div className='col-lg-8 col-sm-6 col-6'>
-                            <Dropdown
-                                placeholder="Escoja el módulo de sincronización:"
-                                fluid
-                                search
-                                selection
-                                onChange={(e, { value }) =>{
-                                    setModuloSelected(value);
-                                }}
-                                options={
-                                    modulos.sort(function (a, b) {
-                                        return a.NOMBRE.localeCompare(b.NOMBRE);
-                                    }).map(modulo => {
-                                    return {key:modulo.ID, text:modulo.NOMBRE, value: modulo.ID}
-                                })}
-                                noResultsMessage={"No hay resultados"}
-                                closeOnChange={true}
+                        <div style={{display:'flex'}}>
+                            <div className='col-lg-2 col-sm-4 col-6'>
+                                <DatePicker
+                                    disableToolbar
+                                    className={"w-100"}
+                                    autoOk
+                                    label={"Fecha"}
+                                    variant="inline"
+                                    format={"DD/MM/YYYY"}
+                                    //disablePast
+                                    value={fechaSelected}
+                                    onChange={(date) => setFechaSelected(date)}
                                 />
+                                
+                            </div>
+                            <div className='col-lg-8 col-sm-6 col-6'>
+                                <Dropdown
+                                    placeholder="Escoja el módulo de sincronización:"
+                                    fluid
+                                    search
+                                    selection
+                                    onChange={(e, { value }) =>{
+                                        setModuloSelected(value);
+                                    }}
+                                    options={
+                                        modulos.sort(function (a, b) {
+                                            return a.NOMBRE.localeCompare(b.NOMBRE);
+                                        }).map(modulo => {
+                                        return {key:modulo.ID, text:modulo.NOMBRE, value: modulo.ID}
+                                    })}
+                                    noResultsMessage={"No hay resultados"}
+                                    closeOnChange={true}
+                                    />
+                            </div>
                         </div>
                         </CardBody>
                     </CardR>
@@ -133,7 +135,7 @@ const SincronizacionListaMonitor = (props)=>{
             </CardContent>
         </Card>
         <br/>
-        <table className="table table-striped table-responsive col-12">
+        <table  className="table table-striped">
                 <thead>
                     <tr>
                         <th className={styles.StickyHeader}>ID Lista</th>

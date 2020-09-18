@@ -1,11 +1,11 @@
 .StickyHeader {
     position: sticky;
     top: 0;
-    z-index: 10;
     background-color: white;
     -webkit-box-shadow: 0px 1px 0px 0px #ddd;
     -moz-box-shadow: 0px 1px 0px 0px #ddd;
     box-shadow: 0px 1px 0px 0px #ddd;
+    text-align: center;
 }
 
 .ToastOnTopModal {

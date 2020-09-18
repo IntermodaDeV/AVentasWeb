@@ -122,7 +122,7 @@ const Producto = (props) => {
           <Img
             className="card-img-right"
             src={[props.producto.ListaImagenes && props.producto.ListaImagenes[0] ? props.producto.ListaImagenes[0].FotografiaProducto : null, notFound]}
-            style={{ width: 'auto', height: 250 }}
+            style={{ width: 'auto', height: 210 }}
             loader={
               <ScaleLoader
                 css={{ height: '30px', bottom: '5px', position: 'relative', transform: 'scale(0.8)' }}
@@ -137,26 +137,26 @@ const Producto = (props) => {
             style={{ width: 'auto', height: 220 }}
           /> */}
 
-          <div style={{ padding: 10, height: 100 }}>
+          <div style={{ padding: 10, height: 130 }}>
 
-            <div style={{ fontWeight: "400", fontSize: 13, textAlign: 'left', }} >
+            <div style={{ fontWeight: "400", fontSize: 12, textAlign: 'left', }} >
               {props.producto.NombreProducto}
             </div>
 
-            <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
+            <div style={{ fontWeight: "300", fontSize: 12, textAlign: 'left', color: '#a7a4a4', marginTop: 1}} >
               {/* Pseudo  */}Código - {props.producto.ProductoId}
             </div>
 
-            {(!props.isFuture) && <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
+            {(!props.isFuture) && <div style={{ fontWeight: "300", fontSize: 12, textAlign: 'left', color: '#a7a4a4', marginTop: 1 }} >
               {/* Pseudo  */}Stock Disponible : {stockDisponible}
             </div>}
 
 
-            <div style={{ fontWeight: "300", fontSize: 13, textAlign: 'left', color: '#a7a4a4', marginTop: 5 }} >
+            <div style={{ fontWeight: "300", fontSize: 12, textAlign: 'left', color: '#a7a4a4', marginTop: 1 }} >
               *Disponible en {props.producto.ListaColores.length} {(props.producto.ListaColores.length === 1) ? 'color' : 'colores'}
             </div>
 
-            <div style={{ textAlign: 'center' }}>
+            <div style={{ textAlign: 'center'}}>
               {/* El boton se mostrara en responsive */}
               {/* <Button onClick={props.Click} className={styles.btn}>Ver Detalle</Button> */}
 
