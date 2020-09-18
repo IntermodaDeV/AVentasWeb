@@ -79,8 +79,8 @@ const VistaProducto = (props) => {
         element[0].style.backgroundColor = '';
     }
     const toggleSelect = () => {
-        if (precioProducto !== undefined) {
-            if (props.producto.fisicaDisponible.reduce((acc, curr) => { return acc + curr.Cantidad }, 0) > 0) {
+        if (precioProducto !== undefined) {            
+            if (props.futuro === false || props.producto.fisicaDisponible.reduce((acc, curr) => { return acc + curr.Cantidad }, 0) > 0) {
                 props.toggleSelectProducto({ ...props.producto });
                 setselected(!selected);
             } else {
