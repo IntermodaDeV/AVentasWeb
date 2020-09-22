@@ -87,7 +87,6 @@ const SincronizacionListaMonitor = (props)=>{
             <Card className="my-2" style={{ overflow: 'unset' }}>
             <CardContent>
                 <div>
-                    <row>
                     <CardR>
                         <CardHeader>
                             Filtros de Búsqueda
@@ -105,6 +104,8 @@ const SincronizacionListaMonitor = (props)=>{
                                     format={"DD/MM/YYYY"}
                                     //disablePast
                                     value={fechaSelected}
+                                    maxDate={new Date()}
+                                    minDate={new Date().setDate(new Date().getDate()-14)}
                                     onChange={(date) => setFechaSelected(date)}
                                 />
                                 
@@ -119,11 +120,9 @@ const SincronizacionListaMonitor = (props)=>{
                                         setModuloSelected(value);
                                     }}
                                     options={
-                                        modulos.sort(function (a, b) {
-                                            return a.NOMBRE.localeCompare(b.NOMBRE);
-                                        }).map(modulo => {
-                                        return {key:modulo.ID, text:modulo.NOMBRE, value: modulo.ID}
-                                    })}
+                                        modulos.sort((a, b)=> (a.NOMBRE.localeCompare(b.NOMBRE)))
+                                        .map(modulo => ({key:modulo.ID, text:modulo.NOMBRE, value: modulo.ID})
+                                        )}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
                                     />
@@ -134,7 +133,6 @@ const SincronizacionListaMonitor = (props)=>{
                         </div>
                         </CardBody>
                     </CardR>
-                    </row>
                 </div>
             </CardContent>
         </Card>
@@ -154,7 +152,8 @@ const SincronizacionListaMonitor = (props)=>{
                 </thead>
                 <tbody>
                     {
-                        listado.filter(x=> (x.ID_MODULO === moduloSelected || moduloSelected === 0)).map((item, ind)=>(
+                        listado.filter(x=> (x.ID_MODULO === moduloSelected || moduloSelected === 0) && new Date(x.FECHA).setHours(0,0,0,0)===new Date(fechaSelected).setHours(0,0,0,0))
+                        .map((item, ind)=>(
 
                                     <tr key={ind} style={{ textAlign: "center"}}>
                                         <td className="font-weight-bold">{item.ID}</td>
@@ -167,7 +166,7 @@ const SincronizacionListaMonitor = (props)=>{
                                                                 type="checkbox"
                                                                 checked={item.EN_ESPERA}
                                                                 style={{ height: 25, width: 25}}
-                                                                
+                                                                readOnly
                                                                 />
                                         </td>
                                         <td className="font-weight-bold">
@@ -175,7 +174,7 @@ const SincronizacionListaMonitor = (props)=>{
                                                                 type="checkbox"
                                                                 checked={item.EN_EJECUCION}
                                                                 style={{ height: 25, width: 25, margin: "auto", textAlign: "center"}}
-                                                                
+                                                                readOnly
                                                                 />
                                         </td>
                                         <td className="font-weight-bold">
@@ -183,7 +182,7 @@ const SincronizacionListaMonitor = (props)=>{
                                                                 type="checkbox"
                                                                 checked={item.FINALIZADO}
                                                                 style={{ height: 25, width: 25}}
-                                                                
+                                                                readOnly
                                                                 />
                                         </td>
                                     </tr>

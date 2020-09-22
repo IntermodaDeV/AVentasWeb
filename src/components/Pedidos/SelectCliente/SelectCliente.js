@@ -54,6 +54,7 @@ const SelectCliente = (props) => {
     const dispatch = useDispatch();
     const clienteContado = useSelector(e=>e.clienteContado);
     const clientes = useSelector(e=>e.clientesContado);
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -232,8 +233,8 @@ const SelectCliente = (props) => {
 
                                         <td>{<b>Total</b>}</td>
                                         <td></td>
-                                        <td>{props.autocompleteValue.Moneda} {props.autocompleteValue.Credito.reduce((acc, cur) => { return acc + ((cur.SaldoTotal ? cur.SaldoTotal : 0)) }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</td>
-                                        <td>{props.autocompleteValue.Moneda} {props.autocompleteValue.Credito.reduce((acc, cur) => { return acc + ((cur.C15Dias ? cur.C15Dias : 0)) }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</td>
+                                        <td>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {props.autocompleteValue.Credito.reduce((acc, cur) => { return acc + ((cur.SaldoTotal ? cur.SaldoTotal : 0)) }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</td>
+                                        <td>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {props.autocompleteValue.Credito.reduce((acc, cur) => { return acc + ((cur.C15Dias ? cur.C15Dias : 0)) }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</td>
                                     </tr>
                                     <tr>
                                         {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={()=>setOpenContado(true)} variant="contained" color="primary">{(clienteContado===null)?'Crear cliente contado':'Editar cliente contado'}</Button></td>}

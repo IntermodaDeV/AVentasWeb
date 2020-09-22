@@ -225,6 +225,7 @@ const ResumenPedido = (props) => {
     }, [comunidad, transporte]);
     const onChangeDate = (date) => {
         setFechaEntrega(date);
+        props.guardarFecha(date);
     }
 
     const onErrorDate = (date) => {
