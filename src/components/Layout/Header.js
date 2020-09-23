@@ -24,7 +24,7 @@ import {
     makeStyles,
     withStyles
 } from '@material-ui/core/styles';
-import Logo from 'assets/img/logo/LogoLetras.png'
+import Logo from 'assets/img/logo/Cabecera.png'
 import styles from 'components/Layout/Layout.module.css'
 
 const Header = () => {

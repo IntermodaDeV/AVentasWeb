@@ -39,7 +39,7 @@ import {
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 //components
-import Logo from 'assets/img/logo/LogoColorBlanco.png';
+import Logo from 'assets/img/logo/Barra.png';
 import styles from 'components/Layout/Layout.module.css';
 
 
