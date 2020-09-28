@@ -206,6 +206,8 @@ const TablaVistaProducto = (props) => {
                                                 cantidad={valorTalla.Cantidad}
                                                 onFocus={onFocus}
                                                 onBlur={onBlur}
+                                                color={color.NombreColor}
+                                                setListaImagenesPrincipal={hasImages?props.setListaImagenes:null}
                                                 onChange={props.onchangeText}
                                                 CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
                                             />

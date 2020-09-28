@@ -1,4 +1,4 @@
-import logo200Image from 'assets/img/logo/Logoinv.png';
+import logo200Image from 'assets/img/logo/Barra.png';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Redirect } from 'react-router-dom';

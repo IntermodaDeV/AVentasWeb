@@ -13,11 +13,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+//import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
-import Checkbox from '@material-ui/core/Checkbox';
+//import Checkbox from '@material-ui/core/Checkbox';
 import InputLabel from '@material-ui/core/InputLabel';
 import styles from 'containers/Agenda/Agenda.module.css';
 import 'containers/Agenda/Agenda.css';
@@ -851,12 +851,13 @@ class Agenda extends Component {
                                                     </tbody>
                                                 </table>
                                                 <FormGroup row className={"mb-1"}>                                                    
-                                                    <FormControlLabel
+                                                    {/*<FormControlLabel
                                                         control={
-                                                            <Checkbox color="default" checked={this.state.noAtendido} onChange={(event) => this.setState({ noAtendido: event.target.checked, mostarNoAtendido: true })} value="Atender" />
+                                                            <Checkbox color="default" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))} checked={this.state.noAtendido} onChange={(event) => this.setState({ noAtendido: event.target.checked, mostarNoAtendido: true })} value="Atender" />
                                                         }
                                                         label="No se Atendió"
-                                                    />
+                                                    />*/}
+                                                    <Button style={{marginRight:'10px'}}color="primary" variant="outlined" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))}  onClick={() => this.setState((prevState)=>({ ...prevState,noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Atendió</Button>
 
                                                     {!this.verifyBlock("checkin")
                                                     ?<Button disabled={this.verifyBlock("checkin")}  variant="outlined" onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>

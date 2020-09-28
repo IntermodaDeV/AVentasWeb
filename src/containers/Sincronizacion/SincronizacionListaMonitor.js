@@ -80,6 +80,12 @@ const SincronizacionListaMonitor = (props)=>{
     useEffect(()=>{
         SincronizarModulos();
         SincronizarListado();
+        let intervalo = setInterval(SincronizarListado,30000);
+
+        return ()=>{
+            clearInterval(intervalo);
+        }
+
     },[])
 
     return (
@@ -128,7 +134,8 @@ const SincronizacionListaMonitor = (props)=>{
                                     />
                             </div>
                             <div>
-                                <Button color="primary" variant="contained" onClick={()=>{props.history.push('/sincronizacionlista')}}>Asignar nuevo</Button>
+                                <Button style={{marginRight:'10px'}} color="primary" variant="contained" onClick={()=>{props.history.push('/sincronizacionlista')}}>Asignar nuevo</Button>
+                                <Button color="primary" variant="contained" onClick={SincronizarListado}>Actualizar</Button>
                             </div>
                         </div>
                         </CardBody>

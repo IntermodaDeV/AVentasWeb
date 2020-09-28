@@ -294,6 +294,8 @@ const ProductoTable = (props) => {
                                         onFocus={onFocus}
                                         onBlur={onBlur}
                                         onChange={props.onValueChange}
+                                        color={null}
+                                        setListaImagenesPrincipal={null}
                                         CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
                                     />
                                 )

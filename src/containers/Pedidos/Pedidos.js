@@ -112,7 +112,7 @@ class Pedidos extends React.Component {
         Promise.all([this.cargarClientes(),
         this.cargarMaestroLinea(),
         this.cargarTiposColeccion(),
-        
+        this.cargarComunidadAutonoma(),
         this.cargarTiposPedido()]).then(this.setState({
             isLoaded: true,
         }));
@@ -283,9 +283,9 @@ class Pedidos extends React.Component {
         .catch(error=>this.setState({error}))
     }
 
-    cargarComunidadAutonoma = (empresa) =>{
+    cargarComunidadAutonoma = () =>{
         ///const empresa = localStorage.getItem('empresa');
-        let pais = "HND";
+        /*let pais = "HND";
 
         if(empresa === "imcr")
         {
@@ -293,9 +293,9 @@ class Pedidos extends React.Component {
         }else if(empresa === "imgt")
         {
             pais = "GTM";
-        }
+        }*/
 
-        fetch(`${this.urlApi}/api/transporte/${pais}/comunidadautonoma`)
+        fetch(`${this.urlApi}/api/transporte/comunidadautonoma`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreComunidades(data))
         .catch(error=>this.setState({error}))
@@ -786,7 +786,7 @@ class Pedidos extends React.Component {
             this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
             this.cargarEmpresasTransporte(this.state.autocompleteValue.EmpresaId);
             this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
-            this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
+            //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
             this.props.onSetCliente(this.state.autocompleteValue);
             this.props.onStoreColecciones([])
             this.props.history.push("/Pedidos/Linea");

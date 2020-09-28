@@ -55,6 +55,7 @@ const SelectCliente = (props) => {
     const clienteContado = useSelector(e=>e.clienteContado);
     const clientes = useSelector(e=>e.clientesContado);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
+    const Comunidad = useSelector(e=>e.comunidadesAutonomas);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -178,7 +179,7 @@ const SelectCliente = (props) => {
                                             {'Departamento: '}
                                         </td>
                                         <td className={styles.InfoLabelDetail}>
-                                            {props.autocompleteValue.ComunidadAutonoma}
+                                            {props.autocompleteValue.ComunidadAutonoma?Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma).NAME:''}
                                         </td>
                                     </tr>                                                                      
                                     <tr>
