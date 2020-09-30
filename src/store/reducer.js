@@ -470,8 +470,19 @@ const reducer = (state = initialState, action) => {
     }
 
     if(action.type==='SET_PRODUCTOSCOLECCION'){
+
+        let colecciones = state.colecciones;
+
+        colecciones.forEach((coleccion)=>{
+            if(coleccion.CodigoColeccion===state.coleccion.CodigoColeccion){
+                coleccion.Edades = action.payload;
+            }
+        })
+
         return {
             ...state,
+            TableValue:{},
+            colecciones,
             coleccion:{
                 ...state.coleccion,
                 Edades:action.payload

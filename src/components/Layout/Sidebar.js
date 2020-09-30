@@ -45,7 +45,7 @@ import styles from 'components/Layout/Layout.module.css';
 
 const Drawer = withStyles({
     paper: {
-        background: 'linear-gradient(120deg, rgba(89,140,151,1) 0%, rgba(72,87,101,1) 100%)',
+        background: '#243746',//'linear-gradient(110deg, rgba(67,191,240,94) 0%, rgba(19,53,66,26) 100%)',
     },
 })(MuiSwipeableDrawer);
 
@@ -154,12 +154,8 @@ const Sidebar = (props) => {
             className={classes.list}
             role="presentation"
         >
-            <div
-                className="px-3 py-3"
-            >
-                <div
-                    className="px-3"
-                >
+            <div className="px-3 py-3" style={{backgroundColor:'#EBEBF3'}}> 
+                <div className="px-3">
                     <img
                         src={Logo}
                         className="img-fluid"

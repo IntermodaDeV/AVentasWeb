@@ -157,7 +157,7 @@ const Header = () => {
 
 const AppBar = withStyles({
     colorDefault: {
-        background: 'linear-gradient(178deg, rgba(89,140,151,1) 0%, rgba(72,87,101,1) 100%)',
+        background: '#243746',//'linear-gradient(178deg, rgba(67,191,240,94) 0%, rgba(19,53,66,26) 100%)',
         color: 'white',
     },
 })(MuiAppBar);

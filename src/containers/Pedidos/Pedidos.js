@@ -1286,6 +1286,9 @@ class Pedidos extends React.Component {
             });
     }
     enviarPedido() {
+        localStorage.removeItem("ColeccionSeleccionada");
+        localStorage.removeItem("HoraIngreso");
+        localStorage.removeItem("ProdEnCarrito");
         this.setState({ loadingRecibo: true });
         ObtenerCoordenadas((position) => {
             this.enviarPeticionPedido({

@@ -28,14 +28,28 @@ const Coleccion = (props) => {
   const [Raised, setRaised] = React.useState(false);
   const cliente = useSelector(e=>e.cliente);
   const dispatch = useDispatch();
-
+  const coleccion = useSelector(e=>e.coleccion);
+  
   const selectColeccion = ()=>{
-    fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${localStorage.getItem('empresa')}`)
-        .then(res=>res.json())
-        .then(data=>{
-          props.Click();
-          dispatch({type:'SET_PRODUCTOSCOLECCION',payload:data});
-        });
+    let HoraIngreso = localStorage.getItem('HoraIngreso');
+    let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
+
+    if(props.coleccion.CodigoColeccion !== localStorage.getItem('ColeccionSeleccionada') || coleccion.Edades.length===0 || HoraActual > HoraIngreso)
+    {
+      fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${localStorage.getItem('empresa')}`)
+      .then(res=>res.json())
+      .then(data=>{
+        props.Click();
+        dispatch({type:'SET_PRODUCTOSCOLECCION',payload:data});
+        localStorage.setItem("ColeccionSeleccionada", props.coleccion.CodigoColeccion)
+        localStorage.setItem("HoraIngreso", moment(new Date()).format('YYYY-MM-DDTHH:mm'))
+      });
+    }
+    else
+    {
+      props.Click();
+    }
+   
   }
 
   return (

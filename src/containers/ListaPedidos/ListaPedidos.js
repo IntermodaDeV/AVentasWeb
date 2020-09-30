@@ -27,9 +27,10 @@ const ListaPedidos = () => {
     });
     const [showDialog, setShowDialog] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
-
+    const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-7));
+    const [fechaFin, setFechaFin] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
     useEffect(() => {
-        cargarPedidos();
+        cargarPedidos("1900-01-01", "1900-01-01");
         //cargarClientes();
         // eslint-disable-next-line
     }, []);
@@ -41,9 +42,11 @@ const ListaPedidos = () => {
         });
     }
 
-    const cargarPedidos = async () => {
-        let Asesor = localStorage.getItem('codigo')
-        fetch(urlApi + "/api/PedidosXCliente/"+ Asesor, {
+    const cargarPedidos = async (FechaInicio, FechaFin) => {
+        var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
+        var Fin = moment(FechaFin).format("YYYY-MM-DD");
+        let Asesor = localStorage.getItem('codigo');
+        fetch(urlApi + "/api/PedidosXCliente/"+ Asesor + "/" + Inicio + "/" + Fin, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -111,23 +114,17 @@ const ListaPedidos = () => {
 
 
     const handleFechaInicio = (fecha) => {
+        setFechaInicio(fecha);
 
-        var date = moment(fecha).toDate();
-
-        var fech = moment(fecha).toDate();
-        fech.setMonth(date.getMonth() + 1);
-
-        setState({
-            ...state,
-            startDate: date,
-            endDate: fech,
-        })
+        var fech =  moment(fecha).add(7, 'days')
+        setFechaFin(fech);
     }
 
-    const handleFechaFin = (fecha) => {
-        var date = moment(fecha).toDate();
+    const handleFechaFin = (date) => {
+        //var date = moment(fecha).toDate();
+        setFechaFin(date);
 
-        const diffTime = new Date(date) - new Date(state.startDate);
+        /*const diffTime = new Date(date) - new Date(fechaInicio);
 
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         if (diffDays > 1) {
@@ -149,12 +146,12 @@ const ListaPedidos = () => {
                 title: 'Ingrese Fecha Válida',
             })
             var fech = new Date();
-            fech.setDate(state.startDate.getDate() + 6);
+            fech.setDate(fechaInicio.getDate() + 6);
             setState({
                 ...state,
                 endDate: fech,
             })
-        }
+        }*/
 
     }
     const getMuiTheme = () => createMuiTheme({
@@ -175,14 +172,10 @@ const ListaPedidos = () => {
     })
     const DataPedidos = () => {
         let DataPedidos = [];
-
         state.pedidos.map(pedido => {
 
-            let fechaIni = new Date(state.startDate.getFullYear(), state.startDate.getMonth(), state.startDate.getDate());
-            let fechaFin = new Date(state.endDate.getFullYear(), state.endDate.getMonth(), state.endDate.getDate());
-            fechaFin.setDate(fechaFin.getDate() + 1);
 
-            if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
+            //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
                 let data = [
                     pedido.PedidoId,
                     pedido.Cliente.Nombre,
@@ -210,7 +203,7 @@ const ListaPedidos = () => {
                 ]
 
                 DataPedidos.push(data);
-            }
+            //}
             return false;
 
         });
@@ -250,29 +243,38 @@ const ListaPedidos = () => {
         return (
             <div className="px-3">
                 <div className="row mb-3">
-                    <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                <div className='col-lg-2 col-sm-4 col-12'>
                         <DatePicker
                             disableToolbar
                             autoOk
                             label={"Fecha Inicio"}
                             variant="inline"
                             format={"DD/MM/YYYY"}
-                            value={state.startDate}
+                            value={fechaInicio}
                             onChange={(date) => handleFechaInicio(date)}
                         />
 
                     </div>
-                    <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                    <div className='col-lg-2 col-sm-4 col-12'>
                         <DatePicker
                             disableToolbar
                             autoOk
+                            minDate={fechaInicio}
+                            maxDate ={moment(fechaInicio).add(7, 'days')}
                             label={"Fecha Fin"}
                             variant="inline"
-                            minDate={state.startDate}
                             format={"DD/MM/YYYY"}
-                            value={state.endDate}
+                            value={fechaFin}
                             onChange={(date) => handleFechaFin(date)}
                         />
+                    </div>
+
+                    <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 15 }}>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => cargarPedidos(fechaInicio, fechaFin)}>Obtener
+                    </Button>
                     </div>
                 </div>
                 <div>
