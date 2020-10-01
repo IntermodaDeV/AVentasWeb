@@ -47,6 +47,7 @@ const Coleccion = (props) => {
     }
     else
     {
+      dispatch({type:'SET_PRODUCTOSCOLECCION',payload:coleccion.Edades});
       props.Click();
     }
    
