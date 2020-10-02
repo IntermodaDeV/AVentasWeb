@@ -3,7 +3,7 @@ import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from 'mui-datatables'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 // import { EstadisticaVisitaTable } from './EstadisticaVisitaTable';
-import PieChart from 'components/EstadisticaVisita/PieChart';
+import FunnelChart from 'components/EstadisticaVisita/FunnelChart';
 import moment from 'moment';
 import { Dropdown } from "semantic-ui-react";
 import {APIURL} from 'utils/Enviroment';
@@ -427,7 +427,7 @@ const EstadisticaVisita = (props) => {
                             </div>
                         </div>
                         <div className="row">
-                            <PieChart Selected={Selected} Users={estadisticasVisita} />
+                            <FunnelChart Selected={Selected} Users={estadisticasVisita}/>
                         </div>
                     </div>
                 </div>

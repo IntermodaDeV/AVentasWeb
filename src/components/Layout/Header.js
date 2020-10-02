@@ -5,7 +5,7 @@ import {
     AppBar as MuiAppBar,
     Toolbar,
     IconButton,
-    Badge,
+    //Badge,
     MenuItem,
     Menu as MuiMenu
 } from '@material-ui/core';
@@ -15,7 +15,7 @@ import {
     Menu as MenuIcon,
     PersonOutline as AccountIcon,
     // Mail as MailIcon,
-    NotificationsOutlined as NotificationsIcon,
+    //NotificationsOutlined as NotificationsIcon,
     MoreVert as MoreIcon,
 } from '@material-ui/icons';
 
@@ -83,14 +83,14 @@ const Header = () => {
             open={isMobileMenuOpen}
             onClose={handleMobileMenuClose}
         >
-            <MenuItem>
+            {/*<MenuItem>
                 <Badge badgeContent={17} color="secondary">
                     <NotificationsIcon color="inherit" />
                 </Badge>
                 <div className="ml-3">
                     Notificaciones
                 </div>
-            </MenuItem>
+            </MenuItem>*/}
 
             <MenuItem onClick={handleProfileMenuOpen}>
 
@@ -119,11 +119,11 @@ const Header = () => {
                     </Link>
                     <div className={classes.grow} />
                     <div className={classes.sectionDesktop}>
-                        <IconButton aria-label="Notifications" color="inherit">
+                        {/*<IconButton aria-label="Notifications" color="inherit">
                             <Badge badgeContent={17} color="secondary">
                                 <NotificationsIcon />
                             </Badge>
-                        </IconButton>
+                        </IconButton>*/}
 
                         <IconButton
                             edge="end"

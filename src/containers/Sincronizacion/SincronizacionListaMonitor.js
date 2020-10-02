@@ -116,7 +116,7 @@ const SincronizacionListaMonitor = (props)=>{
                                 />
                                 
                             </div>
-                            <div className='col-lg-8 col-sm-6 col-6'>
+                            <div className='col-lg-4 col-sm-4 col-4'>
                                 <Dropdown
                                     placeholder="Escoja el módulo de sincronización:"
                                     fluid

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Loader from 'components/Global/Loader';
 import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from "mui-datatables";
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+//import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { Button, Dialog } from "@material-ui/core";
 import DetallePedido from 'components/ListadoPedidos/DetallePedido';
