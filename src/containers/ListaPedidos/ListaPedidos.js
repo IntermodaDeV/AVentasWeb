@@ -24,10 +24,11 @@ const ListaPedidos = () => {
         pedidos: [],
         clientes: [],
         pedido: null,
+        Detalles: [],
     });
     const [showDialog, setShowDialog] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
-    const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-7));
+    const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
     const [fechaFin, setFechaFin] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
     useEffect(() => {
         cargarPedidos("1900-01-01", "1900-01-01");
@@ -35,12 +36,6 @@ const ListaPedidos = () => {
         // eslint-disable-next-line
     }, []);
 
-    const cambiarPedido = (pedido) => {
-        setState({
-            ...state,
-            pedido: pedido,
-        });
-    }
 
     const cargarPedidos = async (FechaInicio, FechaFin) => {
         var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
@@ -191,11 +186,11 @@ const ListaPedidos = () => {
                     <div>
 
                         <span className="mr-1">
-                            <Button className='my-1' variant="outlined" onClick={() => cambiarPedido(pedido)} size="small" color={"primary"}>Detalle</Button>
+                            <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, false)} size="small" color={"primary"}>Detalle</Button>
                         </span>
 
                         <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => showPrint(pedido)} size="small" color={"primary"}>
+                            <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, true)} size="small" color={"primary"}>
                                 <PrintOutlined />
                             </Button>
                         </span >
@@ -211,9 +206,22 @@ const ListaPedidos = () => {
         return DataPedidos;
     }
 
-    const showPrint = (pedido) => {
-        setDialogPedido(pedido);
-        setShowDialog(true);
+    const GetPedidoDetalle = (Pedido, EsImpresion) =>{
+        let EnDetalle = EsImpresion ? null : Pedido;
+        fetch(`${APIURL}/api/PedidoDetalle/${Pedido.PedidoId}`)
+        .then(res=>res.json())
+        .then(data=>{
+            setState({
+                ...state,
+                Detalles: data,
+                pedido: EnDetalle,
+            });
+            if(EsImpresion)
+            {
+                setShowDialog(true);
+            }
+        });
+        setDialogPedido(Pedido);
     }
 
     const hidePrint = () => {
@@ -232,12 +240,13 @@ const ListaPedidos = () => {
     if (state.error) {
         return <div>Error: {state.error.message}</div>;
     }
-    if (state.pedido != null) {
+    if (state.pedido != null && state.Detalles !== null) {
         return (
             <DetallePedido
                 clientes={state.clientes}
                 pedido={state.pedido}
-                RegresarListaPedidos={RegresarListaPedidos} />
+                RegresarListaPedidos={RegresarListaPedidos}
+                gruposXDetPed = {state.Detalles} />
         )
     } else {
         return (
@@ -260,7 +269,7 @@ const ListaPedidos = () => {
                             disableToolbar
                             autoOk
                             minDate={fechaInicio}
-                            maxDate ={moment(fechaInicio).add(7, 'days')}
+                            maxDate ={moment(fechaInicio).add(30, 'days')}
                             label={"Fecha Fin"}
                             variant="inline"
                             format={"DD/MM/YYYY"}
@@ -296,10 +305,11 @@ const ListaPedidos = () => {
                 >
 
                     {
-                        DialogPedido &&
+                        DialogPedido && state.Detalles !== null &&
                         <ImprimirPedido
                             hidePrint={hidePrint}
                             Pedido={DialogPedido}
+                            gruposXDetPed = {state.Detalles}
                         />
                     }
                 </Dialog >

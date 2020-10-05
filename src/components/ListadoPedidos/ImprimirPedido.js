@@ -95,7 +95,7 @@ const checkDist = (talla) => {
 
                     </div>
 
-                    {props.Pedido.gruposXDetPed.map((grupoTalla, index1) => {
+                    {props.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
                         let IsDist = false;
                         let Same = false;

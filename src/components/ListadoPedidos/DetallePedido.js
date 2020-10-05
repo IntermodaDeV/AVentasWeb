@@ -335,7 +335,7 @@ const DetallePedido = (props) => {
                 </div>
 
                 <div className="w-100 mw-100 overflow-auto">
-                    {props.pedido.gruposXDetPed.map((grupoTalla, index1) => {
+                    {props.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
                         let IsDist = true;
                         return (
