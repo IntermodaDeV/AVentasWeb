@@ -111,7 +111,7 @@ const CuentaCorrienteTable = props => {
         doc.setFontSize(7);
 
         const title = `
-                                                ESTADO DE CUENTA PROVISIONAL
+                                          ESTADO DE CUENTA PROVISIONAL
 
             Codigo:    ${props.clienteSelected.Codigo}              Fecha: ${moment(new Date()).format("DD/MM/YYYY")}
             Nombre:    ${props.clienteSelected.Nombre}

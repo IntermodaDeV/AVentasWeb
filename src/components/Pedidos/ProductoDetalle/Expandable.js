@@ -55,7 +55,7 @@ const Expandable = (props) => {
                                             break;
                                     }
                                     return (
-                                        <div key={index} className="col-md-6 my-3">
+                                        <div key={index} className="col-md-4 my-3">
 
                                             <div className="row">
                                                 <img alt={"Icono"} className={styles.Icon} src={icono} />
