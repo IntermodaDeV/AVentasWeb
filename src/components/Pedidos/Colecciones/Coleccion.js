@@ -34,7 +34,7 @@ const Coleccion = (props) => {
     let HoraIngreso = localStorage.getItem('HoraIngreso');
     let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
 
-    if(props.coleccion.CodigoColeccion !== localStorage.getItem('ColeccionSeleccionada') || coleccion.Edades.length===0 || HoraActual > HoraIngreso)
+    if(props.coleccion.CodigoColeccion !== localStorage.getItem('ColeccionSeleccionada') || coleccion.Edades ===null || coleccion.Edades === undefined || coleccion.Edades.length===0 || HoraActual > HoraIngreso)
     {
       fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${localStorage.getItem('empresa')}`)
       .then(res=>res.json())

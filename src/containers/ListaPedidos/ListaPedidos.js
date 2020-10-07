@@ -269,7 +269,7 @@ const ListaPedidos = () => {
                             disableToolbar
                             autoOk
                             minDate={fechaInicio}
-                            maxDate ={moment(fechaInicio).add(30, 'days')}
+                            maxDate ={moment(fechaInicio).add(365, 'days')}
                             label={"Fecha Fin"}
                             variant="inline"
                             format={"DD/MM/YYYY"}

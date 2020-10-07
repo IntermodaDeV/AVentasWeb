@@ -1250,7 +1250,7 @@ class Pedidos extends React.Component {
                                 var numPedido = result.EncabezadoPedido.PedidoId;
                                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                                 this.props.onSetNumeroOrden(numPedido);
-                                this.SendEmailPDF();
+                                //this.SendEmailPDF();
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -1314,7 +1314,7 @@ class Pedidos extends React.Component {
 
     }
     CrearDetallePedidoOnline = (productoId, codigoColor, talla, valor, precio, cantidad = 0) => {
-        if (this.props.NumeroOrden && cantidad < 3) {
+        /*if (this.props.NumeroOrden && cantidad < 3) {
             
             fetch(this.urlApi + "/api/PedidoOnline/CrearDetalle", {
                 headers: {
@@ -1339,19 +1339,19 @@ class Pedidos extends React.Component {
 
                         /* this.setState({
                             
-            }) */
+            }) 
                     } else {
                         this.CrearDetallePedidoOnline(productoId, codigoColor, talla, valor, precio, cantidad + 1);
                     }
                 }, error => error)
         } else {
-            /* this.setState({
+            this.setState({
 
-            }) */
-        }
+            }) 
+        }*/
     }
     CrearEncabezadoPedidoOnline = (cantidad = 0) => {
-        if (cantidad < 3) {
+        /*if (cantidad < 3) {
             if (!this.state.loading) {
                 this.setState({ loading: true });
             }
@@ -1388,7 +1388,7 @@ class Pedidos extends React.Component {
         } else {
             this.setState({ loading: false });
 
-        }
+        }*/
     }
     SendEmailPDF = () => {
         if (navigator.onLine) {
