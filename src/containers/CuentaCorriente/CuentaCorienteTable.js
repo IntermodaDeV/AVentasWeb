@@ -104,7 +104,7 @@ const CuentaCorrienteTable = props => {
     
     const generatePDF = () =>{
         const unit = "pt";
-        const size = "A4"; 
+        const size = "letter"; 
         const orientation = "portrait";
 
         const doc = new jsPDF(orientation, unit, size);
@@ -113,9 +113,9 @@ const CuentaCorrienteTable = props => {
         const title = `
                                           ESTADO DE CUENTA PROVISIONAL
 
-            Codigo:    ${props.clienteSelected.Codigo}              Fecha: ${moment(new Date()).format("DD/MM/YYYY")}
-            Nombre:    ${props.clienteSelected.Nombre}
-            Direcciòn: ${props.clienteSelected.Direccion}
+    Codigo:    ${props.clienteSelected.Codigo}              Fecha: ${moment(new Date()).format("DD/MM/YYYY")}
+    Nombre:    ${props.clienteSelected.Nombre}
+    Direcciòn: ${props.clienteSelected.Direccion}
         `;
 
         const headers = [['Documento','Numero','Fecha','Vencimiento','Dias','Valor','Saldo','Descuento','Dias','Descuento','A Pagar']];
@@ -137,23 +137,21 @@ const CuentaCorrienteTable = props => {
         const totalDescuento = cuentaCorriente.reduce((pre,curr)=>(pre+curr.Descuento),0);
         const totalPagar = cuentaCorriente.reduce((pre,curr)=>(pre+curr.APagar),0);
 
+        data.push([`Facturas: ${cantidadFacturas}`,'','','','',numberWithCommas(totalValor),numberWithCommas(totalSaldo),'','',numberWithCommas(totalDescuento),numberWithCommas(totalPagar)]);
+
         let content = {
-            styles:{fontSize:8},
+            styles:{fontSize:7},
             startY: 50,
             head: headers,
             body: data,
             didDrawPage:function (data) {
                 if (Logo) {
-                    doc.addImage(Logo, 'PNG', 40, 15, 33, 33);
+                    doc.addImage(Logo, 'PNG', 40, 0, 33, 33);
                 }
         }}
 
-        const footer = `Facturas: ${cantidadFacturas}                                                                                                       ${numberWithCommas(totalValor)}       ${numberWithCommas(totalSaldo)}                                                ${numberWithCommas(totalDescuento)}         ${numberWithCommas(totalPagar)}`;
-
         doc.text(title, 180, 0);
         doc.autoTable(content);
-        let finalY = doc.lastAutoTable.finalY; // The y position on the page
-        doc.text(50, finalY+10, footer)
         doc.save(`Reporte-${props.clienteSelected.Codigo}.pdf`)
     }
 

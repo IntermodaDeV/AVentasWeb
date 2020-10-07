@@ -111,7 +111,7 @@ const ListaPedidos = () => {
     const handleFechaInicio = (fecha) => {
         setFechaInicio(fecha);
 
-        var fech =  moment(fecha).add(7, 'days')
+        var fech =  moment(fecha).add(30, 'days')
         setFechaFin(fech);
     }
 

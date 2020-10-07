@@ -69,6 +69,13 @@ const ResumenPedido = (props) => {
         }
     }
 
+    let pais = "HND";
+    if(localStorage.getItem('empresa')==='imgt'){
+        pais = "GTM"
+    }else if (localStorage.getItem('empresa')==='imcr'){
+        pais = "CRI";
+    }
+
     const dispatch = useDispatch();
     const impuesto = Number(localStorage.getItem('Impuesto'));
     const lineaSeleccionada = useSelector(e => e.LineaSeleccionada);
@@ -548,7 +555,7 @@ const ResumenPedido = (props) => {
                                             }}
                                             defaultValue={comunidadSelected}
                                             disabled={habilitado}
-                                            options={comunidadesAutonomas.map(comunidad => {
+                                            options={comunidadesAutonomas.filter(e=>e.COUNTRYREGIONID===pais).map(comunidad => {
                                                 return { key: comunidad.STATEID, value: comunidad.STATEID, text: comunidad.NAME }
                                             })}
                                             noResultsMessage={"No hay resultados"}
@@ -665,7 +672,7 @@ const ResumenPedido = (props) => {
             </Dialog>
             {
             props.mostrarRecibo &&
-                props.CargarImpresionPedido({flete,totalGlobal,unidadesTotales,FechaEntrega})
+                props.CargarImpresionPedido({flete,totalGlobal,unidadesTotales,FechaEntrega,firma})
             }
         </Card >
     )

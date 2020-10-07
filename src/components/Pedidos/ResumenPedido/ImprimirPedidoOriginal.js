@@ -326,9 +326,9 @@ const ImprimirPedidoOriginal = (props) => {
                 <div className="col-6">
                     <div className="thanks">
                         {
-                            props.firma === null ?
+                            props.ValoresPedido.firma === null ?
                                 <div style={{ width: '100%', height: '160px', }}></div> :
-                                <img src={props.firma} alt={"Firma"} data-holder-rendered="true" />
+                                <img src={props.ValoresPedido.firma} alt={"Firma"} data-holder-rendered="true" />
                         }
 
                     </div>
@@ -356,7 +356,7 @@ const ImprimirPedidoOriginal = (props) => {
                         </div>
 
                         <div className="col-7 valueTotal">
-                            {numberWithCommas(props.ValoresPedido.totalGlobal)}
+                        {moneda} {numberWithCommas(props.ValoresPedido.totalGlobal)}
                         </div>
                     </div>
 
@@ -376,7 +376,7 @@ const ImprimirPedidoOriginal = (props) => {
                         </div>
 
                         <div className="col-7 valueTotal">
-                            {numberWithCommas((impuesto))}
+                        {moneda} {numberWithCommas((impuesto))}
                         </div>
                     </div>
 
