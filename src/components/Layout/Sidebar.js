@@ -33,9 +33,9 @@ import {
     //SwapHorizOutlined,
     //StoreMallDirectoryOutlined,
     //CameraAltOutlined,
-    LocationOnOutlined,
+    //LocationOnOutlined,
     HelpOutline,
-    Public
+    //Public
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 //components
@@ -85,8 +85,8 @@ const navItems = [
     //{ to: '/devoluciones', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
     //{ to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
     //{ to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
-    { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
-    { to: '/coordenadas-global', name: 'Clientes Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
+    //{ to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
+    //{ to: '/coordenadas-global', name: 'Clientes Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
     /*{
         to: '/sincronizacion', name: 'Sincronizacion', dataTut: 'DataTut_Sinc', Icon: Sync,
         expanded: [

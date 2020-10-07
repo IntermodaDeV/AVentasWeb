@@ -14,8 +14,8 @@ import Recibos from 'containers/Recibos/Recibos'
 import Fotografia from 'containers/Fotografias/Fotografias'
 import CuentaCorriente from 'containers/CuentaCorriente/CuentaCorriente'
 import EstadisticaVisita from 'containers/EstadisticaVisita/EstadisticaVisita'
-import Coordenadas from 'containers/Coordenadas/Coordenadas'
-import CoordenadasGlobal from 'containers/Coordenadas/CoordenadasGlobal'
+//import Coordenadas from 'containers/Coordenadas/Coordenadas'
+//import CoordenadasGlobal from 'containers/Coordenadas/CoordenadasGlobal'
 import ListaPedidos from 'containers/ListaPedidos/ListaPedidos'
 import ListaRecibos from 'containers/ListaRecibos/ListaRecibos'
 import AsignacionPage from 'containers/Asignacion/Asignacion'
@@ -66,18 +66,18 @@ const App = props => {
               layout={MainLayout}
               component={ListaPedidos}
             />
-            <LayoutRoute
+            {/*<LayoutRoute
               exact
               path='/coordenadas'
               layout={MainLayout}
               component={Coordenadas}
-            />
-            <LayoutRoute
+            />*/}
+            {/*<LayoutRoute
               exact
               path='/coordenadas-global'
               layout={MainLayout}
               component={CoordenadasGlobal}
-            />
+            />*/}
             <LayoutRoute
               exact
               path='/agenda'
