@@ -27,7 +27,7 @@ import ClienteContado from './ClienteContado';
 import {useDispatch,useSelector} from 'react-redux';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import logo from './iconfinder_Close_2001866.png';
-import {reduceNumberWithCommas,numberWithCommas} from 'utils/common';
+import {numberWithCommas} from 'utils/common';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;

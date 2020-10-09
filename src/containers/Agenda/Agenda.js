@@ -679,12 +679,12 @@ class Agenda extends Component {
     render() {
         let tipoDisabled = false;
         let causaDisabled = false;
-        let observacionDisabled = false;
+        //let observacionDisabled = false;
 
         if (!this.state.mostrarAcciones && !this.state.noAtendido) {
             causaDisabled = true;
             tipoDisabled = true;
-            observacionDisabled = true;
+            //observacionDisabled = true;
         }
 
         if (!this.state.tipoSelected) {
@@ -932,7 +932,7 @@ class Agenda extends Component {
                                                 <InputLabel htmlFor="demo-controlled-open-select">Tipo</InputLabel>
                                                 <Select
                                                     value={(this.state.tipo === null ? '' : this.state.tipo)}
-                                                    disabled={tipoDisabled}
+                                                    //disabled={tipoDisabled}
                                                     onChange={this.handleChangeTipo}
                                                 >
                                                     {
@@ -947,7 +947,7 @@ class Agenda extends Component {
                                             <FormControl style={{ display: 'flex' }}>
                                                 <InputLabel htmlFor="demo-controlled-open-select">Causa</InputLabel>
                                                 <Select
-                                                    disabled={causaDisabled}
+                                                    //disabled={causaDisabled}
                                                     value={(this.state.razon === null ? '' : this.state.razon)}
                                                     onChange={this.handleChangeCausa}
                                                 >
@@ -962,7 +962,7 @@ class Agenda extends Component {
                                                 label="Observación"
                                                 className="w-100"
                                                 multiline
-                                                disabled={observacionDisabled}
+                                                //disabled={observacionDisabled}
                                                 rowsMax="6"
                                                 rows="2"
                                                 value={this.state.Observacion}
