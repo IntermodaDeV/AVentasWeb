@@ -659,6 +659,16 @@ export default class Asignacion extends Component {
         });
     }
 
+    OnChangeFechaInicio = (HoraInicio) => {
+        let olddate = new moment(HoraInicio).toDate();
+        let fecha = this.state.FechaFinDialog;
+        let date = new moment(olddate).add(fecha, 'minutes').toDate();
+
+        this.setState({
+            HoraDialogFin: date,
+        });
+    }
+
     handleFechaFin = (fecha) => {
         var date = moment(fecha).toDate();
 
@@ -702,8 +712,9 @@ export default class Asignacion extends Component {
         var date = moment(fecha).toDate();
         this.setState({
             HoraDialogInicio: date,
-            FechaFinDialog: '',
+            //FechaFinDialog: '',
         });
+        this.OnChangeFechaInicio(date)
     }
 
     handleTiempoEstimadoChange = name => event => {
