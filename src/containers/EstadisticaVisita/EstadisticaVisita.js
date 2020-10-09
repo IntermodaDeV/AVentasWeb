@@ -10,10 +10,12 @@ import { Dropdown } from "semantic-ui-react";
 import {APIURL} from 'utils/Enviroment';
 import 'moment/locale/es';
 import {
-    Button,
+    Button
     // Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText,  Select, MenuItem 
 } from '@material-ui/core';
-// import { ScaleLoader } from 'react-spinners';
+import  TableFooter from "@material-ui/core/TableFooter";
+import  TableRow from "@material-ui/core/TableRow";
+import  TablePagination from "@material-ui/core/TablePagination";
 import {
     FaUserCheck,
     FaCheckDouble,
@@ -21,6 +23,7 @@ import {
     FaClipboardCheck,
     FaUserTimes
 } from "react-icons/fa";
+import CustomFooter from 'components/Layout/CustomFooter';
 
 moment.locale('es')
 const urlApi = APIURL
@@ -162,6 +165,22 @@ const EstadisticaVisita = (props) => {
         print: false,
         download: false,
         selectableRowsOnClick: true,
+        customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+            <TableFooter>
+              <TableRow>
+                <TablePagination
+                  count={count}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onChangePage={(_, page) => changePage(page)}
+                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                  rowsPerPageOptions={[10, 15, 100]}
+                  ActionsComponent={CustomFooter}
+                  labelRowsPerPage="Filas por página:"
+                />
+              </TableRow>
+            </TableFooter>
+          ),
         // rowsSelected: selectedRowsIndex,
         textLabels: {
             body: {

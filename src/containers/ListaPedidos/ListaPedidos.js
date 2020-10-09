@@ -11,6 +11,10 @@ import moment from "moment";
 import 'moment/locale/es';
 import {APIURL} from 'utils/Enviroment';
 import ImprimirPedido from 'components/ListadoPedidos/ImprimirPedido';
+import  TableFooter from "@material-ui/core/TableFooter";
+import  TableRow from "@material-ui/core/TableRow";
+import  TablePagination from "@material-ui/core/TablePagination";
+import CustomFooter from 'components/Layout/CustomFooter';
 moment.locale('es');
 
 const ListaPedidos = () => {
@@ -348,6 +352,22 @@ const DatatableOptions = {
     print: false,
     download: false,
     selectableRows: 'none',
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+        <TableFooter>
+              <TableRow>
+                <TablePagination
+                  count={count}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onChangePage={(_, page) => changePage(page)}
+                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                  rowsPerPageOptions={[10, 15, 100]}
+                  ActionsComponent={CustomFooter}
+                  labelRowsPerPage="Filas por página:"
+                />
+              </TableRow>
+            </TableFooter>
+      ),
     textLabels: {
         body: {
             noMatch: "No se han encontrado pedidos",

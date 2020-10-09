@@ -48,7 +48,6 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const SelectCliente = (props) => {
-
     const [open, setOpen] = useState(false);
     const [Value, setValue] = useState(null);
     const [openContado,setOpenContado] = useState(false);
@@ -141,7 +140,9 @@ const SelectCliente = (props) => {
     }
 
     if (props.autocompleteValue) {
-
+        let DisponibleTotal = 0;
+        let ValorCreditoTotal = 0;
+        let CXCTotal = 0;
         infoCliente = (
             <Card>
                 <CardContent>
@@ -221,22 +222,24 @@ const SelectCliente = (props) => {
                                 </thead>
                                 <tbody>
                                     {props.autocompleteValue.Credito.map((credito, index) => {
+                                        DisponibleTotal = DisponibleTotal + credito.Disponible;
+                                        ValorCreditoTotal = ValorCreditoTotal + credito.Valor;
+                                        CXCTotal = CXCTotal + credito.SaldoTotal;
                                         return (
                                             <tr key={index}>
 
                                                 <td>{credito.Tipo}</td>
                                                 <td style={{color:credito.Valor>0?'green':'red'}}>{credito.Valor ? numberWithCommas(credito.Valor) : 0}</td>
-                                                <td style={{color:credito.SaldoTotal>0?'green':'red'}}>{credito.SaldoTotal ? numberWithCommas(credito.SaldoTotal) : 0}</td>
+                                                <td>{credito.SaldoTotal ? numberWithCommas(credito.SaldoTotal) : 0}</td>
                                                 <td style={{color:credito.Disponible>0?'green':'red'}}>{credito.Disponible ? numberWithCommas(credito.Disponible) : 0}</td>
                                             </tr>
                                         )
                                     })}
                                     <tr>
-
                                         <td>{<b>Total</b>}</td>
-                                        <td></td>
-                                        <td style={{color:parseFloat(reduceNumberWithCommas(props.autocompleteValue.Credito,'SaldoTotal'))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {reduceNumberWithCommas(props.autocompleteValue.Credito,'SaldoTotal')}</td>
-                                        <td style={{color:parseFloat(reduceNumberWithCommas(props.autocompleteValue.Credito,'C15Dias'))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {reduceNumberWithCommas(props.autocompleteValue.Credito,'C15Dias')}</td>
+                                        <td style={{color:parseFloat(numberWithCommas(ValorCreditoTotal))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(ValorCreditoTotal)}</td>
+                                        <td>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(CXCTotal)}</td>
+                                        <td style={{color:parseFloat(numberWithCommas(DisponibleTotal))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(DisponibleTotal)}</td>
                                     </tr>
                                     <tr>
                                         {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={()=>setOpenContado(true)} variant="contained" color="primary">{(clienteContado===null)?'Crear cliente contado':'Editar cliente contado'}</Button></td>}

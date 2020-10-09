@@ -87,6 +87,7 @@ const Coleccion = (props) => {
 
           <CardContent>
             <hr className={"mt-0 " + styles.BorderTop}></hr>
+            <h4 style={{textAlign:'center'}}>{props.coleccion.CodigoColeccion}</h4>
             <div className="row">
               <div className="col px-1">
                 <div className="row mb-2 text-center">
@@ -94,7 +95,7 @@ const Coleccion = (props) => {
                     <h5 className={styles.TitleColeccion} >Venta Inicio:</h5>
                   </div>
                   <div className="col-12 p-0">
-                    {moment(props.coleccion.VentaInicio).calendar()}
+                    {moment(props.coleccion.VentaInicio).format("DD/MM/YYYY")}
                   </div>
                 </div>
                 <div className="row text-center">
@@ -102,7 +103,7 @@ const Coleccion = (props) => {
                     <h5 className={styles.TitleColeccion}>Venta Fin:</h5>
                   </div>
                   <div className="col-12 p-0">
-                    {moment(props.coleccion.VentaFinal).calendar()}
+                    {moment(props.coleccion.VentaFinal).format("DD/MM/YYYY")}
                   </div>
                 </div>
               </div>
@@ -112,7 +113,7 @@ const Coleccion = (props) => {
                     <h5 className={styles.TitleColeccion}>Entrega Inicio:</h5>
                   </div>
                   <div className="col-12 p-0">
-                    {moment(props.coleccion.EntregaInicio).calendar()}
+                    {moment(props.coleccion.EntregaInicio).format("DD/MM/YYYY")}
                   </div>
                 </div>
                 <div className="row text-center">
@@ -120,7 +121,7 @@ const Coleccion = (props) => {
                     <h5 className={styles.TitleColeccion}> Entrega Fin: </h5>
                   </div>
                   <div className="col-12 p-0">
-                    {moment(props.coleccion.EntregaFinal).calendar()}
+                    {moment(props.coleccion.EntregaFinal).format("DD/MM/YYYY")}
                   </div>
                 </div>
               </div>
