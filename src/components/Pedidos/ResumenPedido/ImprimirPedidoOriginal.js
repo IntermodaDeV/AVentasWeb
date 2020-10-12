@@ -243,7 +243,7 @@ const ImprimirPedidoOriginal = (props) => {
                     alignItems: 'center',
                     verticalAlign: 'middle',
                     fontWeight: 600,
-                }}>{numberWithCommas(precio.Precio * parseInt(totalXColor, 10))}</td>
+                }}>{numberWithCommas(precio.Precio * parseInt(TotalXProdDist !== 0 ? TotalXProdDist : totalXColor, 10))}</td>
             </tr>
         )
         return colorTabla;
