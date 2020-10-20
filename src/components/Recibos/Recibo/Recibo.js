@@ -1,16 +1,18 @@
 import React from 'react';
-import { Dialog, DialogActions, DialogContent, DialogTitle, Button } from '@material-ui/core';
+import {Button } from '@material-ui/core';
 import ReactToPrint from 'react-to-print';
 import Logo from 'assets/img/logo/LogoSinLetrasInv.png';
 import styles from "components/Recibos/Recibo/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
 import {useSelector} from 'react-redux';
+import { makeStyles } from '@material-ui/core/styles';
+import {FiArrowRightCircle} from "react-icons/fi";
+import { FaPrint } from "react-icons/fa";
 
 const Recibo = (props) => {
-
     const clientesContado = useSelector(e=>e.clientesContado);
-    const Monedas = useSelector(e=>e.Monedas);
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const pedidoSelected = useSelector(k => k.pedidoSelected);
     const empresas = useSelector(e=>e.Empresas);
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
@@ -32,20 +34,37 @@ const Recibo = (props) => {
     }
     //const FechaEntrega = new Date();
     const componentRef = React.useRef();
-
+    const useStyles = makeStyles((theme) => ({
+        button: {
+          marginLeft: theme.spacing(2),
+          marginRight: theme.spacing(2),
+        },
+      }));
+    const classes = useStyles();
    return (
         <div className="col">
             {
                 props.Cliente &&
-                <Dialog
-                    open={props.Open}
-                    onClose={() => console.log('Click')}
-                    scroll={'paper'}
-                    aria-labelledby="scroll-dialog-title"
-                >
-                    <DialogTitle id="scroll-dialog-title">Vista Previa Recibo</DialogTitle>
-                    <DialogContent dividers={true} ref={componentRef} style={{ width: '100%' }}>
-                        <div id={"invoice-POS"} style={{ boxShadow: 'unset' }}>
+                <div>
+                        <div className="text-right">
+                            <div className="col">
+                                    <ReactToPrint
+                                        trigger={() =>
+                                        <Button variant="contained" size="large" color="primary" endIcon = {<FaPrint/>}>
+                                            Imprimir
+                                        </Button>
+                                        }
+                                        content={() => componentRef.current}
+                                    />
+
+                                <Button onClick={() => props.Finalizar()} className = {classes.button} variant="contained" size="large" color="primary" endIcon ={<FiArrowRightCircle/>}>
+                                        Finalizar
+                                </Button>
+                            </div>
+                            <hr />
+                        </div>
+                
+                        <div id={"invoice-POS"} ref={componentRef} style={{ boxShadow: 'unset' }}>
                             <div id="top">
                                 <div className="row">
                                     <img className="pr-3" alt={"Logo"} width={150} style={{ objectFit: 'contain' }} src={Logo} ></img>
@@ -235,26 +254,12 @@ const Recibo = (props) => {
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
-                    </DialogContent >
-                    <DialogActions>
-                        <ReactToPrint
-                            trigger={() =>
-                                <Button color="primary">
-                                    Imprimir
-                            </Button>
-                            }
-                            content={() => componentRef.current}
-                        />
-                        <Button onClick={() => props.Finalizar()} color="primary">
-                            Finalizar
-                        </Button>
-                    </DialogActions>
-                </Dialog >
-            }
+                    </div>
+                 }
         </div >
+     
     )
 }
 

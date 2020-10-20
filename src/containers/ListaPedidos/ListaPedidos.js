@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Loader from 'components/Global/Loader';
 import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from "mui-datatables";
-import Swal from 'sweetalert2/dist/sweetalert2.js';
+//import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { Button, Dialog } from "@material-ui/core";
 import DetallePedido from 'components/ListadoPedidos/DetallePedido';
@@ -11,6 +11,10 @@ import moment from "moment";
 import 'moment/locale/es';
 import {APIURL} from 'utils/Enviroment';
 import ImprimirPedido from 'components/ListadoPedidos/ImprimirPedido';
+import  TableFooter from "@material-ui/core/TableFooter";
+import  TableRow from "@material-ui/core/TableRow";
+import  TablePagination from "@material-ui/core/TablePagination";
+import CustomFooter from 'components/Layout/CustomFooter';
 moment.locale('es');
 
 const ListaPedidos = () => {
@@ -24,26 +28,24 @@ const ListaPedidos = () => {
         pedidos: [],
         clientes: [],
         pedido: null,
+        Detalles: [],
     });
     const [showDialog, setShowDialog] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
-
+    const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
+    const [fechaFin, setFechaFin] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
     useEffect(() => {
-        cargarPedidos();
+        cargarPedidos("1900-01-01", "1900-01-01");
         //cargarClientes();
         // eslint-disable-next-line
     }, []);
 
-    const cambiarPedido = (pedido) => {
-        setState({
-            ...state,
-            pedido: pedido,
-        });
-    }
 
-    const cargarPedidos = async () => {
-        let Asesor = localStorage.getItem('codigo')
-        fetch(urlApi + "/api/PedidosXCliente/"+ Asesor, {
+    const cargarPedidos = async (FechaInicio, FechaFin) => {
+        var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
+        var Fin = moment(FechaFin).format("YYYY-MM-DD");
+        let Asesor = localStorage.getItem('codigo');
+        fetch(urlApi + "/api/PedidosXCliente/"+ Asesor + "/" + Inicio + "/" + Fin, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -111,23 +113,17 @@ const ListaPedidos = () => {
 
 
     const handleFechaInicio = (fecha) => {
+        setFechaInicio(fecha);
 
-        var date = moment(fecha).toDate();
-
-        var fech = moment(fecha).toDate();
-        fech.setMonth(date.getMonth() + 1);
-
-        setState({
-            ...state,
-            startDate: date,
-            endDate: fech,
-        })
+        var fech =  moment(fecha).add(30, 'days')
+        setFechaFin(fech);
     }
 
-    const handleFechaFin = (fecha) => {
-        var date = moment(fecha).toDate();
+    const handleFechaFin = (date) => {
+        //var date = moment(fecha).toDate();
+        setFechaFin(date);
 
-        const diffTime = new Date(date) - new Date(state.startDate);
+        /*const diffTime = new Date(date) - new Date(fechaInicio);
 
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         if (diffDays > 1) {
@@ -149,12 +145,12 @@ const ListaPedidos = () => {
                 title: 'Ingrese Fecha Válida',
             })
             var fech = new Date();
-            fech.setDate(state.startDate.getDate() + 6);
+            fech.setDate(fechaInicio.getDate() + 6);
             setState({
                 ...state,
                 endDate: fech,
             })
-        }
+        }*/
 
     }
     const getMuiTheme = () => createMuiTheme({
@@ -175,14 +171,10 @@ const ListaPedidos = () => {
     })
     const DataPedidos = () => {
         let DataPedidos = [];
-
         state.pedidos.map(pedido => {
 
-            let fechaIni = new Date(state.startDate.getFullYear(), state.startDate.getMonth(), state.startDate.getDate());
-            let fechaFin = new Date(state.endDate.getFullYear(), state.endDate.getMonth(), state.endDate.getDate());
-            fechaFin.setDate(fechaFin.getDate() + 1);
 
-            if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
+            //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
                 let data = [
                     pedido.PedidoId,
                     pedido.Cliente.Nombre,
@@ -198,11 +190,11 @@ const ListaPedidos = () => {
                     <div>
 
                         <span className="mr-1">
-                            <Button className='my-1' variant="outlined" onClick={() => cambiarPedido(pedido)} size="small" color={"primary"}>Detalle</Button>
+                            <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, false)} size="small" color={"primary"}>Detalle</Button>
                         </span>
 
                         <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => showPrint(pedido)} size="small" color={"primary"}>
+                            <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, true)} size="small" color={"primary"}>
                                 <PrintOutlined />
                             </Button>
                         </span >
@@ -210,7 +202,7 @@ const ListaPedidos = () => {
                 ]
 
                 DataPedidos.push(data);
-            }
+            //}
             return false;
 
         });
@@ -218,9 +210,22 @@ const ListaPedidos = () => {
         return DataPedidos;
     }
 
-    const showPrint = (pedido) => {
-        setDialogPedido(pedido);
-        setShowDialog(true);
+    const GetPedidoDetalle = (Pedido, EsImpresion) =>{
+        let EnDetalle = EsImpresion ? null : Pedido;
+        fetch(`${APIURL}/api/PedidoDetalle/${Pedido.PedidoId}`)
+        .then(res=>res.json())
+        .then(data=>{
+            setState({
+                ...state,
+                Detalles: data,
+                pedido: EnDetalle,
+            });
+            if(EsImpresion)
+            {
+                setShowDialog(true);
+            }
+        });
+        setDialogPedido(Pedido);
     }
 
     const hidePrint = () => {
@@ -239,40 +244,50 @@ const ListaPedidos = () => {
     if (state.error) {
         return <div>Error: {state.error.message}</div>;
     }
-    if (state.pedido != null) {
+    if (state.pedido != null && state.Detalles !== null) {
         return (
             <DetallePedido
                 clientes={state.clientes}
                 pedido={state.pedido}
-                RegresarListaPedidos={RegresarListaPedidos} />
+                RegresarListaPedidos={RegresarListaPedidos}
+                gruposXDetPed = {state.Detalles} />
         )
     } else {
         return (
             <div className="px-3">
                 <div className="row mb-3">
-                    <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                <div className='col-lg-2 col-sm-4 col-12'>
                         <DatePicker
                             disableToolbar
                             autoOk
                             label={"Fecha Inicio"}
                             variant="inline"
                             format={"DD/MM/YYYY"}
-                            value={state.startDate}
+                            value={fechaInicio}
                             onChange={(date) => handleFechaInicio(date)}
                         />
 
                     </div>
-                    <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                    <div className='col-lg-2 col-sm-4 col-12'>
                         <DatePicker
                             disableToolbar
                             autoOk
+                            minDate={fechaInicio}
+                            maxDate ={moment(fechaInicio).add(365, 'days')}
                             label={"Fecha Fin"}
                             variant="inline"
-                            minDate={state.startDate}
                             format={"DD/MM/YYYY"}
-                            value={state.endDate}
+                            value={fechaFin}
                             onChange={(date) => handleFechaFin(date)}
                         />
+                    </div>
+
+                    <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 15 }}>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => cargarPedidos(fechaInicio, fechaFin)}>Obtener
+                    </Button>
                     </div>
                 </div>
                 <div>
@@ -294,10 +309,11 @@ const ListaPedidos = () => {
                 >
 
                     {
-                        DialogPedido &&
+                        DialogPedido && state.Detalles !== null &&
                         <ImprimirPedido
                             hidePrint={hidePrint}
                             Pedido={DialogPedido}
+                            gruposXDetPed = {state.Detalles}
                         />
                     }
                 </Dialog >
@@ -336,6 +352,22 @@ const DatatableOptions = {
     print: false,
     download: false,
     selectableRows: 'none',
+    customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+        <TableFooter>
+              <TableRow>
+                <TablePagination
+                  count={count}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onChangePage={(_, page) => changePage(page)}
+                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                  rowsPerPageOptions={[10, 15, 100]}
+                  ActionsComponent={CustomFooter}
+                  labelRowsPerPage="Filas por página:"
+                />
+              </TableRow>
+            </TableFooter>
+      ),
     textLabels: {
         body: {
             noMatch: "No se han encontrado pedidos",

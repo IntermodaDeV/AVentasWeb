@@ -6,7 +6,6 @@ import CuotasACancelarAgrupadasTable from 'components/Recibos/Facturas/CuotasACa
 import PagoReciboTable from 'components/Recibos/Recibo/PagoReciboTable';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
 import PedidosModal from "components/Recibos/Recibo/PedidosModal";
-import Recibo from 'components/Recibos/Recibo/Recibo'
 import { Card } from '@material-ui/core';
 import moment from 'moment';
 import 'moment/locale/es';
@@ -17,7 +16,7 @@ import { APIURL } from 'utils/Enviroment';
 import { FaEye } from "react-icons/fa";
 import MySnackbarContentWrapper from 'components/Global/snackbar';
 import Snackbar from '@material-ui/core/Snackbar';
-import {useSelector,useDispatch} from 'react-redux';
+import {useSelector} from 'react-redux';
 moment.locale('es');
 
 const urlApi = APIURL
@@ -49,7 +48,7 @@ const DetalleRecibo = (props) => {
     ] = useState(null);
     const [tiposPago, setTiposPago] = useState([])
     const pedidoSelected = useSelector(e=>e.pedidoSelected);
-    const dispatch = useDispatch();
+    
     let calculo =React.useRef(1);
     
     const [pagosXRecibo, setPagosXRecibo] = useState([
@@ -426,8 +425,58 @@ const DetalleRecibo = (props) => {
             setTipoPagoEditando(pago);
         }
     }
+    const cargarBancos = () => {
+        let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa')
+        fetch(urlApi + "/api/banco/" + empresa, {
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then(res => {
+            if (res.status === 401) {
+                localStorage.setItem('token', '')
+                window.location.reload()
+            }
+            if (res.status === 200) {
+                res.json().then(
+                    result => {
+                        setBancos(result)
+                    },
+    
+                    error => {
+                        console.log(error);
+                    }
+                )
+            }
+        })
+    };
+
+    const cargarTiposPago = () => {
+        let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa')
+        fetch(urlApi + '/api/TipoPago/'+empresa, {
+            headers: {
+                Authorization: 'Bearer ' + localStorage.getItem('token')
+            }
+        }).then(res => {
+            if (res.status === 401) {
+                localStorage.setItem('token', '')
+                window.location.reload()
+            }
+            if (res.status === 200) {
+                res.json().then(
+                    result => {
+                        setTiposPago(result)
+                    },
+    
+                    error => {
+                        console.log(error);
+                    }
+                )
+            }
+        })
+    };
+
     const CargarDatos = () => {
-        Promise.all([cargarBancos, cargarTiposPago]).then(values => {
+        /*Promise.all([cargarBancos, cargarTiposPago]).then(values => {
             let banks = values[0].map(el => {
                 return el//{ key: el.IdBanco, value: JSON.stringify(el), text: el.Descripcion }
             });
@@ -436,11 +485,14 @@ const DetalleRecibo = (props) => {
             });
             /*let monedasArray = values[2].map(el => {
                 return el // { key: el.IdMoneda, value: JSON.stringify(el), text: el.Moneda }
-            });*/
+            });
             setBancos(banks);
             setMonedas(Monedas);
             setTiposPago(tiposPago);
-        });
+        });*/
+        cargarBancos();
+        cargarTiposPago();
+        setMonedas(Monedas);
     }
  
     const monedaOnchange = (moneda) => {
@@ -448,38 +500,8 @@ const DetalleRecibo = (props) => {
         setMonedaSeleccionada(moneda);
     }
 
-    const cargarClientes = () => {
-        fetch(urlApi + '/api/cliente', {
-          headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('token')
-          }
-        }).then(res => {
-          if (res.status === 401) {
-            localStorage.setItem('token', '')
-            window.location.reload()
-          }
-          if (res.status === 200) {
-            res.json().then(
-              result => {
-                dispatch({type:'STORE_RECIBO_CLIENTES',clientes:result})
-              },
-              // Note: it's important to handle errors here
-              // instead of a catch() block so that we don't swallow
-              // exceptions from actual bugs in components.
-              error => {
-    
-              }
-            )
-          }
-        })
-      }
 
-    const Finalizar = () => {
-        setModalRecibo(false);
-        cargarClientes();
-        dispatch({type:'delete_pedidoselected'})
-        props.history.push(`/recibos`);
-    }
+
 
     const EnviarRecibo = () =>{
         ObtenerCoordenadas((position) => {
@@ -575,6 +597,7 @@ const DetalleRecibo = (props) => {
                             (result) => {
                                 setRecibosAplicados(result);
                                 setModalRecibo(true);
+
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -735,11 +758,7 @@ const DetalleRecibo = (props) => {
             </div>
             {
                 ModalRecibo &&
-                <Recibo
-                    Finalizar={Finalizar}
-                    Cliente={props.Cliente}
-                    Open={ModalRecibo}
-                    RecibosAplicados={recibosAplicados}/>
+                props.CargarImpresion(recibosAplicados)
             }
 
             <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={opens} onClose={handleClose} autoHideDuration={6000}>
@@ -751,58 +770,8 @@ const DetalleRecibo = (props) => {
             </Snackbar>
         </div>);
 }
-const cargarTiposPago = new Promise((resolve, reject) => {
-    let empresa = localStorage.getItem('empresa')
-    fetch(urlApi + '/api/TipoPago/'+empresa, {
-        headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('token')
-        }
-    }).then(res => {
-        if (res.status === 401) {
-            localStorage.setItem('token', '')
-            window.location.reload()
-        }
-        if (res.status === 200) {
-            res.json().then(
-                result => {
-                    resolve(result)
-                },
 
-                error => {
-                    reject({
-                        error
-                    })
-                }
-            )
-        }
-    })
-});
-const cargarBancos = new Promise((resolve, reject) => {
-    let empresa = localStorage.getItem('empresa')
-    fetch(urlApi + "/api/banco/" + empresa, {
-        headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('token')
-        }
-    }).then(res => {
-        if (res.status === 401) {
-            localStorage.setItem('token', '')
-            window.location.reload()
-        }
-        if (res.status === 200) {
-            res.json().then(
-                result => {
-                    resolve(result)
-                },
 
-                error => {
-                    reject({
-                        error
-                    })
-                }
-            )
-        }
-    })
-});
 const ObtenerCoordenadas = (resolve, reject) => {
     const timeout = new Promise((resolve, reject) => {
         setTimeout(reject, 10000);
@@ -820,7 +789,7 @@ const ObtenerCoordenadas = (resolve, reject) => {
     Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
 }
 /*const cargarMonedas = new Promise((resolve, reject) => {
-    let empresa = localStorage.getItem('empresa');
+    let empresa = localStorage.getItem('EmpresaCliente');
     fetch(urlApi + "/api/Moneda/" + empresa, {
         headers: {
             Authorization: 'Bearer ' + localStorage.getItem('token')

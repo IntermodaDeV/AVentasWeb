@@ -13,6 +13,7 @@ const VistaProducto = (props) => {
     const [precioProducto, setPrecio] = useState(undefined);
     const [selected, setselected] = useState(false);
     const [hasBackOrder, setHasBackOrder] = useState("N");
+    const [listaImagenes,setListaImagenes] = useState(props.producto.ListaImagenes);
 
     const urlApi = APIURL;
 
@@ -79,8 +80,8 @@ const VistaProducto = (props) => {
         element[0].style.backgroundColor = '';
     }
     const toggleSelect = () => {
-        if (precioProducto !== undefined) {
-            if (props.producto.fisicaDisponible.reduce((acc, curr) => { return acc + curr.Cantidad }, 0) > 0) {
+        if (precioProducto !== undefined) {            
+            if (props.futuro === false || props.producto.fisicaDisponible.reduce((acc, curr) => { return acc + curr.Cantidad }, 0) > 0) {
                 props.toggleSelectProducto({ ...props.producto });
                 setselected(!selected);
             } else {
@@ -100,7 +101,12 @@ const VistaProducto = (props) => {
         }
     }
 
-    let isEmptyImages = (props.producto.ListaImagenes.length === 0);
+    const setListaImagenesPrincipal = (color) => {
+        const imagenesColor = props.producto.ListaColores.filter(e => e.NombreColor === color);
+        setListaImagenes(imagenesColor[0].ListaImagenes);
+    }
+
+    let isEmptyImages = (listaImagenes.length === 0);
 
     return (
         <div className="row">
@@ -111,7 +117,7 @@ const VistaProducto = (props) => {
                             <img alt={"ImagenProducto"} src={notFound}></img>
                         </div>
                         :
-                        <Slider ListaImagenes={props.producto.ListaImagenes} />
+                        <Slider ListaImagenes={listaImagenes} />
                 }
             </div>
             <div className="col-md-7 mt-md-0 mt-3">
@@ -195,6 +201,7 @@ const VistaProducto = (props) => {
                                     Cliente={props.Cliente}
                                     onchangeText={props.onchangeText}
                                     CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
+                                    setListaImagenes={setListaImagenesPrincipal}
                                 />
                             </form>
                         </div>

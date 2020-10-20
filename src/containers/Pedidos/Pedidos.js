@@ -13,7 +13,8 @@ import { APIURL } from 'utils/Enviroment';
 import { Radio } from 'semantic-ui-react';
 //import { Link } from "react-scroll";
 import { Checkbox, Dropdown } from 'element-react';
-import { Button, Col, Container, Row, } from 'reactstrap';
+import { /*Button,*/ Col, Container, Row, } from 'reactstrap';
+import {Button } from '@material-ui/core';
 import html2canvas from 'html2canvas';
 import pdfMake from 'pdfmake/build/pdfmake';
 import { FaSignOutAlt, FaShoppingCart, FaArrowCircleLeft, FaAlignJustify } from 'react-icons/fa';
@@ -44,7 +45,8 @@ import PedidosBreadCrumb from 'components/Pedidos/PedidosBreadCrumb/PedidosBread
 import SearchButton from 'components/Pedidos/ProductoLista/SearchButton'
 import Countdown from "components/Pedidos/Global/Countdown";
 import GuardPedidoActivo from 'containers/Pedidos/GuardPedidoActivo';
-import Loader from 'components/Global/Loader'
+import Loader from 'components/Global/Loader';
+import ImprimirPedidoOriginal from 'components/Pedidos/ResumenPedido/ImprimirPedidoOriginal';
 
 //Styles
 import styles from './Pedidos.module.css'
@@ -108,19 +110,15 @@ class Pedidos extends React.Component {
 
     cargarData = () => {
         Promise.all([this.cargarClientes(),
-        this.cargarEmpresasTransporte(),
-        this.cargarPrecioCajas(),
-        this.cargarComunidadAutonoma(),
         this.cargarMaestroLinea(),
         this.cargarTiposColeccion(),
-        this.cargarImpuestoClientes(),
-        this.cargarImpuestoProductos(),
+        this.cargarComunidadAutonoma(),
         this.cargarTiposPedido()]).then(this.setState({
             isLoaded: true,
         }));
     }
-    cargarColecciones = (grupoPrecio) => {
-        const empresa = localStorage.getItem('empresa')
+    cargarColecciones = (grupoPrecio, empresa) => {
+        //const empresa = localStorage.getItem('empresa')
         this.setState({
             loadingColecciones: true
         });
@@ -188,7 +186,7 @@ class Pedidos extends React.Component {
             })
     }
     cargarClientes = () => {
-        fetch(this.urlApi + "/api/cliente", {
+        fetch(this.urlApi + "/api/cliente/pedido", {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -239,6 +237,14 @@ class Pedidos extends React.Component {
                 }
             )
     }
+
+    cargarMonedas = (empresa) =>{
+        ///let empresa = localStorage.getItem('empresa');
+        fetch(`${this.urlApi}/api/moneda/${empresa}`)
+        .then(res=>res.json())
+        .then(data=>{this.props.onSaveMonedas(data)})
+        .catch(error=>console.log(error))
+    }
     cargarTiposColeccion = () => {
         fetch(this.urlApi + "/api/TiposColeccion")
             .then(res => res.json())
@@ -259,8 +265,8 @@ class Pedidos extends React.Component {
             )
     }
 
-    cargarEmpresasTransporte = () =>{
-        const empresa = localStorage.getItem('empresa');
+    cargarEmpresasTransporte = (empresa) =>{
+        //const empresa = localStorage.getItem('empresa');
 
         fetch(`${this.urlApi}/api/transporte/${empresa}/empresas`)
         .then(res=>res.json())
@@ -268,8 +274,8 @@ class Pedidos extends React.Component {
         .catch(error=>this.setState({error}))
     }
 
-    cargarPrecioCajas = () =>{
-        const empresa = localStorage.getItem('empresa');
+    cargarPrecioCajas = (empresa) =>{
+        //const empresa = localStorage.getItem('empresa');
 
         fetch(`${this.urlApi}/api/transporte/${empresa}/preciocaja`)
         .then(res=>res.json())
@@ -278,8 +284,8 @@ class Pedidos extends React.Component {
     }
 
     cargarComunidadAutonoma = () =>{
-        const empresa = localStorage.getItem('empresa');
-        let pais = "HND";
+        ///const empresa = localStorage.getItem('empresa');
+        /*let pais = "HND";
 
         if(empresa === "imcr")
         {
@@ -287,25 +293,24 @@ class Pedidos extends React.Component {
         }else if(empresa === "imgt")
         {
             pais = "GTM";
-        }
+        }*/
 
-        fetch(`${this.urlApi}/api/transporte/${pais}/comunidadautonoma`)
+        fetch(`${this.urlApi}/api/transporte/comunidadautonoma`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreComunidades(data))
         .catch(error=>this.setState({error}))
     }
 
-    cargarImpuestoClientes = () =>{
-        const empresa = localStorage.getItem('empresa');
-
+    cargarImpuestoClientes = (empresa) =>{
+        //const empresa = localStorage.getItem('empresa');
         fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/clientes`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreImpuestoClientes(data))
         .catch(error=>this.setState({error}))
     }
 
-    cargarImpuestoProductos = () =>{
-        const empresa = localStorage.getItem('empresa');
+    cargarImpuestoProductos = (empresa) =>{
+        //const empresa = localStorage.getItem('empresa');
 
         fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/articulos`)
         .then(res=>res.json())
@@ -340,6 +345,10 @@ class Pedidos extends React.Component {
     InactivoErase = () => {
         this.props.history.push("/Pedidos/Cliente");
         this.cancelarPedido();
+    }
+
+    CargarImpresionPedido = (ValoresPedido) =>{
+        this.props.history.push({pathname:`/Pedidos/ImprimirPedido`,state : JSON.stringify(ValoresPedido)});
     }
 
     countdownHTML = () => {
@@ -759,7 +768,7 @@ class Pedidos extends React.Component {
     getColeccion = (coleccion) => {
         this.props.onSetColeccion(coleccion);
         this.props.history.push("/Pedidos/Colecciones/" + coleccion.ColeccionTipo + "/" + coleccion.CodigoColeccion);
-
+        localStorage.setItem('ProdEnCarrito', 0)
     }
     seleccionarCliente = () => {
         if(this.state.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && this.props.clienteContado===null)
@@ -771,7 +780,13 @@ class Pedidos extends React.Component {
                 confirmButtonText: 'Ok'
               })
         }else{
-            this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio);
+            //this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
+            this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
+            this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
+            this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
+            this.cargarEmpresasTransporte(this.state.autocompleteValue.EmpresaId);
+            this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
+            //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
             this.props.onSetCliente(this.state.autocompleteValue);
             this.props.onStoreColecciones([])
             this.props.history.push("/Pedidos/Linea");
@@ -797,9 +812,8 @@ class Pedidos extends React.Component {
         // this.props.onSetProducto(null);
         // this.changeImageProducto('');
         this.props.history.push("/Pedidos/Colecciones/" + this.props.coleccion.ColeccionTipo + "/" + this.props.coleccion.CodigoColeccion);
-
     }
-
+    
 
     cambiarTabColecciones = (tab) => {
         if (this.state.activeTab !== tab) {
@@ -809,18 +823,18 @@ class Pedidos extends React.Component {
         }
     }
     isPedidoActivo = () => {
-        let isProductosSeleccionados = false;
-        let tableValue = { ...this.props.TableValue };
+        let isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true :false;
+        /*let tableValue = { ...this.props.TableValue };
         if (this.props.LineaSeleccionada && this.props.coleccion) {
             if (tableValue[this.props.LineaSeleccionada.IdLinea] === undefined || tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion] === undefined) {
-                return isProductosSeleccionados;
+               return isProductosSeleccionados;
             }
             const gruposTalla = Object.keys(tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]);
             isProductosSeleccionados = gruposTalla.length > 0 && gruposTalla.every(grupoTalla => {
                 return tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Mostrar === true;
             });
 
-        }
+        }*/
         return isProductosSeleccionados;
     }
     toggle = () => {
@@ -886,8 +900,8 @@ class Pedidos extends React.Component {
     }
     toggleSelectProducto = (producto) => {
         let tableValue = { ...this.props.TableValue };
-
-        let isSelected = false;
+        let isSelected = true;
+        let carrito = parseInt(localStorage.getItem('ProdEnCarrito'));
         try {
             let value = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId]
             value.Selected = isSelected = !value.Selected;
@@ -900,10 +914,11 @@ class Pedidos extends React.Component {
                     tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Mostrar = true;
                 }
             } else {
+                
                 tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Mostrar = true;
             }
+         
         } catch{
-
             if (tableValue[producto.Linea.IdLinea] === undefined) {
                 tableValue[producto.Linea.IdLinea] = {};
             }
@@ -986,8 +1001,9 @@ class Pedidos extends React.Component {
             }
         }
         let totalAcumulado = this.props.TotalPedido;
-
+        
         if (isSelected) {
+            localStorage.setItem('ProdEnCarrito', parseInt(carrito + 1))
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
 
@@ -997,7 +1013,7 @@ class Pedidos extends React.Component {
                 });
             });
         } else {
-
+            localStorage.setItem('ProdEnCarrito', parseInt(carrito - 1))
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
 
@@ -1234,7 +1250,7 @@ class Pedidos extends React.Component {
                                 var numPedido = result.EncabezadoPedido.PedidoId;
                                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                                 this.props.onSetNumeroOrden(numPedido);
-                                this.SendEmailPDF();
+                                //this.SendEmailPDF();
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -1270,6 +1286,9 @@ class Pedidos extends React.Component {
             });
     }
     enviarPedido() {
+        localStorage.removeItem("ColeccionSeleccionada");
+        localStorage.removeItem("HoraIngreso");
+        localStorage.removeItem("ProdEnCarrito");
         this.setState({ loadingRecibo: true });
         ObtenerCoordenadas((position) => {
             this.enviarPeticionPedido({
@@ -1295,7 +1314,7 @@ class Pedidos extends React.Component {
 
     }
     CrearDetallePedidoOnline = (productoId, codigoColor, talla, valor, precio, cantidad = 0) => {
-        if (this.props.NumeroOrden && cantidad < 3) {
+        /*if (this.props.NumeroOrden && cantidad < 3) {
             
             fetch(this.urlApi + "/api/PedidoOnline/CrearDetalle", {
                 headers: {
@@ -1320,19 +1339,19 @@ class Pedidos extends React.Component {
 
                         /* this.setState({
                             
-            }) */
+            }) 
                     } else {
                         this.CrearDetallePedidoOnline(productoId, codigoColor, talla, valor, precio, cantidad + 1);
                     }
                 }, error => error)
         } else {
-            /* this.setState({
+            this.setState({
 
-            }) */
-        }
+            }) 
+        }*/
     }
     CrearEncabezadoPedidoOnline = (cantidad = 0) => {
-        if (cantidad < 3) {
+        /*if (cantidad < 3) {
             if (!this.state.loading) {
                 this.setState({ loading: true });
             }
@@ -1369,7 +1388,7 @@ class Pedidos extends React.Component {
         } else {
             this.setState({ loading: false });
 
-        }
+        }*/
     }
     SendEmailPDF = () => {
         if (navigator.onLine) {
@@ -1783,7 +1802,25 @@ class Pedidos extends React.Component {
                                         guardarFecha={this.setFechaEntregaPedido}
                                         NumeroOrden={this.props.NumeroOrden}
                                         FinalizarPedidoOnline={this.FinalizarPedidoOnline}
+                                        CargarImpresionPedido = {this.CargarImpresionPedido}
                                     ></ResumenPedido>
+                                )
+                            }}
+                        />
+                          <Route
+                            exact
+                            path={this.props.match.url + '/ImprimirPedido'}
+                            render={(routeProps) => {
+                                return (
+                                    <ImprimirPedidoOriginal 
+                                        tableValue={this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]}
+                                        firma = {this.state.firmaPedido}
+                                        Cliente = {this.props.cliente}
+                                        ValoresPedido={JSON.parse(routeProps.location.state)}
+                                        NumeroOrden = {this.props.NumeroOrden}
+                                        reiniciarPedido={this.reiniciarPedido}
+                                        cancelarPedido={this.cancelarPedido}>
+                                    </ImprimirPedidoOriginal>
                                 )
                             }}
                         />
@@ -1955,8 +1992,9 @@ class Pedidos extends React.Component {
                                                                 <div className="order-md-last col-md-1 col-6 text-right py-1 pl-0" style={{ zIndex: 3 }}>
                                                                     <SearchButton onSearch={this.SearchProductos} clear={this.ClearSearch} />
                                                                     {/* {!this.props.NumeroOrden ? <Button style={{ marginLeft: '0.5rem', display: 'inline' }} onClick={() => { this.CrearEncabezadoPedidoOnline() }} outline>C</Button> : null} */}
-                                                                    <Button outline color="secondary" size="md" onClick={this.toggle} style={{ marginLeft: '0.5rem' }}><FaShoppingCart /></Button>
-
+                                                                    <Button variant="outlined" color="primary" onClick={this.toggle} style={{ marginLeft: '0.5rem' }}  startIcon ={<FaShoppingCart/>}>
+                                                                        {parseInt(localStorage.getItem('ProdEnCarrito'))}
+                                                                    </Button>                   
                                                                 </div>
 
                                                                 <div className="col-md-9 text-right" style={{ zIndex: 2 }}>
@@ -2153,6 +2191,7 @@ class Pedidos extends React.Component {
                                                                 alertaPrecio={this.alertaPrecio}
                                                                 Cliente={this.props.cliente}
                                                                 CerrarDialog={this.CerrarDialog.bind(this)}
+                                                                futuro={this.NoEsFuturo()}
                                                             />
                                                             <Productos
                                                                 filtroEdad={this.state.filtroEdad}
@@ -2206,7 +2245,7 @@ class Pedidos extends React.Component {
                                 )
                             }
                             return (
-                                <Container fluid={true}>
+                                <Container fluid={true} >
                                     <Colecciones
                                         {...routeProps}
                                         Click={this.getColeccion}
@@ -2309,7 +2348,7 @@ class Pedidos extends React.Component {
 
         var found = false;
         var agregados = this.props.listaProductosAgregados;
-
+        
 
         var contador = this.state.unidadesCarrito;
 
@@ -2403,7 +2442,8 @@ const mapDispatchToProps = dispatch => {
         onStorePrecioCajas:(precioCajas)=>dispatch({type:'SET_PRECIOCAJAS',payload:precioCajas}),
         onStoreComunidades:(comunidades)=>dispatch({type:'SET_COMUNIDADAUTONOMA',payload:comunidades}),
         onStoreImpuestoClientes:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOS',payload:impuestos}),
-        onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos})
+        onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos}),
+        onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
     };
 };
 /* const linkButton = {

@@ -13,11 +13,11 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import FormGroup from '@material-ui/core/FormGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+//import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
-import Checkbox from '@material-ui/core/Checkbox';
+//import Checkbox from '@material-ui/core/Checkbox';
 import InputLabel from '@material-ui/core/InputLabel';
 import styles from 'containers/Agenda/Agenda.module.css';
 import 'containers/Agenda/Agenda.css';
@@ -49,9 +49,15 @@ class Agenda extends Component {
         guardandoRazon: false,
         estadoFacturasClienteActivo: null,
         mostarNoAtendido: false,
+        IdAsignacion:0,
+        checkin:null,
+        checkout:null,
     }
+
+    myRef = React.createRef();
+
     cargarClientes = async () => {
-        fetch(this.urlApi + "/api/cliente", {
+        fetch(this.urlApi + "/api/cliente/agenda", {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -104,8 +110,7 @@ class Agenda extends Component {
     }
 
     cargarMonedas = () =>{
-        let empresa = localStorage.getItem('empresa');
-        fetch(`${this.urlApi}/api/moneda/${empresa}`)
+        fetch(`${this.urlApi}/api/moneda`)
         .then(res=>res.json())
         .then(data=>{this.props.onSaveMonedas(data)})
         .catch(error=>console.log(error))
@@ -165,6 +170,69 @@ class Agenda extends Component {
             })
     }
 
+    enviarCheckinApi = (location,check)=>{
+
+        const fechas = this.getFechas(2);
+
+        const parametros = {
+            IdAsignacionxAsesor:this.state.IdAsignacion,
+            location:location,
+            Fecha:new Date(),
+            Asesor:localStorage.getItem('codigo'),
+            Inicio:fechas.Inicio,
+            Fin:fechas.Fin
+        }
+
+        fetch(`${this.urlApi}/api/Asignaciones/${check}`,{
+            headers:{
+                "Content-type":"application/json"
+            },
+            body:JSON.stringify(parametros),
+            method:"POST"
+        }).then(res=>{
+            if(res.status===200){
+                res.json()
+                .then(resultado=>{
+                    Swal.fire({
+                        title: 'Confirmado',
+                        text: resultado.Message,
+                        type: 'success',
+                        confirmButtonText: 'Ok',
+                        target:this.myRef.current
+                      })
+                });
+
+                this.cargarAsignaciones(fechas.Inicio,fechas.Fin);
+                
+            }
+
+            if(res.status===400){
+                res.json()
+                .then(resultado=>{
+                    Swal.fire({
+                        title: 'Error',
+                        text: resultado.Message,
+                        type: 'error',
+                        confirmButtonText: 'Ok',
+                        target:this.myRef.current
+                      })
+                });
+            }
+        })
+        
+    }
+
+    enviarCheckin = (check)=>{
+        ObtenerCoordenadas((position) => {
+            this.enviarCheckinApi({
+                longitude: position.coords.longitude,
+                latitude: position.coords.latitude
+            },check)
+        }, (error) => {
+            this.enviarCheckinApi(null,check);
+        });
+    }
+
     getFechas = (meses) => {
         var actual = new Date();
         var inicio = new Date(actual.getFullYear(), actual.getMonth(), 1);
@@ -208,6 +276,7 @@ class Agenda extends Component {
 
     setAsignaciones = (asignaciones) => {
         var eventos = [];
+        let tareas = [];
 
         asignaciones.map(dia => {
             dia.asignaciones.map(asignacion => {
@@ -221,6 +290,8 @@ class Agenda extends Component {
                 let longitud = 0;
                 let IdAsignacion = asignacion.IdAsignacionxAsesor;
                 let objetoCliente = {};
+                let Checkin = asignacion.Checkin;
+                let Checkout = asignacion.Checkout;
 
 
                 this.state.clientes.some(clien => {
@@ -252,15 +323,29 @@ class Agenda extends Component {
                         Latitud: latitud,
                         IdAsignacion: IdAsignacion,
                         Prioridad: prioridad,
+                        Checkin,
+                        Checkout
                     },
                     cliente: objetoCliente
                 }
+
+                let tarea = {
+                    Codigo: asignacion.cliente,
+                    IdAsignacion: IdAsignacion,
+                    Checkin,
+                    Checkout,
+                    CheckinApi:Checkin,
+                    CheckoutApi:Checkout,
+                    Bloqueo:Checkout
+                }
+
+                tareas.push(tarea);
                 eventos.push(evento);
                 return false;
             })
             return false;
         })
-
+        this.props.onSaveAsignaciones(tareas);
         return eventos;
     }
 
@@ -282,6 +367,12 @@ class Agenda extends Component {
                 prioridad = "Baja";
                 break;
         }
+
+        this.setState((prevState)=>({...prevState,
+            IdAsignacion:info.event.extendedProps.IdAsignacion,
+            checkin:info.event.extendedProps.Checkin,
+            checkout:info.event.extendedProps.Checkout
+        }));
 
         let clienteActivo = {
             nombre: info.event.title,
@@ -534,6 +625,9 @@ class Agenda extends Component {
                         mostarNoAtendido: false,
                     });
 
+                    var fecha = this.getFechas(2);
+                    this.cargarAsignaciones(fecha.Inicio, fecha.Fin);
+
                     Toast.fire({
                         type: 'success',
                         title: 'Razón Guardada',
@@ -568,15 +662,29 @@ class Agenda extends Component {
         this.cargarClientesContado();
     }
 
+    verifyBlock = (action)=>{
+        const asignacion = this.props.asignaciones.find(x=>x.IdAsignacion===this.state.IdAsignacion);
+
+        if(action==="checkin"){
+            return asignacion.Checkin;
+        }
+
+        if(action==="bloqueo"){
+            return asignacion.Bloqueo;
+        }
+
+        return asignacion.Checkout;
+    }
+
     render() {
         let tipoDisabled = false;
         let causaDisabled = false;
-        let observacionDisabled = false;
+        //let observacionDisabled = false;
 
         if (!this.state.mostrarAcciones && !this.state.noAtendido) {
             causaDisabled = true;
             tipoDisabled = true;
-            observacionDisabled = true;
+            //observacionDisabled = true;
         }
 
         if (!this.state.tipoSelected) {
@@ -615,7 +723,8 @@ class Agenda extends Component {
                         scroll={'paper'}
                         open={this.state.mostarEvento}
                         onClose={() => this.state.isModalLoaded && this.setState({ mostarEvento: false })}
-                        aria-labelledby="scroll-dialog-title"                    
+                        aria-labelledby="scroll-dialog-title" 
+                        ref={this.myRef}                   
                     >
                         <DialogTitle
                             className="text-center"
@@ -742,12 +851,17 @@ class Agenda extends Component {
                                                     </tbody>
                                                 </table>
                                                 <FormGroup row className={"mb-1"}>                                                    
-                                                    <FormControlLabel
+                                                    {/*<FormControlLabel
                                                         control={
-                                                            <Checkbox color="default" checked={this.state.noAtendido} onChange={(event) => this.setState({ noAtendido: event.target.checked, mostarNoAtendido: true })} value="Atender" />
+                                                            <Checkbox color="default" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))} checked={this.state.noAtendido} onChange={(event) => this.setState({ noAtendido: event.target.checked, mostarNoAtendido: true })} value="Atender" />
                                                         }
                                                         label="No se Atendió"
-                                                    />
+                                                    />*/}
+                                                    <Button style={{marginRight:'10px'}}color="primary" variant="outlined" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))}  onClick={() => this.setState((prevState)=>({ ...prevState,noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Atendió</Button>
+
+                                                    {!this.verifyBlock("checkin")
+                                                    ?<Button disabled={this.verifyBlock("checkin")}  variant="outlined" onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
+                                                    :<Button disabled={this.verifyBlock("checkout")} variant="outlined" onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>}
                                                 </FormGroup>
 
                                                 
@@ -761,8 +875,8 @@ class Agenda extends Component {
                                             this.state.Acciones.map((accion, index) => {
                                                 if (accion.Estado) {
                                                     return (
-                                                        <Button key={index} disabled={this.state.noAtendido} onClick={() => this.onClickModal(accion.UrlRedirect, this.state.clienteActivo.codigo)} color="primary">
-                                                            {accion.Accion}
+                                                        <Button key={index} variant="outlined" disabled={this.verifyBlock("bloqueo")} onClick={() => this.onClickModal(accion.UrlRedirect, this.state.clienteActivo.codigo)} color="primary">
+                                                         {accion.Accion}
                                                         </Button>
                                                     )
                                                 }
@@ -818,7 +932,7 @@ class Agenda extends Component {
                                                 <InputLabel htmlFor="demo-controlled-open-select">Tipo</InputLabel>
                                                 <Select
                                                     value={(this.state.tipo === null ? '' : this.state.tipo)}
-                                                    disabled={tipoDisabled}
+                                                    //disabled={tipoDisabled}
                                                     onChange={this.handleChangeTipo}
                                                 >
                                                     {
@@ -833,7 +947,7 @@ class Agenda extends Component {
                                             <FormControl style={{ display: 'flex' }}>
                                                 <InputLabel htmlFor="demo-controlled-open-select">Causa</InputLabel>
                                                 <Select
-                                                    disabled={causaDisabled}
+                                                    //disabled={causaDisabled}
                                                     value={(this.state.razon === null ? '' : this.state.razon)}
                                                     onChange={this.handleChangeCausa}
                                                 >
@@ -848,7 +962,7 @@ class Agenda extends Component {
                                                 label="Observación"
                                                 className="w-100"
                                                 multiline
-                                                disabled={observacionDisabled}
+                                                //disabled={observacionDisabled}
                                                 rowsMax="6"
                                                 rows="2"
                                                 value={this.state.Observacion}
@@ -891,14 +1005,33 @@ class Agenda extends Component {
     }
 }
 
+const ObtenerCoordenadas = (resolve, reject) => {
+    const timeout = new Promise((resolve, reject) => {
+        setTimeout(reject, 10000);
+    });
+
+    const geolocationPromise = new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                resolve(position);
+            },
+            (error) => { reject(error) },
+            { enableHighAccuracy: true, timeout: 10000 }
+        )
+    });
+    Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
+}
+
 const mapStateToProps = state => ({
-    empresas:state.empresas
+    empresas:state.empresas,
+    asignaciones:state.Asignaciones
 });
 
 const mapDispatchToProps = dispatch =>({
     onSaveEmpresas:(empresas)=>{dispatch({type:'SET_EMPRESAS',payload:empresas})},
-    onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
-    onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})}
+    onSaveMonedas:(monedas)=>{dispatch({type:'SET_ABREVACIONMONEDAS',payload:monedas})},
+    onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})},
+    onSaveAsignaciones:(asignaciones)=>{dispatch({type:'SET_ASIGNACIONES',payload:asignaciones})}
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(Agenda);

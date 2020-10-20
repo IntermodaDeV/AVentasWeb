@@ -77,8 +77,15 @@ const CeldaTallas = (props) => {
         }
         return false;
     }
+
+    const clickEnCelda = ()=>{
+        if(props.setListaImagenesPrincipal!==null && props.color!==null){
+            props.setListaImagenesPrincipal(props.color);
+        }
+    }
+
     return (
-        <td className="p-1" style={{ backgroundColor: Focused ? '#D5EEE3' : 'unset', verticalAlign: "middle" }}>
+        <td className="p-1" style={{ backgroundColor: Focused ? '#D5EEE3' : 'unset', verticalAlign: "middle" }} onClick={clickEnCelda}>
             <div className={"row " + styles.Border}>
                 {
                     props.futuro &&

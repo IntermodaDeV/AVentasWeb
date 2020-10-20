@@ -26,7 +26,8 @@ import DialogTitle   from '@material-ui/core/DialogTitle';
 import ClienteContado from './ClienteContado';
 import {useDispatch,useSelector} from 'react-redux';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import logo from './iconfinder_Close_2001866.png'
+import logo from './iconfinder_Close_2001866.png';
+import {numberWithCommas} from 'utils/common';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -47,13 +48,14 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const SelectCliente = (props) => {
-
     const [open, setOpen] = useState(false);
     const [Value, setValue] = useState(null);
     const [openContado,setOpenContado] = useState(false);
     const dispatch = useDispatch();
     const clienteContado = useSelector(e=>e.clienteContado);
     const clientes = useSelector(e=>e.clientesContado);
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
+    const Comunidad = useSelector(e=>e.comunidadesAutonomas);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -72,7 +74,9 @@ const SelectCliente = (props) => {
     const classes = useStyles();
     let infoCliente = null;
     let FacturacionEntrega = null;
+    let empresa = localStorage.getItem('empresa');
     var alerta = false;
+    var EsVisible = false;
     var options = [];
 
    const continuarPedido = ()=>{
@@ -131,9 +135,14 @@ const SelectCliente = (props) => {
 
     };
 
+    if (props.autocompleteValue != null && props.autocompleteValue.EmpresaId.toUpperCase() !== empresa.toUpperCase() && props.autocompleteValue !== false) {
+        EsVisible = true;
+    }
 
     if (props.autocompleteValue) {
-
+        let DisponibleTotal = 0;
+        let ValorCreditoTotal = 0;
+        let CXCTotal = 0;
         infoCliente = (
             <Card>
                 <CardContent>
@@ -172,7 +181,7 @@ const SelectCliente = (props) => {
                                             {'Departamento: '}
                                         </td>
                                         <td className={styles.InfoLabelDetail}>
-                                            {props.autocompleteValue.ComunidadAutonoma}
+                                            {props.autocompleteValue.ComunidadAutonoma?Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma).NAME:''}
                                         </td>
                                     </tr>                                                                      
                                     <tr>
@@ -213,22 +222,24 @@ const SelectCliente = (props) => {
                                 </thead>
                                 <tbody>
                                     {props.autocompleteValue.Credito.map((credito, index) => {
+                                        DisponibleTotal = DisponibleTotal + credito.Disponible;
+                                        ValorCreditoTotal = ValorCreditoTotal + credito.Valor;
+                                        CXCTotal = CXCTotal + credito.SaldoTotal;
                                         return (
                                             <tr key={index}>
 
                                                 <td>{credito.Tipo}</td>
-                                                <td>{credito.Valor ? credito.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
-                                                <td>{credito.SaldoTotal ? credito.SaldoTotal.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
-                                                <td>{credito.Disponible ? credito.Disponible.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : 0}</td>
+                                                <td style={{color:credito.Valor>0?'green':'red'}}>{credito.Valor ? numberWithCommas(credito.Valor) : 0}</td>
+                                                <td>{credito.SaldoTotal ? numberWithCommas(credito.SaldoTotal) : 0}</td>
+                                                <td style={{color:credito.Disponible>0?'green':'red'}}>{credito.Disponible ? numberWithCommas(credito.Disponible) : 0}</td>
                                             </tr>
                                         )
                                     })}
                                     <tr>
-
                                         <td>{<b>Total</b>}</td>
-                                        <td></td>
-                                        <td>{props.autocompleteValue.Moneda} {props.autocompleteValue.Credito.reduce((acc, cur) => { return acc + ((cur.SaldoTotal ? cur.SaldoTotal : 0)) }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</td>
-                                        <td>{props.autocompleteValue.Moneda} {props.autocompleteValue.Credito.reduce((acc, cur) => { return acc + ((cur.C15Dias ? cur.C15Dias : 0)) }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</td>
+                                        <td style={{color:parseFloat(numberWithCommas(ValorCreditoTotal))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(ValorCreditoTotal)}</td>
+                                        <td>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(CXCTotal)}</td>
+                                        <td style={{color:parseFloat(numberWithCommas(DisponibleTotal))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(DisponibleTotal)}</td>
                                     </tr>
                                     <tr>
                                         {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={()=>setOpenContado(true)} variant="contained" color="primary">{(clienteContado===null)?'Crear cliente contado':'Editar cliente contado'}</Button></td>}
@@ -340,6 +351,13 @@ const SelectCliente = (props) => {
                     variant="error"
                     message="El cliente actualmente se encuentra en mora"
                 />
+            </Snackbar>
+
+            <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} style={{ zIndex: 10 }} open={EsVisible} TransitionComponent={TransitionGrow}>
+                        <MySnackbarContentWrapper
+                            variant="error"
+                            message="El cliente seleccionado no pertenece a su pais"
+                        />
             </Snackbar>
 
             {

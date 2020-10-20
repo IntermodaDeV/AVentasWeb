@@ -24,7 +24,7 @@ const MatrizResumen = (props) => {
     const [mostrarVacios, setMostrarVacios] = useState(false);
     const [expanded, setExpanded] = React.useState(false);
 
-    const Monedas = useSelector(e=>e.Monedas);
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const Bloqueo = useSelector(e=>e.Bloqueo);
     let referenceCantidad = [];
     let referenceTotal = [];

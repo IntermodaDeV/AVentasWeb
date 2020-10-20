@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {useSelector} from 'react-redux';
 const TotalXPedido = (props) => {
-    const Monedas = useSelector(e=>e.Monedas);
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const moneda = Monedas.find(e=>e.IdMoneda === props.cliente.Moneda).Abreviacion;
     const [Limite, setLimite] = useState(null);
 
@@ -21,7 +21,7 @@ const TotalXPedido = (props) => {
         // eslint-disable-next-line
     }, []);
     let Disponible = 0;
-    if(!props.cliente.Nombre.includes('CONSUMIDOR FINAL'))
+    if(!props.cliente.Nombre.includes('CONSUMIDOR FINAL') && props.TipoPedido.TipoPedido.toUpperCase() !== "CONTADO")
     {
         Disponible = props.cliente.Credito.find(a => a.Tipo === props.TipoPedido.TipoPedido).Disponible
     }

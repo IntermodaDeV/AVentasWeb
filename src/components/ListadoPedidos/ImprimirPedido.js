@@ -9,7 +9,7 @@ import 'moment/locale/es';
 
 const ImprimirPedido = (props) => {
 
-const Monedas = useSelector(e=>e.Monedas);
+const Monedas = useSelector(e=>e.AbreviacionMonedas);
 const clientesContado = useSelector(e=>e.clientesContado);
 const empresas = useSelector(e=>e.Empresas);
 let NombreCliente=props.Pedido.Cliente.Nombre;
@@ -95,7 +95,7 @@ const checkDist = (talla) => {
 
                     </div>
 
-                    {props.Pedido.gruposXDetPed.map((grupoTalla, index1) => {
+                    {props.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
                         let IsDist = false;
                         let Same = false;
@@ -114,7 +114,6 @@ const checkDist = (talla) => {
                                           {
                                              talla.Distribucion.length !== 0 && Same === false &&
                                              talla.Distribucion.map((dist, index3) => {
-                                               CantDist += parseInt(dist.Cantidad)
                                                IsDist = true;
                                                cantidad++;
                                                 return (
@@ -191,6 +190,8 @@ const checkDist = (talla) => {
                                                                        {
                                                                         IsDist === true && det !== null &&
                                                                         det.TallaObject.Distribucion.map((dist, index) => {
+                                                                            CantDist = parseInt(dist.NombreDistribucion.substr(11, 2));
+                                                                            //CantDist += parseInt(dist.Cantidad)
                                                                             TotalXTalla = dist.Cantidad * det.Cantidad;
                                                                             TotalXProducto += TotalXTalla;
                                                                             TotalUnidad +=  TotalXTalla;

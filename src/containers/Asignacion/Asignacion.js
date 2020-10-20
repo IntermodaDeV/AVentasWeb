@@ -12,6 +12,7 @@ import Loader from 'components/Global/Loader';
 import 'containers/Asignacion/Asignacion.css';
 import styles from './Asignacion.module.css';
 import AsignacionModal from 'components/Agenda/AsignacionModal';
+import CargarAsignaciones from 'components/Agenda/CargarAsignaciones';
 
 import 'sweetalert2/src/sweetalert2.scss'
 
@@ -49,10 +50,15 @@ export default class Asignacion extends Component {
         TipoValues: [],
         TipoInitialValues: [],
         ArrayTipoValues : [],
+        showCargar:false
+    }
+
+    setCargar = (show)=>{
+        this.setState((prevState)=>({...prevState,showCargar:show}))
     }
 
     cargarClientes = () => {
-        fetch(this.urlApi + "/api/cliente", {
+        fetch(this.urlApi + "/api/cliente/asignacion", {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -68,17 +74,24 @@ export default class Asignacion extends Component {
                     res.json()
                         .then(
                             (result) => {
-                                let RutaCodigo = '';
+                                /*let RutaCodigo = '';
                                 let Rutas = result.map(cliente => {
                                     return { Ruta: cliente.Ruta, Codigo: cliente.CodigoRuta };
-                                })
-                                    .filter((value, index, self) => {
+                                }).filter((value, index, self) => {
                                         if (self[self.indexOf(value)].Codigo !== RutaCodigo) {
                                             RutaCodigo = self[self.indexOf(value)].Codigo;
                                             return true;
                                         }
                                         return false;
-                                    });
+                                    });*/
+                                let Rutas = Array.from(new Set(result.map(s=> s.CodigoRuta)))
+                                .map(CodigoRuta => {
+                                    return {
+                                        Ruta : result.find(s => s.CodigoRuta === CodigoRuta).Ruta,
+                                        Codigo : CodigoRuta
+                                    };
+                                });
+
                                 let DropdownRutas = [];
                                 let RutaSelected = null;
 
@@ -386,7 +399,14 @@ export default class Asignacion extends Component {
                                             }
                                         </Button>
                                     </div>
-
+                                    <div style={{ paddingTop: 15 }}>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"                                           
+                                            onClick={() =>{this.setCargar(true)}}>
+                                            Cargar asignaciones
+                                        </Button>
+                                    </div>      
                                 </div>
                                 <div>
                                     {
@@ -412,6 +432,11 @@ export default class Asignacion extends Component {
                         handleInputEdit={this.handleInputEdit}
                         TipoValues={this.state.TipoInitialValues} 
                         fechaAsignacion={this.state.FechaAsignacion} />
+
+                        <CargarAsignaciones
+                            showDialog={this.state.showCargar}
+                            setDialog={this.setCargar}
+                        />
 
                     <Dialog
                         fullWidth={false}
@@ -634,6 +659,16 @@ export default class Asignacion extends Component {
         });
     }
 
+    OnChangeFechaInicio = (HoraInicio) => {
+        let olddate = new moment(HoraInicio).toDate();
+        let fecha = this.state.FechaFinDialog;
+        let date = new moment(olddate).add(fecha, 'minutes').toDate();
+
+        this.setState({
+            HoraDialogFin: date,
+        });
+    }
+
     handleFechaFin = (fecha) => {
         var date = moment(fecha).toDate();
 
@@ -677,8 +712,9 @@ export default class Asignacion extends Component {
         var date = moment(fecha).toDate();
         this.setState({
             HoraDialogInicio: date,
-            FechaFinDialog: '',
+            //FechaFinDialog: '',
         });
+        this.OnChangeFechaInicio(date)
     }
 
     handleTiempoEstimadoChange = name => event => {

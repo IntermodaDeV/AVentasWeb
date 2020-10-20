@@ -38,6 +38,7 @@ const SelectCliente = (props) => {
 
     // let FacturacionEntrega = null;
     var alerta = false;
+    var EsVisible = false;
     var options = [];
 
     const handleOnChange = (value) => {
@@ -51,7 +52,9 @@ const SelectCliente = (props) => {
         localStorage.setItem("saldoFavor",0);
         dispatch({type:'delete_pedidoselected'});
     }
-
+    if(props.clienteSelected != null) 
+        localStorage.setItem('EmpresaCliente', props.clienteSelected.EmpresaId);
+        
     props.clientes.map(el => {
         var cliente = { key: el.Codigo, value: JSON.stringify(el), text: el.Codigo + ' - ' + el.Nombre }
         options.push(cliente);
@@ -71,6 +74,12 @@ const SelectCliente = (props) => {
         }
 
     };
+
+    if (props.clienteSelected != null && props.clienteSelected.EmpresaId.toUpperCase() !== localStorage.getItem('empresa').toUpperCase() && props.clienteSelected !== false) {
+        EsVisible = true;
+    }
+
+    
     return (
         <Card className="my-2" style={{ overflow: 'unset' }}>
             <CardContent>
@@ -124,6 +133,13 @@ const SelectCliente = (props) => {
                         <MySnackbarContentWrapper
                             variant="error"
                             message="El cliente actualmente se encuentra en mora"
+                        />
+                    </Snackbar>
+
+                    <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} style={{ zIndex: 10 }} open={EsVisible} TransitionComponent={TransitionGrow}>
+                        <MySnackbarContentWrapper
+                            variant="error"
+                            message="El cliente seleccionado no pertenece a su pais"
                         />
                     </Snackbar>
                 </div>

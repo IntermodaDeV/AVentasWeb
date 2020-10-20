@@ -41,7 +41,9 @@ const initialState = {
     Empresas:[],
     Monedas:[],
     CuentaImprimir:[],
-    Bloqueo:false
+    Bloqueo:false,
+    Asignaciones:[],
+    AbreviacionMonedas:[]
 }
 
 const calcularLimite = (state) => {
@@ -464,6 +466,42 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             Bloqueo:action.payload
+        }
+    }
+
+    if(action.type==='SET_PRODUCTOSCOLECCION'){
+
+        let colecciones = state.colecciones;
+
+        colecciones.forEach((coleccion)=>{
+            if(coleccion.CodigoColeccion===state.coleccion.CodigoColeccion){
+                coleccion.Edades = action.payload;
+            }
+        })
+
+        return {
+            ...state,
+            TableValue:{},
+            colecciones,
+            coleccion:{
+                ...state.coleccion,
+                Edades:action.payload
+            }
+        }
+    }
+
+    if(action.type==='SET_ASIGNACIONES'){
+        return {
+            ...state,
+            Asignaciones:action.payload
+        }
+    }
+
+    if(action.type==='SET_ABREVACIONMONEDAS')
+    {
+        return{
+            ...state,
+            AbreviacionMonedas:action.payload
         }
     }
 

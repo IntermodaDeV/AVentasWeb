@@ -3,8 +3,8 @@
 }
 
 .Subtitle {
-    color: #666;
-    white-space: pre;
+    color:steelblue;
+    /*white-space: pre;*/
 }
 
 .Icon {
@@ -19,6 +19,7 @@
 
 .IconTitle {
     font-weight: 500;
+    color:#B0B0B0;
 }
 
 .ImagenProducto {

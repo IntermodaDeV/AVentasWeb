@@ -12,7 +12,6 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { DatePicker } from "@material-ui/pickers";
 import { ScaleLoader } from 'react-spinners';
-import ReactToPrint from 'react-to-print';
 import moment from "moment";
 import 'moment/locale/es';
 import SignatureCanvas from 'react-signature-canvas';
@@ -20,7 +19,6 @@ import MUIDataTable from "mui-datatables";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
-import Logo from 'assets/img/logo/Logoinv.png';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { useSelector, useDispatch } from 'react-redux';
 import { Dropdown } from "semantic-ui-react/";
@@ -49,6 +47,7 @@ const ResumenPedido = (props) => {
     const [ErrorFecha, setErrorFecha] = React.useState(false);
     const [ErrorFirma, setErrorFirma] = React.useState(true);
     const [FechaEntrega, setFechaEntrega] = React.useState(fechaInicioEntrega);
+    const TipoCredito = useSelector(e => e.TipoPedido);
     var sigPad = {};
     const [flete, setFlete] = React.useState(0);
     const [openContado, setOpenContado] = React.useState(false);
@@ -70,11 +69,17 @@ const ResumenPedido = (props) => {
         }
     }
 
+    let pais = "HND";
+    if(localStorage.getItem('empresa')==='imgt'){
+        pais = "GTM"
+    }else if (localStorage.getItem('empresa')==='imcr'){
+        pais = "CRI";
+    }
+
     const dispatch = useDispatch();
     const impuesto = Number(localStorage.getItem('Impuesto'));
     const lineaSeleccionada = useSelector(e => e.LineaSeleccionada);
-    const TipoCredito = useSelector(e => e.TipoPedido);
-    const modoVenta = TipoCredito.TipoPedido === 'Contado' ? 'Contado' : 'Credito';
+
     const requiereEntrega = useSelector(e => e.requiereEntrega);
     const empresasTransporte = useSelector(e => e.empresasTransporte);
     const precioCajas = useSelector(e => e.precioCajas);
@@ -82,14 +87,12 @@ const ResumenPedido = (props) => {
     const [transporte, setTransporte] = React.useState(modoEntrega);
     const [comunidad, setComunidad] = React.useState(comunidadSelected);
     const esBiomedico = (lineaSeleccionada.IdLinea === "BIO" && requiereEntrega);
-    const Monedas = useSelector(e=>e.Monedas);
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
 
     var gruposTalla = Object.keys(props.tableValue);
     var unidadesTotales = 0;
     var totalGlobal = 0.00;
-    const componentRef = React.useRef();
-    var nuevafecha = new Date();
-    var fecha = moment(nuevafecha).toDate();
+
     const moneda = Monedas.find(e=>e.IdMoneda === props.Cliente.Moneda).Abreviacion;
     const calcularFlete = () => {
         if (comunidad === "" || transporte === "") {
@@ -142,18 +145,6 @@ const ResumenPedido = (props) => {
     }
     const clearFirma = () => {
         sigPad.clear();
-    }
-    let GrupoTalla = "";
-    let TotalUnidad = 0;
-    const IsSame = (GrupoTallaId) => {
-        let found = false;
-        if (GrupoTalla === "") {
-            GrupoTalla = GrupoTallaId;
-        }
-        else if (GrupoTalla === GrupoTallaId) {
-            found = true;
-        }
-        return found;
     }
 
     const ApruebaBio = () => {
@@ -241,6 +232,7 @@ const ResumenPedido = (props) => {
     }, [comunidad, transporte]);
     const onChangeDate = (date) => {
         setFechaEntrega(date);
+        props.guardarFecha(date);
     }
 
     const onErrorDate = (date) => {
@@ -460,211 +452,11 @@ const ResumenPedido = (props) => {
             },
         }
     }
-    let CantDist = 0;
-    const getTableGroup = (productos, tallas, grupoTalla, index) => {
-        let grupoTabla = { total: 0, tabla: null };
-        let Same = false;
-        grupoTabla.tabla = (
-            <table className={'table table-responsive-xs'} style={{ marginBottom: '0' }} key={index}>
-                <thead>
-                    <tr style={{ backgroundColor: '#d9d9d9' }}>
-                        <th className={"CodigoHeader"}>
 
-                        </th>
-                        {tallas.map((talla, index) => {
-                            Same = IsSame(talla.GrupoTallaId);
-                            return (
-                                <>
-                                    {
-                                        talla.Distribucion.length !== 0 && Same === false &&
-                                        talla.Distribucion.map((dist, index3) => {
-                                            CantDist += parseInt(dist.Cantidad)
-                                            return (
-                                                <th key={index}>
-                                                    {
-                                                        <div key={index3}>{dist.NombreTalla}</div>
-                                                    }
-                                                </th>
-                                            )
-                                        })
-                                    }
-                                    {
-                                        talla.Distribucion.length === 0 &&
-                                        <th className={'text-center'} style={{ minWidth: 42 }} key={index}>
-                                            {talla.Talla}
-                                        </th>
-                                    }
-                                </>
-                            )
-                        })}
-                        <th>Cant</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                {productos.map((codigoProducto, index1) => {
-                    var producto = props.tableValue[grupoTalla].Productos[codigoProducto];
-                    var precio = producto.Precio.find(precioxProd => {
-                        return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
-                    });
+   
 
-                    if (precio === undefined) {
-                        precio = {
-                            Precio: 0
-                        }
-                    }
-                    if (producto.Selected) {
-                        let result = getTableProduct(producto, index1, codigoProducto, tallas, precio);
-                        grupoTabla.total += result.total;
-                        if (result.total !== 0) {
-                            return result.tabla;
-                        }
-                    }
-                    return false;
-                })}
-            </table>
-        );
-        return grupoTabla;
-    }
-
-    const getTableProduct = (producto, index1, codigoProducto, tallas, precio) => {
-        let productosTabla = { total: 0, tabla: null };
-
-        let ArregloProductos = Object.keys(producto.Colores).map((key) => (producto.Colores[key]));
-        ArregloProductos.sort((a, b) => a.NombreColor < b.NombreColor ? -1 : 1);
-        productosTabla.tabla = (
-            <tbody key={index1}>
-                <tr className="ColorRow">
-                    {/* <td className="codigoProducto font-weight-bold">{codigoProducto}</td>
-                    <td colSpan={tallas.length + 2}>
-                        {producto.NombreProducto}
-                    </td> */}
-                    <td colSpan={tallas.length + 3} className="codigoProducto font-weight-bold">
-                        {codigoProducto} <span className="font-weight-normal pl-4">{producto.NombreProducto}</span>
-                    </td>
-                </tr>
-
-                {ArregloProductos.map((codigoColor, index2) => {
-                    var color = codigoColor;
-                    var totalXColor = 0;
-
-                    let result = getTableColor(color, totalXColor, index2, precio);
-                    productosTabla.total += result.total;
-                    if (result.total !== 0) {
-                        return result.tabla;
-                    }
-                    return null;
-                })}
-            </tbody>
-        );
-        return productosTabla;
-    }
-
-    const getTableColor = (color, totalXColor, index2, precio) => {
-        let colorTabla = { total: 0, tabla: null };
-        let Count = 0;
-        let arreglo = [];
-        let totalcantidad = 0;
-        let PrecioDistribucion = 0;
-        let TotalXProdDist = 0;
-        colorTabla.tabla = (
-            <tr key={index2}>
-                <td style={{
-                    textAlign: 'center',
-                    alignItems: 'center',
-                    verticalAlign: 'middle',
-                    //fontWeight: 600,
-                }}>
-                    <div className="col-12 px-0">
-                        <span>{"Precio"}</span>
-                    </div>
-                    {color.NombreColor}
-                </td>
-                {
-
-                    Object.keys(color.Tallas).map((codigoTalla, index3) => {
-                        Count++;
-                        var valorTalla = color.Tallas[codigoTalla];
-                        var tallas = Object.keys(color.Tallas).length;
-                        let TotalXTalla = 0;
-                        //var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
-                        totalXColor = parseInt(totalXColor, 10) + (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-                        colorTabla.total = totalXColor;
-                        return (
-                            <>
-                                {
-                                    valorTalla.Distribucion.length !== 0 &&
-                                    valorTalla.Distribucion.map((dist, index4) => {
-                                        TotalXTalla = dist.Cantidad * valorTalla.Cantidad;
-                                        TotalXProdDist += TotalXTalla;
-                                        TotalUnidad += TotalXTalla;
-                                        let cant = 0;
-                                        if (tallas === 1) {
-                                            totalcantidad = dist.Cantidad * valorTalla.Cantidad;
-                                            PrecioDistribucion = valorTalla.Precio / CantDist
-                                        }
-                                        else {
-                                            if (Count === 1) {
-                                                arreglo.push({ NombreTalla: dist.NombreTalla, cant: dist.Cantidad * valorTalla.Cantidad });
-                                                PrecioDistribucion = PrecioDistribucion === 0 ? valorTalla.Precio / CantDist : valorTalla.Precio / CantDist;
-
-                                                return false;
-                                            }
-                                            else {
-                                                const listaTallas = arreglo.filter(x => x.NombreTalla === dist.NombreTalla);
-                                                cant = dist.Cantidad * valorTalla.Cantidad
-                                                totalcantidad = listaTallas[0].cant + cant;
-                                            }
-                                        }
-
-                                        return (
-                                            <td key={index4} style={{ textAlign: "center" }}>
-                                                <div className="row">
-                                                    <div className="col-12 px-0">
-                                                        <span>{PrecioDistribucion}</span>
-                                                    </div>
-                                                    <div className="col-12 px-0">
-                                                        <span>{totalcantidad}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        )
-                                    })
-                                }
-                                {
-                                    valorTalla.Distribucion.length === 0 &&
-                                    <td key={index3} style={{ textAlign: "center" }} >
-                                        <div className="row">
-                                            <div className="col-12 px-0">
-                                                <span>{valorTalla.Precio}</span>
-                                            </div>
-                                            <div className="col-12 px-0">
-                                                <span>{valorTalla.Cantidad !== "" ? valorTalla.Cantidad : 0}</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                }
-
-                            </>
-                        )
-                    })
-                }
-                <td style={{
-                    textAlign: 'center',
-                    alignItems: 'center',
-                    verticalAlign: 'middle',
-                    fontWeight: 600,
-                }}>{TotalXProdDist !== 0 ? TotalXProdDist : totalXColor}</td>
-
-                <td style={{
-                    textAlign: 'right',
-                    alignItems: 'center',
-                    verticalAlign: 'middle',
-                    fontWeight: 600,
-                }}>{numberWithCommas(precio.Precio * parseInt(totalXColor, 10))}</td>
-            </tr>
-        )
-        return colorTabla;
-    }
+  
+ 
 
     return (
         <Card className={styles.ResumenCard}>
@@ -763,7 +555,7 @@ const ResumenPedido = (props) => {
                                             }}
                                             defaultValue={comunidadSelected}
                                             disabled={habilitado}
-                                            options={comunidadesAutonomas.map(comunidad => {
+                                            options={comunidadesAutonomas.filter(e=>e.COUNTRYREGIONID===pais).map(comunidad => {
                                                 return { key: comunidad.STATEID, value: comunidad.STATEID, text: comunidad.NAME }
                                             })}
                                             noResultsMessage={"No hay resultados"}
@@ -838,7 +630,7 @@ const ResumenPedido = (props) => {
                 disableBackdropClick
                 scroll={'paper'}
                 open={openContado}
-            >
+                >
                 <CancelPresentationIcon onClick={() => { setOpenContado(false) }} />
                 <DialogTitle className="text-center" id="scroll-dialog-title">
                     <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
@@ -878,169 +670,10 @@ const ResumenPedido = (props) => {
                     </Button>
                 </DialogActions>
             </Dialog>
-
-
-            <Dialog
-                open={props.mostrarRecibo}
-                onClose={() => console.log("Cerrado")}
-                scroll={'paper'}
-                aria-labelledby="scroll-dialog-title"
-            >
-                <DialogTitle id="scroll-dialog-title">Vista Previa Pedido</DialogTitle>
-                <DialogContent dividers={true} ref={componentRef} style={{ width: '100%' }}>
-                    <div id={"invoice-POS"} style={{ boxShadow: 'unset' }}>
-
-                        <div id="top">
-                            <img alt={"Logo"} width={420} style={{ objectFit: 'contain' }} src={Logo} ></img>
-                            <div className="info">
-                                <p>{empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}</p>
-                            </div>
-                        </div>
-
-                        <div id="mid">
-                            <div className="row">
-                                <div className="col-6">
-                                    <div className="info">
-                                        <h2>{
-                                            (clienteContado !== null && clienteContado !== undefined) ? ((totalGlobal * 1.15) < 10000) ? 'Consumidor Final' : clienteContado.Nombre : props.Cliente.Nombre
-                                        }</h2>
-                                        <p>
-                                            Dirección : {(clienteContado !== null && clienteContado !== undefined) ? clienteContado.Direccion : props.Cliente.Direccion}<br />
-                                            Código    : {props.Cliente.Codigo}<br />
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="col-6">
-                                    <div className="info">
-                                        <h2>Pedido {props.NumeroOrden}</h2>
-                                        <p>
-                                            Fecha del pedido : {moment(fecha).format('DD/MM/YYYY hh:mm a')}<br />
-                                            Entrega Sugerida : {moment(FechaEntrega).format('DD/MM/YYYY hh:mm a')}<br />
-                                            Asesor: {localStorage.getItem('asesor')}<br />
-                                            Modo Venta: {modoVenta}<br />
-                                        </p>
-                                    </div>
-                                </div >
-                            </div>
-
-                        </div>
-
-                        {
-                            gruposTalla.map((grupoTalla, index) => {
-
-                                var productos = Object.keys(props.tableValue[grupoTalla].Productos);
-                                var tallas = props.tableValue[grupoTalla].ListaTallas;
-                                if (props.tableValue[grupoTalla].Mostrar) {
-                                    let result = getTableGroup(productos, tallas, grupoTalla, index);
-
-                                    if (result.total) {
-                                        return result.tabla;
-                                    }
-                                }
-                                return false;
-                            })
-                        }
-                        <div className="row" style={{ maxWidth: '100%' }}>
-
-                            <div className="col-6">
-                                <div className="thanks">
-                                    {
-                                        firma === null ?
-                                            <div style={{ width: '100%', height: '160px', }}></div> :
-                                            <img src={firma} alt={"Firma"} data-holder-rendered="true" />
-                                    }
-
-                                </div>
-
-                                <div className={'firma'}>
-                                    <span className="signature">
-                                        Firma
-                                    </span>
-                                </div>
-                            </div>
-                            <div className="col-6">
-                                <div className="row">
-                                    <div className="col-5 labelTotal text-left">
-                                        Unidades:
-                                    </div>
-
-                                    <div className="col-7 valueTotal">
-                                        {TotalUnidad !== 0 ? TotalUnidad : unidadesTotales}
-                                    </div>
-                                </div>
-
-                                <div className="row TotalRow">
-                                    <div className="col-5 labelTotal text-left">
-                                        Subtotal:
-                                    </div>
-
-                                    <div className="col-7 valueTotal">
-                                        {numberWithCommas(totalGlobal)}
-                                    </div>
-                                </div>
-
-                                {(flete > 0) && <div className="row TotalRow">
-                                    <div className="col-5 labelTotal text-left">
-                                        Flete:
-                                    </div>
-
-                                    <div className="col-7 valueTotal">
-                                        {numberWithCommas(flete)}
-                                    </div>
-                                </div>}
-
-                                <div className="row TotalRow">
-                                    <div className="col-5 labelTotal text-left">
-                                        Impuesto:
-                                    </div>
-
-                                    <div className="col-7 valueTotal">
-                                        {numberWithCommas((impuesto))}
-                                    </div>
-                                </div>
-
-                                <div className="row TotalRow">
-                                    <div className="col-5 labelTotal text-left">
-                                        Total:
-                                    </div>
-
-                                    <div className="col-7 valueTotal">
-                                    {moneda} {numberWithCommas((totalGlobal + impuesto) + flete)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* <div className="notices">
-                            <div>NOTA:</div>
-                            <div className="notice">Se notificará cuando ya se entreguen los productos en la fecha sugerida indicada.</div>
-                        </div>
-
-                        <div id="legalcopy">
-                            <p className="legal"><br /><strong>Gracias!</strong>
-                            </p>
-                        </div> */}
-
-                    </div>
-                </DialogContent >
-                <DialogActions>
-                    <ReactToPrint
-                        trigger={() =>
-                            <Button color="primary">
-                                Imprimir
-                            </Button>
-                        }
-                        content={() => componentRef.current}
-                    />
-                    <Button onClick={() => props.reiniciarPedido()} color="primary">
-                        Realizar Pedido Nuevo
-                    </Button>
-                    <Button onClick={() => props.cancelarPedido()} color="primary">
-                        Finalizar
-                    </Button>
-                </DialogActions>
-            </Dialog >
-
+            {
+            props.mostrarRecibo &&
+                props.CargarImpresionPedido({flete,totalGlobal,unidadesTotales,FechaEntrega,firma})
+            }
         </Card >
     )
 

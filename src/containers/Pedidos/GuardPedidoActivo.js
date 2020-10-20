@@ -15,7 +15,8 @@ const GuardPedidoActivo = (props) => {
                         path: [props.match.url + '/Colecciones/:TipoColeccion/:CodigoColeccion',
                         props.match.url + '/Colecciones/:TipoColeccion/:CodigoColeccion/:CodigoProducto',
                         props.match.url + '/MatrizResumen',
-                        props.match.url + '/ResumenPedido'],
+                        props.match.url + '/ResumenPedido',
+                        props.match.url + '/ImprimirPedido'],
                     }) === null)) {
                         Swal.fire({
                             title: 'Aviso',

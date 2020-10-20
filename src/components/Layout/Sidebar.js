@@ -18,30 +18,34 @@ import {
 import {
     ExpandLess,
     ExpandMore,
-    DashboardOutlined,
+    //DashboardOutlined,
     FeaturedPlayListOutlined,
     PostAdd,
     AddBoxOutlined,
+    //Sync,
+    //Dvr,
+    //FlashAuto,
+    //Book,
     ListAlt,
     EventNote,
     EventAvailable,
     Receipt,
-    SwapHorizOutlined,
-    StoreMallDirectoryOutlined,
-    CameraAltOutlined,
-    LocationOnOutlined,
+    //SwapHorizOutlined,
+    //StoreMallDirectoryOutlined,
+    //CameraAltOutlined,
+    //LocationOnOutlined,
     HelpOutline,
-    Public
+    //Public
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 //components
-import Logo from 'assets/img/logo/LogoColorBlanco.png';
+import Logo from 'assets/img/logo/Barra.png';
 import styles from 'components/Layout/Layout.module.css';
 
 
 const Drawer = withStyles({
     paper: {
-        background: 'linear-gradient(120deg, rgba(89,140,151,1) 0%, rgba(72,87,101,1) 100%)',
+        background: '#243746',//'linear-gradient(110deg, rgba(67,191,240,94) 0%, rgba(19,53,66,26) 100%)',
     },
 })(MuiSwipeableDrawer);
 
@@ -61,7 +65,7 @@ const useStyles = makeStyles(theme => ({
 
 const navItems = [
     { to: '/estadistica-visita', name: 'Estadistica Visita', dataTut: 'DataTut_EstadisticaVisista', Icon: AssessmentIcon },
-    { to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
+    //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
     {
         to: '/pedidos', name: 'Pedidos', dataTut: 'DataTut_Pedidos', Icon: FeaturedPlayListOutlined,
         expanded: [
@@ -78,11 +82,19 @@ const navItems = [
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt },
         ]
     },
-    { to: '/devoluciones', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
-    { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
-    { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
-    { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
-    { to: '/coordenadas-global', name: 'Clientes Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
+    //{ to: '/devoluciones', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
+    //{ to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
+    //{ to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
+    //{ to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
+    //{ to: '/coordenadas-global', name: 'Clientes Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
+    /*{
+        to: '/sincronizacion', name: 'Sincronizacion', dataTut: 'DataTut_Sinc', Icon: Sync,
+        expanded: [
+            { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto },
+            { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr },
+            { to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
+        ]
+    },*/
 ];
 
 const Sidebar = (props) => {
@@ -142,12 +154,8 @@ const Sidebar = (props) => {
             className={classes.list}
             role="presentation"
         >
-            <div
-                className="px-3 py-3"
-            >
-                <div
-                    className="px-3"
-                >
+            <div className="px-3 py-3" style={{backgroundColor:'#EBEBF3'}}> 
+                <div className="px-3">
                     <img
                         src={Logo}
                         className="img-fluid"

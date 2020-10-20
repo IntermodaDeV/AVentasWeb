@@ -6,6 +6,7 @@ import FacturaTable from 'components/Recibos/Facturas/FacturaTable'
 import CuotasTable from 'components/Recibos/Facturas/CuotasTable'
 import CuotasAgrupadasTable from 'components/Recibos/Facturas/CuotasAgrupadasTable'
 import DetalleRecibo from 'components/Recibos/Recibo/DetalleRecibo'
+import Recibo from 'components/Recibos/Recibo/Recibo'
 import { ClipLoader } from 'react-spinners';
 import RecibosBreadCrumb from 'components/Recibos/RecibosBreadCrumb/RecibosBreadCrumb';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
@@ -18,13 +19,14 @@ import 'moment/locale/es';
 import { FaEye } from "react-icons/fa";
 import {FiAlertTriangle} from 'react-icons/fi';
 import styles from "components/Recibos/Facturas/CuotasTable.module.css";
+import {useDispatch} from 'react-redux';
 moment.locale('es');
 const Recibos = (props) => {
   const [loading, setLoading] = useState(true);
   const [isCreditoVencido,setCreditoVencido] = useState(false);
   const [DataModal, setDataModal] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-
+  const dispatch = useDispatch();
   const creditoVencido = (vencido)=>{
     setCreditoVencido(vencido);
     localStorage.setItem('isVencido',vencido);
@@ -274,7 +276,7 @@ const Recibos = (props) => {
   }
 
   const cargarClientes = () => {
-    fetch(urlApi + '/api/cliente', {
+    fetch(urlApi + '/api/cliente/cuenta', {
       headers: {
         Authorization: 'Bearer ' + localStorage.getItem('token')
       }
@@ -300,8 +302,16 @@ const Recibos = (props) => {
     })
   }
 
+  const cargarMonedas = () =>{
+    let empresa = localStorage.getItem('EmpresaCliente');
+    fetch(`${urlApi}/api/moneda/${empresa}`)
+    .then(res=>res.json())
+    .then(data=>{props.onSaveMonedas(data)})
+    .catch(error=>console.log(error))
+  }
   const cargarFacturasXCliente = () => {
-    props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas)
+    props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas);
+    cargarMonedas();
     props.history.push(`/Recibos/TipoCredito`);
   }
 
@@ -315,12 +325,21 @@ const Recibos = (props) => {
     props.onStoreReciboCuotasAPagar(cuotas);
     props.history.push(`/Recibos/Detalle`);
   }
+  const CargarImpresion = (recibosAplicados) => {
+    props.history.push({pathname:`/Recibos/ImprimirRecibo`,state:recibosAplicados});
+  }
 
+  const Finalizar = () => {
+    //setModalRecibo(false);
+    cargarClientes();
+    dispatch({type:'delete_pedidoselected'})
+    props.history.push(`/recibos`);
+}
   const NavHome = () => {
     props.history.push(`/Recibos`);
   }
 
-
+  
   const BreadCrumb = () => {
     return (
       <RecibosBreadCrumb
@@ -526,8 +545,23 @@ const Recibos = (props) => {
                 Cliente={props.clienteSelected}
                 Cuotas={props.cuotasXCliente}
                 CuotasAPagar={props.cuotasAPagar}
+                CargarImpresion ={CargarImpresion}
                 EliminarCuota={() => { }}
               />
+            </div>
+          </div>
+        </>
+      )} />
+
+    <Route path={props.match.url + '/ImprimirRecibo'} exact component={(routeProps) => (
+        <>
+          <div className="row">
+            <div className="col-12">
+            <Recibo
+                    Finalizar = {Finalizar}
+                    Cliente={props.clienteSelected}
+                    Open={true}
+                    RecibosAplicados={routeProps.location.state}/>
             </div>
           </div>
         </>
@@ -538,7 +572,6 @@ const Recibos = (props) => {
 }
 
 const mapStateToProps = state => {
-
 
   return {
 
@@ -562,7 +595,7 @@ const mapDispatchToProps = dispatch => {
     onStoreReciboFacturasXCliente: (facturasXCliente) => dispatch({ type: 'STORE_RECIBO_FACTURASXCLIENTE', facturasXCliente: facturasXCliente }),
     onStoreReciboCuotasCuentaCorriente: (cuotasCuentaCorriente) => dispatch({ type: 'STORE_RECIBO_CUOTASCUENTACORRIENTE', cuotasCuentaCorriente: cuotasCuentaCorriente }),
     onStoreCuotasImprimir: (cuotasCuentaCorriente) => dispatch({ type: 'SET_CUENTAIMPRIMIR', payload: cuotasCuentaCorriente }),
-
+    onSaveMonedas:(monedas)=> dispatch({type:'SET_MONEDAS',payload:monedas}),
     onStoreReciboLoading: (loading) => dispatch({ type: 'STORE_RECIBO_LOADING', loading: loading }),
 
     onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),

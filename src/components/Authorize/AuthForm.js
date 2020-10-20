@@ -1,4 +1,4 @@
-import logo200Image from 'assets/img/logo/Logoinv.png';
+import logo200Image from 'assets/img/logo/Barra.png';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Redirect } from 'react-router-dom';
@@ -178,12 +178,11 @@ class AuthForm extends React.Component {
         <hr />
         <Button
           size="lg"
-          className="btn-danger"
           block
           disabled={this.state.loading}
           type="submit"
-          onClick={this.handleSubmit}>
-
+          onClick={this.handleSubmit}
+          style = {{background:'#263746'}} >
           {this.state.loading ?
             <ScaleLoader
               css={{ height: '30px', bottom: '5px', position: 'relative', transform: 'scale(0.8)' }}

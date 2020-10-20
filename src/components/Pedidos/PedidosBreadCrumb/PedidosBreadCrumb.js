@@ -2,13 +2,14 @@ import React from 'react';
 import styles from 'components/Pedidos/PedidosBreadCrumb/PedidosBreadCrumb.module.css';
 import { Route, Switch } from 'react-router-dom';
 import NavigationBreadcrumb from 'components/Pedidos/NavigationBreadcrumb/NavigationBreadcrumb';
+import {Button } from '@material-ui/core';
 import {
     FaSignOutAlt,
     FaShoppingCart,
     FaExclamationCircle
 } from 'react-icons/fa';
 import {
-    Button,
+    /*Button,*/
     Col,
     Container,
     Row,
@@ -54,7 +55,9 @@ const PedidosBreadCrumb = (props) => {
                             </Dropdown>
                             {"Cliente: "}
                             {props.cliente.Nombre}
-                            <Button outline color="primary" onClick={props.toggle} style={{ marginBottom: '1rem', marginLeft: '1rem' }}><FaShoppingCart /></Button>
+                            <Button variant="outlined" color="primary" onClick={props.toggle} style={{ marginLeft: '0.5rem' }}  startIcon ={<FaShoppingCart/>}> 
+                                    {parseInt(localStorage.getItem('ProdEnCarrito'))}
+                             </Button>   
                         </Col>
                     </Row>
                 </Container>

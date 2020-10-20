@@ -20,9 +20,9 @@ class AuthPage extends React.Component {
       justifyContent: 'center',
       alignItems: 'center',
       // backgroundColor: '#153950',
-      backgroundColor:' #2C3E50',
+      backgroundColor:'#243746',
       // backgroundImage:'linear-gradient(to left, #4CA1AF, #2C3E50)',  /* Chrome 10-25, Safari 5.1-6 */
-      backgroundImage: 'linear-gradient(to left, #4CA1AF, #2C3E50)' /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */,
+      backgroundImage: '#243746'//'linear-gradient(to left, #64c4ee, #2C3E50)' /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */,
 
     };
     return (

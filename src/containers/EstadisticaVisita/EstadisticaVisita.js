@@ -3,22 +3,27 @@ import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from 'mui-datatables'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 // import { EstadisticaVisitaTable } from './EstadisticaVisitaTable';
+import FunnelChart from 'components/EstadisticaVisita/FunnelChart';
 import PieChart from 'components/EstadisticaVisita/PieChart';
 import moment from 'moment';
 import { Dropdown } from "semantic-ui-react";
 import {APIURL} from 'utils/Enviroment';
 import 'moment/locale/es';
 import {
-    Button,
+    Button
     // Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText,  Select, MenuItem 
 } from '@material-ui/core';
-// import { ScaleLoader } from 'react-spinners';
+import  TableFooter from "@material-ui/core/TableFooter";
+import  TableRow from "@material-ui/core/TableRow";
+import  TablePagination from "@material-ui/core/TablePagination";
 import {
-    FaCheck,
-    //  FaTimes,
+    FaUserCheck,
     FaCheckDouble,
-    FaTimesCircle, FaUserFriends
+    FaTimesCircle, FaUserFriends,
+    FaClipboardCheck,
+    FaUserTimes
 } from "react-icons/fa";
+import CustomFooter from 'components/Layout/CustomFooter';
 
 moment.locale('es')
 const urlApi = APIURL
@@ -41,14 +46,6 @@ const columns = [
         }
     },
     {
-        name: 'Usuario',
-        label: 'Usuario',
-        options: {
-            filter: true,
-            sort: true
-        }
-    },
-    {
         name: 'CantidadVisitas',
         label: 'Cantidad Visitas',
         options: {
@@ -59,22 +56,6 @@ const columns = [
     {
         name: 'Atendidas',
         label: 'Atendidas',
-        options: {
-            filter: true,
-            sort: true
-        }
-    },
-    // {
-    //     name: 'PorcentajeEjecucion',
-    //     label: 'Porcentaje Ejecucion',
-    //     options: {
-    //         filter: true,
-    //         sort: true
-    //     }
-    // },
-    {
-        name: 'ClienteCancelo',
-        label: 'Cliente Cancelo',
         options: {
             filter: true,
             sort: true
@@ -91,6 +72,55 @@ const columns = [
     {
         name: 'Productivas',
         label: 'Productivas',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'ClienteCancelo',
+        label: 'Canceladas',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'NoAtendidas',
+        label: 'No Atendidas',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    
+    {
+        name: 'Pedidos',
+        label: 'Cantidad Pedidos',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'ValorPedidos',
+        label: 'Valor Pedidos',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'Recibos',
+        label: 'Cantidad Recibos',
+        options: {
+            filter: true,
+            sort: true
+        }
+    },
+    {
+        name: 'ValorRecibos',
+        label: 'Valor Recibos',
         options: {
             filter: true,
             sort: true
@@ -135,6 +165,22 @@ const EstadisticaVisita = (props) => {
         print: false,
         download: false,
         selectableRowsOnClick: true,
+        customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
+            <TableFooter>
+              <TableRow>
+                <TablePagination
+                  count={count}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  onChangePage={(_, page) => changePage(page)}
+                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                  rowsPerPageOptions={[10, 15, 100]}
+                  ActionsComponent={CustomFooter}
+                  labelRowsPerPage="Filas por página:"
+                />
+              </TableRow>
+            </TableFooter>
+          ),
         // rowsSelected: selectedRowsIndex,
         textLabels: {
             body: {
@@ -195,13 +241,18 @@ const EstadisticaVisita = (props) => {
         data.push({
             CodigoAsesor: estVis.CodigoAsesor,
             Nombre: estVis.Nombre,
-            Usuario: estVis.Usuario,
+            //Usuario: estVis.Usuario,
             CantidadVisitas: estVis.CantidadVisitas,
             Atendidas: estVis.Atendidas,
             // PorcentajeEjecucion: estVis.PorcentajeEjecucion,
             ClienteCancelo: estVis.ClienteCancelo,
             Efectivas: estVis.Efectivas,
-            Productivas: 0,
+            Productivas:estVis.Productivas,
+            NoAtendidas:estVis.NoAtendidas,
+            Pedidos : estVis.Pedidos,
+            Recibos: estVis.Recibos,
+            ValorPedidos : numberWithCommas(Number(estVis.TotalPedidos)),
+            ValorRecibos : numberWithCommas(Number(estVis.TotalRecibos))
         });
     });
     return (
@@ -261,14 +312,12 @@ const EstadisticaVisita = (props) => {
 
             <hr></hr>
             <div className="row">
-                <div className="col-xl-1 col-md-6 mb-4">
-                </div>
                 <div className="col-xl-2 col-md-6 mb-4" >
                     <div className="card shadow h-100 py-1" style={{ borderColor: 'darkblue' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-1">
-                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas a Clientes</div>
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Programadas</div>
                                     <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.CantidadVisitas }, 0)}</div>
                                 </div>
                                 <div className="col-auto">
@@ -289,7 +338,39 @@ const EstadisticaVisita = (props) => {
                                 </div>
                                 <div className="col-auto">
                                     {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
-                                    <FaCheck size={"25px"} style={{ color: 'green' }} />
+                                    <FaUserCheck size={"25px"} style={{ color: 'green' }} />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-xl-2 col-md-6 mb-4">
+                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkorange' }}>
+                        <div className="card-body">
+                            <div className="row no-gutters align-items-center">
+                                <div className="col mr-2">
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Efectivas</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Efectivas }, 0)}</div>
+                                </div>
+                                <div className="col-auto">
+                                    <FaCheckDouble size={"25px"} style={{ color: 'darkorange' }} />
+                                    {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-xl-2 col-md-6 mb-4">
+                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkblue' }}>
+                        <div className="card-body">
+                            <div className="row no-gutters align-items-center">
+                                <div className="col mr-2">
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Productivas</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Productivas }, 0)}</div>
+                                </div>
+                                <div className="col-auto">
+                                    <FaClipboardCheck size={"25px"} style={{ color: 'darkblue' }} />
+                                    {/* <iFaTimesCircle class="fas fa-calendar fa-2x text-gray-300"></i> */}
                                 </div>
                             </div>
                         </div>
@@ -312,38 +393,20 @@ const EstadisticaVisita = (props) => {
                     </div>
                 </div>
                 <div className="col-xl-2 col-md-6 mb-4">
-                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkgreen' }}>
+                    <div className="card  shadow h-100 py-2" style={{ borderColor: 'darkred' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
-                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Efectivas</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Efectivas }, 0)}</div>
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas No Atendidas</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.NoAtendidas }, 0)}</div>
                                 </div>
                                 <div className="col-auto">
-                                    <FaCheck size={"25px"} style={{ color: 'darkgreen' }} />
                                     {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
+                                    <FaUserTimes size={"25px"} style={{ color: 'darkred' }} />
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div className="col-xl-2 col-md-6 mb-4">
-                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkgreen' }}>
-                        <div className="card-body">
-                            <div className="row no-gutters align-items-center">
-                                <div className="col mr-2">
-                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Productivas</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Atendidas }, 0)}</div>
-                                </div>
-                                <div className="col-auto">
-                                    <FaCheckDouble size={"25px"} style={{ color: 'darkblue' }} />
-                                    {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-xl-1 col-md-6 mb-4">
                 </div>
             </div>
 
@@ -384,7 +447,8 @@ const EstadisticaVisita = (props) => {
                             </div>
                         </div>
                         <div className="row">
-                            <PieChart Selected={Selected} Users={estadisticasVisita} />
+                            <FunnelChart Selected={Selected} Users={estadisticasVisita}/>
+                            <PieChart Selected={Selected} Users={estadisticasVisita}/>
                         </div>
                     </div>
                 </div>
@@ -432,5 +496,10 @@ const getMuiTheme = () => createMuiTheme({
         },
     }
 });
-
+const numberWithCommas = (x) => {
+    x = x.toFixed(2);
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
+  }
 export default EstadisticaVisita;
