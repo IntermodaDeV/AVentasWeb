@@ -121,7 +121,7 @@ const ImprimirPedidoOriginal = (props) => {
                     <td colSpan={tallas.length + 2}>
                         {producto.NombreProducto}
                     </td> */}
-                    <td colSpan={tallas.length + 3} className="codigoProducto font-weight-bold">
+                    <td colSpan={CantDist !== 0 ? CantDist : tallas.length + 3} className="codigoProducto font-weight-bold">
                         {codigoProducto} <span className="font-weight-normal pl-4">{producto.NombreProducto}</span>
                     </td>
                 </tr>

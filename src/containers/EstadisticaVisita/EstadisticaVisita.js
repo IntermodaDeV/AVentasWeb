@@ -237,7 +237,10 @@ const EstadisticaVisita = (props) => {
 
 
     let data = [];
-    
+    let VisitasProductivas = estadisticasVisita.reduce((acc, cur) => { return acc + cur.Productivas }, 0);
+    let VisitasEfectivas = estadisticasVisita.reduce((acc, cur) => { return acc + cur.Efectivas }, 0);
+    let VisitasAtendidas = estadisticasVisita.reduce((acc, cur) => { return acc + cur.Atendidas }, 0);
+
     estadisticasVisita.forEach(estVis => {
         data.push({
             CodigoAsesor: estVis.CodigoAsesor,
@@ -351,7 +354,8 @@ const EstadisticaVisita = (props) => {
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
                                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Efectivas</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Efectivas }, 0)}</div>
+                                   <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasEfectivas}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasAtendidas > 0 ? ((VisitasEfectivas/VisitasAtendidas) * 100).toFixed(0) + "%": 0 + "%"}</div>
                                 </div>
                                 <div className="col-auto">
                                     <FaCheckDouble size={"25px"} style={{ color: 'darkorange' }} />
@@ -367,7 +371,8 @@ const EstadisticaVisita = (props) => {
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
                                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Productivas</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Productivas }, 0)}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasProductivas}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasAtendidas > 0 ? ((VisitasProductivas/VisitasAtendidas) * 100).toFixed(0) + "%": 0 + "%"}</div>
                                 </div>
                                 <div className="col-auto">
                                     <FaClipboardCheck size={"25px"} style={{ color: 'darkblue' }} />
