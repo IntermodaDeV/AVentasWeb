@@ -24,6 +24,7 @@ import Sincronizacionlista from 'containers/Sincronizacion/Sincronizacionlista'
 import SincronizacionListaMonitor from 'containers/Sincronizacion/SincronizacionListaMonitor'
 import './styles/reduction.scss'
 import './App.css'
+import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -137,6 +138,11 @@ const App = props => {
               path='/sincronizacionListaMonitor'
               layout={MainLayout}
               component={SincronizacionListaMonitor}
+            />
+            <LayoutRoute
+              path='/mantenimiento'
+              layout={MainLayout}
+              component={Mantenimiento}
             />
             <Redirect to='/agenda' />
           </Switch>
