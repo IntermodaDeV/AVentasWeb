@@ -7,9 +7,7 @@ import ContactMailIcon from '@material-ui/icons/ContactMail';
 import AirplayIcon from '@material-ui/icons/Airplay';
 import LanguageIcon from '@material-ui/icons/Language';
 
-const Creacion = props =>{
-    return <h1>Creacion de roles</h1>;
-}
+import { Roles } from './Roles';
 
 const Funciones = props =>{
     return <h1>Funciones roles</h1>;
@@ -56,7 +54,7 @@ export const Mantenimiento = props => {
     </Paper>
             <div className="card" style={{height:'85%'}}>
                 <Switch>
-                    <Route exact path={props.match.url} render={(props)=><Creacion/>}/>
+                    <Route exact path={props.match.url} render={(props)=><Roles/>}/>
                     <Route exact path={`${props.match.url}/funciones`} render={(props)=><Funciones/>}/>
                     <Route exact path={`${props.match.url}/pantallas`} render={(props)=><Pantallas/>}/>
                 </Switch>
