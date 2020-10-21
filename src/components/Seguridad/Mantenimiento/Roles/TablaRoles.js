@@ -1,13 +1,13 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
 import { Table } from 'reactstrap';
+import { FaEdit } from "react-icons/fa";
+import { MdCheckCircle,MdCancel } from "react-icons/md";
 
 export const TablaRoles = props => {
-    const {roles,modificarEstado} = props;
+    const {roles,modificarEstado,modificarRol} = props;
 
     return (
         <div>
-            <h3 style={{textAlign:'center'}}>Mantenimiento de roles</h3>
             {roles.length===0
             ?  <h3>No hay roles</h3>
             :  (
@@ -22,11 +22,18 @@ export const TablaRoles = props => {
                         </thead>
                         <tbody>
                             {roles.map(rol=>(
-                                <tr>
+                                <tr key={rol.Id}>
                                     <th style={{textAlign:'center'}}>{rol.Nombre}</th>
-                                    <th style={{textAlign:'center'}}>{rol.Status?"Activo":"Inactivo"}</th>
+                                    <th style={{textAlign:'center',color:rol.Status?"green":"red"}}>{rol.Status?<p>Activo <MdCheckCircle/> </p>:<p>Inactivo <MdCancel/> </p>}</th>
                                     <th style={{textAlign:'center'}}>
-                                        <Button onClick={()=>{modificarEstado(rol.Id)}}>{rol.Status?"Desactivar":"Activar"}</Button>
+                                        <button style={{marginLeft:'10px'}} 
+                                                className="btn btn-outline-warning" 
+                                                onClick={()=>{modificarRol(rol)}}>
+                                                    Editar <FaEdit/>
+                                        </button>
+                                        <button style={{marginLeft:'10px'}} 
+                                                className="btn btn-outline-info" 
+                                                onClick={()=>{modificarEstado(rol.Id)}}>{rol.Status?<span>Inactivar <MdCancel/></span>:<span>Activar <MdCheckCircle/></span>}</button>
                                     </th>
                                 </tr>
                             ))}
