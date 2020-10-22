@@ -1,6 +1,5 @@
 import React,{useState,useEffect} from 'react';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import logo from './iconfinder_Close_2001866.png';
 import Dialog        from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle   from '@material-ui/core/DialogTitle';
@@ -8,7 +7,7 @@ import { MdPlaylistAdd } from "react-icons/md";
 import axios from 'axios';
 
 import { TablaRoles } from 'components/Seguridad/Mantenimiento/Roles/TablaRoles';
-import { FormularioRol } from 'components/Seguridad/Mantenimiento/Roles/FormularioRol';
+import { FormularioCrud } from 'components/Seguridad/Mantenimiento/FormularioCrud';
 import { APIURL } from 'utils/Enviroment';
 
 export const Roles = props => {
@@ -117,21 +116,10 @@ export const Roles = props => {
                 </div>
                 <button className="btn btn-outline-info" onClick={()=>{setMostar(true)}}>Crear nuevo rol <MdPlaylistAdd/></button>
             </div>
-            <Dialog
-                disableBackdropClick 
-                scroll={'paper'}
-                open={mostrar}
-            >
-                <img alt="closeicon" src={logo} style={{width:'30px',height:'30px',marginLeft:'500px'}} onClick={ocultarModal}/>
-                <DialogTitle className="text-center" id="scroll-dialog-title">
-                    <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-                        Rol
-                    </div>
-                </DialogTitle>
+            <Dialog open={mostrar} aria-labelledby="form-dialog-title">
+            <DialogTitle id="form-dialog-title">REGISTRAR NUEVO ROL</DialogTitle>
                 <DialogContent>
-                
-                   <FormularioRol rol={rol} crearRol={crearRol} modificarRol={modificarRol} ocultarModal={ocultarModal}/>
-                    
+                    <FormularioCrud Valores={rol} Crear={crearRol} Modificar={modificarRol} OcultarModal={ocultarModal}/>
                 </DialogContent>
             </Dialog>
             

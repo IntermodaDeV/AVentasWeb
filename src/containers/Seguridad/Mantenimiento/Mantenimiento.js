@@ -8,10 +8,7 @@ import AirplayIcon from '@material-ui/icons/Airplay';
 import LanguageIcon from '@material-ui/icons/Language';
 
 import { Roles } from './Roles';
-
-const Funciones = props =>{
-    return <h1>Funciones roles</h1>;
-}
+import Funciones from  'containers/Seguridad/Mantenimiento/Funciones';
 
 const Pantallas = props =>{
     return <h1>Pantallas roles</h1>;
