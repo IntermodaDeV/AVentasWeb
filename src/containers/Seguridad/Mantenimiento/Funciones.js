@@ -150,7 +150,7 @@ const Funciones =(props) =>{
 
             <div class="card-body text-center">
                 <h3 class="card-title">Funciones</h3>
-                <button className="btn btn-outline-info" onClick={()=>{setMostar(true)}}>Crear nueva funcion <MdPlaylistAdd/></button>
+                <button className="btn btn-info" onClick={()=>{setMostar(true)}}>Crear nueva funcion <MdPlaylistAdd/></button>
             </div>
             <TablaFunciones
              Funciones={Funciones}

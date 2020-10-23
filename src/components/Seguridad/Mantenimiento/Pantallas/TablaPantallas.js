@@ -29,12 +29,12 @@ export const TablaPantallas = props => {
                                     <th style={{textAlign:'center',color:pantalla.Status?"green":"red"}}>{pantalla.Status?<p>Activo <MdCheckCircle/> </p>:<p>Inactivo <MdCancel/> </p>}</th>
                                     <th style={{textAlign:'center'}}>
                                         <button style={{marginLeft:'10px'}} 
-                                                className="btn btn-outline-warning" 
+                                                className="btn btn-warning" 
                                                 onClick={()=>{modificarPantalla(pantalla)}}>
                                                     Editar <FaEdit/>
                                         </button>
                                         <button style={{marginLeft:'10px'}} 
-                                                className="btn btn-outline-info" 
+                                                className="btn btn-info" 
                                                 onClick={()=>{modificarEstado(pantalla.Id)}}>{pantalla.Status?<span>Inactivar <MdCancel/></span>:<span>Activar <MdCheckCircle/></span>}</button>
                                     </th>
                                 </tr>

@@ -24,8 +24,8 @@ const TablaFunciones =(props) =>{
                                     <td style={{textAlign:'center'}}>{fun.Nombre}</td>
                                     <th style={{textAlign:'center',color:fun.Status?"green":"red"}}>{fun.Status ? <p>Activo <MdCheckCircle/></p> : <p>Inactivo <MdCancel/></p>}</th>
                                     <td style={{textAlign:'center'}}>
-                                        <Button style={{marginLeft:'10px'}} class="btn btn-outline-warning" onClick={()=>{props.ModificarFuncion(fun)}} startIcon = {<FaEdit/>} >Editar</Button>
-                                        <Button style={{marginLeft:'10px'}} class="btn btn-outline-info" onClick={()=>{props.ModificarEstado(fun.Id)}}startIcon = {<MdCancel/>}>{fun.Status ? "Inactivar" : "Activar"}</Button>
+                                        <Button style={{marginLeft:'10px'}} class="btn btn-warning" onClick={()=>{props.ModificarFuncion(fun)}} startIcon = {<FaEdit/>} >Editar</Button>
+                                        <Button style={{marginLeft:'10px'}} class="btn btn-info" onClick={()=>{props.ModificarEstado(fun.Id)}}startIcon = {<MdCancel/>}>{fun.Status ? "Inactivar" : "Activar"}</Button>
                                     </td>
                                 </tr>
                             ))}

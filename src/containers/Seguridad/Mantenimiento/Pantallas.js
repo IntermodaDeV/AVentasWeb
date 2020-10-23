@@ -136,7 +136,7 @@ export const Pantallas = props => {
                 <div className="card-title">
                     <h3>Pantallas</h3>
                 </div>
-                <button className="btn btn-outline-info" onClick={()=>{setMostar(true)}}>Crear nueva pantalla<MdPlaylistAdd/></button>
+                <button className="btn btn-info" onClick={()=>{setMostar(true)}}>Crear nueva pantalla<MdPlaylistAdd/></button>
             </div>
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
             <DialogTitle style={{textAlign:'center'}} id="form-dialog-title">REGISTRAR NUEVA PANTALLA</DialogTitle>

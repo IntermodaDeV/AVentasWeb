@@ -17,7 +17,7 @@ export const Roles = props => {
 
     const cargarRoles = async () => {
         try{
-            const request = await axios.get(`${APIURL}/api/rol/roles`);
+            const request = await axios.get(`${APIURL}/api/rol`);
             setRoles(request.data);
         }catch(err){
             let mensaje = "Ha ocurrido un error y no se han cargado los roles";
@@ -136,7 +136,7 @@ export const Roles = props => {
                 <div className="card-title">
                     <h3>Roles</h3>
                 </div>
-                <button className="btn btn-outline-info" onClick={()=>{setMostar(true)}}>Crear nuevo rol <MdPlaylistAdd/></button>
+                <button className="btn btn-info" onClick={()=>{setMostar(true)}}>Crear nuevo rol <MdPlaylistAdd/></button>
             </div>
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
             <DialogTitle style={{textAlign:'center'}} id="form-dialog-title">REGISTRAR NUEVO ROL</DialogTitle>

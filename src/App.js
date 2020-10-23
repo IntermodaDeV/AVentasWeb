@@ -25,6 +25,7 @@ import SincronizacionListaMonitor from 'containers/Sincronizacion/Sincronizacion
 import './styles/reduction.scss'
 import './App.css'
 import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
+import {RolesFunciones} from 'containers/Seguridad/Relacional/RolesFunciones';
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -143,6 +144,11 @@ const App = props => {
               path='/mantenimiento'
               layout={MainLayout}
               component={Mantenimiento}
+            />
+            <LayoutRoute
+              path='/relacionar'
+              layout={MainLayout}
+              component={RolesFunciones}
             />
             <Redirect to='/agenda' />
           </Switch>
