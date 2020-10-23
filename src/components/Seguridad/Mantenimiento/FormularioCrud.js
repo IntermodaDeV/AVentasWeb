@@ -65,11 +65,11 @@ export const FormularioCrud = props => {
                                 name="Nombre"
                                 error={!!errors.Nombre}
                                 helperText={errors.Nombre}
-                                style={{marginRight:'20px', fontSize:'40px'}}
+                                style={{fontSize:'40px',width: '450px'}}
                                 as={TextField}
-                                className ="form-control"
-                            />
-                          <FormControlLabel
+                                className ="form-control"/>
+                        </div>
+                        <FormControlLabel
                                 control={
                                 <Field
                                     type="checkbox"
@@ -78,9 +78,7 @@ export const FormularioCrud = props => {
                                     as={CheckBox}
                                 />
                                 }
-                                label={"Activar"}
-                            />
-                        </div>
+                                label={"Activar"}/>
                         <DialogActions>
                         <Button onClick={OcultarModal} color="primary">
                             Cancelar

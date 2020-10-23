@@ -2,6 +2,7 @@ import React from 'react';
 import { Table } from 'reactstrap';
 import { FaEdit } from "react-icons/fa";
 import { MdCheckCircle,MdCancel } from "react-icons/md";
+import { MdPlaylistAdd } from "react-icons/md";
 
 export const TablaPantallas = props => {
     const {pantallas,modificarEstado,modificarPantalla} = props;
@@ -11,6 +12,13 @@ export const TablaPantallas = props => {
             {pantallas.length===0
             ?  <h3>No hay pantallas</h3>
             :  (
+                <div className="col">
+                    <div className="card-body text-center">
+                        <h3 className="card-title">Pantallas</h3>
+                        <div class="text-right"> 
+                            <button className="btn btn-primary" onClick={()=>{props.setMostar(true)}}>Crear nueva pantalla<MdPlaylistAdd/></button>
+                        </div>
+                    </div>
                 <div className="container-fluid">
                     <Table striped responsive>
                         <thead>
@@ -42,6 +50,7 @@ export const TablaPantallas = props => {
                         </tbody>
                     </Table>
                 </div>
+            </div>
             )
             }
         </div>

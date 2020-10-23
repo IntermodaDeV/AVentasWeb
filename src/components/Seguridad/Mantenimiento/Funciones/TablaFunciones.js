@@ -3,12 +3,19 @@ import { FaEdit } from "react-icons/fa";
 import { MdCancel,MdCheckCircle } from "react-icons/md";
 import Button from '@material-ui/core/Button';
 import { Table } from 'reactstrap';
+import { MdPlaylistAdd } from "react-icons/md";
 
 const TablaFunciones =(props) =>{
     return (
         <div>
             {
              <div className="col">
+            <div class="card-body text-center">
+                            <h3 class="card-title">Funciones</h3>
+                            <div class="text-right"> 
+                                <button className="btn btn-primary" onClick={()=>{props.setMostar(true)}}>Registrar Nuevo <MdPlaylistAdd/></button>
+                            </div>
+            </div>
                 <div className="container-fluid">
                     <Table striped>
                         <thead>

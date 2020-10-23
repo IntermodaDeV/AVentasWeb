@@ -3,7 +3,6 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import Dialog        from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle   from '@material-ui/core/DialogTitle';
-import { MdPlaylistAdd } from "react-icons/md";
 import axios from 'axios';
 
 import { TablaPantallas } from 'components/Seguridad/Mantenimiento/Pantallas/TablaPantallas';
@@ -132,12 +131,7 @@ export const Pantallas = props => {
 
     return (
         <div>
-            <div className="card-body text-center">
-                <div className="card-title">
-                    <h3>Pantallas</h3>
-                </div>
-                <button className="btn btn-info" onClick={()=>{setMostar(true)}}>Crear nueva pantalla<MdPlaylistAdd/></button>
-            </div>
+           
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
             <DialogTitle style={{textAlign:'center'}} id="form-dialog-title">REGISTRAR NUEVA PANTALLA</DialogTitle>
                 <DialogContent>
@@ -145,7 +139,7 @@ export const Pantallas = props => {
                 </DialogContent>
             </Dialog>
             
-            <TablaPantallas pantallas={pantallas} modificarEstado={modificarEstado} modificarPantalla={abrirModificarPantalla}/>
+            <TablaPantallas pantallas={pantallas} modificarEstado={modificarEstado} modificarPantalla={abrirModificarPantalla} setMostar={setMostar}/>
         </div>
     )
 }

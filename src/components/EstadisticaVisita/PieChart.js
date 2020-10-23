@@ -15,7 +15,7 @@ const PieChart = (props) => {
                     data: [
                         Selected.Atendidas, /*Selected.Efectivas, Selected.Productivas ,*/ Selected.ClienteCancelo, Selected.NoAtendidas
                     ],
-                    backgroundColor: [ "#0899ba", /*"#FDB45C", "#95d5b2",*/"#f08080","#9e2a2b"]
+                    backgroundColor: [ "#2AD549", /*"#FDB45C", "#95d5b2",*/"#FF4A4A","#1EA4B7"]
                 }
             ]
         }
@@ -39,7 +39,7 @@ const PieChart = (props) => {
                     data: [
                         props.Users.reduce((acc, cur) => { return acc + cur.Atendidas }, 0)/*,props.Users.reduce((acc, cur) => { return acc + cur.Efectivas }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Productivas }, 0)*/, props.Users.reduce((acc, cur) => { return acc + cur.ClienteCancelo }, 0), props.Users.reduce((acc, cur) => { return acc + cur.NoAtendidas }, 0)
                     ],
-                    backgroundColor: [ "#70d6ff", "#FDB45C", "#84dcc6","#efc3e6","#ff686b"]
+                    backgroundColor: [ "#2AD549", /*"#FDB45C", "#84dcc6",*/"#FF4A4A","#1EA4B7"]
                 }
             ]
         }

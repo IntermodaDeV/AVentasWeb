@@ -22,7 +22,7 @@ const FunnelChart = props => {
                 labels: ["Programadas","Atendidas", "Efectivas", "Productivas","Canceladas", "No Atendidas"],
                 datasets: [{
                     data,
-                    backgroundColor: [ "#73628a","#70d6ff", "#FDB45C", "#84dcc6","#efc3e6","#ff686b"],
+                    backgroundColor: [ "#3097ED","#2AD549", "#FDB45C", "#73628a","#FF4A4A","#1EA4B7"],
                     borderWidth: 1
                 }]
             },

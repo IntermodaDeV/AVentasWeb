@@ -366,7 +366,7 @@ const EstadisticaVisita = (props) => {
                     </div>
                 </div>
                 <div className="col-xl-2 col-md-6 mb-4">
-                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkblue' }}>
+                    <div className="card shadow h-100 py-2" style={{ borderColor: '#73628a' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
@@ -375,7 +375,7 @@ const EstadisticaVisita = (props) => {
                                     <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasAtendidas > 0 ? ((VisitasProductivas/VisitasAtendidas) * 100).toFixed(0) + "%": 0 + "%"}</div>
                                 </div>
                                 <div className="col-auto">
-                                    <FaClipboardCheck size={"25px"} style={{ color: 'darkblue' }} />
+                                    <FaClipboardCheck size={"25px"} style={{ color: '#73628a' }} />
                                     {/* <iFaTimesCircle class="fas fa-calendar fa-2x text-gray-300"></i> */}
                                 </div>
                             </div>
@@ -399,7 +399,7 @@ const EstadisticaVisita = (props) => {
                     </div>
                 </div>
                 <div className="col-xl-2 col-md-6 mb-4">
-                    <div className="card  shadow h-100 py-2" style={{ borderColor: 'darkred' }}>
+                    <div className="card  shadow h-100 py-2" style={{ borderColor: '#1EA4B7' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
@@ -408,7 +408,7 @@ const EstadisticaVisita = (props) => {
                                 </div>
                                 <div className="col-auto">
                                     {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
-                                    <FaUserTimes size={"25px"} style={{ color: 'darkred' }} />
+                                    <FaUserTimes size={"25px"} style={{ color: '#1EA4B7' }} />
                                 </div>
                             </div>
                         </div>

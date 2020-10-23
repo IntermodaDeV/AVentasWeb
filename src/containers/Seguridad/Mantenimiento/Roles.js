@@ -3,7 +3,6 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import Dialog        from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle   from '@material-ui/core/DialogTitle';
-import { MdPlaylistAdd } from "react-icons/md";
 import axios from 'axios';
 
 import { TablaRoles } from 'components/Seguridad/Mantenimiento/Roles/TablaRoles';
@@ -132,12 +131,7 @@ export const Roles = props => {
 
     return (
         <div>
-            <div className="card-body text-center">
-                <div className="card-title">
-                    <h3>Roles</h3>
-                </div>
-                <button className="btn btn-info" onClick={()=>{setMostar(true)}}>Crear nuevo rol <MdPlaylistAdd/></button>
-            </div>
+        
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
             <DialogTitle style={{textAlign:'center'}} id="form-dialog-title">REGISTRAR NUEVO ROL</DialogTitle>
                 <DialogContent>
@@ -145,7 +139,7 @@ export const Roles = props => {
                 </DialogContent>
             </Dialog>
             
-            <TablaRoles roles={roles} modificarEstado={modificarEstado} modificarRol={abrirModificarRol}/>
+            <TablaRoles roles={roles} modificarEstado={modificarEstado} modificarRol={abrirModificarRol} setMostar= {setMostar}/>
         </div>
     )
 }

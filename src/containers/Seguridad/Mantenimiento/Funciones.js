@@ -141,21 +141,18 @@ const Funciones =(props) =>{
     return (
         <div>
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
-            <DialogTitle style={{textAlign:'center'}} id="form-dialog-title">REGISTRAR NUEVA FUNCION</DialogTitle>
+            <DialogTitle id="form-dialog-title">REGISTRAR NUEVA FUNCION</DialogTitle>
                 <DialogContent>
                 <FormularioCrud Valores={Funcion} Crear={CrearFuncion} Modificar={ModificarFuncion} OcultarModal={OcultarModal}/>
                 </DialogContent>
               
             </Dialog>
 
-            <div class="card-body text-center">
-                <h3 class="card-title">Funciones</h3>
-                <button className="btn btn-info" onClick={()=>{setMostar(true)}}>Crear nueva funcion <MdPlaylistAdd/></button>
-            </div>
             <TablaFunciones
              Funciones={Funciones}
              ModificarEstado = {modificarEstado}
              ModificarFuncion = {AbrirModificarFuncion}
+             setMostar = {setMostar}
             />
         </div>
     )
