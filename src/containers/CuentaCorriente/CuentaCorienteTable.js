@@ -6,6 +6,7 @@ import {useSelector} from 'react-redux';
 import Button from '@material-ui/core/Button';
 import jsPDF from "jspdf";
 import Logo from './LogoSinLetrasInv.png';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import "jspdf-autotable";
 import 'moment/locale/es';
 
@@ -153,6 +154,13 @@ const CuentaCorrienteTable = props => {
         doc.text(title, 180, 0);
         doc.autoTable(content);
         doc.save(`Reporte-${props.clienteSelected.Codigo}.pdf`)
+
+        Swal.fire({
+            title: "¡Documento Descargado!",
+            text: "Revise su panel de notificaciones o su carpeta de descargas.",
+            type: 'success',
+            confirmButtonText: 'Ok',
+        });
     }
 
     return (

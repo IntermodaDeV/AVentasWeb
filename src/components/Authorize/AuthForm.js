@@ -145,14 +145,14 @@ class AuthForm extends React.Component {
             <FontAwesomeIcon icon={faUser} />
             {usernameLabel}
           </Label>
-          <Input onChange={this.usernameChange.bind(this)} value={this.state.username} {...usernameInputProps} style={styleInputFormLogin} />
+          <Input disabled={this.state.loading} onChange={this.usernameChange.bind(this)} value={this.state.username} {...usernameInputProps} style={styleInputFormLogin} />
         </FormGroup>
         <FormGroup>
           <Label for={passwordLabel}>
             <FontAwesomeIcon icon={faLock} />
             {passwordLabel}
           </Label>
-          <Input onChange={this.passwordChange.bind(this)} value={this.state.password} {...passwordInputProps} style={styleInputFormLogin} />
+          <Input disabled={this.state.loading} onChange={this.passwordChange.bind(this)} value={this.state.password} {...passwordInputProps} style={styleInputFormLogin} />
         </FormGroup>
         {this.isSignup && (
           <div>

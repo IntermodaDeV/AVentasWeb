@@ -7,12 +7,10 @@ import ContactMailIcon from '@material-ui/icons/ContactMail';
 import AirplayIcon from '@material-ui/icons/Airplay';
 import LanguageIcon from '@material-ui/icons/Language';
 
-import { Roles } from './Roles';
-import Funciones from  'containers/Seguridad/Mantenimiento/Funciones';
+import { Roles }   from './Roles';
+import {Pantallas} from './Pantallas'
+import Funciones   from './Funciones';
 
-const Pantallas = props =>{
-    return <h1>Pantallas roles</h1>;
-}
 
 export const Mantenimiento = props => {
     const [value, setValue] = React.useState(0);

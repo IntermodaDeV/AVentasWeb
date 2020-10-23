@@ -6,21 +6,21 @@ import DialogTitle   from '@material-ui/core/DialogTitle';
 import { MdPlaylistAdd } from "react-icons/md";
 import axios from 'axios';
 
-import { TablaRoles } from 'components/Seguridad/Mantenimiento/Roles/TablaRoles';
-import { FormularioCrud } from 'components/Seguridad/Mantenimiento/FormularioCrud';
+import { TablaPantallas } from 'components/Seguridad/Mantenimiento/Pantallas/TablaPantallas';
+import { FormularioCrud } from 'components/Seguridad/Mantenimiento/Pantallas/FormularioCrud';
 import { APIURL } from 'utils/Enviroment';
 
-export const Roles = props => {
-    const [roles,setRoles] = useState([]);
+export const Pantallas = props => {
+    const [pantallas,setPantallas] = useState([]);
     const [mostrar,setMostar] = useState(false);
-    const [rol,setRol] = useState(null);
+    const [pantalla,setPantalla] = useState(null);
 
-    const cargarRoles = async () => {
+    const cargarPantallas = async () => {
         try{
-            const request = await axios.get(`${APIURL}/api/rol/roles`);
-            setRoles(request.data);
+            const request = await axios.get(`${APIURL}/api/pantalla/pantallas`);
+            setPantallas(request.data);
         }catch(err){
-            let mensaje = "Ha ocurrido un error y no se han cargado los roles";
+            let mensaje = "Ha ocurrido un error y no se han cargado las pantallas";
 
             if(err.response){
                 mensaje = err.response.data.Message;
@@ -35,20 +35,20 @@ export const Roles = props => {
         }
     }
 
-    const crearRol = async (data)=>{
+    const crearPantalla = async (data)=>{
         try{
-            await axios.post(`${APIURL}/api/rol/crear`,data);
+            await axios.post(`${APIURL}/api/pantalla/crear`,data);
             Swal.fire({
                 title: 'Confirmado',
-                text: "Se ha creado el rol exitosamente.",
+                text: "Se ha creado la pantalla exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e=>{
-                cargarRoles();
+                cargarPantallas();
             });
 
         }catch(err){
-            let mensaje = "Ha ocurrido un error y no se ha registrado el rol.";
+            let mensaje = "Ha ocurrido un error y no se ha registrado la pantalla.";
 
             if(err.response){
                 mensaje = err.response.data.Message;
@@ -62,20 +62,20 @@ export const Roles = props => {
         }
     }
 
-    const modificarRol = async (data)=>{
+    const modificarPantalla = async (data)=>{
         try{
-            await axios.post(`${APIURL}/api/rol/modificar`,data);
+            await axios.post(`${APIURL}/api/pantalla/modificar`,data);
             Swal.fire({
                 title: 'Confirmado',
-                text: "Se ha modificado el rol exitosamente.",
+                text: "Se ha modificado la pantalla exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e=>{
-                cargarRoles();
+                cargarPantallas();
             });
 
         }catch(err){
-            let mensaje = "Ha ocurrido un error y no se ha modificado el rol.";
+            let mensaje = "Ha ocurrido un error y no se ha modificado la pantalla.";
 
             if(err.response){
                 mensaje = err.response.data.Message;
@@ -91,17 +91,17 @@ export const Roles = props => {
 
     const modificarEstado = async (id)=>{
         try{
-            await axios.post(`${APIURL}/api/rol/estado/${id}`);
+            await axios.post(`${APIURL}/api/pantalla/estado/${id}`);
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha cambiado el estado exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e=>{
-                cargarRoles();
+                cargarPantallas();
             });
         }catch(err){
-            let mensaje = "Ha ocurrido un error y no se ha modificado el rol.";
+            let mensaje = "Ha ocurrido un error y no se ha modificado la pantalla.";
 
             if(err.response){
                 mensaje = err.response.data.Message;
@@ -116,36 +116,36 @@ export const Roles = props => {
         }
     }
 
-    const abrirModificarRol = (rol)=>{
-        setRol(rol);
+    const abrirModificarPantalla = (rol)=>{
+        setPantalla(rol);
         setMostar(true);
     }
 
     const ocultarModal = ()=>{
         setMostar(false);
-        setRol(null);
+        setPantalla(null);
     }
 
     useEffect(()=>{
-        cargarRoles();
+        cargarPantallas();
     },[])
 
     return (
         <div>
             <div className="card-body text-center">
                 <div className="card-title">
-                    <h3>Roles</h3>
+                    <h3>Pantallas</h3>
                 </div>
-                <button className="btn btn-outline-info" onClick={()=>{setMostar(true)}}>Crear nuevo rol <MdPlaylistAdd/></button>
+                <button className="btn btn-outline-info" onClick={()=>{setMostar(true)}}>Crear nueva pantalla<MdPlaylistAdd/></button>
             </div>
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
-            <DialogTitle style={{textAlign:'center'}} id="form-dialog-title">REGISTRAR NUEVO ROL</DialogTitle>
+            <DialogTitle style={{textAlign:'center'}} id="form-dialog-title">REGISTRAR NUEVA PANTALLA</DialogTitle>
                 <DialogContent>
-                    <FormularioCrud Valores={rol} Crear={crearRol} Modificar={modificarRol} OcultarModal={ocultarModal}/>
+                    <FormularioCrud Valores={pantalla} Crear={crearPantalla} Modificar={modificarPantalla} OcultarModal={ocultarModal}/>
                 </DialogContent>
             </Dialog>
             
-            <TablaRoles roles={roles} modificarEstado={modificarEstado} modificarRol={abrirModificarRol}/>
+            <TablaPantallas pantallas={pantallas} modificarEstado={modificarEstado} modificarPantalla={abrirModificarPantalla}/>
         </div>
     )
 }
