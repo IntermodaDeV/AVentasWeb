@@ -134,7 +134,7 @@ export const UsuarioRoles = props => {
                     cargarRoles(value);
                 }}
                 options={usuarios.map(usuario => {
-                    return {key:usuario.IdUsuario, value:usuario.IdUsuario,text:usuario.IdUsuario}
+                    return {key:usuario.Id, value:usuario.Id,text:usuario.Usuario}
                 })}
                 noResultsMessage={"No hay resultados"}
                 closeOnChange={true}
