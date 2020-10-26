@@ -25,7 +25,7 @@ import SincronizacionListaMonitor from 'containers/Sincronizacion/Sincronizacion
 import './styles/reduction.scss'
 import './App.css'
 import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
-import {RolesFunciones} from 'containers/Seguridad/Relacional/RolesFunciones';
+import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -148,7 +148,7 @@ const App = props => {
             <LayoutRoute
               path='/relacionar'
               layout={MainLayout}
-              component={RolesFunciones}
+              component={Relacional}
             />
             <Redirect to='/agenda' />
           </Switch>

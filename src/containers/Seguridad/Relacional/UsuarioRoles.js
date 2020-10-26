@@ -6,18 +6,18 @@ import { Dropdown } from "semantic-ui-react";
 import { APIURL } from 'utils/Enviroment';
 import { TablaRelacion } from 'components/Seguridad/Relacional/TablaRelacion';
 
-export const RolesFunciones = props => {
-    const [rol,setRol] = useState(null);
-    const [roles,setRoles] = useState([]);
-    const [funcionesAsignadas,setFuncionesAsignadas] = useState([]);
-    const [funcionesNoAsignadas,setFuncionesNoAsignadas] = useState([]);
+export const UsuarioRoles = props => {
+    const [usuario,setUsuario] = useState(null);
+    const [usuarios,setUsuarios] = useState([]);
+    const [rolesAsignados,setRolesAsignados] = useState([]);
+    const [rolesNoAsignados,setRolesNoAsignados] = useState([]);
 
-    const cargarRoles = async () => {
+    const cargarUsuarios = async () => {
         try{
-            const request = await axios.get(`${APIURL}/api/rol/rolesactivos`);
-            setRoles(request.data);
+            const request = await axios.get(`${APIURL}/api/usuario/usuariosactivos`);
+            setUsuarios(request.data);
         }catch(err){
-            let mensaje = "Ha ocurrido un error y no se han cargado los roles";
+            let mensaje = "Ha ocurrido un error y no se han cargado los usuarios.";
 
             if(err.response){
                 mensaje = err.response.data.Message;
@@ -32,12 +32,12 @@ export const RolesFunciones = props => {
         }
     }
 
-    const cargarFuncionesAsignadas = async (id)=>{
+    const cargarRolesAsignados = async (id)=>{
         try{
-            const request = await axios.get(`${APIURL}/api/rol/funciones/${id}`);
-            setFuncionesAsignadas(request.data);
+            const request = await axios.get(`${APIURL}/api/usuario/roles/${id}`);
+            setRolesAsignados(request.data);
         }catch(err){
-            let mensaje = "Ha ocurrido un error y no se han cargado las funciones";
+            let mensaje = "Ha ocurrido un error y no se han cargado los roles.";
 
             if(err.response){
                 mensaje = err.response.data.Message;
@@ -52,12 +52,12 @@ export const RolesFunciones = props => {
         }
     }
 
-    const cargarFuncionesNoAsignadas = async (id)=>{
+    const cargarRolesNoAsignados = async (id)=>{
         try{
-            const request = await axios.get(`${APIURL}/api/rol/funcionesnoasignadas/${id}`);
-            setFuncionesNoAsignadas(request.data);
+            const request = await axios.get(`${APIURL}/api/usuario/rolesnoasignados/${id}`);
+            setRolesNoAsignados(request.data);
         }catch(err){
-            let mensaje = "Ha ocurrido un error y no se han cargado las funciones";
+            let mensaje = "Ha ocurrido un error y no se han cargado los roles.";
 
             if(err.response){
                 mensaje = err.response.data.Message;
@@ -72,12 +72,12 @@ export const RolesFunciones = props => {
         }
     }
 
-    const asignarFuncion =async (id) =>{
+    const asignarRol =async (id) =>{
         try{
-            await axios.post(`${APIURL}/api/rol/asignarfuncion/${rol}/${id}/${localStorage.getItem('codigo')}`);
-            cargarFunciones(rol);
+            await axios.post(`${APIURL}/api/usuario/asignarrol/${usuario}/${id}/${localStorage.getItem('codigo')}`);
+            cargarRoles(usuario);
         }catch(err){
-            let mensaje = "Ha ocurrido un error y no se han cargado las funciones";
+            let mensaje = "Ha ocurrido un error y no se han cargado las roles.";
 
             if(err.response){
                 mensaje = err.response.data.Message;
@@ -92,12 +92,12 @@ export const RolesFunciones = props => {
         }
     }
 
-    const removerFuncion =async (id) =>{
+    const removerRol =async (id) =>{
         try{
-            await axios.post(`${APIURL}/api/rol/removerfuncion/${rol}/${id}/${localStorage.getItem('codigo')}`);
-            cargarFunciones(rol);
+            await axios.post(`${APIURL}/api/usuario/removerrol/${usuario}/${id}/${localStorage.getItem('codigo')}`);
+            cargarRoles(usuario);
         }catch(err){
-            let mensaje = "Ha ocurrido un error y no se han cargado las funciones";
+            let mensaje = "Ha ocurrido un error y no se han cargado los roles.";
 
             if(err.response){
                 mensaje = err.response.data.Message;
@@ -112,44 +112,43 @@ export const RolesFunciones = props => {
         }
     }
 
-    const cargarFunciones = id =>{
-        cargarFuncionesAsignadas(id);
-        cargarFuncionesNoAsignadas(id);
+    const cargarRoles = id =>{
+        cargarRolesAsignados(id);
+        cargarRolesNoAsignados(id);
     }
 
     useEffect(()=>{
-        cargarRoles();
+        cargarUsuarios();
     },[]);
-
 
     return (
         <div style={{padding:'10px'}}>
             <Dropdown
-                placeholder="Seleccione un rol"
+                placeholder="Seleccione un usuario"
                 fluid
                 search
                 selection
                 style={{zIndex:999}}
                 onChange={(e, { value }) =>{
-                    setRol(value);
-                    cargarFunciones(value);
+                    setUsuario(value);
+                    cargarRoles(value);
                 }}
-                options={roles.map(rol => {
-                    return {key:rol.Id, value:rol.Id,text:rol.Nombre}
+                options={usuarios.map(usuario => {
+                    return {key:usuario.IdUsuario, value:usuario.IdUsuario,text:usuario.IdUsuario}
                 })}
                 noResultsMessage={"No hay resultados"}
                 closeOnChange={true}
             />
             <div style={{marginTop:'20px'}} className="container-fluid">
-                {rol===null
-                    ? <h3 style={{textAlign:'center',marginTop:'20px'}}>Seleccione un rol para visualizar sus funciones</h3>
+                {usuario===null
+                    ? <h3 style={{textAlign:'center',marginTop:'20px'}}>Seleccione un usuario para visualizar sus roles</h3>
                     :(
                         <div className="row">
                             <div className="col">
-                                <TablaRelacion funcion={asignarFuncion} accion="agregar" titulo="Funciones no asignadas" cabeceras={["Funcion","Accion"]} valores={funcionesNoAsignadas}/>
+                                <TablaRelacion funcion={asignarRol} accion="agregar" titulo="Roles no asignados" cabeceras={["Rol","Accion"]} valores={rolesNoAsignados}/>
                             </div>
                             <div className="col">
-                                <TablaRelacion funcion={removerFuncion} accion="remover" titulo="Funciones asignadas" cabeceras={["Funcion","Accion"]} valores={funcionesAsignadas}/>
+                                <TablaRelacion funcion={removerRol} accion="remover" titulo="Roles asignados" cabeceras={["Rol","Accion"]} valores={rolesAsignados}/>
                             </div>
                         </div>
                     )
@@ -157,5 +156,4 @@ export const RolesFunciones = props => {
             </div>
         </div>
     )
-
 }

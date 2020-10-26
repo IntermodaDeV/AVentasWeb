@@ -7,7 +7,6 @@ import Dialog        from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle   from '@material-ui/core/DialogTitle';
 import axios from 'axios';
-import { MdPlaylistAdd } from "react-icons/md";
 
 const Funciones =(props) =>{
     const [Funciones,setFunciones] = useState([]);

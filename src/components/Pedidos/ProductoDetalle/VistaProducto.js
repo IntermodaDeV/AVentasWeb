@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@material-ui/core'
 import notFound from 'assets/nodisponible.png';
+import { FaEye } from "react-icons/fa";
+import Lightbox from 'react-image-lightbox';
 //import ReactTooltip from 'react-tooltip'
 import TablaVistaProducto from 'components/Pedidos/ProductoDetalle/TablaVistaProducto';
 import Slider from "components/Pedidos/ProductoDetalle/Slider";
@@ -14,6 +16,9 @@ const VistaProducto = (props) => {
     const [selected, setselected] = useState(false);
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [listaImagenes,setListaImagenes] = useState(props.producto.ListaImagenes);
+    const [SelectedImage, setSelectedImage] = useState(0);
+    const [imagenes] = useState(props.producto.ListaImagenes);
+    const [IsOpen, setIsOpen] = useState(false);
 
     const urlApi = APIURL;
 
@@ -122,7 +127,7 @@ const VistaProducto = (props) => {
             </div>
             <div className="col-md-7 mt-md-0 mt-3">
                 <h2 className={styles.Title}>
-                    {props.producto.NombreProducto}
+                    {props.producto.NombreProducto} {(props.producto.ListaImagenes.length>0) && <FaEye onClick={()=>setIsOpen(true)} size={"30px"} />}
                 </h2>
                 <h5 className={styles.Subtitle}>
                     {'Código: '}{props.producto.ProductoId}
@@ -238,6 +243,20 @@ const VistaProducto = (props) => {
                     />
                 </div>
             </div>
+            {IsOpen && (
+                <Lightbox
+                    mainSrc={imagenes[SelectedImage].FotografiaProducto}
+                    nextSrc={imagenes[(SelectedImage + 1) % imagenes.length].FotografiaProducto}
+                    prevSrc={imagenes[(SelectedImage + imagenes.length - 1) % imagenes.length].FotografiaProducto}
+                    onCloseRequest={() => setIsOpen(false)}
+                    onMovePrevRequest={() =>
+                        setSelectedImage((SelectedImage + imagenes.length - 1) % imagenes.length)
+                    }
+                    onMoveNextRequest={() =>
+                        setSelectedImage((SelectedImage + 1) % imagenes.length)
+                    }
+                />
+            )}
         </div>
     );
 }
