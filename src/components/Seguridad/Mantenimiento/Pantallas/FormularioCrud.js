@@ -27,7 +27,8 @@ export const FormularioCrud = props => {
             Id: Valores.Id,
             Nombre: Valores.Nombre,
             Status: Valores.Status,
-            Ruta: Valores.Ruta
+            Ruta: Valores.Ruta,
+            Usuario: localStorage.getItem('codigo')
         }
         edit=true;
     }
@@ -36,7 +37,8 @@ export const FormularioCrud = props => {
         initialValues={
             Nombre: '',
             Status: true,
-            Ruta:''
+            Ruta:'',
+            Usuario: localStorage.getItem('codigo')
         }
         edit=false;
     }

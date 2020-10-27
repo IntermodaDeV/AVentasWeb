@@ -10,7 +10,13 @@ export const TablaPantallas = props => {
     return (
         <div>
             {pantallas.length===0
-            ?  <h3>No hay pantallas</h3>
+            ? 
+            <div className="card-body text-center">
+            <h3 class="card-title">No hay pantallas</h3>
+                <div class="text-center"> 
+                    <button className="btn btn-primary" onClick={()=>{props.setMostar(true)}}>Crear nueva pantalla<MdPlaylistAdd/></button>
+                </div>
+            </div>
             :  (
                 <div className="col">
                     <div className="card-body text-center">

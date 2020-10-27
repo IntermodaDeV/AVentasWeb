@@ -25,7 +25,8 @@ export const FormularioCrud = props => {
         initialValues={
             Id: Valores.Id,
             Nombre: Valores.Nombre,
-            Status: Valores.Status
+            Status: Valores.Status,
+            Usuario: localStorage.getItem('codigo')
         }
         edit=true;
     }
@@ -33,7 +34,8 @@ export const FormularioCrud = props => {
     {
         initialValues={
             Nombre: '',
-            Status: true
+            Status: true,
+            Usuario: localStorage.getItem('codigo')
         }
         edit=false;
     }
@@ -83,7 +85,7 @@ export const FormularioCrud = props => {
                         <Button onClick={OcultarModal} color="primary">
                             Cancelar
                         </Button>
-                       {edit && <Button type="button" onClick={()=>{handleEdit(values)}} color="sucess"> Guardar</Button>} 
+                       {edit && <Button type="button" onClick={()=>{handleEdit(values)}} color="sucess"> Editar</Button>} 
                        {!edit && <Button type="submit" color="sucess">Guardar</Button>}
                     </DialogActions>
                     </Form>

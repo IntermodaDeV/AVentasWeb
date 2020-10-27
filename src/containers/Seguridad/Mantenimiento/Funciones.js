@@ -11,7 +11,7 @@ import axios from 'axios';
 const Funciones =(props) =>{
     const [Funciones,setFunciones] = useState([]);
     const [mostrar,setMostar] = useState(false);
-    const [Funcion,setFuncion] = useState([]);
+    const [Funcion,setFuncion] = useState(null);
 
     useEffect(() => {
         ObtenerFunciones();
@@ -106,7 +106,6 @@ const Funciones =(props) =>{
         }
     }
     const ModificarFuncion = async (data)=>{
-        console.log("data",data)
         try{
             await axios.post(`${APIURL}/api/funcion/modificar`,data);
             Swal.fire({

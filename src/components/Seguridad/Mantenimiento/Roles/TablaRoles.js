@@ -10,7 +10,12 @@ export const TablaRoles = props => {
     return (
         <div>
             {roles.length===0
-            ?  <h3>No hay roles</h3>
+            ?  <div className="card-body text-center">
+                    <h3 class="card-title">No hay roles</h3>
+                    <div class="text-center"> 
+                        <button className="btn btn-primary" onClick={()=>{props.setMostar(true)}}>Crear nuevo rol <MdPlaylistAdd/></button>
+                    </div>
+                </div> 
             :  (
                 <div className="col">
                         <div className="card-body text-center">

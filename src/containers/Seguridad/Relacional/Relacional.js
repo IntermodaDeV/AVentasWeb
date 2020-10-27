@@ -10,6 +10,8 @@ import BusinessIcon from '@material-ui/icons/Business';
 
 import { RolesFunciones } from './RolesFunciones';
 import { UsuarioRoles } from './UsuarioRoles';
+import {PantallasFunciones} from './PantallasFunciones';
+import {UsuariosEmpresas} from './UsuariosEmpresas';
 
 export const Relacional = props => {
     const [value, setValue] = React.useState(0);
@@ -26,9 +28,15 @@ export const Relacional = props => {
         props.history.push('/relacionar/usuario-rol');
     }
 
+    const redirectUsuarioEmpresa  = () =>{
+        props.history.push('/relacionar/Usuario-Empresa');
+    }
+    const redirectFuncionPantalla = () =>{
+        props.history.push('/relacionar/Funciones-Pantallas');
+    }
+
     return (
         <div style={{height:'100%'}} className="container-fluid">
-            <h2 className="text-center">Relacionar</h2>
             <Paper square>
                 <Tabs
                     value={value}
@@ -37,16 +45,18 @@ export const Relacional = props => {
                     onChange={handleChange}
                     aria-label="disabled tabs example"
                 >
+                    <Tab onClick={redirectUsuarioRoles} icon={<SupervisorAccountIcon/>} label="Usuario-Roles" />
                     <Tab onClick={redirectRolesFunciones} icon={<RecentActorsIcon/>} label="Roles-Funciones" />
-                    <Tab onClick={redirectUsuarioRoles} icon={<SupervisorAccountIcon/>} label="Usuario-Rol" />
-                    <Tab icon={<DvrIcon/>} label="Pantallas-Funciones" />
-                    <Tab icon={<BusinessIcon/>} label="Usuario-Empresa" />
+                    <Tab onClick={redirectFuncionPantalla} icon={<DvrIcon/>} label="Pantallas-Funciones" />
+                    <Tab onClick={redirectUsuarioEmpresa} icon={<BusinessIcon/>} label="Usuario-Empresa" />
                 </Tabs>
             </Paper>
             <div className="card" style={{height:'85%'}}>
                 <Switch>
                     <Route exact path={props.match.url} render={(props)=><RolesFunciones/>}/>
                     <Route exact path={`${props.match.url}/usuario-rol`} render={(props)=><UsuarioRoles/>}/>
+                    <Route exact path={`${props.match.url}/Funciones-Pantallas`} render={(props)=><PantallasFunciones/>}/>
+                    <Route exact path={`${props.match.url}/Usuario-Empresa`} render={(props)=><UsuariosEmpresas/>}/>
                 </Switch>
             </div>
         </div>

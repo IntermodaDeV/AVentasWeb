@@ -33,7 +33,6 @@ export const Mantenimiento = props => {
     
     return (
         <div style={{height:'100%'}} className="container-fluid">
-            <h2 className="text-center">Mantenimiento</h2>
             <Paper square>
       <Tabs
         value={value}
