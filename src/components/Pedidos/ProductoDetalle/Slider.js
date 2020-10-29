@@ -49,6 +49,8 @@ const SliderFunction = (props) => {
     }, [props.ListaImagenes]);
 
     let PrimaryCarouselSettings = {
+        autoplay:true,
+        autoplaySpeed:15000,
         infinite: true,
         lazyLoad: true,
         fade: true,
