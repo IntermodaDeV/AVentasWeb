@@ -3,7 +3,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Dropdown } from "semantic-ui-react";
 import { APIURL } from 'utils/Enviroment';
-import { TablaRelacion } from 'components/Seguridad/Relacional/TablaRelacion';
+import { TablaFuncionesPantalla } from 'components/Seguridad/Relacional/TablaFuncionesPantalla';
 
 export const PantallasFunciones = (props)  => {
     const [Funciones,setFunciones] = useState([]);
@@ -144,10 +144,10 @@ export const PantallasFunciones = (props)  => {
                         :(
                             <div className="row">
                                 <div className="col">
-                                    <TablaRelacion funcion={asignarPantalla} accion="agregar" titulo="Pantallas no asignadas" cabeceras={["Pantalla","Accion"]} valores={PantallasNoAsignadas}/>
+                                    <TablaFuncionesPantalla funcion={asignarPantalla} accion="agregar" titulo="Pantallas no asignadas" cabeceras={["Pantalla","Ruta","Accion"]} valores={PantallasNoAsignadas}/>
                                 </div>
                                 <div className="col">
-                                    <TablaRelacion funcion={removerFuncion} accion="remover" titulo="Pantallas asignadas" cabeceras={["Pantalla","Accion"]} valores={PantallasAsignadas}/>
+                                    <TablaFuncionesPantalla funcion={removerFuncion} accion="remover" titulo="Pantallas asignadas" cabeceras={["Pantalla","Ruta","Accion"]} valores={PantallasAsignadas}/>
                                 </div>
                             </div>
                         )
