@@ -21,11 +21,11 @@ export const Relacional = props => {
     };
 
     const redirectRolesFunciones = () =>{
-        props.history.push('/relacionar');
+        props.history.push('/relacionar/roles-funciones');
     }
 
     const redirectUsuarioRoles = () =>{
-        props.history.push('/relacionar/usuario-rol');
+        props.history.push('/relacionar');
     }
 
     const redirectUsuarioEmpresa  = () =>{
@@ -53,8 +53,8 @@ export const Relacional = props => {
             </Paper>
             <div className="card" style={{height:'85%'}}>
                 <Switch>
-                    <Route exact path={props.match.url} render={(props)=><RolesFunciones/>}/>
-                    <Route exact path={`${props.match.url}/usuario-rol`} render={(props)=><UsuarioRoles/>}/>
+                    <Route exact path={`${props.match.url}`} render={(props)=><UsuarioRoles/>}/>
+                    <Route exact path={`${props.match.url}/roles-funciones`} render={(props)=><RolesFunciones/>}/>
                     <Route exact path={`${props.match.url}/Funciones-Pantallas`} render={(props)=><PantallasFunciones/>}/>
                     <Route exact path={`${props.match.url}/Usuario-Empresa`} render={(props)=><UsuariosEmpresas/>}/>
                 </Switch>

@@ -61,7 +61,7 @@ const BarChart = props => {
     }, []);
 
     return (
-        <div class="card" style={{padding:'20px',marginBottom:'20px'}}>
+        <div className="card" style={{padding:'20px',marginBottom:'20px'}}>
             {/*<div style={{display:'flex'}}>
                     <DatePicker
                         disableToolbar

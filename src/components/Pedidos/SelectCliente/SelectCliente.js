@@ -181,7 +181,7 @@ const SelectCliente = (props) => {
                                             {'Grupo Precios: '}
                                         </td>
                                         <td className={styles.InfoLabelDetail}>
-                                            {`${props.autocompleteValue.GrupoPrecio}`}</td>
+                                            {`${props.autocompleteValue.GrupoPrecio} - ${props.autocompleteValue.NombreGrupoPrecio}`}</td>
                                     </tr>
                                     <tr>
                                         <td className={styles.InfoLabel} >

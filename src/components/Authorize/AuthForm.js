@@ -17,6 +17,7 @@ class AuthForm extends React.Component {
     error: false,
     logged: false,
     loading: false,
+    message:''
   };
 
   get isLogin() {
@@ -54,7 +55,7 @@ class AuthForm extends React.Component {
             this.setState({ logged: true });
             window.location.reload();
           } else {
-            this.setState({ error: true, loading: false });
+            this.setState({ error: true, loading: false,message:result.Message });
 
           }
         },
@@ -139,7 +140,7 @@ class AuthForm extends React.Component {
           </div>
         )}
         <FormGroup>
-          {this.state.error ? <div style={{ color: 'red', textAlign: 'center' }}>Usuario o Contraseña Incorrectos</div> : null}
+          {this.state.error ? <div style={{ color: 'red', textAlign: 'center' }}>{this.state.message}</div> : null}
 
           <Label for={usernameLabel}>
             <FontAwesomeIcon icon={faUser} />

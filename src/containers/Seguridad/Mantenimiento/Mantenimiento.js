@@ -6,9 +6,11 @@ import Tab from '@material-ui/core/Tab';
 import ContactMailIcon from '@material-ui/icons/ContactMail';
 import AirplayIcon from '@material-ui/icons/Airplay';
 import LanguageIcon from '@material-ui/icons/Language';
+import PersonIcon from '@material-ui/icons/Person';
 
 import { Roles }   from './Roles';
-import {Pantallas} from './Pantallas'
+import { Pantallas } from './Pantallas'
+import { Usuario } from './Usuario';
 import Funciones   from './Funciones';
 
 
@@ -19,8 +21,12 @@ export const Mantenimiento = props => {
         setValue(newValue);
     };
 
-    const redirectRoles = ()=>{
+    const redirectUsuarios = () =>{
         props.history.push('/mantenimiento');
+    }
+
+    const redirectRoles = ()=>{
+        props.history.push('/mantenimiento/roles');
     }
 
     const redirectFunciones = () =>{
@@ -41,6 +47,7 @@ export const Mantenimiento = props => {
         onChange={handleChange}
         aria-label="disabled tabs example"
       >
+        <Tab onClick={redirectUsuarios} icon={<PersonIcon/>} label="Usuarios" />
         <Tab onClick={redirectRoles} icon={<ContactMailIcon/>} label="Roles" />
         <Tab onClick={redirectFunciones} icon={<LanguageIcon/>} label="Funciones" />
         <Tab onClick={redirectAsignacion} icon={<AirplayIcon/>} label="Pantallas" />
@@ -48,7 +55,8 @@ export const Mantenimiento = props => {
     </Paper>
             <div className="card" style={{height:'85%'}}>
                 <Switch>
-                    <Route exact path={props.match.url} render={(props)=><Roles/>}/>
+                    <Route exact path={`${props.match.url}`} render={(props)=><Usuario/>}/>
+                    <Route exact path={`${props.match.url}/roles`} render={(props)=><Roles/>}/>
                     <Route exact path={`${props.match.url}/funciones`} render={(props)=><Funciones/>}/>
                     <Route exact path={`${props.match.url}/pantallas`} render={(props)=><Pantallas/>}/>
                 </Switch>

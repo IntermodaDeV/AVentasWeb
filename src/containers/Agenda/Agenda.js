@@ -336,7 +336,8 @@ class Agenda extends Component {
                     Checkout,
                     CheckinApi:Checkin,
                     CheckoutApi:Checkout,
-                    Bloqueo:Checkout
+                    Bloqueo:Checkout,
+                    fechaIngreso:fechainicio
                 }
 
                 tareas.push(tarea);
@@ -664,8 +665,15 @@ class Agenda extends Component {
 
     verifyBlock = (action)=>{
         const asignacion = this.props.asignaciones.find(x=>x.IdAsignacion===this.state.IdAsignacion);
-
+        
         if(action==="checkin"){
+            let fechaActual = moment(new Date()).format("DD-MM-YYYY");
+            let fechaAsignacion = moment(asignacion.fechaIngreso).format("DD-MM-YYYY");
+
+            if(fechaActual!==fechaAsignacion){
+                return true;
+            }
+
             return asignacion.Checkin;
         }
 
