@@ -22,25 +22,26 @@ import {
     FeaturedPlayListOutlined,
     PostAdd,
     AddBoxOutlined,
-    //Sync,
-    //Dvr,
-    //FlashAuto,
+    Sync,
+    Dvr,
+    FlashAuto,
     //Book,
     ListAlt,
     EventNote,
     EventAvailable,
     Receipt,
-    //SwapHorizOutlined,
-    //StoreMallDirectoryOutlined,
-    //CameraAltOutlined,
-    //LocationOnOutlined,
+    SwapHorizOutlined,
+    StoreMallDirectoryOutlined,
+    CameraAltOutlined,
+    LocationOnOutlined,
     HelpOutline,
-    //Public
+    Public
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 //components
 import Logo from 'assets/img/logo/Barra.png';
 import styles from 'components/Layout/Layout.module.css';
+import {IsAllow} from 'components/Seguridad/Permisos';
 
 
 const Drawer = withStyles({
@@ -82,19 +83,26 @@ const navItems = [
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt },
         ]
     },
-    //{ to: '/devoluciones', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
-    //{ to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
-    //{ to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
-    //{ to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
-    //{ to: '/coordenadas-global', name: 'Clientes Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
-    /*{
+    {
+        to: '/seguridad', name: 'Seguridad', dataTut: 'DataTut_Seguridad', Icon: Receipt,
+        expanded: [
+            { to: '/seguridad-permisos', name: 'Asignar Permisos', dataTut: 'DataTut_AsignarPermisos', Icon: AddBoxOutlined },
+            { to: '/seguridad-mantenimiento', name: 'Mantenimiento', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt },
+        ]
+    },
+    { to: '/devoluciones', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
+    { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
+    { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
+    { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
+    { to: '/coordenadas-global', name: 'Coordenadas Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
+    {
         to: '/sincronizacion', name: 'Sincronizacion', dataTut: 'DataTut_Sinc', Icon: Sync,
         expanded: [
             { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto },
             { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr },
-            { to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
+            //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
         ]
-    },*/
+    },
 ];
 
 const Sidebar = (props) => {
@@ -121,7 +129,6 @@ const Sidebar = (props) => {
             return false;
         });
         setIsMenuOpen(Submenus);
-
         // eslint-disable-next-line
     }, []);
 
@@ -175,7 +182,8 @@ const Sidebar = (props) => {
                 {
                     navItems.map((menu, index) => {
                         if (menu.expanded && menu.expanded !== null && menu.expanded !== undefined) {
-
+                            if(IsAllow(menu.name))
+                            {
                             return (
                                 <React.Fragment key={index}>
                                     <ListItem data-tut={menu.dataTut} data-content={index} button className={styles.Titulo} onClick={() => handleClick(index)}>
@@ -189,31 +197,37 @@ const Sidebar = (props) => {
                                         <List component="div" disablePadding>
                                             {
                                                 menu.expanded.map((submenu, ind) => {
-
-                                                    return (
-                                                        /*<ListItemLink
-                                                            key={ind}
-                                                            nested
-                                                            dataTut={submenu.dataTut}
-                                                            classes={classes}
-                                                            to={submenu.to}
-                                                            primary={submenu.name}
-                                                            icon={<submenu.Icon className={styles.Icons} />}
-                                                        />*/
-                                                        <ListItem data-tut={submenu.dataTut} nested button className={classes.nested} component={Link} to={submenu.to} onClick={() => handleClick2(index)}>
-                                                            <ListItemIcon>
-                                                                <submenu.Icon className={styles.Icons} />
-                                                            </ListItemIcon>
-                                                            <ListItemText primary={submenu.name} />
-                                                        </ListItem>
-                                                    )
+                                                    
+                                                    if(IsAllow(submenu.to))
+                                                    {
+                                                          return (
+                                                            /*<ListItemLink
+                                                                key={ind}
+                                                                nested
+                                                                dataTut={submenu.dataTut}
+                                                                classes={classes}
+                                                                to={submenu.to}
+                                                                primary={submenu.name}
+                                                                icon={<submenu.Icon className={styles.Icons} />}
+                                                            />*/
+                                                            
+                                                            <ListItem data-tut={submenu.dataTut} nested button className={classes.nested} component={Link} to={submenu.to} onClick={() => handleClick2(index)}>
+                                                                <ListItemIcon>
+                                                                    <submenu.Icon className={styles.Icons} />
+                                                                </ListItemIcon>
+                                                                <ListItemText primary={submenu.name} />
+                                                            </ListItem>
+                                                        )
+                                                    } 
                                                 })
                                             }
                                         </List>
                                     </Collapse>
                                 </React.Fragment>
                             )
+                            }
                         }
+                        if(IsAllow(menu.to)){
                         return (
                             /*<ListItemLink
                                 key={index}
@@ -229,6 +243,7 @@ const Sidebar = (props) => {
                                 <ListItemText primary={menu.name} />
                             </ListItem>
                         )
+                        } 
                     })
                 }
 
@@ -366,7 +381,7 @@ const ListItemLink = (props) => {
         [to],
     );
     let classes = styles.Titulo;
-    if (props.nested) {
+    if (props.nested !== undefined) {
         classes += " " + props.classes.nested;
     }
 

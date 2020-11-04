@@ -16,7 +16,7 @@ import {
 import 'semantic-ui-css/semantic.min.css';
 import styles from './SincronizacionListaMonitor.module.css';
 import 'semantic-ui-css/semantic.min.css';
-
+import {IsAllow} from 'components/Seguridad/Permisos';
 const SincronizacionListaMonitor = (props)=>{
     const [listado,setListado] = useState([]);
     const [modulos,setModulos] = useState([]);
@@ -78,6 +78,10 @@ const SincronizacionListaMonitor = (props)=>{
     }
 
     useEffect(()=>{
+        if(!IsAllow("/sincronizacionListaMonitor"))
+        {
+            props.history.push('/home'); 
+        }
         SincronizarModulos();
         SincronizarListado();
         let intervalo = setInterval(SincronizarListado,30000);
@@ -85,7 +89,7 @@ const SincronizacionListaMonitor = (props)=>{
         return ()=>{
             clearInterval(intervalo);
         }
-
+        // eslint-disable-next-line
     },[])
 
     return (

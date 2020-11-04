@@ -13,7 +13,7 @@ import 'containers/Asignacion/Asignacion.css';
 import styles from './Asignacion.module.css';
 import AsignacionModal from 'components/Agenda/AsignacionModal';
 import CargarAsignaciones from 'components/Agenda/CargarAsignaciones';
-
+import {IsAllow} from 'components/Seguridad/Permisos';
 import 'sweetalert2/src/sweetalert2.scss'
 
 import {
@@ -313,6 +313,10 @@ export default class Asignacion extends Component {
     }
 
     componentDidMount() {
+        if(!IsAllow("/asignacion"))
+        {
+            this.props.history.push('/home');
+        }
         this.cargarClientes();
         this.cargarAsignaciones(this.state.startDate, this.state.endDate);
         this.cargarTiposAsignacionCliente();

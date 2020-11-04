@@ -23,7 +23,7 @@ import styles from 'containers/Agenda/Agenda.module.css';
 import 'containers/Agenda/Agenda.css';
 import moment from "moment";
 import {connect} from 'react-redux';
-
+import {IsAllow} from 'components/Seguridad/Permisos';
 import { FaEye } from "react-icons/fa";
 moment.locale('es');
 class Agenda extends Component {
@@ -656,6 +656,10 @@ class Agenda extends Component {
     }
 
     componentDidMount() {
+        if(!IsAllow("/agenda"))
+        {
+            this.props.history.push('/home');
+        }
         this.cargarClientes();
         this.cargarRazonNoVenta();
         this.cargarEmpresas();

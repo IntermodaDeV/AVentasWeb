@@ -26,7 +26,7 @@ import './styles/reduction.scss'
 import './App.css'
 import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
 import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
-
+import {Home} from 'containers/Home/Home';
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -141,16 +141,22 @@ const App = props => {
               component={SincronizacionListaMonitor}
             />
             <LayoutRoute
-              path='/mantenimiento'
+              path='/seguridad-mantenimiento'
               layout={MainLayout}
               component={Mantenimiento}
             />
             <LayoutRoute
-              path='/relacionar'
+              path='/seguridad-permisos'
               layout={MainLayout}
               component={Relacional}
             />
-            <Redirect to='/agenda' />
+             <LayoutRoute
+              exact
+              path='/home'
+              layout={MainLayout}
+              component={Home}
+            />
+            <Redirect to='/home' />
           </Switch>
         </Router>
       </SnackbarProvider>

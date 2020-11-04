@@ -210,7 +210,7 @@ class AuthForm extends React.Component {
         </div> */}
 
         {children}
-        {this.state.logged && <Redirect to='/agenda' />}
+        {this.state.logged && <Redirect to='/home' />}
       </Form>
     );
   }

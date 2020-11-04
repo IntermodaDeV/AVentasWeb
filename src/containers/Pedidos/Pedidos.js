@@ -47,7 +47,7 @@ import Countdown from "components/Pedidos/Global/Countdown";
 import GuardPedidoActivo from 'containers/Pedidos/GuardPedidoActivo';
 import Loader from 'components/Global/Loader';
 import ImprimirPedidoOriginal from 'components/Pedidos/ResumenPedido/ImprimirPedidoOriginal';
-
+import {IsAllow} from 'components/Seguridad/Permisos';
 //Styles
 import styles from './Pedidos.module.css'
 import './Filtros.css'
@@ -323,6 +323,10 @@ class Pedidos extends React.Component {
     }
 
     componentDidMount() {
+        if(!IsAllow(this.props.match.url))
+        {
+            this.props.history.push('/home');
+        }
         if (!this.isPedidoActivo()) {
             this.cargarData();
         } else {

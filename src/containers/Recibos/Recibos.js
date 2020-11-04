@@ -20,6 +20,7 @@ import { FaEye } from "react-icons/fa";
 import {FiAlertTriangle} from 'react-icons/fi';
 import styles from "components/Recibos/Facturas/CuotasTable.module.css";
 import {useDispatch} from 'react-redux';
+import {IsAllow} from 'components/Seguridad/Permisos';
 moment.locale('es');
 const Recibos = (props) => {
   const [loading, setLoading] = useState(true);
@@ -36,6 +37,10 @@ const Recibos = (props) => {
   // const [clientePreSelected, setClientePreSelected] = useState(null);
 
   useEffect(() => {
+      if(!IsAllow(props.match.url))
+        {
+          props.history.push('/home');
+        }
     // if(props.location.state&&props.location.state.Cliente) {
     //   ? props.location.state.CodigoCliente : null
     // }

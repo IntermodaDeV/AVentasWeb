@@ -21,18 +21,18 @@ export const Relacional = props => {
     };
 
     const redirectRolesFunciones = () =>{
-        props.history.push('/relacionar/roles-funciones');
+        props.history.push('/seguridad-permisos/roles-funciones');
     }
 
     const redirectUsuarioRoles = () =>{
-        props.history.push('/relacionar');
+        props.history.push('/seguridad-permisos');
     }
 
     const redirectUsuarioEmpresa  = () =>{
-        props.history.push('/relacionar/Usuario-Empresa');
+        props.history.push('/seguridad-permisos/Usuario-Empresa');
     }
     const redirectFuncionPantalla = () =>{
-        props.history.push('/relacionar/Funciones-Pantallas');
+        props.history.push('/seguridad-permisos/Funciones-Pantallas');
     }
 
     return (

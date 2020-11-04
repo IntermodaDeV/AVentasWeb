@@ -7,7 +7,7 @@ import ContactMailIcon from '@material-ui/icons/ContactMail';
 import AirplayIcon from '@material-ui/icons/Airplay';
 import LanguageIcon from '@material-ui/icons/Language';
 import PersonIcon from '@material-ui/icons/Person';
-
+import {IsAllow} from 'components/Seguridad/Permisos';
 import { Roles }   from './Roles';
 import { Pantallas } from './Pantallas'
 import { Usuario } from './Usuario';
@@ -20,21 +20,24 @@ export const Mantenimiento = props => {
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
-
+    if(!IsAllow("/seguridad-mantenimiento"))
+    {
+        props.history.push('/home');
+    }
     const redirectUsuarios = () =>{
-        props.history.push('/mantenimiento');
+        props.history.push('/seguridad-mantenimiento');
     }
 
     const redirectRoles = ()=>{
-        props.history.push('/mantenimiento/roles');
+        props.history.push('/seguridad-mantenimiento/roles');
     }
 
     const redirectFunciones = () =>{
-        props.history.push('/mantenimiento/funciones');
+        props.history.push('/seguridad-mantenimiento/funciones');
     }
 
     const redirectAsignacion = () => {
-        props.history.push('/mantenimiento/pantallas')
+        props.history.push('/seguridad-mantenimiento/pantallas')
     }
     
     return (

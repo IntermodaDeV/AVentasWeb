@@ -13,6 +13,7 @@ import  TableFooter from "@material-ui/core/TableFooter";
 import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
+import {IsAllow} from 'components/Seguridad/Permisos';
 moment.locale('es');
 
 const ListaRecibos = (props) => {
@@ -29,6 +30,10 @@ const ListaRecibos = (props) => {
     const [isLoading,setLoading] = useState(false);
 
     useEffect(() => {
+        if(!IsAllow("/lista-recibos"))
+        {
+            props.history.push('/home');
+        }
         cargarRecibos();
         //cargarClientes();
         // eslint-disable-next-line

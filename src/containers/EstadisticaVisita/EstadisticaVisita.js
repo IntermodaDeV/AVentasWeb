@@ -9,6 +9,7 @@ import Barchart from 'components/EstadisticaVisita/BarChart';
 import moment from 'moment';
 import { Dropdown } from "semantic-ui-react";
 import {APIURL} from 'utils/Enviroment';
+import {IsAllow} from 'components/Seguridad/Permisos';
 import 'moment/locale/es';
 import {
     Button
@@ -137,6 +138,10 @@ const EstadisticaVisita = (props) => {
     const [Usuarios, setUsuarios] = useState([]);
     const [Selected, setSelected] = useState(null);
     useEffect(() => {
+        if(!IsAllow("/estadistica-visita"))
+        {
+            props.history.push('/home');
+        }
         CargarDatos()
 
         // eslint-disable-next-line

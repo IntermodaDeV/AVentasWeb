@@ -10,6 +10,7 @@ import {
     CardContent,
 } from '@material-ui/core';
 import 'semantic-ui-css/semantic.min.css';
+import {IsAllow} from 'components/Seguridad/Permisos';
 
 const Sincronizacionlista = (props)=>{
     const [modulos,setModulos] = useState([]);
@@ -102,8 +103,13 @@ const Sincronizacionlista = (props)=>{
     }
 
     useEffect(()=>{
+        if(!IsAllow("/estadistica-visita"))
+        {
+            props.history.push('/home');
+        }
         SincronizarModulos();
         SincronizarGestores();
+        // eslint-disable-next-line
     },[])
 
     return (
