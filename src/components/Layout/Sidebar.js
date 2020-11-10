@@ -180,6 +180,7 @@ const Sidebar = (props) => {
             // }
             >
                 {
+                    // eslint-disable-next-line
                     navItems.map((menu, index) => {
                         if (menu.expanded && menu.expanded !== null && menu.expanded !== undefined) {
                             if(IsAllow(menu.name))
@@ -196,6 +197,7 @@ const Sidebar = (props) => {
                                     <Collapse in={isMenuOpen[index]} timeout="auto" unmountOnExit>
                                         <List component="div" disablePadding>
                                             {
+                                                // eslint-disable-next-line
                                                 menu.expanded.map((submenu, ind) => {
                                                     
                                                     if(IsAllow(submenu.to))
