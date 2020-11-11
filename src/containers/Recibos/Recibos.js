@@ -21,12 +21,20 @@ import {FiAlertTriangle} from 'react-icons/fi';
 import styles from "components/Recibos/Facturas/CuotasTable.module.css";
 import {useDispatch} from 'react-redux';
 import {IsAllow} from 'components/Seguridad/Permisos';
+import honduras from 'utils/img/honduras.png';
+import costarica from 'utils/img/costarica.png';
+import guatemala from 'utils/img/guatemala.png';
+
+
 moment.locale('es');
 const Recibos = (props) => {
   const [loading, setLoading] = useState(true);
   const [isCreditoVencido,setCreditoVencido] = useState(false);
   const [DataModal, setDataModal] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [clientes] = useState(props.clientes);
+  const [clientesFiltrados,setClientesFiltrados] = useState(props.clientes);
+  const [paisSeleccionado,setPaisSeleccionado] = useState(null);
   const dispatch = useDispatch();
   const creditoVencido = (vencido)=>{
     setCreditoVencido(vencido);
@@ -45,6 +53,12 @@ const Recibos = (props) => {
     //   ? props.location.state.CodigoCliente : null
     // }
     // if(props.)
+    if(props.Paises.length===1){
+      setClientesFiltrados(props.clientes);
+    }else{
+      setClientesFiltrados(props.clientes);
+    }
+
     if (matchPath(props.match.url,
       {
         path: props.location.pathname,
@@ -344,6 +358,16 @@ const Recibos = (props) => {
     props.history.push(`/Recibos`);
   }
 
+  const seleccionarPais = (pais)=>{
+    if(paisSeleccionado===pais){
+      setPaisSeleccionado(null);
+      setClientesFiltrados(clientes);
+    }else{
+      const filtrados = clientes.filter(x=>x.EmpresaId===pais);
+      setPaisSeleccionado(pais);
+      setClientesFiltrados(filtrados);
+    }
+  }
   
   const BreadCrumb = () => {
     return (
@@ -464,8 +488,39 @@ const Recibos = (props) => {
       <Route path={props.match.url} exact render={() => (
         <div className="row">
           <div className="col-12">
+          {props.Paises.length>1 &&
+                <div className="container-fluid" style={{display:'flex',marginBottom:'10px'}}>
+                    <h4>Seleccione un pais</h4>
+                    <div>
+                        {
+                        // eslint-disable-next-line
+                        props.Paises.map(pais=>{
+                            if(pais.EmpresaId==="IMHN"){
+                                let stylePaises={width:'30px',height:'30px',marginLeft:'25px'};
+                                if(paisSeleccionado==="IMHN"){
+                                    stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'}
+                                }
+
+                                return <img alt="honduras" src={honduras} style={stylePaises} onClick={()=>{seleccionarPais(pais.EmpresaId)}}/>
+                            }else if(pais.EmpresaId==="IMCR"){
+                                let stylePaises={width:'30px',height:'30px',marginLeft:'25px'};
+                                if(paisSeleccionado==="IMCR"){
+                                    stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
+                                }
+                                return <img alt="costarica" src={costarica} style={stylePaises} onClick={()=>{seleccionarPais(pais.EmpresaId)}}/>
+                            }else if(pais.EmpresaId==="IMGT"){
+                                let stylePaises={width:'30px',height:'30px',marginLeft:'25px'}
+                                if(paisSeleccionado==="IMGT"){
+                                    stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
+                                }
+                                return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={()=>{seleccionarPais(pais.EmpresaId)}}/>
+                            }
+                        })}
+                    </div>
+                </div>
+            }
             <SelectCliente
-              clientes={props.clientes}
+              clientes={clientesFiltrados}
               clienteSelected={props.clienteSelected}
               onSelect={SelectedCliente}
               setCliente={cargarFacturasXCliente}
@@ -588,7 +643,7 @@ const mapStateToProps = state => {
     cuotasCuentaCorriente: state.Recibo.cuotasCuentaCorriente,
 
     loading: state.Recibo.loading,
-
+    Paises:state.Permisos[0].EmpresasUsuarios
   };
 };
 const mapDispatchToProps = dispatch => {

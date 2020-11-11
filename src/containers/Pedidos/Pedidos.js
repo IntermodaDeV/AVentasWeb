@@ -54,6 +54,9 @@ import styles from './Pedidos.module.css'
 import './Filtros.css'
 import 'sweetalert2/src/sweetalert2.scss';
 import FiltroChips from 'components/Pedidos/ProductoLista/FiltroChips';
+import honduras from 'utils/img/honduras.png';
+import costarica from 'utils/img/costarica.png';
+import guatemala from 'utils/img/guatemala.png';
 
 
 const ReactSwal = withReactContent(Swal)
@@ -63,6 +66,7 @@ moment.locale('es');
 
 var time;
 class Pedidos extends React.Component {
+   
 
     IsEncabezadoCreado = false;
     PedidoId = null;
@@ -107,7 +111,12 @@ class Pedidos extends React.Component {
         firmaPedido: null,
         fechaEntregaPedido: null,
         NumPedido: '#',
+        clientes:this.props.clientes,
+        clientesFiltrados:[],
+        paisSeleccionado:null
     };
+
+
 
     cargarData = () => {
         Promise.all([this.cargarClientes(),
@@ -324,6 +333,12 @@ class Pedidos extends React.Component {
     }
 
     componentDidMount() {
+        if(this.props.Paises.length===1){
+            this.setState((prevState)=>({...prevState,clientesFiltrados:this.props.clientes}));
+        }else{
+            this.setState((prevState)=>({...prevState,clientesFiltrados:this.props.clientes}));
+        }
+
         if(!IsAllow(this.props.match.url))
         {
             this.props.history.push('/home');
@@ -338,6 +353,8 @@ class Pedidos extends React.Component {
         this.inactivityTime();
         // window.onpopstate = this.onBackButtonEvent;
     }
+
+    
 
     inactivityTime = () => {
         window.onload = this.resetTimer;
@@ -1668,6 +1685,18 @@ class Pedidos extends React.Component {
         return filtros;
     }
 
+    seleccionarPais=(pais)=>{
+        /*clientes:this.props.clientes,
+        clientesFiltrados:[],
+        paisSeleccionado:null*/
+        if(this.state.paisSeleccionado===pais){
+            this.setState((prevState)=>({...prevState,clientesFiltrados:prevState.clientes,paisSeleccionado:null,autocompleteValue:null}));
+        }else{
+            const paisFiltrado = this.state.clientes.filter(x=>x.EmpresaId===pais);
+            this.setState((prevState)=>({...prevState,clientesFiltrados:paisFiltrado,paisSeleccionado:pais,autocompleteValue:null}))
+        }
+    }
+
     render() {
         const { error, isLoaded, loading } = this.state;
         var filtroActivo = false;
@@ -2293,10 +2322,40 @@ class Pedidos extends React.Component {
                         }
                         />
                         <Redirect from={this.props.match.url + '/Colecciones'} to={this.props.match.url + '/Colecciones/B'} />
-                        {/* <Redirect from={this.props.match.url} to={this.props.match.url + '/Cliente'} /> */}
-                        {/*  <Redirect to={this.props.match.url + '/Colecciones'} /> */}
+                        <div>
+                            {this.props.Paises.length>1 &&
+                            <div className="container-fluid" style={{display:'flex',marginBottom:'10px'}}>
+                                <h4>Seleccione un pais</h4>
+                                <div>
+                                    {
+                                    // eslint-disable-next-line
+                                    this.props.Paises.map(pais=>{
+                                        if(pais.EmpresaId==="IMHN"){
+                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'};
+                                            if(this.state.paisSeleccionado==="IMHN"){
+                                               stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'}
+                                            }
+
+                                            return <img alt="honduras" src={honduras} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
+                                        }else if(pais.EmpresaId==="IMCR"){
+                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'};
+                                            if(this.state.paisSeleccionado==="IMCR"){
+                                                stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
+                                            }
+                                            return <img alt="costarica" src={costarica} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
+                                        }else if(pais.EmpresaId==="IMGT"){
+                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'}
+                                            if(this.state.paisSeleccionado==="IMGT"){
+                                                stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
+                                            }
+                                            return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
+                                        }
+                                    })}
+                                </div>
+                            </div>
+                        }
                         <SelectCliente
-                            clientes={this.props.clientes}
+                            clientes={this.state.clientesFiltrados}
                             value={this.state.autocompleteValue}
                             textValue={this.textValueChange}
                             fetchSuggestions={this.querySearch}
@@ -2307,6 +2366,7 @@ class Pedidos extends React.Component {
                             codigoClientePreseleccionado={this.props.location.state ? this.props.location.state.CodigoCliente : null}
                             infoCliente={this.infoCliente}
                         />
+                        </div>
                     </Switch>
                 </div>
 
@@ -2445,7 +2505,8 @@ const mapStateToProps = state => {
         clienteContado:state.clienteContado,
         flete:state.flete,
         requiereEntrega:state.requiereEntrega,
-        impuesto:state.Impuesto
+        impuesto:state.Impuesto,
+        Paises:state.Permisos[0].EmpresasUsuarios
     };
 };
 const mapDispatchToProps = dispatch => {
