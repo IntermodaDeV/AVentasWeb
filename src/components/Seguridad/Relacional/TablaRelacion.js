@@ -12,7 +12,9 @@ export const TablaRelacion = props =>{
     const dataTabla = ()=>{
         const estilo = accion==="agregar"?"success":"danger";
         const icono  = accion==="agregar"?<MdCheckCircle/>:<MdCancel/>
+        console.log("valores", valores)
         return valores.map((valor)=>[valor.Nombre,<button onClick={()=>{funcion(valor.Id)}} className={`btn btn-${estilo}`} >{accion} {icono}</button>]);
+
     }
 
     return (
@@ -49,7 +51,7 @@ const DatatableOptions = {
       ),
     textLabels: {
         body: {
-            noMatch: "No se han encontrado pedidos",
+            noMatch: "No se han encontrado registros",
             toolTip: "Ordenar",
         },
         pagination: {
