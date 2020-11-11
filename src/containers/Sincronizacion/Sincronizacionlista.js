@@ -103,7 +103,7 @@ const Sincronizacionlista = (props)=>{
     }
 
     useEffect(()=>{
-        if(!IsAllow("/estadistica-visita"))
+        if(!IsAllow("/sincronizacionlista"))
         {
             props.history.push('/home');
         }
