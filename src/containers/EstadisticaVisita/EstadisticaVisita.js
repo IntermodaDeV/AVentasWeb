@@ -5,9 +5,11 @@ import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 // import { EstadisticaVisitaTable } from './EstadisticaVisitaTable';
 import FunnelChart from 'components/EstadisticaVisita/FunnelChart';
 import PieChart from 'components/EstadisticaVisita/PieChart';
+import Barchart from 'components/EstadisticaVisita/BarChart';
 import moment from 'moment';
 import { Dropdown } from "semantic-ui-react";
 import {APIURL} from 'utils/Enviroment';
+import {IsAllow} from 'components/Seguridad/Permisos';
 import 'moment/locale/es';
 import {
     Button
@@ -136,6 +138,10 @@ const EstadisticaVisita = (props) => {
     const [Usuarios, setUsuarios] = useState([]);
     const [Selected, setSelected] = useState(null);
     useEffect(() => {
+        if(!IsAllow("/estadistica-visita"))
+        {
+            props.history.push('/home');
+        }
         CargarDatos()
 
         // eslint-disable-next-line
@@ -236,7 +242,10 @@ const EstadisticaVisita = (props) => {
 
 
     let data = [];
-    
+    let VisitasProductivas = estadisticasVisita.reduce((acc, cur) => { return acc + cur.Productivas }, 0);
+    let VisitasEfectivas = estadisticasVisita.reduce((acc, cur) => { return acc + cur.Efectivas }, 0);
+    let VisitasAtendidas = estadisticasVisita.reduce((acc, cur) => { return acc + cur.Atendidas }, 0);
+
     estadisticasVisita.forEach(estVis => {
         data.push({
             CodigoAsesor: estVis.CodigoAsesor,
@@ -350,7 +359,8 @@ const EstadisticaVisita = (props) => {
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
                                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Efectivas</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Efectivas }, 0)}</div>
+                                   <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasEfectivas}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasAtendidas > 0 ? ((VisitasEfectivas/VisitasAtendidas) * 100).toFixed(0) + "%": 0 + "%"}</div>
                                 </div>
                                 <div className="col-auto">
                                     <FaCheckDouble size={"25px"} style={{ color: 'darkorange' }} />
@@ -361,15 +371,16 @@ const EstadisticaVisita = (props) => {
                     </div>
                 </div>
                 <div className="col-xl-2 col-md-6 mb-4">
-                    <div className="card shadow h-100 py-2" style={{ borderColor: 'darkblue' }}>
+                    <div className="card shadow h-100 py-2" style={{ borderColor: '#73628a' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
                                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Productivas</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.Productivas }, 0)}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasProductivas}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasAtendidas > 0 ? ((VisitasProductivas/VisitasAtendidas) * 100).toFixed(0) + "%": 0 + "%"}</div>
                                 </div>
                                 <div className="col-auto">
-                                    <FaClipboardCheck size={"25px"} style={{ color: 'darkblue' }} />
+                                    <FaClipboardCheck size={"25px"} style={{ color: '#73628a' }} />
                                     {/* <iFaTimesCircle class="fas fa-calendar fa-2x text-gray-300"></i> */}
                                 </div>
                             </div>
@@ -393,7 +404,7 @@ const EstadisticaVisita = (props) => {
                     </div>
                 </div>
                 <div className="col-xl-2 col-md-6 mb-4">
-                    <div className="card  shadow h-100 py-2" style={{ borderColor: 'darkred' }}>
+                    <div className="card  shadow h-100 py-2" style={{ borderColor: '#1EA4B7' }}>
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
@@ -402,7 +413,7 @@ const EstadisticaVisita = (props) => {
                                 </div>
                                 <div className="col-auto">
                                     {/* <i class="fas fa-calendar fa-2x text-gray-300"></i> */}
-                                    <FaUserTimes size={"25px"} style={{ color: 'darkred' }} />
+                                    <FaUserTimes size={"25px"} style={{ color: '#1EA4B7' }} />
                                 </div>
                             </div>
                         </div>
@@ -410,9 +421,10 @@ const EstadisticaVisita = (props) => {
                 </div>
             </div>
 
-            <div className="row">
+            <div className="row">                         
                 <div className="col-lg-6 my-2 col-12 order-lg-first order-last">
                     <MuiThemeProvider theme={getMuiTheme()}>
+                        <Barchart/>
                         <MUIDataTable
                             title={'Estadistica Visita'}
                             data={data}

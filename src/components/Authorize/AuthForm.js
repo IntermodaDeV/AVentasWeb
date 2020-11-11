@@ -17,6 +17,7 @@ class AuthForm extends React.Component {
     error: false,
     logged: false,
     loading: false,
+    message:''
   };
 
   get isLogin() {
@@ -54,7 +55,7 @@ class AuthForm extends React.Component {
             this.setState({ logged: true });
             window.location.reload();
           } else {
-            this.setState({ error: true, loading: false });
+            this.setState({ error: true, loading: false,message:result.Message });
 
           }
         },
@@ -139,20 +140,20 @@ class AuthForm extends React.Component {
           </div>
         )}
         <FormGroup>
-          {this.state.error ? <div style={{ color: 'red', textAlign: 'center' }}>Usuario o Contraseña Incorrectos</div> : null}
+          {this.state.error ? <div style={{ color: 'red', textAlign: 'center' }}>{this.state.message}</div> : null}
 
           <Label for={usernameLabel}>
             <FontAwesomeIcon icon={faUser} />
             {usernameLabel}
           </Label>
-          <Input onChange={this.usernameChange.bind(this)} value={this.state.username} {...usernameInputProps} style={styleInputFormLogin} />
+          <Input disabled={this.state.loading} onChange={this.usernameChange.bind(this)} value={this.state.username} {...usernameInputProps} style={styleInputFormLogin} />
         </FormGroup>
         <FormGroup>
           <Label for={passwordLabel}>
             <FontAwesomeIcon icon={faLock} />
             {passwordLabel}
           </Label>
-          <Input onChange={this.passwordChange.bind(this)} value={this.state.password} {...passwordInputProps} style={styleInputFormLogin} />
+          <Input disabled={this.state.loading} onChange={this.passwordChange.bind(this)} value={this.state.password} {...passwordInputProps} style={styleInputFormLogin} />
         </FormGroup>
         {this.isSignup && (
           <div>
@@ -209,7 +210,7 @@ class AuthForm extends React.Component {
         </div> */}
 
         {children}
-        {this.state.logged && <Redirect to='/agenda' />}
+        {this.state.logged && <Redirect to='/home' />}
       </Form>
     );
   }

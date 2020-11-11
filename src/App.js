@@ -24,7 +24,9 @@ import Sincronizacionlista from 'containers/Sincronizacion/Sincronizacionlista'
 import SincronizacionListaMonitor from 'containers/Sincronizacion/SincronizacionListaMonitor'
 import './styles/reduction.scss'
 import './App.css'
-
+import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
+import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
+import {Home} from 'containers/Home/Home';
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -138,7 +140,23 @@ const App = props => {
               layout={MainLayout}
               component={SincronizacionListaMonitor}
             />
-            <Redirect to='/agenda' />
+            <LayoutRoute
+              path='/seguridad-mantenimiento'
+              layout={MainLayout}
+              component={Mantenimiento}
+            />
+            <LayoutRoute
+              path='/seguridad-permisos'
+              layout={MainLayout}
+              component={Relacional}
+            />
+             <LayoutRoute
+              exact
+              path='/home'
+              layout={MainLayout}
+              component={Home}
+            />
+            <Redirect to='/home' />
           </Switch>
         </Router>
       </SnackbarProvider>

@@ -53,7 +53,8 @@ const Header = () => {
     };
 
     const LogOut = () => {
-        localStorage.setItem('token', '');
+        localStorage.clear();
+        indexedDB.deleteDatabase('localforage')
         window.location.reload();
     }
 

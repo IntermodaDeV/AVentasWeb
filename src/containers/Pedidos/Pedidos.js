@@ -26,6 +26,7 @@ import {
     ExpansionPanelSummary as MuiExpansionPanelSummary,
     ExpansionPanelDetails as MuiExpansionPanelDetails,
 } from '@material-ui/core';
+import axios from 'axios';
 
 //Components
 import NavigationBreadcrumb from 'components/Pedidos/NavigationBreadcrumb/NavigationBreadcrumb'
@@ -47,7 +48,7 @@ import Countdown from "components/Pedidos/Global/Countdown";
 import GuardPedidoActivo from 'containers/Pedidos/GuardPedidoActivo';
 import Loader from 'components/Global/Loader';
 import ImprimirPedidoOriginal from 'components/Pedidos/ResumenPedido/ImprimirPedidoOriginal';
-
+import {IsAllow} from 'components/Seguridad/Permisos';
 //Styles
 import styles from './Pedidos.module.css'
 import './Filtros.css'
@@ -323,6 +324,10 @@ class Pedidos extends React.Component {
     }
 
     componentDidMount() {
+        if(!IsAllow(this.props.match.url))
+        {
+            this.props.history.push('/home');
+        }
         if (!this.isPedidoActivo()) {
             this.cargarData();
         } else {
@@ -1233,7 +1238,35 @@ class Pedidos extends React.Component {
                 })
             }
         })
-        fetch(this.urlApi + "/api/PedidosXCliente", {
+
+
+        axios.post(this.urlApi + "/api/PedidosXCliente",pedido,{
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization':'Bearer ' + localStorage.getItem('token')
+            },
+            timeout:900*1000
+        }).then(result=>{
+            var numPedido = result.data.EncabezadoPedido.PedidoId;
+            this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+            this.props.onSetNumeroOrden(numPedido);
+        }).catch(err=>{
+
+            let mensaje = "Ha ocurrido un error y no se pudo realizar el pedido.";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                type: 'error',
+                title: 'Error',
+                text: mensaje,
+            })
+            this.setState({ loadingRecibo: false });
+        })
+
+        /*fetch(this.urlApi + "/api/PedidosXCliente", {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization':
@@ -1283,7 +1316,7 @@ class Pedidos extends React.Component {
                             }
                         )
                 }
-            });
+            });*/
     }
     enviarPedido() {
         localStorage.removeItem("ColeccionSeleccionada");

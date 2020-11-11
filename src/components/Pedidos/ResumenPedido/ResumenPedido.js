@@ -156,7 +156,7 @@ const ResumenPedido = (props) => {
 
     const Finalizar = () => {
 
-
+        props.guardarFecha(FechaEntrega);
         if (ApruebaBio()) {
             setOpenContado(true);
         } else {

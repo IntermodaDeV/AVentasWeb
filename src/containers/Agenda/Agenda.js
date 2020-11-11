@@ -23,7 +23,7 @@ import styles from 'containers/Agenda/Agenda.module.css';
 import 'containers/Agenda/Agenda.css';
 import moment from "moment";
 import {connect} from 'react-redux';
-
+import {IsAllow} from 'components/Seguridad/Permisos';
 import { FaEye } from "react-icons/fa";
 moment.locale('es');
 class Agenda extends Component {
@@ -336,7 +336,8 @@ class Agenda extends Component {
                     Checkout,
                     CheckinApi:Checkin,
                     CheckoutApi:Checkout,
-                    Bloqueo:Checkout
+                    Bloqueo:Checkout,
+                    fechaIngreso:fechainicio
                 }
 
                 tareas.push(tarea);
@@ -655,6 +656,10 @@ class Agenda extends Component {
     }
 
     componentDidMount() {
+        if(!IsAllow("/agenda"))
+        {
+            this.props.history.push('/home');
+        }
         this.cargarClientes();
         this.cargarRazonNoVenta();
         this.cargarEmpresas();
@@ -664,8 +669,15 @@ class Agenda extends Component {
 
     verifyBlock = (action)=>{
         const asignacion = this.props.asignaciones.find(x=>x.IdAsignacion===this.state.IdAsignacion);
-
+        
         if(action==="checkin"){
+            let fechaActual = moment(new Date()).format("DD-MM-YYYY");
+            let fechaAsignacion = moment(asignacion.fechaIngreso).format("DD-MM-YYYY");
+
+            if(fechaActual!==fechaAsignacion){
+                return true;
+            }
+
             return asignacion.Checkin;
         }
 

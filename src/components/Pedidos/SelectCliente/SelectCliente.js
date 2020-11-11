@@ -177,6 +177,13 @@ const SelectCliente = (props) => {
                                             {props.autocompleteValue.FacturacionEntrega}</td>
                                     </tr>
                                     <tr>
+                                        <td className={styles.InfoLabel}>
+                                            {'Grupo Precios: '}
+                                        </td>
+                                        <td className={styles.InfoLabelDetail}>
+                                            {`${props.autocompleteValue.GrupoPrecio} - ${props.autocompleteValue.NombreGrupoPrecio}`}</td>
+                                    </tr>
+                                    <tr>
                                         <td className={styles.InfoLabel} >
                                             {'Departamento: '}
                                         </td>

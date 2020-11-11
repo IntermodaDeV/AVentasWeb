@@ -40,6 +40,7 @@ const Carousel = (props) => {
 
     const checkCurrent = (producto) => {
         if (producto.ProductoId === props.producto.ProductoId) {
+            localStorage.setItem("PosicionProducto", props.producto.$id)
             return true
         }
         else {
@@ -48,10 +49,16 @@ const Carousel = (props) => {
     }
 
     if (props.ListaProductos) {
+        function sortByNum(a, b) {
+            const diff = localStorage.getItem('PosicionProducto') - b.$id;
+            return -1 * diff;
+        }
+        let ListaProductos = props.ListaProductos.sort((a, b) => sortByNum(a, b))
+
         return (
             <Slider {...settings}>
                 {
-                    props.ListaProductos.map((product, index) => {
+                    ListaProductos.map((product, index) => {
                         return (
                             <div className={"px-3"}
                                 key={index}>

@@ -43,7 +43,10 @@ const initialState = {
     CuentaImprimir:[],
     Bloqueo:false,
     Asignaciones:[],
-    AbreviacionMonedas:[]
+    AbreviacionMonedas:[],
+    Permisos:[],
+    PedidoSincronizar:[],
+    ReciboSincronizar:[]
 }
 
 const calcularLimite = (state) => {
@@ -454,7 +457,13 @@ const reducer = (state = initialState, action) => {
             Monedas:action.payload
         }
     }
-
+    if(action.type==='SET_PERMISOS')
+    {
+        return{
+            ...state,
+            Permisos:action.payload
+        }
+    }
     if(action.type==='SET_CUENTAIMPRIMIR'){
         return {
             ...state,
@@ -502,6 +511,38 @@ const reducer = (state = initialState, action) => {
         return{
             ...state,
             AbreviacionMonedas:action.payload
+        }
+    }
+
+    if(action.type==='SET_PEDIDOSINCRONIZAR')
+    {
+        return{
+            ...state,
+            PedidoSincronizar:[...state.PedidoSincronizar,action.payload]
+        }
+    }
+
+    if(action.type==='SET_RECIBOSINCRONIZAR')
+    {
+        return{
+            ...state,
+            ReciboSincronizar:[...state.ReciboSincronizar,action.payload]
+        }
+    }
+
+    if(action.type==='SET_RESETPEDIDOSINCRONIZAR')
+    {
+        return{
+            ...state,
+            PedidoSincronizar:action.payload
+        }
+    }
+
+    if(action.type==='SET_RESETRECIBOSINCRONIZAR')
+    {
+        return{
+            ...state,
+            ReciboSincronizar:action.payload
         }
     }
 

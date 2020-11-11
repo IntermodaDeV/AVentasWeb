@@ -170,7 +170,7 @@ const DetalleRecibo = (props) => {
                     if(calculo.current===2){
                     valorPagos += montoAPagar;
                     Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0;
-                    localStorage.setItem('valorPagos',valorPagos);
+                    localStorage.setItem('valorPagos',valorPagos.toFixed(2));
                     localStorage.setItem('DescuentoFacturas',Descuento);  
                     }
                     if (montoAPagar > 0) {
@@ -233,15 +233,15 @@ const DetalleRecibo = (props) => {
                     if(calculo.current===2){
                         valorPagos += montoAPagar;  
                         Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0; 
-                        localStorage.setItem('valorPagos',valorPagos);
+                        localStorage.setItem('valorPagos',valorPagos.toFixed(2));
                         localStorage.setItem('DescuentoFacturas',Descuento);                
                     }
                     if (montoAPagar > 0) {
-                        if (montoAPagar > PagoAcumulado) {
+                        if (montoAPagar > PagoAcumulado.toFixed(2)) {
                             cuotProc.PagoAplicado += PagoAcumulado;
                             PagoAcumulado = 0;
                         }
-                        if (montoAPagar <= PagoAcumulado) {
+                        if (montoAPagar <= PagoAcumulado.toFixed(2)) {
                             cuotProc.PagoAplicado += montoAPagar;
                             PagoAcumulado -= montoAPagar;
                             if (aplicaADescuento) {

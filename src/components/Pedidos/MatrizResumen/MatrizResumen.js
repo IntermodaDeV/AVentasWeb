@@ -23,7 +23,8 @@ const MatrizResumen = (props) => {
     let impuesto = 0;
     let moneda = (props.Cliente !== null) ? ((props.Cliente.Moneda !== null && props.Cliente.Moneda !== '') ? props.Cliente.Moneda : 'Lps') : 'Lps';
     let productosSinCantindad = false;
-
+    
+    localStorage.removeItem("PosicionProducto");
     const onContinuar = () => {
         if (productosSinCantindad) {
             Swal.fire({

@@ -170,7 +170,13 @@ const TablaVistaProducto = (props) => {
                                     alignItems: 'center',
                                     verticalAlign: 'middle',
                                     fontWeight: 600,
-                                }}>
+                                }}
+                                    onClick={()=>{
+                                        if(hasImages){
+                                            props.setListaImagenes(color.NombreColor);
+                                        }
+                                    }}
+                                >
                                     {/* <div style={{
                                     width: '25px',
                                     height: '25px',

@@ -15,9 +15,10 @@ import  TableFooter from "@material-ui/core/TableFooter";
 import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
+import {IsAllow} from 'components/Seguridad/Permisos';
 moment.locale('es');
 
-const ListaPedidos = () => {
+const ListaPedidos = (props) => {
     const urlApi = APIURL;
 
     const [state, setState] = useState({
@@ -35,6 +36,10 @@ const ListaPedidos = () => {
     const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
     const [fechaFin, setFechaFin] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
     useEffect(() => {
+        if(!IsAllow("/lista-pedidos"))
+        {
+            props.history.push('/home');
+        }
         cargarPedidos("1900-01-01", "1900-01-01");
         //cargarClientes();
         // eslint-disable-next-line
