@@ -38,7 +38,7 @@ export const post = async (url, info, action) => {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                     'Content-Type': 'application/json'
                 },
-                timeout: 900 * 1000
+                timeout: 500 * 1000
             });
 
             data = request.data;

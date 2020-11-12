@@ -27,6 +27,7 @@ import {
     ExpansionPanelDetails as MuiExpansionPanelDetails,
 } from '@material-ui/core';
 import axios from 'axios';
+import { post } from 'utils/http';
 
 //Components
 import NavigationBreadcrumb from 'components/Pedidos/NavigationBreadcrumb/NavigationBreadcrumb'
@@ -1196,7 +1197,54 @@ class Pedidos extends React.Component {
 
     }
 
-    enviarPeticionPedido = (location) => {
+    obtenerUltimoCorrelativo = async () =>{
+        var correlativo,error;
+        if(navigator.onLine){
+            try{
+                const request = await axios.get(this.urlApi + "/api/PedidosXCliente/correlativo",{headers:{
+                    'Content-Type': 'application/json',
+                    'Authorization':'Bearer ' + localStorage.getItem('token')
+                }});
+
+                correlativo = request.data;
+            }catch(err){
+                error = err
+            }
+        }
+
+        return {correlativo,error};
+    }
+
+    enviarPedidoAx = async (pedido) =>{
+        if(navigator.onLine){
+            try{
+                const request = await axios.post(this.urlApi + "/api/PedidosXCliente/postax",pedido,{
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization':'Bearer ' + localStorage.getItem('token')
+                    },
+                    timeout:900*1000
+                });
+
+                console.log(request.data);
+            }catch(err){
+                let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
+
+                if(err.response){
+                    mensaje = err.response.data.Message;
+                }
+
+                Swal.fire({
+                    type: 'error',
+                    title: 'Error',
+                    text: mensaje,
+                })
+            }
+        }
+    }
+
+    enviarPeticionPedido = async (location) => {
+
         let pedido = {
             CodigoCliente: this.props.cliente.Codigo,
             Firma: this.state.firmaPedido,
@@ -1207,7 +1255,6 @@ class Pedidos extends React.Component {
             Usuario: "mleiva",
             Linea: this.props.LineaSeleccionada.IdLinea,
             CodigoColeccion: this.props.coleccion.CodigoColeccion,
-            // Productos: [],
             DetallePedido: [],
             TipoPedido: this.props.TipoPedido,
             TipoVenta: this.calcularTipoVenta(),
@@ -1256,23 +1303,21 @@ class Pedidos extends React.Component {
             }
         })
 
+        if(!navigator.onLine){
+            Swal.fire({
+                type: 'warning',
+                title: 'Advertencia',
+                text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+            })
+        }
 
-        axios.post(this.urlApi + "/api/PedidosXCliente",pedido,{
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization':'Bearer ' + localStorage.getItem('token')
-            },
-            timeout:900*1000
-        }).then(result=>{
-            var numPedido = result.data.EncabezadoPedido.PedidoId;
-            this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-            this.props.onSetNumeroOrden(numPedido);
-        }).catch(err=>{
+        const { data,error } = await post(this.urlApi + "/api/PedidosXCliente",pedido,"SET_PEDIDOSINCRONIZAR");
 
+        if(error){
             let mensaje = "Ha ocurrido un error y no se pudo realizar el pedido.";
 
-            if(err.response){
-                mensaje = err.response.data.Message;
+            if(error.response){
+                mensaje = error.response.data.Message;
             }
 
             Swal.fire({
@@ -1281,61 +1326,15 @@ class Pedidos extends React.Component {
                 text: mensaje,
             })
             this.setState({ loadingRecibo: false });
-        })
-
-        /*fetch(this.urlApi + "/api/PedidosXCliente", {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
-            },
-            method: 'POST',
-            body: JSON.stringify(pedido)
-        })
-            .then(res => {
-                if (res.status === 200) {
-                    res.json()
-                        .then(
-                            (result) => {
-                                var numPedido = result.EncabezadoPedido.PedidoId;
-                                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-                                this.props.onSetNumeroOrden(numPedido);
-                                //this.SendEmailPDF();
-                            },
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                this.setState({
-                                    errorEnviarRecibo: true
-                                });
-                            }
-                        )
-                }
-                else {
-                    res.json()
-                        .then(
-                            (result) => {
-                                Swal.fire({
-                                    type: 'error',
-                                    title: 'Error',
-                                    text: result.Message,
-                                })
-                                this.setState({ loadingRecibo: false });
-                            },
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                this.setState({
-                                    errorEnviarRecibo: true
-                                });
-                            }
-                        )
-                }
-            });*/
+        }else{
+            var numPedido = data.EncabezadoPedido.PedidoId;
+            this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+            this.props.onSetNumeroOrden(numPedido);
+            this.enviarPedidoAx(data.EncabezadoPedido.PedidoAPI);
+        }
     }
-    enviarPedido() {
+
+    enviarPedido = async ()=> {
         localStorage.removeItem("ColeccionSeleccionada");
         localStorage.removeItem("HoraIngreso");
         localStorage.removeItem("ProdEnCarrito");
@@ -1348,16 +1347,6 @@ class Pedidos extends React.Component {
         }, (error) => {
             this.enviarPeticionPedido(null);
         });
-        // navigator.geolocation.getCurrentPosition(
-        //     (position) => {
-        //         this.enviarPeticionPedido({
-        //             longitude: position.coords.longitude,
-        //             latitude: position.coords.latitude
-        //         })
-        //     },
-        //     (error) => this.enviarPeticionPedido(null),
-        //     { enableHighAccuracy: true, timeout: 10000 }
-        // );
     }
     FinalizarPedidoOnline = () => {
         this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: this.props.NumeroOrden });
