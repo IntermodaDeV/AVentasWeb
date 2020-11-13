@@ -124,7 +124,7 @@ const SelectCliente = (props) => {
     if (!(props.autocompleteValue != null && (props.autocompleteValue.FacturacionEntrega === "No" || props.autocompleteValue.FacturacionEntrega === "Nunca"))) {
         FacturacionEntrega = (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra en mora.
+                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con floqueo ó en mora.
             </div>
         )
 
