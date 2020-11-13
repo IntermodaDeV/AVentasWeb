@@ -60,6 +60,12 @@ export const post = async (url, info, action) => {
     }
 }
 
+export const postPedidoStorage = (info)=>{
+    store.dispatch({ type: "SET_PEDIDOSINCRONIZAR", payload: info });
+    const data = { EncabezadoPedido: { PedidoId: "No Disponible" } };
+    return data;
+}
+
 export const backgroundPostPedidos = async () => {
     const url = APIURL + "/api/PedidosXCliente";
     const globalState = store.getState();

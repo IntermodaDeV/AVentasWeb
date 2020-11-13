@@ -27,7 +27,7 @@ import {
     ExpansionPanelDetails as MuiExpansionPanelDetails,
 } from '@material-ui/core';
 import axios from 'axios';
-import { post } from 'utils/http';
+import { post,postPedidoStorage } from 'utils/http';
 
 //Components
 import NavigationBreadcrumb from 'components/Pedidos/NavigationBreadcrumb/NavigationBreadcrumb'
@@ -1308,29 +1308,34 @@ class Pedidos extends React.Component {
                 type: 'warning',
                 title: 'Advertencia',
                 text: "Actualmente no dispone de internet el pedido se guardara en cache.",
-            })
-        }
+            });
 
-        const { data,error } = await post(this.urlApi + "/api/PedidosXCliente",pedido,"SET_PEDIDOSINCRONIZAR");
-
-        if(error){
-            let mensaje = "Ha ocurrido un error y no se pudo realizar el pedido.";
-
-            if(error.response){
-                mensaje = error.response.data.Message;
-            }
-
-            Swal.fire({
-                type: 'error',
-                title: 'Error',
-                text: mensaje,
-            })
-            this.setState({ loadingRecibo: false });
-        }else{
-            var numPedido = data.EncabezadoPedido.PedidoId;
+            const data = postPedidoStorage(pedido);
+            let numPedido = data.EncabezadoPedido.PedidoId;
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
-            this.enviarPedidoAx(data.EncabezadoPedido.PedidoAPI);
+        }else{
+            const { data,error } = await post(this.urlApi + "/api/PedidosXCliente",pedido,"SET_PEDIDOSINCRONIZAR");
+
+            if(error){
+                let mensaje = "Ha ocurrido un error y no se pudo realizar el pedido.";
+
+                if(error.response){
+                    mensaje = error.response.data.Message;
+                }
+
+                Swal.fire({
+                    type: 'error',
+                    title: 'Error',
+                    text: mensaje,
+                })
+                this.setState({ loadingRecibo: false });
+            }else{
+                let numPedido = data.EncabezadoPedido.PedidoId;
+                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+                this.props.onSetNumeroOrden(numPedido);
+                this.enviarPedidoAx(data.EncabezadoPedido.PedidoAPI);
+            }
         }
     }
 
@@ -2314,7 +2319,7 @@ class Pedidos extends React.Component {
                         <div>
                             {this.props.Paises.length>1 &&
                             <div className="container-fluid" style={{display:'flex',marginBottom:'10px'}}>
-                                <h4>Seleccione un pais</h4>
+                                <h4>Filtro por pais</h4>
                                 <div>
                                     {
                                     // eslint-disable-next-line

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import Loader from 'components/Global/Loader';
-import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from "mui-datatables";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { Button, Dialog } from "@material-ui/core";
@@ -16,6 +15,7 @@ import CustomFooter from 'components/Layout/CustomFooter';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import axios from 'axios';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { FiAlertTriangle } from 'react-icons/fi';
 
 moment.locale('es');
 
@@ -34,8 +34,7 @@ export const ListaPedidosPendientes = (props) => {
     });
     const [showDialog, setShowDialog] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
-    const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
-    const [fechaFin, setFechaFin] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
+
     useEffect(() => {
         if(!IsAllow("/lista-pedidos"))
         {
@@ -115,17 +114,6 @@ export const ListaPedidosPendientes = (props) => {
         console.log(pedido);
     }
 
-    const handleFechaInicio = (fecha) => {
-        setFechaInicio(fecha);
-
-        var fech =  moment(fecha).add(30, 'days')
-        setFechaFin(fech);
-    }
-
-    const handleFechaFin = (date) => {
-        setFechaFin(date);
-    }
-
     const getMuiTheme = () => createMuiTheme({
         overrides: {
             MUIDataTable: {
@@ -152,14 +140,11 @@ export const ListaPedidosPendientes = (props) => {
                     pedido.PedidoId,
                     pedido.Cliente.Nombre,
                     moment(pedido.FechaActual).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaActual).format('DD/MM/YYYY') : "",
-                    (pedido.Sincronizado)?"Si":"No",
-                    (pedido.NumeroPedido==="")?"No disponible":pedido.NumeroPedido,
                     pedido.Linea.Linea,
                     pedido.NombreColeccion,
                     pedido.TotalUnidades,
-                    "", //Credito
-                    "", //Estado
                     moment(pedido.FechaEntrega).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaEntrega).format('DD/MM/YYYY') : "",
+                    pedido.ErrorAx,
                     <div>
 
                         <span className="mr-1">
@@ -167,8 +152,8 @@ export const ListaPedidosPendientes = (props) => {
                         </span>
 
                         <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => sincronizarPedido(pedido.PedidoId)} size="small" color={"primary"}>
-                                Sincronizar
+                            <Button className='my-1' variant="outlined" disabled={pedido.Procesando} onClick={() => sincronizarPedido(pedido.PedidoId)} size="small" color={"primary"}>
+                                {pedido.Procesando ? "Procesando":"Sincronizar"}
                             </Button>
                         </span >
                     </div>
@@ -229,39 +214,9 @@ export const ListaPedidosPendientes = (props) => {
         return (
             <div className="px-3">
                 <div className="row mb-3">
-                <div className='col-lg-2 col-sm-4 col-12'>
-                        <DatePicker
-                            disableToolbar
-                            autoOk
-                            label={"Fecha Inicio"}
-                            variant="inline"
-                            format={"DD/MM/YYYY"}
-                            value={fechaInicio}
-                            onChange={(date) => handleFechaInicio(date)}
-                        />
-
-                    </div>
-                    <div className='col-lg-2 col-sm-4 col-12'>
-                        <DatePicker
-                            disableToolbar
-                            autoOk
-                            minDate={fechaInicio}
-                            maxDate ={moment(fechaInicio).add(365, 'days')}
-                            label={"Fecha Fin"}
-                            variant="inline"
-                            format={"DD/MM/YYYY"}
-                            value={fechaFin}
-                            onChange={(date) => handleFechaFin(date)}
-                        />
-                    </div>
-
-                    <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 15 }}>
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => cargarPedidos(fechaInicio, fechaFin)}>Obtener
-                    </Button>
-                    </div>
+                <div className="alert alert-warning alert-dismissible fade show" role="alert">
+                    <FiAlertTriangle style={{ fontSize: '20px', color: 'orange'}} /> Los pedidos mostrados en esta pantalla estan registrados unicamente en la nube pero no en AX.
+                </div>
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>
@@ -302,14 +257,11 @@ const HeadersListaPedidos = [
     "No. Pedido",
     "Cliente",
     "Fecha Pedido",
-    "Sincronizado",
-    "Num. Pedido Ax",
     "Línea",
     "Paquete",
     "Total Unidades",
-    'Tipo Crédito',
-    "Estado",
     "Fecha Entrega",
+    "Ultimo mensaje de error",
     {
         label: "Acciones",
         options: {
