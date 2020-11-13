@@ -4,7 +4,7 @@ import { MdCheckCircle,MdCancel } from "react-icons/md";
 import { MdPlaylistAdd } from "react-icons/md";
 
 export const TablaUsuario = props => {
-    const {roles,modificarEstado} = props;
+    const {roles,modificarEstado,modificarBloqueoCredito} = props;
 
     return (
         <div>
@@ -29,6 +29,7 @@ export const TablaUsuario = props => {
                             <tr>
                                 <th style={{textAlign:'center'}}>Usuario</th>
                                 <th style={{textAlign:'center'}}>Estado</th>
+                                <th style={{textAlign:'center'}}>Bloqueo información sensible</th>
                                 <th style={{textAlign:'center'}}>Acciones</th>
                             </tr>
                         </thead>
@@ -37,12 +38,10 @@ export const TablaUsuario = props => {
                                 <tr key={rol.Id}>
                                     <th style={{textAlign:'center'}}>{rol.Nombre}</th>
                                     <th style={{textAlign:'center',color:rol.Status?"green":"red"}}>{rol.Status?<p>Activo <MdCheckCircle/> </p>:<p>Inactivo <MdCancel/> </p>}</th>
+                                    <th style={{textAlign:'center',color:rol.BloqueoCredito?"green":"red"}}>{rol.BloqueoCredito
+                                    ?<button onClick={()=>{modificarBloqueoCredito(rol.Id)}} className="btn btn-success">Activo <MdCheckCircle/> </button>
+                                    :<button onClick={()=>{modificarBloqueoCredito(rol.Id)}} className="btn btn-danger">Inactivo <MdCancel/> </button>}</th>
                                     <th style={{textAlign:'center'}}>
-                                        {/*button style={{marginLeft:'10px'}} 
-                                                className="btn btn-warning" 
-                                                onClick={()=>{modificarRol(rol)}}>
-                                                    Editar <FaEdit/>
-                                        </button>*/}
                                         <button style={{marginLeft:'10px'}} 
                                                 className="btn btn-info" 
                                                 onClick={()=>{modificarEstado(rol.Id)}}>{rol.Status?<span>Inactivar <MdCancel/></span>:<span>Activar <MdCheckCircle/></span>}</button>

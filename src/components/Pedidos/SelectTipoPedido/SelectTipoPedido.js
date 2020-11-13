@@ -7,6 +7,7 @@ import {useSelector} from 'react-redux';
 
 const SelectTipoPedido = (props) => {
     const lineaSeleccionada = useSelector(e=>e.LineaSeleccionada);
+    const BloqueoCredito = useSelector(e=>e.Permisos[0].BloqueoCredito);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const handleClick = event => {
         setAnchorEl(event.currentTarget);
@@ -32,11 +33,23 @@ const SelectTipoPedido = (props) => {
                 {props.tiposPedido.map((tipoPedido, index) => {
 
                     if (tipoPedido.Aplica_Todos) {
-                        return (
-                            <div key={index} className="col-xl-3 col-md-6 col-lg-6 col-12">
-                                <Button style={{ marginBottom: '10px' }} key={index} onClick={() => props.setTipoPedido(tipoPedido)} outline color="secondary" size="lg" block>{tipoPedido.TipoPedido}</Button>
-                            </div>
-                        );
+
+                        if(tipoPedido.TipoPedido==="Contado"){
+                            return (
+                                <div key={index} className="col-xl-3 col-md-6 col-lg-6 col-12">
+                                    <Button style={{ marginBottom: '10px' }} key={index} onClick={() => props.setTipoPedido(tipoPedido)} outline color="secondary" size="lg" block>{tipoPedido.TipoPedido}</Button>
+                                </div>
+                            );
+                        }
+
+                        if(!BloqueoCredito){
+                            return (
+                                <div key={index} className="col-xl-3 col-md-6 col-lg-6 col-12">
+                                    <Button style={{ marginBottom: '10px' }} key={index} onClick={() => props.setTipoPedido(tipoPedido)} outline color="secondary" size="lg" block>{tipoPedido.TipoPedido}</Button>
+                                </div>
+                            );
+                        }
+
                     }
                     if (props.Cliente.AcuerdosVenta != null && acuerdosFiltrados.length > 0) {
                         let acuertosVenta = [];

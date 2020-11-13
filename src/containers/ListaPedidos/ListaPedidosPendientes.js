@@ -214,9 +214,9 @@ export const ListaPedidosPendientes = (props) => {
         return (
             <div className="px-3">
                 <div className="row mb-3">
-                <div className="alert alert-warning alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '20px', color: 'orange'}} /> Los pedidos mostrados en esta pantalla estan registrados unicamente en la nube pero no en AX.
-                </div>
+                    <div style={{width:'100%',textAlign:'center'}} className="alert alert-warning alert-dismissible fade show" role="alert">
+                        <FiAlertTriangle style={{ fontSize: '20px', color: 'orange'}} /> Los pedidos mostrados en esta pantalla estan registrados unicamente en la nube pero no en AX.
+                    </div>
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>

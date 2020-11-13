@@ -112,7 +112,7 @@ class Pedidos extends React.Component {
         firmaPedido: null,
         fechaEntregaPedido: null,
         NumPedido: '#',
-        clientes:this.props.clientes,
+        clientes:[],
         clientesFiltrados:[],
         paisSeleccionado:null
     };
@@ -214,6 +214,7 @@ class Pedidos extends React.Component {
                         .then(
                             (result) => {
                                 this.props.onStoreClientes(result);
+                                this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -223,11 +224,13 @@ class Pedidos extends React.Component {
 
                                     error
                                 });
+                                this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
                             }
                         )
                 }
 
             })
+            this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
     }
 
     cargarTiposPedido = () => {
@@ -334,11 +337,6 @@ class Pedidos extends React.Component {
     }
 
     componentDidMount() {
-        if(this.props.Paises.length===1){
-            this.setState((prevState)=>({...prevState,clientesFiltrados:this.props.clientes}));
-        }else{
-            this.setState((prevState)=>({...prevState,clientesFiltrados:this.props.clientes}));
-        }
 
         if(!IsAllow(this.props.match.url))
         {

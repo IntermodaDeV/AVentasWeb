@@ -248,14 +248,14 @@ const EstadisticaVisita = (props) => {
     }
 
     const PaisFiltrado = (Empresa) => {
-        if(EmpresaSelected == Empresa)
+        if(EmpresaSelected === Empresa)
         {
             setEmpresaSelected(null);
             setEstadisticasVisita(estadisticaVisitaFiltrada);
         }
         else{
             setEmpresaSelected(Empresa);
-            setEstadisticasVisita(estadisticaVisitaFiltrada.filter(e => e.Empresa.toUpperCase() == Empresa.toUpperCase()))
+            setEstadisticasVisita(estadisticaVisitaFiltrada.filter(e => e.Empresa.toUpperCase() === Empresa.toUpperCase()))
         }
         
     }

@@ -56,6 +56,7 @@ const SelectCliente = (props) => {
     const clientes = useSelector(e=>e.clientesContado);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const Comunidad = useSelector(e=>e.comunidadesAutonomas);
+    const BloqueoCredito = useSelector(e=>e.Permisos[0].BloqueoCredito);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -206,6 +207,7 @@ const SelectCliente = (props) => {
                             </div>
 
                         </div>
+                        {(!BloqueoCredito) &&
                         <div className="col-md-6">
                             <span className={styles["TCenterContainer"]}>
                                 <h5 className={styles["TCenter"]}>Información Crediticia</h5>
@@ -271,7 +273,7 @@ const SelectCliente = (props) => {
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
+                        </div>}
 
                     </div>
 
