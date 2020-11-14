@@ -72,6 +72,8 @@ const navItems = [
         expanded: [
             { to: '/pedidos', name: 'Nuevo Pedido', dataTut: 'DataTut_NuevoPedido', Icon: PostAdd },
             { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt },
+            { to: '/lista-pedidos-bandejasalida', name: 'Bandeja Salida', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt },
+            { to: '/lista-pedidos-pendientes', name: 'Pedidos Pendientes AX', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt },
         ]
     },
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },

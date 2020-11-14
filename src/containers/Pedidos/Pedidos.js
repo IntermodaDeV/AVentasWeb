@@ -1244,13 +1244,14 @@ class Pedidos extends React.Component {
     enviarPeticionPedido = async (location) => {
 
         let pedido = {
+            PedidoId: 100 + (Math.random() * (10000 - 100)),
             CodigoCliente: this.props.cliente.Codigo,
+            Nombre : this.props.cliente.Nombre,
             Firma: this.state.firmaPedido,
             FechaEntrega: this.state.fechaEntregaPedido,
             AcuerdoVenta: this.props.AcuerdoVenta ? this.props.AcuerdoVenta.IdAcuerdoxCliente : '',
             location: location,
             EmpresaId: "imhn",
-            Usuario: "mleiva",
             Linea: this.props.LineaSeleccionada.IdLinea,
             CodigoColeccion: this.props.coleccion.CodigoColeccion,
             DetallePedido: [],
@@ -1260,7 +1261,10 @@ class Pedidos extends React.Component {
             ModoVenta:(this.props.TipoPedido.TipoPedido==='Contado')?'Contado':'Credito',
             Flete:this.props.flete,
             RequiereEntrega:this.props.requiereEntrega,
-            Impuesto:Number(localStorage.getItem('Impuesto'))
+            Impuesto:Number(localStorage.getItem('Impuesto')),
+            subtotal:this.props.TotalPedido,
+            Direccion: this.props.cliente.Direccion,
+            MonedaCliente : this.props.cliente.Moneda
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
 
@@ -1275,11 +1279,13 @@ class Pedidos extends React.Component {
 
                                 producto.matriz = [];
                                 producto.ListaColores.forEach(color => {
+                            
                                     Object.keys(tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas).forEach(talla => {
                                         let detalle = {
                                             IdProducto:producto.CodigoProducto,
                                             CodigoProducto: codigoProducto,
                                             CodigoColor: color.CodigoColor,
+                                            NombreColor:color.Nombre,
                                             Cantidad: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad,
                                             Unidad: "Und",
                                             PrecioUnitario: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Precio,

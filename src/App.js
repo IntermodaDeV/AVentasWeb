@@ -27,7 +27,8 @@ import './App.css'
 import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
 import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
 import {Home} from 'containers/Home/Home';
-import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPendientes'
+import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPendientes';
+import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -74,6 +75,12 @@ const App = props => {
               path='/lista-pedidos-pendientes'
               layout={MainLayout}
               component={ListaPedidosPendientes}
+            />
+            <LayoutRoute
+              exact
+              path='/lista-pedidos-BandejaSalida'
+              layout={MainLayout}
+              component={BandejaSalida}
             />
             {/*<LayoutRoute
               exact
