@@ -23,14 +23,10 @@ if(clienteContado!==null && clienteContado!==undefined)
     {
         NombreCliente = 'CONSUMIDOR FINAL';
     }
-    /*else{
-        NombreCliente = clienteContado.Nombre;
-    }*/
-
-    //DireccionCliente = clienteContado.Direccion;
 }
 
-let TotalUnidad = 0;
+    let TotalUnidad = 0;
+    let cantidad = 0;
     const componentRef = React.useRef();
     return (
         <>
@@ -63,11 +59,11 @@ let TotalUnidad = 0;
                             </div>
                             <div className="col-6">
                                 <div className="info">
-                                <h2>Pedido {"No Disponible"}</h2>
+                                <h2>Pedido {"En Proceso"}</h2>
                                     <p>
                                         Fecha del pedido : {moment(props.Pedido.FechaActual).format('DD/MM/YYYY hh:mm a')}<br />
                                         Entrega Sugerida : {moment(props.Pedido.FechaEntrega).format('DD/MM/YYYY hh:mm a')}<br />
-                                        Asesor: {""/*props.Pedido.Usuario*/}<br />
+                                        Asesor: {localStorage.getItem('asesor')}<br />
                                         Modo Venta: {props.Pedido.ModoVenta}<br/>
                                     </p>
                                 </div>
@@ -76,60 +72,96 @@ let TotalUnidad = 0;
 
                     </div>
 
-                    {props.Pedido.DetallePedido.map((grupoTalla, index1) => {
+                    {props.Detalle.map((producto, index1) => {
                         return (
+                        producto.Colores.map((Color, index2) => {
+                            let CantProducto = 0;
+                            let TotalProducto = 0;
+                            let cellSize = 0;
+                            return(    
                             <table className={'table table-bordered table-xl-responsive'} style={{ borderColor: '#aaa', overflow: "auto" }} key={index1}>
                                 <thead>
                                   <tr style={{ backgroundColor: '#d9d9d9' }}>
                                         <th>
                                         </th>
-                                        <th>
-                                        {
-                                            <div>{grupoTalla.Talla}</div>
-                                        }
-                                        </th>
+                                        {Color.Tallas.map((Talla, index3) => {
+                                                TotalUnidad += Number(Talla.Cantidad);
+                                                cantidad += Number(Talla.Cantidad);
+                                                TotalProducto += Number(Talla.Cantidad * Talla.Precio);
+                                                CantProducto += Number(Talla.Cantidad);
+                                                cellSize = 100 / cantidad;
+                                                return(
+                                                    <th key= {index2}>
+                                                    {
+                                                        <div>{Talla.Talla}</div>
+                                                    }
+                                                    </th>
+                                                )
+                                            })}
                                         <th>Cant</th>
                                         <th>Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td className="p-1">
+                                <React.Fragment key={index1} >
+                                    <tr >
+                                        <td className="p-1" colSpan={cantidad + 3} >
                                             <div className="row">
-                                            <div variant="contained">
-                                                <div className="row">
-                                                    <div className="pl-2 pr-3 font-weight-bold">
-                                                        {grupoTalla.CodigoProducto}
-                                                    </div>
-                                                <div>{""/*producto.NombreProducto*/}</div>
+                                                <div variant="contained">
+                                                    <div className="row">
+                                                        <div className="pl-2 pr-3 font-weight-bold">
+                                                            {producto.Codigo}
+                                                        </div>
+                                                    <div>{producto.NombreProducto}</div>
+                                                </div>
                                             </div>
                                         </div>
-                                     </div>                    
-                                 </td>   
-                            </tr>
-                            <tr>
-                                <td className="p-1 text-center" style={{
-                                                alignItems: 'center',
-                                                verticalAlign: 'middle',
-                                                //width: `${cellSize}%`,
-                                            }}>
-                                                <div className="col-12 px-0">
-                                                    <span>{grupoTalla? grupoTalla.PrecioUnitario : "--"}</span>
-                                                </div>
-                                                <label>{grupoTalla? grupoTalla.Cantidad : 0}</label>
-                                    </td> 
-                                    <td className="p-1 text-center font-weight-bold" style={{
-                                            alignItems: 'center',
-                                            verticalAlign: 'middle',
-                                            ///width: `${cellSize}%`,
-                                    }}>{grupoTalla.PrecioUnitario}</td>
-                            </tr>
-                            </tbody>
+                                        </td>
+                                    </tr>
+                                    <tr key={index2}>
+                                                <td className="p-1 text-center" style={{
+                                                    alignItems: 'center',
+                                                    verticalAlign: 'middle',
+                                                    width: `${cellSize}%`,}}>
+                                                    <div className="col-12 px-0">
+                                                        <span>{"Precio"}</span>
+                                                    </div>
+                                                        {Color.NombreColor}
+                                                </td>
+                                                {Color.Tallas.map((det, index4) => {
+                                                    return ( 
+                                                        <td key={index4} className="p-1 text-center" style={{
+                                                            alignItems: 'center',
+                                                            verticalAlign: 'middle',
+                                                            width: `${cellSize}%`,
+                                                        }}>
+                                                            <div className="col-12 px-0">
+                                                                <span>{det? det.Precio : "--"}</span>
+                                                            </div>
+                                                                <label>{det? det.Cantidad : 0}</label>
+                                                            </td>  
+                                                           )
+                                                })}
+                                                <td className="p-1 text-center font-weight-bold" style={{
+                                                    alignItems: 'center',
+                                                    verticalAlign: 'middle',
+                                                    width: `${cellSize}%`,
+                                                }}>{CantProducto}</td>
+
+                                                <td className="p-1 text-right font-weight-bold  pr-2" style={{
+                                                    alignItems: 'center',
+                                                    verticalAlign: 'middle',
+                                                    width: `${cellSize}%`,
+                                                }}>{numberWithCommas(TotalProducto)}</td>
+                                                </tr>
+                                    </React.Fragment>
+                                </tbody>
                         </table>
+                         )
+                        })
                         )
                     })}
                     <div className="row" style={{ maxWidth: '100%' }}>
-
                         <div className="col-6">
                             <div className="thanks">
                                 {
@@ -152,7 +184,7 @@ let TotalUnidad = 0;
                                     Unidades:
                                     </div>
                                 <div className="col-7 valueTotal">
-                                {TotalUnidad !== 0? TotalUnidad : props.Pedido.TotalUnidades}
+                                {TotalUnidad}
                                 </div>
                             </div>
 
@@ -192,7 +224,7 @@ let TotalUnidad = 0;
                                     </div>
 
                                 <div className="col-7 valueTotal">
-                                    {moneda}{""/*numberWithCommas((props.Pedido.TotalXPedido))*/}
+                                    {moneda}{numberWithCommas((props.Pedido.subtotal + props.Pedido.Impuesto + props.Pedido.Flete))}
                                 </div>
                             </div>
                         </div>

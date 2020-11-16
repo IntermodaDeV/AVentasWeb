@@ -28,6 +28,7 @@ const BandejaSalida = (props) => {
         pedidos: [],
         clientes: [],
         pedido: null,
+        Detalle:[],
     });
     const [showDialog, setShowDialog] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
@@ -35,7 +36,6 @@ const BandejaSalida = (props) => {
     const PedidosCache = useSelector(p=>p.PedidoSincronizar);
     const dispatch = useDispatch();
 
-    console.log("Pedidos",PedidosCache)
     useEffect(() => {
         if(!IsAllow("/lista-pedidos-BandejaSalida"))
         {
@@ -95,6 +95,15 @@ const BandejaSalida = (props) => {
                 }
 
             }
+            else
+            {
+                Swal.fire({
+                    title: 'Sin Internet',
+                    text: 'Necesita interner para sincronizar el pedido',
+                    type: 'warning',
+                    confirmButtonText: 'Ok',
+                  })
+            }
         }catch(err){
 
         }
@@ -120,11 +129,11 @@ const BandejaSalida = (props) => {
         let DataPedidos = [];
         state.pedidos.map(pedido => {
                 let data = [
-                    "No disponible",
+                    "En Proceso",
                     pedido.CodigoCliente,
                     moment(pedido.FechaActual).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaActual).format('DD/MM/YYYY') : "",
                     "No",
-                    "No disponible",
+                    "En Proceso",
                     pedido.Linea,
                     pedido.CodigoColeccion,
                     pedido.TipoPedido.TipoPedido, //Credito
@@ -156,8 +165,66 @@ const BandejaSalida = (props) => {
         setShowDialog(false);
         setDialogPedido(null);
     }
-
+    let Productos = [];
     const ImpresionPedido = (Pedido) => {
+        Pedido.DetallePedido.map((producto, index1) => {
+            let agregado = false;
+            if(Productos.length> 0){
+                Productos.forEach((productoUnico, index2) => {
+                    debugger;
+                    if(productoUnico.Codigo === producto.CodigoProducto)
+                    {
+                        productoUnico.Colores.forEach((colores, index3) => {
+                                let color = productoUnico.Colores.filter(c => c.CodigoColor === producto.CodigoColor);
+                                if(color.length > 0 && colores.CodigoColor === producto.CodigoColor)
+                                {
+                                    colores.Tallas.push({Talla : producto.Talla, Cantidad : producto.Cantidad, Precio : producto.PrecioUnitario});
+                                    agregado = true;
+                                }
+                                else if(color.length <= 0)
+                                {
+                                    let nuevoColor = {
+                                        CodigoColor: producto.CodigoColor,
+                                        NombreColor: producto.NombreColor,
+                                        Tallas: [{
+                                            Talla : producto.Talla,
+                                            Cantidad : producto.Cantidad,
+                                            Precio : producto.PrecioUnitario
+                                        }]
+                                    };
+                                    productoUnico.Colores.push(nuevoColor);
+                                    agregado = true;
+                                }
+                        });
+                    }
+                    
+                });
+            }
+           
+
+            if(!agregado)
+            {
+                let Producto = {
+                    Codigo : producto.CodigoProducto,
+                    NombreProducto : producto.NombreProducto,
+                    Colores : [{
+                        CodigoColor: producto.CodigoColor,
+                        NombreColor: producto.NombreColor,
+                        Tallas: [{
+                            Talla : producto.Talla,
+                            Cantidad : producto.Cantidad,
+                            Precio : producto.PrecioUnitario
+                        }],
+                    }]
+                };
+                Productos.push(Producto)
+            }
+        });
+
+        setState({
+            ...state,
+            Detalles: Productos,
+        });
         setDialogPedido(Pedido);
         setShowDialog(true);
     }
@@ -169,8 +236,8 @@ const BandejaSalida = (props) => {
     }
       return (
             <div className="px-3">
-                <div style ={{textAlign:'center'}} className="alert alert-danger alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '20px', color: 'red'}} /> Los pedidos mostrados en esta pantalla estan registrados unicamente en su maquina
+                <div style ={{textAlign:'center',fontSize: '28px'}} className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <FiAlertTriangle style={{ fontSize: '32px', color: 'red'}} /> Los pedidos mostrados en esta pantalla están registrados únicamente en su maquina
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>
@@ -193,6 +260,7 @@ const BandejaSalida = (props) => {
                         <ImprimirBandejaSalida
                             hidePrint={hidePrint}
                             Pedido={DialogPedido}
+                            Detalle ={state.Detalles}
                         />
                     }
                 </Dialog >

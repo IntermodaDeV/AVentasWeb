@@ -1284,8 +1284,9 @@ class Pedidos extends React.Component {
                                         let detalle = {
                                             IdProducto:producto.CodigoProducto,
                                             CodigoProducto: codigoProducto,
+                                            NombreProducto: producto.NombreProducto,
                                             CodigoColor: color.CodigoColor,
-                                            NombreColor:color.Nombre,
+                                            NombreColor:color.NombreColor,
                                             Cantidad: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad,
                                             Unidad: "Und",
                                             PrecioUnitario: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Precio,
