@@ -4,7 +4,9 @@ import { MdCheckCircle,MdCancel } from "react-icons/md";
 import { MdPlaylistAdd } from "react-icons/md";
 
 export const TablaUsuario = props => {
-    const {roles,modificarEstado,modificarBloqueoCredito} = props;
+    const {roles,modificarEstado,modificarBloqueoCredito,modificarTodosAsesores} = props;
+
+    console.log(roles);
 
     return (
         <div>
@@ -30,6 +32,7 @@ export const TablaUsuario = props => {
                                 <th style={{textAlign:'center'}}>Usuario</th>
                                 <th style={{textAlign:'center'}}>Estado</th>
                                 <th style={{textAlign:'center'}}>Bloqueo información sensible</th>
+                                <th style={{textAlign:'center'}}>Maneja todos los asesores</th>
                                 <th style={{textAlign:'center'}}>Acciones</th>
                             </tr>
                         </thead>
@@ -41,6 +44,9 @@ export const TablaUsuario = props => {
                                     <th style={{textAlign:'center',color:rol.BloqueoCredito?"green":"red"}}>{rol.BloqueoCredito
                                     ?<button onClick={()=>{modificarBloqueoCredito(rol.Id)}} className="btn btn-success">Activo <MdCheckCircle/> </button>
                                     :<button onClick={()=>{modificarBloqueoCredito(rol.Id)}} className="btn btn-danger">Inactivo <MdCancel/> </button>}</th>
+                                    <th style={{textAlign:'center',color:rol.BloqueoAsesores?"green":"red"}}>{rol.BloqueoAsesores
+                                    ?<button onClick={()=>{modificarTodosAsesores(rol.Id)}} className="btn btn-success">Activo <MdCheckCircle/> </button>
+                                    :<button onClick={()=>{modificarTodosAsesores(rol.Id)}} className="btn btn-danger">Inactivo <MdCancel/> </button>}</th>
                                     <th style={{textAlign:'center'}}>
                                         <button style={{marginLeft:'10px'}} 
                                                 className="btn btn-info" 

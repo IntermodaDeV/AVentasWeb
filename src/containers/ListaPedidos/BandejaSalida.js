@@ -47,11 +47,13 @@ const BandejaSalida = (props) => {
             isLoaded: true,
             pedidos: PedidosCache
         });
+        // eslint-disable-next-line
     }, []);
 
     const enviarPedidoAx = async (pedido) =>{
         if(navigator.onLine){
             try{
+                // eslint-disable-next-line
                 const request = await axios.post(urlApi + "/api/PedidosXCliente/postax",pedido,{
                     headers: {
                         'Content-Type': 'application/json',
@@ -165,8 +167,10 @@ const BandejaSalida = (props) => {
         setShowDialog(false);
         setDialogPedido(null);
     }
+    // eslint-disable-next-line
     let Productos = [];
     const ImpresionPedido = (Pedido) => {
+        // eslint-disable-next-line
         Pedido.DetallePedido.map((producto, index1) => {
             let agregado = false;
             if(Productos.length> 0){
