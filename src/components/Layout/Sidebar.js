@@ -25,6 +25,9 @@ import {
     Sync,
     Dvr,
     FlashAuto,
+    AllInbox,
+    Input,
+    Dashboard,
     //Book,
     ListAlt,
     EventNote,
@@ -38,12 +41,13 @@ import {
     Public
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
-import LeaderBoard     from '@material-ui/icons/Assessment';
 
 //components
 import Logo from 'assets/img/logo/Barra.png';
 import styles from 'components/Layout/Layout.module.css';
 import {IsAllow} from 'components/Seguridad/Permisos';
+
+
 
 
 const Drawer = withStyles({
@@ -64,19 +68,23 @@ const useStyles = makeStyles(theme => ({
             color : "white"
           } //Color blanco al apuntar con el mouse
     },
+    navItem: {
+        color: 'white'
+      }
 }));
+
 
 const navItems = [
     { to: '/estadistica-visita', name: 'Estadistica Visita', dataTut: 'DataTut_EstadisticaVisista', Icon: AssessmentIcon },
-    { to: '/DashBoard-Comercial', name: 'Estadistica Comercial', dataTut: 'DataTut_DashBoardComercial', Icon: LeaderBoard },
+    { to: '/DashBoard-Comercial', name: 'Estadistica Comercial', dataTut: 'DataTut_DashBoardComercial', Icon: Dashboard },
     //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
     {
         to: '/pedidos', name: 'Pedidos', dataTut: 'DataTut_Pedidos', Icon: FeaturedPlayListOutlined,
         expanded: [
-            { to: '/pedidos', name: 'Nuevo Pedido', dataTut: 'DataTut_NuevoPedido', Icon: PostAdd },
-            { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt },
-            { to: '/lista-pedidos-bandejasalida', name: 'Bandeja Salida', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt },
-            { to: '/lista-pedidos-pendientes', name: 'Pedidos Pendientes AX', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt },
+            { to: '/pedidos', name: 'Nuevo Pedido', dataTut: 'DataTut_NuevoPedido', Icon: PostAdd, backgroundColor:''  },
+            { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt, backgroundColor:''  },
+            { to: '/lista-pedidos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_ListadoPedidos', Icon: AllInbox, backgroundColor:'#d49008'  },
+            { to: '/lista-pedidos-bandejasalida', name: 'Bandeja Salida', dataTut: 'DataTut_ListadoPedidos', Icon: Input, backgroundColor:'#c41021' },
         ]
     },
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
@@ -84,15 +92,15 @@ const navItems = [
     {
         to: '/recibos', name: 'Recibos', dataTut: 'DataTut_Recibos', Icon: Receipt,
         expanded: [
-            { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined },
-            { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt },
+            { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined, backgroundColor:''  },
+            { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:''  },
         ]
     },
     {
         to: '/seguridad', name: 'Seguridad', dataTut: 'DataTut_Seguridad', Icon: Receipt,
         expanded: [
-            { to: '/seguridad-permisos', name: 'Asignar Permisos', dataTut: 'DataTut_AsignarPermisos', Icon: AddBoxOutlined },
-            { to: '/seguridad-mantenimiento', name: 'Mantenimiento', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt },
+            { to: '/seguridad-permisos', name: 'Asignar Permisos', dataTut: 'DataTut_AsignarPermisos', Icon: AddBoxOutlined, backgroundColor:''  },
+            { to: '/seguridad-mantenimiento', name: 'Mantenimiento', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt, backgroundColor:''  },
         ]
     },
     { to: '/devoluciones', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
@@ -103,8 +111,8 @@ const navItems = [
     {
         to: '/sincronizacion', name: 'Sincronizacion', dataTut: 'DataTut_Sinc', Icon: Sync,
         expanded: [
-            { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto },
-            { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr },
+            { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto, backgroundColor:''  },
+            { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr, backgroundColor:''  },
             //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
         ]
     },
@@ -218,7 +226,7 @@ const Sidebar = (props) => {
                                                                 icon={<submenu.Icon className={styles.Icons} />}
                                                             />*/
                                                             
-                                                            <ListItem data-tut={submenu.dataTut} nested button className={classes.nested} component={Link} to={submenu.to} onClick={() => handleClick2(index)}>
+                                                            <ListItem data-tut={submenu.dataTut} style={{backgroundColor:submenu.backgroundColor}} nested button className={classes.nested} component={Link} to={submenu.to} onClick={() => handleClick2(index)}>
                                                                 <ListItemIcon>
                                                                     <submenu.Icon className={styles.Icons} />
                                                                 </ListItemIcon>

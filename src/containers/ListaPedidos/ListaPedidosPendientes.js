@@ -212,9 +212,9 @@ export const ListaPedidosPendientes = (props) => {
     } else {
         return (
             <div className="px-3">
-                <div className="row mb-3">
-                <div style ={{textAlign:'center'}} className="alert alert-danger alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '20px', color: 'red'}} /> Los pedidos mostrados en esta pantalla estan registrados unicamente en la nube pero no en AX.
+                <div>
+                <div style ={{textAlign:'center',fontSize:28}} className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <FiAlertTriangle style={{ fontSize: 32, color: 'red'}} /> Los pedidos mostrados en esta pantalla estan registrados unicamente en la nube pero no en AX.
                 </div>
                 </div>
                 <div>
