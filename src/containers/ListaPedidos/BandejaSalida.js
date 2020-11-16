@@ -3,102 +3,64 @@ import Loader from 'components/Global/Loader';
 import MUIDataTable from "mui-datatables";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { Button, Dialog } from "@material-ui/core";
-import DetallePedido from 'components/ListadoPedidos/DetallePedido';
+import { PrintOutlined } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
 import {APIURL} from 'utils/Enviroment';
-import ImprimirPedido from 'components/ListadoPedidos/ImprimirPedido';
+import ImprimirBandejaSalida from 'components/ListadoPedidos/ImprimirBandejaSalida';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import  TableFooter from "@material-ui/core/TableFooter";
 import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import {IsAllow} from 'components/Seguridad/Permisos';
+import {useSelector,useDispatch} from 'react-redux';
 import axios from 'axios';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { FiAlertTriangle } from 'react-icons/fi';
-
 moment.locale('es');
 
-export const ListaPedidosPendientes = (props) => {
+const BandejaSalida = (props) => {
     const urlApi = APIURL;
 
     const [state, setState] = useState({
         error: false,
         isLoaded: false,
-        startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-        endDate: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
         pedidos: [],
         clientes: [],
         pedido: null,
-        Detalles: [],
     });
     const [showDialog, setShowDialog] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
 
+    const PedidosCache = useSelector(p=>p.PedidoSincronizar);
+    const dispatch = useDispatch();
+
+    console.log("Pedidos",PedidosCache)
     useEffect(() => {
-        if(!IsAllow("/lista-pedidos-pendientes"))
+        if(!IsAllow("/lista-pedidos-BandejaSalida"))
         {
             props.history.push('/home');
         }
-        cargarPedidos("1900-01-01", "1900-01-01");
         // eslint-disable-next-line
+        setState({
+            ...state,
+            isLoaded: true,
+            pedidos: PedidosCache
+        });
     }, []);
 
-
-    const cargarPedidos = async (FechaInicio, FechaFin) => {
-        var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
-        var Fin = moment(FechaFin).format("YYYY-MM-DD");
-        let Asesor = localStorage.getItem('codigo');
-        fetch(urlApi + "/api/PedidosXCliente/Pendientes/"+ Asesor + "/" + Inicio + "/" + Fin, {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
-
-            }
-        })
-            .then(res => {
-                if (res.status === 401) {
-                    localStorage.setItem('token', '');
-                    window.location.reload();
-                }
-                if (res.status === 200) {
-                    res.json()
-                        .then(
-                            (result) => {
-
-                                setState({
-                                    ...state,
-                                    isLoaded: true,
-                                    pedidos: result
-                                });
-                            },
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                setState({
-                                    ...state,
-                                    isLoaded: true,
-                                    error
-                                });
-                            }
-                        )
-                }
-            })
-    }
-
-    const sincronizarPedido = async (pedido)=>{
-        try{
-            const request = await axios.post(urlApi + "/api/PedidosXCliente/sincronizar/"+pedido);
-            Swal.fire({
-                type: 'success',
-                title: 'Sincronizado',
-                text: request.data,
-            });
-
-            
-        }catch(err){
-            let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
+    const enviarPedidoAx = async (pedido) =>{
+        if(navigator.onLine){
+            try{
+                const request = await axios.post(urlApi + "/api/PedidosXCliente/postax",pedido,{
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization':'Bearer ' + localStorage.getItem('token')
+                    },
+                    timeout:900*1000
+                });
+            }catch(err){
+                let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
 
                 if(err.response){
                     mensaje = err.response.data.Message;
@@ -109,8 +71,33 @@ export const ListaPedidosPendientes = (props) => {
                     title: 'Error',
                     text: mensaje,
                 })
+            }
         }
-        cargarPedidos("1900-01-01", "1900-01-01");
+    }
+
+    const Sincronizar = async (pedidoId) =>{
+        try{
+            if(navigator.onLine){
+                const pedido = PedidosCache.find(x=>x.PedidoId===pedidoId);
+                const request = await axios.post(urlApi +'/api/PedidosXCliente', pedido, {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'application/json'
+                    },
+                    timeout: 500 * 1000
+                });
+                
+                if(request.data){
+                    const nuevosPedidos = PedidosCache.filter(x=>x.PedidoId!==pedidoId);
+                    dispatch({type:"SET_RESETPEDIDOSINCRONIZAR",payload:nuevosPedidos});
+                    setState((prevState)=>({...prevState,pedidos:nuevosPedidos}));
+                    enviarPedidoAx(request.data.EncabezadoPedido.PedidoAPI);
+                }
+
+            }
+        }catch(err){
+
+        }
     }
 
     const getMuiTheme = () => createMuiTheme({
@@ -132,27 +119,25 @@ export const ListaPedidosPendientes = (props) => {
     const DataPedidos = () => {
         let DataPedidos = [];
         state.pedidos.map(pedido => {
-
-
-            //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
                 let data = [
-                    pedido.PedidoId,
-                    pedido.Cliente.Nombre,
+                    "No disponible",
+                    pedido.CodigoCliente,
                     moment(pedido.FechaActual).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaActual).format('DD/MM/YYYY') : "",
-                    pedido.Linea.Linea,
-                    pedido.NombreColeccion,
-                    pedido.TotalUnidades,
+                    "No",
+                    "No disponible",
+                    pedido.Linea,
+                    pedido.CodigoColeccion,
+                    pedido.TipoPedido.TipoPedido, //Credito
+                    "En Cache", //Estado
                     moment(pedido.FechaEntrega).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaEntrega).format('DD/MM/YYYY') : "",
-                    pedido.ErrorAx,
                     <div>
 
                         <span className="mr-1">
-                            <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, false)} size="small" color={"primary"}>Detalle</Button>
+                            <Button className='my-1' variant="outlined" onClick={() => Sincronizar(pedido.PedidoId)} size="small" color={"primary"}>Sincronizar</Button>
                         </span>
-
                         <span className="ml-1">
-                            <Button className='my-1' variant="outlined" disabled={pedido.Procesando} onClick={() => sincronizarPedido(pedido.PedidoId)} size="small" color={"primary"}>
-                                {pedido.Procesando ? "Procesando":"Sincronizar"}
+                            <Button className='my-1' variant="outlined" onClick={() => ImpresionPedido(pedido)} size="small" color={"primary"}>
+                                <PrintOutlined />
                             </Button>
                         </span >
                     </div>
@@ -167,88 +152,53 @@ export const ListaPedidosPendientes = (props) => {
         return DataPedidos;
     }
 
-    const GetPedidoDetalle = (Pedido, EsImpresion) =>{
-        let EnDetalle = EsImpresion ? null : Pedido;
-        fetch(`${APIURL}/api/PedidoDetalle/${Pedido.PedidoId}`)
-        .then(res=>res.json())
-        .then(data=>{
-            setState({
-                ...state,
-                Detalles: data,
-                pedido: EnDetalle,
-            });
-            if(EsImpresion)
-            {
-                setShowDialog(true);
-            }
-        });
-        setDialogPedido(Pedido);
-    }
-
     const hidePrint = () => {
         setShowDialog(false);
         setDialogPedido(null);
     }
 
-
-    const RegresarListaPedidos = () => {
-        setState({ ...state, pedido: null });
+    const ImpresionPedido = (Pedido) => {
+        setDialogPedido(Pedido);
+        setShowDialog(true);
     }
-
     if (!state.isLoaded) {
         return <Loader interval={1800} />;
     }
     if (state.error) {
         return <div>Error: {state.error.message}</div>;
     }
-    if (state.pedido != null && state.Detalles !== null) {
-        return (
-            <DetallePedido
-                clientes={state.clientes}
-                pedido={state.pedido}
-                RegresarListaPedidos={RegresarListaPedidos}
-                gruposXDetPed = {state.Detalles} />
-        )
-    } else {
-        return (
+      return (
             <div className="px-3">
-                <div className="row mb-3">
                 <div style ={{textAlign:'center'}} className="alert alert-danger alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '20px', color: 'red'}} /> Los pedidos mostrados en esta pantalla estan registrados unicamente en la nube pero no en AX.
-                </div>
+                    <FiAlertTriangle style={{ fontSize: '20px', color: 'red'}} /> Los pedidos mostrados en esta pantalla estan registrados unicamente en su maquina
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>
                         <MUIDataTable
-                            title={"Listado Pedidos"}
+                            title={"Bandeja de Salidad de Pedidos"}
                             data={DataPedidos()}
                             columns={HeadersListaPedidos}
                             options={DatatableOptions}
                         />
                     </MuiThemeProvider>
                 </div>
-
                 <Dialog
                     open={showDialog}
                     onClose={() => hidePrint()}
                     scroll={'paper'}
                     aria-labelledby="scroll-dialog-title"
                 >
-
-                    {
-                        DialogPedido && state.Detalles !== null &&
-                        <ImprimirPedido
+                   {
+                        DialogPedido &&
+                        <ImprimirBandejaSalida
                             hidePrint={hidePrint}
                             Pedido={DialogPedido}
-                            gruposXDetPed = {state.Detalles}
                         />
                     }
                 </Dialog >
 
             </div>
         );
-    }
-
 }
 
 
@@ -256,11 +206,13 @@ const HeadersListaPedidos = [
     "No. Pedido",
     "Cliente",
     "Fecha Pedido",
+    "Sincronizado",
+    "Num. Pedido Ax",
     "Línea",
     "Paquete",
-    "Total Unidades",
+    'Tipo Crédito',
+    "Estado",
     "Fecha Entrega",
-    "Ultimo mensaje de error",
     {
         label: "Acciones",
         options: {
@@ -326,3 +278,6 @@ const DatatableOptions = {
         },
     }
 };
+
+
+export default BandejaSalida;

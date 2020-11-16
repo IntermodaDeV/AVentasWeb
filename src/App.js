@@ -27,7 +27,8 @@ import './App.css'
 import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
 import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
 import {Home} from 'containers/Home/Home';
-import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPendientes'
+import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPendientes';
+import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -82,6 +83,11 @@ const App = props => {
               path='/DashBoard-Comercial'
               layout={MainLayout}
               component={()=>( <iframe title="reporte" src="http://cubo-intermoda/tableros/powerbi/Comercial/Operativo%20Comercial?rs:Embed=true" position="relative" top="0" height="100%" width="100%" /> )}
+            />
+            <LayoutRoute
+              path='/lista-pedidos-BandejaSalida'
+              layout={MainLayout}
+              component={BandejaSalida}
             />
             {/*<LayoutRoute
               exact
