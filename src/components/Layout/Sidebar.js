@@ -38,6 +38,8 @@ import {
     Public
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
+import LeaderBoard     from '@material-ui/icons/Assessment';
+
 //components
 import Logo from 'assets/img/logo/Barra.png';
 import styles from 'components/Layout/Layout.module.css';
@@ -66,6 +68,7 @@ const useStyles = makeStyles(theme => ({
 
 const navItems = [
     { to: '/estadistica-visita', name: 'Estadistica Visita', dataTut: 'DataTut_EstadisticaVisista', Icon: AssessmentIcon },
+    { to: '/DashBoard-Comercial', name: 'Estadistica Comercial', dataTut: 'DataTut_DashBoardComercial', Icon: LeaderBoard },
     //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
     {
         to: '/pedidos', name: 'Pedidos', dataTut: 'DataTut_Pedidos', Icon: FeaturedPlayListOutlined,

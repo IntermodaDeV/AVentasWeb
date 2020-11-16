@@ -32,8 +32,8 @@ const Recibos = (props) => {
   const [isCreditoVencido,setCreditoVencido] = useState(false);
   const [DataModal, setDataModal] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [clientes] = useState(props.clientes);
-  const [clientesFiltrados,setClientesFiltrados] = useState(props.clientes);
+  const [clientes,setClientes] = useState([]);
+  const [clientesFiltrados,setClientesFiltrados] = useState([]);
   const [paisSeleccionado,setPaisSeleccionado] = useState(null);
   const dispatch = useDispatch();
   const creditoVencido = (vencido)=>{
@@ -53,12 +53,6 @@ const Recibos = (props) => {
     //   ? props.location.state.CodigoCliente : null
     // }
     // if(props.)
-    if(props.Paises.length===1){
-      setClientesFiltrados(props.clientes);
-    }else{
-      setClientesFiltrados(props.clientes);
-    }
-
     if (matchPath(props.match.url,
       {
         path: props.location.pathname,
@@ -308,7 +302,9 @@ const Recibos = (props) => {
         res.json().then(
           result => {
             setLoading(false);
-            props.onStoreReciboClientes(result)
+            props.onStoreReciboClientes(result);
+            setClientes(result);
+            setClientesFiltrados(result);
           },
           // Note: it's important to handle errors here
           // instead of a catch() block so that we don't swallow
@@ -319,6 +315,9 @@ const Recibos = (props) => {
         )
       }
     })
+
+    setClientes(props.clientes);
+    setClientesFiltrados(props.clientes);
   }
 
   const cargarMonedas = () =>{
