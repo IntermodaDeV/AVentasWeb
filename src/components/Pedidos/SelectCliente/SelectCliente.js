@@ -99,7 +99,9 @@ const SelectCliente = (props) => {
     }else{
         props.setCliente();
     }
-
+    props.onSetTableValue({});
+    props.onSetTotalPedido(0);
+    props.onSetNumeroOrden(null);
    }
 
     const handleClose = () => {

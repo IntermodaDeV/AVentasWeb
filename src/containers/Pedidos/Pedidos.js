@@ -342,11 +342,7 @@ class Pedidos extends React.Component {
         {
             this.props.history.push('/home');
         }
-        if (!this.isPedidoActivo()) {
-            this.cargarData();
-        } else {
-            this.setState({ isLoaded: true });
-        }
+        this.cargarData();
 
         // window.onpopstate = this.onBackButtonEvent;
         this.inactivityTime();
@@ -844,7 +840,8 @@ class Pedidos extends React.Component {
         }
     }
     isPedidoActivo = () => {
-        let isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true :false;
+        let isProductosSeleccionados = false;
+        isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true :false;
         /*let tableValue = { ...this.props.TableValue };
         if (this.props.LineaSeleccionada && this.props.coleccion) {
             if (tableValue[this.props.LineaSeleccionada.IdLinea] === undefined || tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion] === undefined) {
@@ -1189,8 +1186,10 @@ class Pedidos extends React.Component {
         }
 
     }
+   
     mostrarResumen = () => {
         // this.setState({ mostrarResumen: true })
+        this.setState({ mostrarRecibo: false})
         this.props.history.push("/Pedidos/ResumenPedido");
 
     }
@@ -2363,6 +2362,9 @@ class Pedidos extends React.Component {
                             loading={this.state.selectClienteLoading}
                             codigoClientePreseleccionado={this.props.location.state ? this.props.location.state.CodigoCliente : null}
                             infoCliente={this.infoCliente}
+                            onSetTableValue={this.props.onSetTableValue}
+                            onSetTotalPedido={this.props.onSetTotalPedido}
+                            onSetNumeroOrden={this.props.onSetNumeroOrden}
                         />
                         </div>
                     </Switch>
