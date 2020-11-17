@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Loader from 'components/Global/Loader';
 import MUIDataTable from "mui-datatables";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-import { Button, Dialog } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import DetallePedido from 'components/ListadoPedidos/DetallePedido';
 import moment from "moment";
 import 'moment/locale/es';
@@ -16,6 +16,10 @@ import {IsAllow} from 'components/Seguridad/Permisos';
 import axios from 'axios';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { FiAlertTriangle } from 'react-icons/fi';
+import Dialog        from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle   from '@material-ui/core/DialogTitle';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 moment.locale('es');
 
@@ -33,6 +37,7 @@ export const ListaPedidosPendientes = (props) => {
         Detalles: [],
     });
     const [showDialog, setShowDialog] = useState(false);
+    const [loading,setLoading] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
 
     useEffect(() => {
@@ -89,15 +94,17 @@ export const ListaPedidosPendientes = (props) => {
 
     const sincronizarPedido = async (pedido)=>{
         try{
+            setLoading(true);
             const request = await axios.post(urlApi + "/api/PedidosXCliente/sincronizar/"+pedido);
             Swal.fire({
                 type: 'success',
                 title: 'Sincronizado',
                 text: request.data,
             });
-
+            setLoading(false);
             
         }catch(err){
+            setLoading(false);
             let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
 
                 if(err.response){
@@ -152,7 +159,7 @@ export const ListaPedidosPendientes = (props) => {
 
                         <span className="ml-1">
                             <Button className='my-1' variant="outlined" disabled={pedido.Procesando} onClick={() => sincronizarPedido(pedido.PedidoId)} size="small" color={"primary"}>
-                                {pedido.Procesando ? "Procesando":"Sincronizar"}
+                                Sincronizar
                             </Button>
                         </span >
                     </div>
@@ -212,6 +219,29 @@ export const ListaPedidosPendientes = (props) => {
     } else {
         return (
             <div className="px-3">
+                <Dialog
+                    disableBackdropClick 
+                    scroll={'paper'}
+                    open={loading}
+                    >
+                        <DialogTitle className="text-center" id="scroll-dialog-title">
+                            <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                                Sincronizando
+                        </div>
+                        </DialogTitle>
+                        <DialogContent>
+                        
+                        <div className="d-flex flex-grow-1 align-items-center justify-content-center">
+                                <div className="row">
+                                    <div className="col-12 text-center">
+                                        <CircularProgress disableShrink/>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            
+                        </DialogContent>
+                </Dialog>
                 <div>
                 <div style ={{textAlign:'center',fontSize:28}} className="alert alert-danger alert-dismissible fade show" role="alert">
                     <FiAlertTriangle style={{ fontSize: 32, color: 'red'}} /> Los pedidos mostrados en esta pantalla estan registrados unicamente en la nube pero no en AX.

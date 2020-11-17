@@ -1339,7 +1339,6 @@ class Pedidos extends React.Component {
                 let numPedido = data.EncabezadoPedido.PedidoId;
                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                 this.props.onSetNumeroOrden(numPedido);
-                this.enviarPedidoAx(data.EncabezadoPedido.PedidoAPI);
             }
         }
     }

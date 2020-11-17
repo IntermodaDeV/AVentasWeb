@@ -178,20 +178,18 @@ const ListaPedidos = (props) => {
         let DataPedidos = [];
         state.pedidos.map(pedido => {
 
-
+            
             //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
                 let data = [
-                    pedido.PedidoId,
-                    pedido.Cliente.Nombre,
-                    moment(pedido.FechaActual).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaActual).format('DD/MM/YYYY') : "",
-                    (pedido.Sincronizado)?"Si":"No",
-                    (pedido.NumeroPedido==="")?"No disponible":pedido.NumeroPedido,
-                    pedido.Linea.Linea,
-                    pedido.NombreColeccion,
-                    pedido.TotalUnidades,
-                    "", //Credito
-                    "", //Estado
-                    moment(pedido.FechaEntrega).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaEntrega).format('DD/MM/YYYY') : "",
+                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.PedidoId}</p>,
+                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.Cliente.Nombre}</p>,
+                    moment(pedido.FechaActual).format('DD/MM/YYYY') !== "Invalid date" ? <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{moment(pedido.FechaActual).format('DD/MM/YYYY')}</p> : "",
+                    (pedido.Sincronizado)?<p style={{color:'green',fontWeight:'bold'}}>Si</p>:<p style={{color:'orange',fontWeight:'bold'}}>No</p>,
+                    (pedido.NumeroPedido==="")?<p style={{color:'orange',fontWeight:'bold'}}>No disponible</p>:<p style={{color:'green',fontWeight:'bold'}}>{pedido.NumeroPedido}</p>,
+                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.Linea.Linea}</p>,
+                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.NombreColeccion}</p>,
+                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.TotalUnidades}</p>,
+                    moment(pedido.FechaEntrega).format('DD/MM/YYYY') !== "Invalid date" ? <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{moment(pedido.FechaEntrega).format('DD/MM/YYYY')}</p> : "",
                     <div>
 
                         <span className="mr-1">
@@ -339,8 +337,6 @@ const HeadersListaPedidos = [
     "Línea",
     "Paquete",
     "Total Unidades",
-    'Tipo Crédito',
-    "Estado",
     "Fecha Entrega",
     {
         label: "Acciones",
