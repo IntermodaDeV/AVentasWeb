@@ -62,7 +62,7 @@ export const post = async (url, info, action) => {
 
 export const postPedidoStorage = (info)=>{
     store.dispatch({ type: "SET_PEDIDOSINCRONIZAR", payload: info });
-    const data = { EncabezadoPedido: { PedidoId: "No Disponible" } };
+    const data = { EncabezadoPedido: { PedidoId: info.NumeroReferencia === "" ? "No Disponible" : info.NumeroReferencia } };
     return data;
 }
 

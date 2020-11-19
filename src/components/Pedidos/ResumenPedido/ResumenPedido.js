@@ -58,6 +58,7 @@ const ResumenPedido = (props) => {
     let comunidadSelected = "";
     let modoEntrega = "";
     let habilitado = false;
+    let correlativoInterno = "";
 
     if (clienteContado === null) {
         if (props.Cliente.ComunidadAutonoma !== "") {
@@ -155,7 +156,22 @@ const ResumenPedido = (props) => {
             && ((totalGlobal + impuesto) + flete) > 10000;
     }
 
-    const Finalizar = () => {
+    const Finalizar = async () => {
+        if(correlativoInterno === "")
+        {
+            const {correlativo} = await props.obtenerUltimoCorrelativo();
+
+            if(correlativo === "")
+            {
+                Swal.fire({
+                    type: 'error',
+                    title: 'Error en la red obteniendo correlativo de pedido',
+                    text: "Pedido se guardará en caché.",
+                });
+            }
+
+            correlativoInterno = correlativo;
+        }
 
         props.guardarFecha(FechaEntrega);
         if (ApruebaBio()) {
@@ -194,7 +210,7 @@ const ResumenPedido = (props) => {
                                 cancelButtonText: 'Cancelar'
                             }).then((result) => {
                                 if (result.value) {
-                                    props.enviarPedido();
+                                    props.enviarPedido(correlativoInterno);
                                 }
                             })
                         } else if ((totalGlobal + impuesto) > props.Cliente.CreditoDisponible && TipoCredito.TipoPedido !== 'Contado') {
@@ -209,12 +225,12 @@ const ResumenPedido = (props) => {
                                 cancelButtonText: 'Cancelar'
                             }).then((result) => {
                                 if (result.value) {
-                                    props.enviarPedido();
+                                    props.enviarPedido(correlativoInterno);
                                 }
                             })
                         }
                         else {
-                            props.enviarPedido();
+                            props.enviarPedido(correlativoInterno);
                         }
 
                     }

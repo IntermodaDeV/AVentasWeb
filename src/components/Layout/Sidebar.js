@@ -38,7 +38,8 @@ import {
     CameraAltOutlined,
     LocationOnOutlined,
     HelpOutline,
-    Public
+    Public,
+    Security
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
@@ -97,7 +98,7 @@ const navItems = [
         ]
     },
     {
-        to: '/seguridad', name: 'Seguridad', dataTut: 'DataTut_Seguridad', Icon: Receipt,
+        to: '/seguridad', name: 'Seguridad', dataTut: 'DataTut_Seguridad', Icon: Security,
         expanded: [
             { to: '/seguridad-permisos', name: 'Asignar Permisos', dataTut: 'DataTut_AsignarPermisos', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/seguridad-mantenimiento', name: 'Mantenimiento', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt, backgroundColor:''  },

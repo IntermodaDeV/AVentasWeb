@@ -348,6 +348,7 @@ const HeadersListaPedidos = [
 ];
 
 const DatatableOptions = {
+    filter:false,
     filterType: "dropdown",
     responsive: "scrollMaxHeight",
     print: false,

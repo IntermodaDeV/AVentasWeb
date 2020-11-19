@@ -50,50 +50,28 @@ const BandejaSalida = (props) => {
         // eslint-disable-next-line
     }, []);
 
-    const enviarPedidoAx = async (pedido) =>{
-        if(navigator.onLine){
-            try{
-                // eslint-disable-next-line
-                const request = await axios.post(urlApi + "/api/PedidosXCliente/postax",pedido,{
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization':'Bearer ' + localStorage.getItem('token')
-                    },
-                    timeout:900*1000
-                });
-            }catch(err){
-                let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
-
-                if(err.response){
-                    mensaje = err.response.data.Message;
-                }
-
-                Swal.fire({
-                    type: 'error',
-                    title: 'Error',
-                    text: mensaje,
-                })
-            }
-        }
-    }
-
     const Sincronizar = async (pedidoId) =>{
         try{
             if(navigator.onLine){
                 const pedido = PedidosCache.find(x=>x.PedidoId===pedidoId);
+
                 const request = await axios.post(urlApi +'/api/PedidosXCliente', pedido, {
                     headers: {
                         'Authorization': 'Bearer ' + localStorage.getItem('token'),
                         'Content-Type': 'application/json'
                     },
-                    timeout: 500 * 1000
                 });
                 
                 if(request.data){
                     const nuevosPedidos = PedidosCache.filter(x=>x.PedidoId!==pedidoId);
                     dispatch({type:"SET_RESETPEDIDOSINCRONIZAR",payload:nuevosPedidos});
                     setState((prevState)=>({...prevState,pedidos:nuevosPedidos}));
-                    enviarPedidoAx(request.data.EncabezadoPedido.PedidoAPI);
+
+                    Swal.fire({
+                        type: 'success',
+                        title: 'Sincronizado',
+                        text: "Pedido sincronizado correctamente",
+                    });
                 }
 
             }
@@ -101,12 +79,13 @@ const BandejaSalida = (props) => {
             {
                 Swal.fire({
                     title: 'Sin Internet',
-                    text: 'Necesita interner para sincronizar el pedido',
+                    text: 'Necesita internet para sincronizar el pedido',
                     type: 'warning',
                     confirmButtonText: 'Ok',
                   })
             }
-        }catch(err){
+        }
+        catch(err){
 
         }
     }
@@ -175,7 +154,6 @@ const BandejaSalida = (props) => {
             let agregado = false;
             if(Productos.length> 0){
                 Productos.forEach((productoUnico, index2) => {
-                    debugger;
                     if(productoUnico.Codigo === producto.CodigoProducto)
                     {
                         productoUnico.Colores.forEach((colores, index3) => {

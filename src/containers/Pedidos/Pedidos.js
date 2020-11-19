@@ -841,8 +841,8 @@ class Pedidos extends React.Component {
     }
     isPedidoActivo = () => {
         let isProductosSeleccionados = false;
-        isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true :false;
-        /*let tableValue = { ...this.props.TableValue };
+        isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true :false; 
+                /*let tableValue = { ...this.props.TableValue };
         if (this.props.LineaSeleccionada && this.props.coleccion) {
             if (tableValue[this.props.LineaSeleccionada.IdLinea] === undefined || tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion] === undefined) {
                return isProductosSeleccionados;
@@ -1186,7 +1186,7 @@ class Pedidos extends React.Component {
         }
 
     }
-   
+
     mostrarResumen = () => {
         // this.setState({ mostrarResumen: true })
         this.setState({ mostrarRecibo: false})
@@ -1195,21 +1195,17 @@ class Pedidos extends React.Component {
     }
 
     obtenerUltimoCorrelativo = async () =>{
-        var correlativo,error;
-        if(navigator.onLine){
-            try{
-                const request = await axios.get(this.urlApi + "/api/PedidosXCliente/correlativo",{headers:{
-                    'Content-Type': 'application/json',
-                    'Authorization':'Bearer ' + localStorage.getItem('token')
-                }});
+        var correlativo = "",errorCor;
+        try{
+            const request = await axios.get(this.urlApi + "/api/PedidosXCliente/correlativo",{headers:{
+                'Content-Type': 'application/json',
+                'Authorization':'Bearer ' + localStorage.getItem('token')
+            }});
 
-                correlativo = request.data;
-            }catch(err){
-                error = err
-            }
+            return {correlativo:request.data,errorCor};
+        }catch(err){
+            return {correlativo,errorCor};
         }
-
-        return {correlativo,error};
     }
 
     enviarPedidoAx = async (pedido) =>{
@@ -1239,10 +1235,12 @@ class Pedidos extends React.Component {
             }
         }
     }
-
-    enviarPeticionPedido = async (location) => {
+    
+  
+    enviarPeticionPedido = async (location, correlativo) => {
 
         let pedido = {
+            NumeroReferencia : correlativo,
             PedidoId: 100 + (Math.random() * (10000 - 100)),
             CodigoCliente: this.props.cliente.Codigo,
             Nombre : this.props.cliente.Nombre,
@@ -1318,7 +1316,15 @@ class Pedidos extends React.Component {
             let numPedido = data.EncabezadoPedido.PedidoId;
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
-        }else{
+        }
+        else if(pedido.NumeroReferencia === ""){
+            const data = postPedidoStorage(pedido);
+            let numPedido = data.EncabezadoPedido.PedidoId;
+            this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+            this.props.onSetNumeroOrden(numPedido);
+        }
+        else{
+
             const { data,error } = await post(this.urlApi + "/api/PedidosXCliente",pedido,"SET_PEDIDOSINCRONIZAR");
 
             if(error){
@@ -1342,7 +1348,7 @@ class Pedidos extends React.Component {
         }
     }
 
-    enviarPedido = async ()=> {
+    enviarPedido = async (correlativo)=> {
         localStorage.removeItem("ColeccionSeleccionada");
         localStorage.removeItem("HoraIngreso");
         localStorage.removeItem("ProdEnCarrito");
@@ -1351,9 +1357,9 @@ class Pedidos extends React.Component {
             this.enviarPeticionPedido({
                 longitude: position.coords.longitude,
                 latitude: position.coords.latitude
-            })
+            },correlativo)
         }, (error) => {
-            this.enviarPeticionPedido(null);
+            this.enviarPeticionPedido(null,correlativo);
         });
     }
     FinalizarPedidoOnline = () => {
@@ -1862,6 +1868,7 @@ class Pedidos extends React.Component {
                                         NumeroOrden={this.props.NumeroOrden}
                                         FinalizarPedidoOnline={this.FinalizarPedidoOnline}
                                         CargarImpresionPedido = {this.CargarImpresionPedido}
+                                        obtenerUltimoCorrelativo={this.obtenerUltimoCorrelativo}
                                     ></ResumenPedido>
                                 )
                             }}
