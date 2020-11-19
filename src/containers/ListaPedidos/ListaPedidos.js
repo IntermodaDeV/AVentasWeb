@@ -181,15 +181,15 @@ const ListaPedidos = (props) => {
             
             //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
                 let data = [
-                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.PedidoId}</p>,
-                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.Cliente.Nombre}</p>,
-                    moment(pedido.FechaActual).format('DD/MM/YYYY') !== "Invalid date" ? <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{moment(pedido.FechaActual).format('DD/MM/YYYY')}</p> : "",
-                    (pedido.Sincronizado)?<p style={{color:'green',fontWeight:'bold'}}>Si</p>:<p style={{color:'orange',fontWeight:'bold'}}>No</p>,
-                    (pedido.NumeroPedido==="")?<p style={{color:'orange',fontWeight:'bold'}}>No disponible</p>:<p style={{color:'green',fontWeight:'bold'}}>{pedido.NumeroPedido}</p>,
-                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.Linea.Linea}</p>,
-                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.NombreColeccion}</p>,
-                    <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{pedido.TotalUnidades}</p>,
-                    moment(pedido.FechaEntrega).format('DD/MM/YYYY') !== "Invalid date" ? <p style={{color:(pedido.Sincronizado)?'black':'orange',fontWeight:(pedido.Sincronizado)?'normal':'bold'}}>{moment(pedido.FechaEntrega).format('DD/MM/YYYY')}</p> : "",
+                    [pedido.PedidoId,pedido.Sincronizado],
+                    [pedido.Cliente.Nombre,pedido.Sincronizado],
+                    [moment(pedido.FechaActual).format('DD/MM/YYYY'),pedido.Sincronizado],
+                    [pedido.Sincronizado],
+                    [pedido.NumeroPedido,pedido.Sincronizado],
+                    [pedido.Linea.Linea,pedido.Sincronizado],
+                    [pedido.NombreColeccion,pedido.Sincronizado],
+                    [pedido.TotalUnidades,pedido.Sincronizado],
+                    [moment(pedido.FechaEntrega).format('DD/MM/YYYY'),pedido.Sincronizado],
                     <div>
 
                         <span className="mr-1">
@@ -329,15 +329,105 @@ const ListaPedidos = (props) => {
 
 
 const HeadersListaPedidos = [
-    "No. Pedido",
-    "Cliente",
-    "Fecha Pedido",
-    "Sincronizado",
-    "Num. Pedido Ax",
-    "Línea",
-    "Paquete",
-    "Total Unidades",
-    "Fecha Entrega",
+    {
+        name: "No. Pedido",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+            );
+          }
+        }
+      },
+      {
+        name: "Cliente",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+            );
+          }
+        }
+      },
+      {
+        name: "Fecha Pedido",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+            );
+          }
+        }
+      },
+      {
+        name: "Sincronizado",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[0])?'green':'orange',fontWeight:'bold'}}>{value[0]?"Si":"No"}</p>
+            );
+          }
+        }
+      },
+      {
+        name: "Num Pedido Ax",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[1])?'green':'orange',fontWeight:'bold'}}>{value[0]===""?"No disponible":value[0]}</p>
+            );
+          }
+        }
+      },
+      {
+        name: "Linea",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+            );
+          }
+        }
+      },
+      {
+        name: "Paquete",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+            );
+          }
+        }
+      },
+      {
+        name: "Total unidades",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+            );
+          }
+        }
+      },
+      {
+        name: "Fecha Entrega",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+            );
+          }
+        }
+      },
     {
         label: "Acciones",
         options: {
@@ -348,7 +438,7 @@ const HeadersListaPedidos = [
 ];
 
 const DatatableOptions = {
-    filter:false,
+    filter:true,
     filterType: "dropdown",
     responsive: "scrollMaxHeight",
     print: false,

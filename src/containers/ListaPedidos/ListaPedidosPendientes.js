@@ -93,31 +93,40 @@ export const ListaPedidosPendientes = (props) => {
     }
 
     const sincronizarPedido = async (pedido)=>{
-        try{
-            setLoading(true);
-            const request = await axios.post(urlApi + "/api/PedidosXCliente/sincronizar/"+pedido);
-            Swal.fire({
-                type: 'success',
-                title: 'Sincronizado',
-                text: request.data,
-            });
-            setLoading(false);
-            
-        }catch(err){
-            setLoading(false);
-            let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
-
-                if(err.response){
-                    mensaje = err.response.data.Message;
-                }
-
+        if(navigator.onLine){
+            try{
+                setLoading(true);
+                const request = await axios.post(urlApi + "/api/PedidosXCliente/sincronizar/"+pedido);
                 Swal.fire({
-                    type: 'error',
-                    title: 'Error',
-                    text: mensaje,
-                })
+                    type: 'success',
+                    title: 'Sincronizado',
+                    text: request.data,
+                });
+                setLoading(false);
+                
+            }catch(err){
+                setLoading(false);
+                let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
+
+                    if(err.response){
+                        mensaje = err.response.data.Message;
+                    }
+
+                    Swal.fire({
+                        type: 'error',
+                        title: 'Error',
+                        text: mensaje,
+                    })
+            }
+            cargarPedidos("1900-01-01", "1900-01-01");
+        }else{
+            Swal.fire({
+                title: 'Sin Internet',
+                text: 'Necesita internet para sincronizar el pedido',
+                type: 'warning',
+                confirmButtonText: 'Ok',
+              })
         }
-        cargarPedidos("1900-01-01", "1900-01-01");
     }
 
     const getMuiTheme = () => createMuiTheme({
