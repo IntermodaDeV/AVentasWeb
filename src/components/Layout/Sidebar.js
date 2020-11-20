@@ -82,10 +82,10 @@ const navItems = [
     {
         to: '/pedidos', name: 'Pedidos', dataTut: 'DataTut_Pedidos', Icon: FeaturedPlayListOutlined,
         expanded: [
+            { to: '/lista-pedidos-bandejasalida', name: 'Bandeja Salida', dataTut: 'DataTut_ListadoPedidos', Icon: Input, backgroundColor:'#c41021' },
+            { to: '/lista-pedidos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_ListadoPedidos', Icon: AllInbox, backgroundColor:'#d49008'  },
             { to: '/pedidos', name: 'Nuevo Pedido', dataTut: 'DataTut_NuevoPedido', Icon: PostAdd, backgroundColor:''  },
             { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt, backgroundColor:''  },
-            { to: '/lista-pedidos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_ListadoPedidos', Icon: AllInbox, backgroundColor:'#d49008'  },
-            { to: '/lista-pedidos-bandejasalida', name: 'Bandeja Salida', dataTut: 'DataTut_ListadoPedidos', Icon: Input, backgroundColor:'#c41021' },
         ]
     },
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },

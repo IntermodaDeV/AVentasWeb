@@ -17,6 +17,9 @@ import {IsAllow} from 'components/Seguridad/Permisos';
 import {useSelector,useDispatch} from 'react-redux';
 import axios from 'axios';
 import { FiAlertTriangle } from 'react-icons/fi';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle   from '@material-ui/core/DialogTitle';
+import CircularProgress from '@material-ui/core/CircularProgress';
 moment.locale('es');
 
 const BandejaSalida = (props) => {
@@ -32,7 +35,7 @@ const BandejaSalida = (props) => {
     });
     const [showDialog, setShowDialog] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
-
+    const [loading,setLoading] = useState(false);
     const PedidosCache = useSelector(p=>p.PedidoSincronizar);
     const dispatch = useDispatch();
 
@@ -53,8 +56,8 @@ const BandejaSalida = (props) => {
     const Sincronizar = async (pedidoId) =>{
         try{
             if(navigator.onLine){
+                setLoading(true);
                 const pedido = PedidosCache.find(x=>x.PedidoId===pedidoId);
-
                 const request = await axios.post(urlApi +'/api/PedidosXCliente', pedido, {
                     headers: {
                         'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -73,7 +76,7 @@ const BandejaSalida = (props) => {
                         text: "Pedido sincronizado correctamente",
                     });
                 }
-
+                setLoading(false);
             }
             else
             {
@@ -86,7 +89,7 @@ const BandejaSalida = (props) => {
             }
         }
         catch(err){
-
+            setLoading(false);
         }
     }
 
@@ -218,6 +221,29 @@ const BandejaSalida = (props) => {
     }
       return (
             <div className="px-3">
+                <Dialog
+                    disableBackdropClick 
+                    scroll={'paper'}
+                    open={loading}
+                    >
+                        <DialogTitle className="text-center" id="scroll-dialog-title">
+                            <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                                Sincronizando
+                        </div>
+                        </DialogTitle>
+                        <DialogContent>
+                        
+                        <div className="d-flex flex-grow-1 align-items-center justify-content-center">
+                                <div className="row">
+                                    <div className="col-12 text-center">
+                                        <CircularProgress disableShrink/>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            
+                        </DialogContent>
+                </Dialog>
                 <div style ={{textAlign:'center',fontSize: '28px'}} className="alert alert-danger alert-dismissible fade show" role="alert">
                     <FiAlertTriangle style={{ fontSize: '32px', color: 'red'}} /> Los pedidos mostrados en esta pantalla están registrados únicamente en su maquina
                 </div>
