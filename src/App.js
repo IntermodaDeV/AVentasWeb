@@ -29,7 +29,7 @@ import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
 import {Home} from 'containers/Home/Home';
 import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPendientes';
 import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
-
+import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -118,6 +118,12 @@ const App = props => {
               path='/lista-recibos'
               layout={MainLayout}
               component={ListaRecibos}
+            />
+             <LayoutRoute
+              exact
+              path='/lista-recibos-BandejaSalida'
+              layout={MainLayout}
+              component={BadejaSalidaRecibos}
             />
             <LayoutRoute
               exact

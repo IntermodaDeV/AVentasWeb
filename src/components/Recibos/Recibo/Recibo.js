@@ -1,7 +1,7 @@
 import React from 'react';
 import {Button } from '@material-ui/core';
 import ReactToPrint from 'react-to-print';
-import Logo from 'assets/img/logo/LogoSinLetrasInv.png';
+import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/Recibos/Recibo/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
@@ -67,7 +67,7 @@ const Recibo = (props) => {
                         <div id={"invoice-POS"} ref={componentRef} style={{ boxShadow: 'unset' }}>
                             <div id="top">
                                 <div className="row">
-                                    <img className="pr-3" alt={"Logo"} width={150} style={{ objectFit: 'contain' }} src={Logo} ></img>
+                                    <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
 
                                     <div className="col text-left m-auto">
                                         <h2 className={"m-0 " + styles.Title}>
@@ -184,7 +184,6 @@ const Recibo = (props) => {
 
                                             <tbody>
                                                 {props.RecibosAplicados.Facturas.map((factu, index) => (
-                                                    
                                                     <React.Fragment key={index}>
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
@@ -201,7 +200,6 @@ const Recibo = (props) => {
 
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
-                                                                {/* 6,182.40 */}
                                                                 {numberWithCommas(Number(factu.Parcial))}
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>

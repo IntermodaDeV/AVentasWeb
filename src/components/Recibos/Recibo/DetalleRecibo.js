@@ -16,7 +16,7 @@ import { APIURL } from 'utils/Enviroment';
 import { FaEye } from "react-icons/fa";
 import MySnackbarContentWrapper from 'components/Global/snackbar';
 import Snackbar from '@material-ui/core/Snackbar';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 moment.locale('es');
 
 const urlApi = APIURL
@@ -48,7 +48,7 @@ const DetalleRecibo = (props) => {
     ] = useState(null);
     const [tiposPago, setTiposPago] = useState([])
     const pedidoSelected = useSelector(e=>e.pedidoSelected);
-    
+    const dispatch = useDispatch();
     let calculo =React.useRef(1);
     
     const [pagosXRecibo, setPagosXRecibo] = useState([
@@ -515,8 +515,66 @@ const DetalleRecibo = (props) => {
     }
 
     const EnviarReciboApi = (location) => {
-
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
+        if(!navigator.onLine)
+        {
+            let ReciboCache = {
+                ReciboId :  100 + (Math.random() * (10000 - 100)),
+                Fecha: pagosXRecibo[0].fecha,
+                FechaPago: pagosXRecibo[0].fecha,
+                SaldoFavor:saldoAFavor,
+                CodigoCliente: props.Cliente.Codigo,
+                NombreCliente : props.Cliente.Nombre,
+                Direccion : props.Cliente.Direccion,
+                Asesor: localStorage.getItem('codigo'),
+                Pagos: pagosXRecibo.map(pagXRecib => {
+                    return {
+                        "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,
+                        "TipoPago" : tiposPago[pagXRecib.indexTiposPago].Descripcion,
+                        "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
+                        "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,
+                        "Banco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].NombreBanco : "",
+                        "Orden": 1,
+                        "Valor": pagXRecib.valor-saldoAFavor,
+                        "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,
+                        "Referencia": pagXRecib.referencia,
+                        "ReferenciaTransaccionAbierta": "",
+                        "Monto": Number(pagXRecib.valor-saldoAFavor),
+                    }
+                }),
+                Descripcion: '',
+                location:location,
+                SubFacturas: props.CuotasAPagar,
+                NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
+                EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
+                CodigoUltimoRecibo : "No Disponible",
+                Total : Number(pagosXRecibo[0].valor),
+                Facturas : cuotasYDescuentoAplicado.Cuotas.map(fact => {
+                    return {
+                        "Aplicado" : Number(fact[13].replace(',', '')),
+                        "Dias" :fact[5],
+                        "EsAbono" : fact[12] !== fact[13] ? true : false,
+                        "Fecha" : Date(fact[4]),
+                        "IdFactura" : fact[1],
+                        "NumeroFEL" : "",
+                        "Parcial" : fact[12].replace(',', ''),
+                        "Parcial2" : fact[11].replace(',', ''),
+                        "TipoDocumento" : fact[0]
+                    }
+                }),
+            }
+            Swal.fire({
+                type: 'warning',
+                title: 'Advertencia',
+                text: "Actualmente no dispone de internet el recibo se guardara en cache.",
+            });
+            setRecibosAplicados(ReciboCache);
+            dispatch({ type: "SET_RECIBOSENCACHE", payload: ReciboCache });
+            setModalRecibo(true);
+        }
+        else
+        {
+    
         let apiURL     = urlApi + "/api/Recibo";
         let parametros = {
             Fecha: pagosXRecibo[0].fecha,
@@ -632,6 +690,7 @@ const DetalleRecibo = (props) => {
                 }
             });
     }
+}
 
     const OpenModal = (event, cuotas) => {
         event.stopPropagation();
