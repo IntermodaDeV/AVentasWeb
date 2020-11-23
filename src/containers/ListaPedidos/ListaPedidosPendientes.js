@@ -17,9 +17,7 @@ import axios from 'axios';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { FiAlertTriangle } from 'react-icons/fi';
 import Dialog        from '@material-ui/core/Dialog';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle   from '@material-ui/core/DialogTitle';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { Loading } from 'components/Global/Loading';
 
 moment.locale('es');
 
@@ -103,7 +101,7 @@ export const ListaPedidosPendientes = (props) => {
                     text: request.data,
                 });
                 setLoading(false);
-                
+                cargarPedidos("1900-01-01", "1900-01-01");
             }catch(err){
                 setLoading(false);
                 let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
@@ -118,7 +116,6 @@ export const ListaPedidosPendientes = (props) => {
                         text: mensaje,
                     })
             }
-            cargarPedidos("1900-01-01", "1900-01-01");
         }else{
             Swal.fire({
                 title: 'Sin Internet',
@@ -228,29 +225,7 @@ export const ListaPedidosPendientes = (props) => {
     } else {
         return (
             <div className="px-3">
-                <Dialog
-                    disableBackdropClick 
-                    scroll={'paper'}
-                    open={loading}
-                    >
-                        <DialogTitle className="text-center" id="scroll-dialog-title">
-                            <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-                                Sincronizando
-                        </div>
-                        </DialogTitle>
-                        <DialogContent>
-                        
-                        <div className="d-flex flex-grow-1 align-items-center justify-content-center">
-                                <div className="row">
-                                    <div className="col-12 text-center">
-                                        <CircularProgress disableShrink/>
-                                    </div>
-                                </div>
-                            </div>
-                        
-                            
-                        </DialogContent>
-                </Dialog>
+                <Loading title="Sincronizando Pedido" open={loading}/>
                 <div>
                 <div style ={{textAlign:'center',fontSize:28}} className="alert alert-warning alert-dismissible fade show" role="alert">
                     <FiAlertTriangle style={{ fontSize: 32, color: 'orange'}} /> Los pedidos mostrados en esta pantalla están registrados únicamente en la nube pero no en AX.
