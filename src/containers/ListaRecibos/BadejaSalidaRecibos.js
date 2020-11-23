@@ -24,8 +24,8 @@ moment.locale('es');
 
 const BadejaSalidaRecibos = (props) => {
     const urlApi = APIURL;
-    const [error, setError] = useState(false);
-    const [isLoaded, setIsLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
+    const [error] = useState(false);
+    const [isLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
     const [recibos, setRecibos] = useState([]);
     const [recibo, setRecibo] = useState(null);
     const [showDialog, setShowDialog] = useState(false);

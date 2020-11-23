@@ -47,7 +47,8 @@ const initialState = {
     Permisos:[],
     PedidoSincronizar:[],
     ReciboSincronizar:[],
-    RecibosEnCache:[]
+    RecibosEnCache:[],
+    Cartera:[]
 }
 
 const calcularLimite = (state) => {
@@ -558,6 +559,14 @@ const reducer = (state = initialState, action) => {
         return{
             ...state,
             ReciboSincronizar:action.payload
+        }
+    }
+
+    if(action.type==='SET_CARTERA')
+    {
+        return{
+            ...state,
+            Cartera:action.payload
         }
     }
 

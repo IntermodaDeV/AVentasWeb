@@ -8,9 +8,6 @@ import 'moment/locale/es';
 import {useSelector} from 'react-redux';
 
 const ImpresionBandejaSalida = (props) => {
-    console.log("propsReImpresion", props)
-    const Monedas = useSelector(e=>e.AbreviacionMonedas);
-    const clientesContado = useSelector(e=>e.clientesContado);
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.NombreCliente;
     let DireccionCliente=props.recibo.Direccion; 

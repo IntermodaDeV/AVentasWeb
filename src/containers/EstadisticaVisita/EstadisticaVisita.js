@@ -477,7 +477,7 @@ const EstadisticaVisita = (props) => {
             <div className="row">                         
                 <div className="col-lg-6 my-2 col-12 order-lg-first order-last">
                     <MuiThemeProvider theme={getMuiTheme()}>
-                        <Barchart/>
+                        <Barchart empresa={EmpresaSelected}/>
                         <MUIDataTable
                             title={'Estadistica Visita'}
                             data={data}
