@@ -11,18 +11,18 @@ const FunnelChart = props => {
 
         if(props.Selected){
             let Selected = JSON.parse(props.Selected);
-            data = [Selected.CantidadVisitas,Selected.Atendidas, Selected.Efectivas, Selected.Productivas , Selected.ClienteCancelo, Selected.NoAtendidas]
+            data = [Selected.CantidadVisitas,Selected.Atendidas, Selected.Efectivas, Selected.Productivas]
         }else{
-            data = [props.Users.reduce((acc, cur) => { return acc + cur.CantidadVisitas }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Atendidas }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Efectivas }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Productivas }, 0), props.Users.reduce((acc, cur) => { return acc + cur.ClienteCancelo }, 0), props.Users.reduce((acc, cur) => { return acc + cur.NoAtendidas }, 0)]
+            data = [props.Users.reduce((acc, cur) => { return acc + cur.CantidadVisitas }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Atendidas }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Efectivas }, 0),props.Users.reduce((acc, cur) => { return acc + cur.Productivas }, 0)]
         }
         
         var myChart = new Chart(ctx, {
             type: 'funnel', 
             data: {
-                labels: ["Programadas","Atendidas", "Efectivas", "Productivas","Canceladas", "No Atendidas"],
+                labels: ["Programadas","Atendidas", "Efectivas", "Productivas"],
                 datasets: [{
                     data,
-                    backgroundColor: [ "#3097ED","#2AD549", "#FDB45C", "#73628a","#FF4A4A","#1EA4B7"],
+                    backgroundColor: [ "#3097ED","#2AD549", "#FDB45C", "#73628a"],
                     borderWidth: 1
                 }]
             },

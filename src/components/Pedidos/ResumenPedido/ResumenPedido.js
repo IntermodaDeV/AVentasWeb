@@ -52,11 +52,13 @@ const ResumenPedido = (props) => {
     const [flete, setFlete] = React.useState(0);
     const [openContado, setOpenContado] = React.useState(false);
     const clienteContado = useSelector(e => e.clienteContado);
+    const BloqueoCredito = useSelector(e=>e.Permisos[0].BloqueoCredito);
     const empresas = useSelector(e => e.Empresas);
     const empresa = empresas.find(x => x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
     let comunidadSelected = "";
     let modoEntrega = "";
     let habilitado = false;
+    let correlativoInterno = "";
 
     if (clienteContado === null) {
         if (props.Cliente.ComunidadAutonoma !== "") {
@@ -154,7 +156,22 @@ const ResumenPedido = (props) => {
             && ((totalGlobal + impuesto) + flete) > 10000;
     }
 
-    const Finalizar = () => {
+    const Finalizar = async () => {
+        if(correlativoInterno === "")
+        {
+            const {correlativo} = await props.obtenerUltimoCorrelativo();
+
+            if(correlativo === "")
+            {
+                Swal.fire({
+                    type: 'error',
+                    title: 'Error en la red obteniendo correlativo de pedido',
+                    text: "Pedido se guardará en caché.",
+                });
+            }
+
+            correlativoInterno = correlativo;
+        }
 
         props.guardarFecha(FechaEntrega);
         if (ApruebaBio()) {
@@ -193,7 +210,7 @@ const ResumenPedido = (props) => {
                                 cancelButtonText: 'Cancelar'
                             }).then((result) => {
                                 if (result.value) {
-                                    props.enviarPedido();
+                                    props.enviarPedido(correlativoInterno);
                                 }
                             })
                         } else if ((totalGlobal + impuesto) > props.Cliente.CreditoDisponible && TipoCredito.TipoPedido !== 'Contado') {
@@ -208,12 +225,12 @@ const ResumenPedido = (props) => {
                                 cancelButtonText: 'Cancelar'
                             }).then((result) => {
                                 if (result.value) {
-                                    props.enviarPedido();
+                                    props.enviarPedido(correlativoInterno);
                                 }
                             })
                         }
                         else {
-                            props.enviarPedido();
+                            props.enviarPedido(correlativoInterno);
                         }
 
                     }
@@ -613,17 +630,17 @@ const ResumenPedido = (props) => {
                 </div>
             </CardContent>
             <div className="col-12">
-
-                <button className="btn btn-secondary float-right mb-3 mx-2" onClick={() => Finalizar()}>
-                    {props.loadingRecibo ?
-                        <ScaleLoader
-                            css={{ height: '25px', bottom: '5px', position: 'relative', transform: 'scale(0.6)' }}
-                            size={'20px'}
-                            color={'#fff'}
-                            loading={props.loadingRecibo} /> : 'Finalizar'
-                    }
-                </button>
-
+                {(!BloqueoCredito) &&
+                    <button className="btn btn-secondary float-right mb-3 mx-2" onClick={() => Finalizar()}>
+                        {props.loadingRecibo ?
+                            <ScaleLoader
+                                css={{ height: '25px', bottom: '5px', position: 'relative', transform: 'scale(0.6)' }}
+                                size={'20px'}
+                                color={'#fff'}
+                                loading={props.loadingRecibo} /> : 'Finalizar'
+                        }
+                    </button>
+                }
             </div>
 
             {esBiomedico && <Dialog

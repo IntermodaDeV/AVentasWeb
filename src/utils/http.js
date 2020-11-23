@@ -38,7 +38,7 @@ export const post = async (url, info, action) => {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
                     'Content-Type': 'application/json'
                 },
-                timeout: 900 * 1000
+                timeout: 500 * 1000
             });
 
             data = request.data;
@@ -58,6 +58,12 @@ export const post = async (url, info, action) => {
     } catch (err) {
         return { data, error: err }
     }
+}
+
+export const postPedidoStorage = (info)=>{
+    store.dispatch({ type: "SET_PEDIDOSINCRONIZAR", payload: info });
+    const data = { EncabezadoPedido: { PedidoId: info.NumeroReferencia === "" ? "No Disponible" : info.NumeroReferencia } };
+    return data;
 }
 
 export const backgroundPostPedidos = async () => {

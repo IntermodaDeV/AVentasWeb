@@ -27,6 +27,9 @@ import './App.css'
 import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
 import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
 import {Home} from 'containers/Home/Home';
+import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPendientes';
+import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
+
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -35,6 +38,7 @@ const isLogged = () => {
   return false
   // localStorage.setItem(id, JSON.stringify(array));
 }
+
 const App = props => {
   if (isLogged()) {
     window.setInterval(() => {
@@ -67,6 +71,23 @@ const App = props => {
               path='/lista-pedidos'
               layout={MainLayout}
               component={ListaPedidos}
+            />
+            <LayoutRoute
+              exact
+              path='/lista-pedidos-pendientes'
+              layout={MainLayout}
+              component={ListaPedidosPendientes}
+            />
+            <LayoutRoute
+              exact
+              path='/DashBoard-Comercial'
+              layout={MainLayout}
+              component={()=>( <iframe title="reporte" src="http://cubo-intermoda/tableros/powerbi/Comercial/Operativo%20Comercial?rs:Embed=true" position="relative" top="0" height="100%" width="100%" /> )}
+            />
+            <LayoutRoute
+              path='/lista-pedidos-BandejaSalida'
+              layout={MainLayout}
+              component={BandejaSalida}
             />
             {/*<LayoutRoute
               exact

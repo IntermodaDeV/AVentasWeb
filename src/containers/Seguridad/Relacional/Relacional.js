@@ -12,6 +12,7 @@ import { RolesFunciones } from './RolesFunciones';
 import { UsuarioRoles } from './UsuarioRoles';
 import {PantallasFunciones} from './PantallasFunciones';
 import {UsuariosEmpresas} from './UsuariosEmpresas';
+import {UsuarioAsesor} from './UsuarioAsesor';
 
 export const Relacional = props => {
     const [value, setValue] = React.useState(0);
@@ -34,7 +35,9 @@ export const Relacional = props => {
     const redirectFuncionPantalla = () =>{
         props.history.push('/seguridad-permisos/Funciones-Pantallas');
     }
-
+    const redirectUsuarioAsesor  = () =>{
+        props.history.push('/seguridad-permisos/Usuario-Asesor');
+    }
     return (
         <div style={{height:'100%'}} className="container-fluid">
             <Paper square>
@@ -49,6 +52,7 @@ export const Relacional = props => {
                     <Tab onClick={redirectRolesFunciones} icon={<RecentActorsIcon/>} label="Roles-Funciones" />
                     <Tab onClick={redirectFuncionPantalla} icon={<DvrIcon/>} label="Pantallas-Funciones" />
                     <Tab onClick={redirectUsuarioEmpresa} icon={<BusinessIcon/>} label="Usuario-Empresa" />
+                    <Tab onClick={redirectUsuarioAsesor} icon={<SupervisorAccountIcon/>} label="Usuario-Asesor" />
                 </Tabs>
             </Paper>
             <div className="card" style={{height:'85%'}}>
@@ -57,6 +61,7 @@ export const Relacional = props => {
                     <Route exact path={`${props.match.url}/roles-funciones`} render={(props)=><RolesFunciones/>}/>
                     <Route exact path={`${props.match.url}/Funciones-Pantallas`} render={(props)=><PantallasFunciones/>}/>
                     <Route exact path={`${props.match.url}/Usuario-Empresa`} render={(props)=><UsuariosEmpresas/>}/>
+                    <Route exact path={`${props.match.url}/Usuario-Asesor`} render={(props)=><UsuarioAsesor/>}/>
                 </Switch>
             </div>
         </div>

@@ -27,6 +27,7 @@ import {
     ExpansionPanelDetails as MuiExpansionPanelDetails,
 } from '@material-ui/core';
 import axios from 'axios';
+import { post,postPedidoStorage } from 'utils/http';
 
 //Components
 import NavigationBreadcrumb from 'components/Pedidos/NavigationBreadcrumb/NavigationBreadcrumb'
@@ -54,6 +55,9 @@ import styles from './Pedidos.module.css'
 import './Filtros.css'
 import 'sweetalert2/src/sweetalert2.scss';
 import FiltroChips from 'components/Pedidos/ProductoLista/FiltroChips';
+import honduras from 'utils/img/honduras.png';
+import costarica from 'utils/img/costarica.png';
+import guatemala from 'utils/img/guatemala.png';
 
 
 const ReactSwal = withReactContent(Swal)
@@ -63,6 +67,7 @@ moment.locale('es');
 
 var time;
 class Pedidos extends React.Component {
+   
 
     IsEncabezadoCreado = false;
     PedidoId = null;
@@ -107,7 +112,12 @@ class Pedidos extends React.Component {
         firmaPedido: null,
         fechaEntregaPedido: null,
         NumPedido: '#',
+        clientes:[],
+        clientesFiltrados:[],
+        paisSeleccionado:null
     };
+
+
 
     cargarData = () => {
         Promise.all([this.cargarClientes(),
@@ -204,6 +214,7 @@ class Pedidos extends React.Component {
                         .then(
                             (result) => {
                                 this.props.onStoreClientes(result);
+                                this.setState((prevState)=>({...prevState,clientes:result,clientesFiltrados:result}));
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -213,11 +224,13 @@ class Pedidos extends React.Component {
 
                                     error
                                 });
+                                this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
                             }
                         )
                 }
 
             })
+            this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
     }
 
     cargarTiposPedido = () => {
@@ -324,20 +337,19 @@ class Pedidos extends React.Component {
     }
 
     componentDidMount() {
+
         if(!IsAllow(this.props.match.url))
         {
             this.props.history.push('/home');
         }
-        if (!this.isPedidoActivo()) {
-            this.cargarData();
-        } else {
-            this.setState({ isLoaded: true });
-        }
+        this.cargarData();
 
         // window.onpopstate = this.onBackButtonEvent;
         this.inactivityTime();
         // window.onpopstate = this.onBackButtonEvent;
     }
+
+    
 
     inactivityTime = () => {
         window.onload = this.resetTimer;
@@ -584,7 +596,7 @@ class Pedidos extends React.Component {
         if (!(selectClienteProps.clienteSelected != null && (selectClienteProps.clienteSelected.FacturacionEntrega === "No" || selectClienteProps.clienteSelected.FacturacionEntrega === "Nunca"))) {
             FacturacionEntrega = (
                 <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra en mora.
+                    <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con floqueo ó  en mora.
             </div>
             )
 
@@ -828,8 +840,9 @@ class Pedidos extends React.Component {
         }
     }
     isPedidoActivo = () => {
-        let isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true :false;
-        /*let tableValue = { ...this.props.TableValue };
+        let isProductosSeleccionados = false;
+        isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true :false; 
+                /*let tableValue = { ...this.props.TableValue };
         if (this.props.LineaSeleccionada && this.props.coleccion) {
             if (tableValue[this.props.LineaSeleccionada.IdLinea] === undefined || tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion] === undefined) {
                return isProductosSeleccionados;
@@ -1173,24 +1186,71 @@ class Pedidos extends React.Component {
         }
 
     }
+
     mostrarResumen = () => {
         // this.setState({ mostrarResumen: true })
+        this.setState({ mostrarRecibo: false})
         this.props.history.push("/Pedidos/ResumenPedido");
 
     }
 
-    enviarPeticionPedido = (location) => {
+    obtenerUltimoCorrelativo = async () =>{
+        var correlativo = "",errorCor;
+        try{
+            const request = await axios.get(this.urlApi + "/api/PedidosXCliente/correlativo",{headers:{
+                'Content-Type': 'application/json',
+                'Authorization':'Bearer ' + localStorage.getItem('token')
+            }});
+
+            return {correlativo:request.data,errorCor};
+        }catch(err){
+            return {correlativo,errorCor};
+        }
+    }
+
+    enviarPedidoAx = async (pedido) =>{
+        if(navigator.onLine){
+            try{
+                const request = await axios.post(this.urlApi + "/api/PedidosXCliente/postax",pedido,{
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization':'Bearer ' + localStorage.getItem('token')
+                    },
+                    timeout:900*1000
+                });
+
+                console.log(request.data);
+            }catch(err){
+                let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
+
+                if(err.response){
+                    mensaje = err.response.data.Message;
+                }
+
+                Swal.fire({
+                    type: 'error',
+                    title: 'Error',
+                    text: mensaje,
+                })
+            }
+        }
+    }
+    
+  
+    enviarPeticionPedido = async (location, correlativo) => {
+
         let pedido = {
+            NumeroReferencia : correlativo,
+            PedidoId: 100 + (Math.random() * (10000 - 100)),
             CodigoCliente: this.props.cliente.Codigo,
+            Nombre : this.props.cliente.Nombre,
             Firma: this.state.firmaPedido,
             FechaEntrega: this.state.fechaEntregaPedido,
             AcuerdoVenta: this.props.AcuerdoVenta ? this.props.AcuerdoVenta.IdAcuerdoxCliente : '',
             location: location,
             EmpresaId: "imhn",
-            Usuario: "mleiva",
             Linea: this.props.LineaSeleccionada.IdLinea,
             CodigoColeccion: this.props.coleccion.CodigoColeccion,
-            // Productos: [],
             DetallePedido: [],
             TipoPedido: this.props.TipoPedido,
             TipoVenta: this.calcularTipoVenta(),
@@ -1198,7 +1258,10 @@ class Pedidos extends React.Component {
             ModoVenta:(this.props.TipoPedido.TipoPedido==='Contado')?'Contado':'Credito',
             Flete:this.props.flete,
             RequiereEntrega:this.props.requiereEntrega,
-            Impuesto:Number(localStorage.getItem('Impuesto'))
+            Impuesto:Number(localStorage.getItem('Impuesto')),
+            subtotal:this.props.TotalPedido,
+            Direccion: this.props.cliente.Direccion,
+            MonedaCliente : this.props.cliente.Moneda
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
 
@@ -1213,11 +1276,14 @@ class Pedidos extends React.Component {
 
                                 producto.matriz = [];
                                 producto.ListaColores.forEach(color => {
+                            
                                     Object.keys(tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas).forEach(talla => {
                                         let detalle = {
                                             IdProducto:producto.CodigoProducto,
                                             CodigoProducto: codigoProducto,
+                                            NombreProducto: producto.NombreProducto,
                                             CodigoColor: color.CodigoColor,
+                                            NombreColor:color.NombreColor,
                                             Cantidad: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad,
                                             Unidad: "Und",
                                             PrecioUnitario: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Precio,
@@ -1239,86 +1305,50 @@ class Pedidos extends React.Component {
             }
         })
 
+        if(!navigator.onLine){
+            Swal.fire({
+                type: 'warning',
+                title: 'Advertencia',
+                text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+            });
 
-        axios.post(this.urlApi + "/api/PedidosXCliente",pedido,{
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization':'Bearer ' + localStorage.getItem('token')
-            },
-            timeout:900*1000
-        }).then(result=>{
-            var numPedido = result.data.EncabezadoPedido.PedidoId;
+            const data = postPedidoStorage(pedido);
+            let numPedido = data.EncabezadoPedido.PedidoId;
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
-        }).catch(err=>{
+        }
+        else if(pedido.NumeroReferencia === ""){
+            const data = postPedidoStorage(pedido);
+            let numPedido = data.EncabezadoPedido.PedidoId;
+            this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+            this.props.onSetNumeroOrden(numPedido);
+        }
+        else{
 
-            let mensaje = "Ha ocurrido un error y no se pudo realizar el pedido.";
+            const { data,error } = await post(this.urlApi + "/api/PedidosXCliente",pedido,"SET_PEDIDOSINCRONIZAR");
 
-            if(err.response){
-                mensaje = err.response.data.Message;
+            if(error){
+                let mensaje = "Ha ocurrido un error y no se pudo realizar el pedido.";
+
+                if(error.response){
+                    mensaje = error.response.data.Message;
+                }
+
+                Swal.fire({
+                    type: 'error',
+                    title: 'Error',
+                    text: mensaje,
+                })
+                this.setState({ loadingRecibo: false });
+            }else{
+                let numPedido = data.EncabezadoPedido.PedidoId;
+                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+                this.props.onSetNumeroOrden(numPedido);
             }
-
-            Swal.fire({
-                type: 'error',
-                title: 'Error',
-                text: mensaje,
-            })
-            this.setState({ loadingRecibo: false });
-        })
-
-        /*fetch(this.urlApi + "/api/PedidosXCliente", {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
-            },
-            method: 'POST',
-            body: JSON.stringify(pedido)
-        })
-            .then(res => {
-                if (res.status === 200) {
-                    res.json()
-                        .then(
-                            (result) => {
-                                var numPedido = result.EncabezadoPedido.PedidoId;
-                                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-                                this.props.onSetNumeroOrden(numPedido);
-                                //this.SendEmailPDF();
-                            },
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                this.setState({
-                                    errorEnviarRecibo: true
-                                });
-                            }
-                        )
-                }
-                else {
-                    res.json()
-                        .then(
-                            (result) => {
-                                Swal.fire({
-                                    type: 'error',
-                                    title: 'Error',
-                                    text: result.Message,
-                                })
-                                this.setState({ loadingRecibo: false });
-                            },
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                this.setState({
-                                    errorEnviarRecibo: true
-                                });
-                            }
-                        )
-                }
-            });*/
+        }
     }
-    enviarPedido() {
+
+    enviarPedido = async (correlativo)=> {
         localStorage.removeItem("ColeccionSeleccionada");
         localStorage.removeItem("HoraIngreso");
         localStorage.removeItem("ProdEnCarrito");
@@ -1327,20 +1357,10 @@ class Pedidos extends React.Component {
             this.enviarPeticionPedido({
                 longitude: position.coords.longitude,
                 latitude: position.coords.latitude
-            })
+            },correlativo)
         }, (error) => {
-            this.enviarPeticionPedido(null);
+            this.enviarPeticionPedido(null,correlativo);
         });
-        // navigator.geolocation.getCurrentPosition(
-        //     (position) => {
-        //         this.enviarPeticionPedido({
-        //             longitude: position.coords.longitude,
-        //             latitude: position.coords.latitude
-        //         })
-        //     },
-        //     (error) => this.enviarPeticionPedido(null),
-        //     { enableHighAccuracy: true, timeout: 10000 }
-        // );
     }
     FinalizarPedidoOnline = () => {
         this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: this.props.NumeroOrden });
@@ -1668,6 +1688,18 @@ class Pedidos extends React.Component {
         return filtros;
     }
 
+    seleccionarPais=(pais)=>{
+        /*clientes:this.props.clientes,
+        clientesFiltrados:[],
+        paisSeleccionado:null*/
+        if(this.state.paisSeleccionado===pais){
+            this.setState((prevState)=>({...prevState,clientesFiltrados:prevState.clientes,paisSeleccionado:null,autocompleteValue:null}));
+        }else{
+            const paisFiltrado = this.state.clientes.filter(x=>x.EmpresaId===pais);
+            this.setState((prevState)=>({...prevState,clientesFiltrados:paisFiltrado,paisSeleccionado:pais,autocompleteValue:null}))
+        }
+    }
+
     render() {
         const { error, isLoaded, loading } = this.state;
         var filtroActivo = false;
@@ -1836,6 +1868,7 @@ class Pedidos extends React.Component {
                                         NumeroOrden={this.props.NumeroOrden}
                                         FinalizarPedidoOnline={this.FinalizarPedidoOnline}
                                         CargarImpresionPedido = {this.CargarImpresionPedido}
+                                        obtenerUltimoCorrelativo={this.obtenerUltimoCorrelativo}
                                     ></ResumenPedido>
                                 )
                             }}
@@ -2293,10 +2326,40 @@ class Pedidos extends React.Component {
                         }
                         />
                         <Redirect from={this.props.match.url + '/Colecciones'} to={this.props.match.url + '/Colecciones/B'} />
-                        {/* <Redirect from={this.props.match.url} to={this.props.match.url + '/Cliente'} /> */}
-                        {/*  <Redirect to={this.props.match.url + '/Colecciones'} /> */}
+                        <div>
+                            {this.props.Paises.length>1 &&
+                            <div className="container-fluid" style={{display:'flex',marginBottom:'10px'}}>
+                                <h4>Filtro por pais</h4>
+                                <div>
+                                    {
+                                    // eslint-disable-next-line
+                                    this.props.Paises.map(pais=>{
+                                        if(pais.EmpresaId==="IMHN"){
+                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'};
+                                            if(this.state.paisSeleccionado==="IMHN"){
+                                               stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'}
+                                            }
+
+                                            return <img alt="honduras" src={honduras} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
+                                        }else if(pais.EmpresaId==="IMCR"){
+                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'};
+                                            if(this.state.paisSeleccionado==="IMCR"){
+                                                stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
+                                            }
+                                            return <img alt="costarica" src={costarica} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
+                                        }else if(pais.EmpresaId==="IMGT"){
+                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'}
+                                            if(this.state.paisSeleccionado==="IMGT"){
+                                                stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
+                                            }
+                                            return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
+                                        }
+                                    })}
+                                </div>
+                            </div>
+                        }
                         <SelectCliente
-                            clientes={this.props.clientes}
+                            clientes={this.state.clientesFiltrados}
                             value={this.state.autocompleteValue}
                             textValue={this.textValueChange}
                             fetchSuggestions={this.querySearch}
@@ -2306,7 +2369,11 @@ class Pedidos extends React.Component {
                             loading={this.state.selectClienteLoading}
                             codigoClientePreseleccionado={this.props.location.state ? this.props.location.state.CodigoCliente : null}
                             infoCliente={this.infoCliente}
+                            onSetTableValue={this.props.onSetTableValue}
+                            onSetTotalPedido={this.props.onSetTotalPedido}
+                            onSetNumeroOrden={this.props.onSetNumeroOrden}
                         />
+                        </div>
                     </Switch>
                 </div>
 
@@ -2445,7 +2512,8 @@ const mapStateToProps = state => {
         clienteContado:state.clienteContado,
         flete:state.flete,
         requiereEntrega:state.requiereEntrega,
-        impuesto:state.Impuesto
+        impuesto:state.Impuesto,
+        Paises:state.Permisos[0].EmpresasUsuarios
     };
 };
 const mapDispatchToProps = dispatch => {

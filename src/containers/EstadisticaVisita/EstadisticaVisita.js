@@ -26,7 +26,10 @@ import {
     FaUserTimes
 } from "react-icons/fa";
 import CustomFooter from 'components/Layout/CustomFooter';
-
+import {useSelector} from 'react-redux';
+import honduras from 'utils/img/honduras.png';
+import costarica from 'utils/img/costarica.png';
+import guatemala from 'utils/img/guatemala.png';
 moment.locale('es')
 const urlApi = APIURL
 const columns = [
@@ -135,8 +138,11 @@ const EstadisticaVisita = (props) => {
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setFechaFin] = useState(new Date((new Date()).valueOf() + (1000 * 60 * 60 * 24) * 6 + 1));
     const [estadisticasVisita, setEstadisticasVisita] = useState([]);
+    const [estadisticaVisitaFiltrada, setestadisticaVisitaFiltrada] = useState([]);
     const [Usuarios, setUsuarios] = useState([]);
     const [Selected, setSelected] = useState(null);
+    const [EmpresaSelected,setEmpresaSelected] = useState(null);
+    const Paises = useSelector(e=>e.Permisos[0].EmpresasUsuarios);
     useEffect(() => {
         if(!IsAllow("/estadistica-visita"))
         {
@@ -150,6 +156,7 @@ const EstadisticaVisita = (props) => {
     const CargarDatos = () => {
         Promise.all([cargarEstadisticaVisita(fechaInicio, fechaFin)]).then(values => {
             setEstadisticasVisita(values[0]);
+            setestadisticaVisitaFiltrada(values[0]);
             setOptions(values[0]);
         });
     }
@@ -240,7 +247,18 @@ const EstadisticaVisita = (props) => {
         setFechaFin(date);
     }
 
-
+    const PaisFiltrado = (Empresa) => {
+        if(EmpresaSelected === Empresa)
+        {
+            setEmpresaSelected(null);
+            setEstadisticasVisita(estadisticaVisitaFiltrada);
+        }
+        else{
+            setEmpresaSelected(Empresa);
+            setEstadisticasVisita(estadisticaVisitaFiltrada.filter(e => e.Empresa.toUpperCase() === Empresa.toUpperCase()))
+        }
+        
+    }
     let data = [];
     let VisitasProductivas = estadisticasVisita.reduce((acc, cur) => { return acc + cur.Productivas }, 0);
     let VisitasEfectivas = estadisticasVisita.reduce((acc, cur) => { return acc + cur.Efectivas }, 0);
@@ -316,6 +334,41 @@ const EstadisticaVisita = (props) => {
                                             } */}
                     </Button>
                 </div>
+                {Paises.length > 1 &&
+                            <div className="shadow-box-example hoverable" style={{display:'flex',marginBottom:'10px'}}>
+                                <h4>Filtro por Pais</h4>
+                                <div>
+                                    {
+                                    // eslint-disable-next-line
+                                    Paises.map(pais=>{
+                                        if(pais.EmpresaId==="IMHN")
+                                        {
+                                            let stylePaises={width:'40px',height:'40px',marginLeft:'25px'};
+                                            if(EmpresaSelected==="IMHN"){
+                                               stylePaises = {width:'40px',height:'40px',marginLeft:'25px',outline:'5px solid green'}
+                                            }
+                                            return <img alt="honduras" className="shadow-box-example z-depth-5" src={honduras} style={stylePaises} onClick={()=>{PaisFiltrado(pais.EmpresaId)}}/>
+                                        }
+                                        else if(pais.EmpresaId==="IMCR")
+                                        {
+                                            let stylePaises={width:'40px',height:'40px',marginLeft:'25px',shadowColor: "black"};
+                                            if(EmpresaSelected==="IMCR"){
+                                                stylePaises = {width:'40px',height:'40px',marginLeft:'25px',outline:'5px solid green'};
+                                            }
+                                            return <img alt="costarica" src={costarica} style={stylePaises} onClick={()=>{PaisFiltrado(pais.EmpresaId)}}/>
+                                        }
+                                        else if(pais.EmpresaId==="IMGT")
+                                        {
+                                            let stylePaises={width:'40px',height:'40px',marginLeft:'25px'}
+                                            if(EmpresaSelected==="IMGT"){
+                                                stylePaises = {width:'40px',height:'40px',marginLeft:'25px',outline:'5px solid green'};
+                                            }
+                                            return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={()=>{PaisFiltrado(pais.EmpresaId)}}/>
+                                        }
+                                    })}
+                                </div>
+                            </div>
+                    }
 
             </div>
 
@@ -473,7 +526,7 @@ const cargarEstadisticaVisita = (fechaInicio, fechaFin) => {
     var fin = moment(fechaFin).format();
     
     return new Promise((resolve, reject) => {
-        fetch(urlApi + `/api/EstadisticaVisita?FechaInicio=${inicio}&FechaFin=${fin}`, {
+        fetch(urlApi + `/api/EstadisticaVisita?FechaInicio=${inicio}&FechaFin=${fin}&Usuario=${localStorage.getItem('codigo')}`, {
             headers: {
                 Authorization: 'Bearer ' + localStorage.getItem('token')
             }

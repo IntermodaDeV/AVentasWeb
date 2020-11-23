@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {useSelector} from 'react-redux';
 const TotalXPedido = (props) => {
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
+    const BloqueoCredito = useSelector(e=>e.Permisos[0].BloqueoCredito);
     const moneda = Monedas.find(e=>e.IdMoneda === props.cliente.Moneda).Abreviacion;
     const [Limite, setLimite] = useState(null);
 
@@ -28,50 +29,54 @@ const TotalXPedido = (props) => {
     let tempTotal =props.TotalPedido|| 0;
 
     let colorDiferencia = (((Disponible ? Disponible : 0) - tempTotal)) < 0 ? 'red' : (props.color ? props.color : 'black');
-    if (props.row) {
-        return (
-            <div className="row" style={{ color: props.color ? props.color : 'black' }}>
-                <div className='col'>
-                    {`Total Pedido: ${moneda} ` + numberWithCommas(tempTotal)}
+    if(!BloqueoCredito){
+        if (props.row) {
+            return (
+                <div className="row" style={{ color: props.color ? props.color : 'black' }}>
+                    <div className='col'>
+                        {`Total Pedido: ${moneda} ` + numberWithCommas(tempTotal)}
+                    </div>
+                    <div className='col'>
+                        {props.AcuerdoVenta ? `Saldo Acuerdo: ${moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
+                    </div>
+                    <div className='col' style={{ color: colorDiferencia }}>
+                        {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
+                    </div>
                 </div>
-                <div className='col'>
-                    {props.AcuerdoVenta ? `Saldo Acuerdo: ${moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
+            );
+        }
+        else if (props.lineal) {
+            return (
+                <div className="row " style={{ color: props.color ? props.color : 'black', display: 'flex', justifyContent: 'flex-end' }}>
+                    <div className="mx-3">
+                        {`Total Pedido: ${moneda} ` + numberWithCommas(tempTotal)}
+                    </div>
+                    <div className="mx-3">
+                        {props.AcuerdoVenta ? `Saldo Acuerdo: ${moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
+                    </div>
+                    <div className="mx-3" style={{ color: colorDiferencia }}>
+                        {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
+                    </div>
                 </div>
-                <div className='col' style={{ color: colorDiferencia }}>
-                    {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
-                </div>
-            </div>
-        );
-    }
-    else if (props.lineal) {
-        return (
-            <div className="row " style={{ color: props.color ? props.color : 'black', display: 'flex', justifyContent: 'flex-end' }}>
-                <div className="mx-3">
-                    {`Total Pedido: ${moneda} ` + numberWithCommas(tempTotal)}
-                </div>
-                <div className="mx-3">
-                    {props.AcuerdoVenta ? `Saldo Acuerdo: ${moneda} ` + numberWithCommas(props.AcuerdoVenta.Saldo) : `Límite Crédito: ${moneda} ` + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
-                </div>
-                <div className="mx-3" style={{ color: colorDiferencia }}>
-                    {`Saldo Disponible: ${moneda} ` + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
-                </div>
-            </div>
-        );
-    }
-    else {
-        return (
-            <>
-                <div>
-                    {"Total Pedido: " + numberWithCommas(tempTotal)}
-                </div>
-                <div>
-                    {"Límite Crédito: " + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
-                </div>
-                <div>
-                    {"Saldo Disponible: " + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
-                </div>
-            </>
-        );
+            );
+        }
+        else {
+            return (
+                <>
+                    <div>
+                        {"Total Pedido: " + numberWithCommas(tempTotal)}
+                    </div>
+                    <div>
+                        {"Límite Crédito: " + (Limite !== null ? numberWithCommas(Limite) : "no aplica").toString()}
+                    </div>
+                    <div>
+                        {"Saldo Disponible: " + (numberWithCommas((Disponible ? Disponible : 0) - tempTotal)).toString()}
+                    </div>
+                </>
+            );
+        }
+    }else{
+        return <div></div>
     }
 
 }

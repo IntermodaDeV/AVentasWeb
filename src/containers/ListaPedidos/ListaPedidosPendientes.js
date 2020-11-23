@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Loader from 'components/Global/Loader';
-import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from "mui-datatables";
-//import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
-import { Button, Dialog } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import DetallePedido from 'components/ListadoPedidos/DetallePedido';
-import { PrintOutlined } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
 import {APIURL} from 'utils/Enviroment';
@@ -16,9 +13,17 @@ import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import {IsAllow} from 'components/Seguridad/Permisos';
+import axios from 'axios';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { FiAlertTriangle } from 'react-icons/fi';
+import Dialog        from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle   from '@material-ui/core/DialogTitle';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 moment.locale('es');
 
-const ListaPedidos = (props) => {
+export const ListaPedidosPendientes = (props) => {
     const urlApi = APIURL;
 
     const [state, setState] = useState({
@@ -32,16 +37,15 @@ const ListaPedidos = (props) => {
         Detalles: [],
     });
     const [showDialog, setShowDialog] = useState(false);
+    const [loading,setLoading] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
-    const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
-    const [fechaFin, setFechaFin] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
+
     useEffect(() => {
-        if(!IsAllow("/lista-pedidos"))
+        if(!IsAllow("/lista-pedidos-pendientes"))
         {
             props.history.push('/home');
         }
         cargarPedidos("1900-01-01", "1900-01-01");
-        //cargarClientes();
         // eslint-disable-next-line
     }, []);
 
@@ -50,7 +54,7 @@ const ListaPedidos = (props) => {
         var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
         var Fin = moment(FechaFin).format("YYYY-MM-DD");
         let Asesor = localStorage.getItem('codigo');
-        fetch(urlApi + "/api/PedidosXCliente/"+ Asesor + "/" + Inicio + "/" + Fin, {
+        fetch(urlApi + "/api/PedidosXCliente/Pendientes/"+ Asesor + "/" + Inicio + "/" + Fin, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -88,76 +92,43 @@ const ListaPedidos = (props) => {
             })
     }
 
-    // const cargarClientes = async () => {
-    //     fetch(urlApi + "/api/cliente", {
-    //         headers: {
-    //             'Authorization':
-    //                 'Bearer ' + localStorage.getItem('token')
-    //         }
-    //     })
-    //         .then(res => {
-    //             if (res.status === 401) {
-    //                 localStorage.setItem('token', '');
-    //                 window.location.reload();
-    //             }
-    //             if (res.status === 200) {
+    const sincronizarPedido = async (pedido)=>{
+        if(navigator.onLine){
+            try{
+                setLoading(true);
+                const request = await axios.post(urlApi + "/api/PedidosXCliente/sincronizar/"+pedido);
+                Swal.fire({
+                    type: 'success',
+                    title: 'Sincronizado',
+                    text: request.data,
+                });
+                setLoading(false);
+                
+            }catch(err){
+                setLoading(false);
+                let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
 
-    //                 res.json()
-    //                     .then(
-    //                         (result) => {
-    //                             setState({
-    //                                 ...state,
-    //                                 clientes: result,
-    //                             });
-    //                         }
-    //                     )
-    //             }
+                    if(err.response){
+                        mensaje = err.response.data.Message;
+                    }
 
-    //         })
-    // }
-
-
-    const handleFechaInicio = (fecha) => {
-        setFechaInicio(fecha);
-
-        var fech =  moment(fecha).add(30, 'days')
-        setFechaFin(fech);
-    }
-
-    const handleFechaFin = (date) => {
-        //var date = moment(fecha).toDate();
-        setFechaFin(date);
-
-        /*const diffTime = new Date(date) - new Date(fechaInicio);
-
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays > 1) {
-            setState({
-                ...state,
-                endDate: date,
-            })
+                    Swal.fire({
+                        type: 'error',
+                        title: 'Error',
+                        text: mensaje,
+                    })
+            }
+            cargarPedidos("1900-01-01", "1900-01-01");
+        }else{
+            Swal.fire({
+                title: 'Sin Internet',
+                text: 'Necesita internet para sincronizar el pedido',
+                type: 'warning',
+                confirmButtonText: 'Ok',
+              })
         }
-        else {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 3000
-            });
-
-            Toast.fire({
-                type: 'error',
-                title: 'Ingrese Fecha Válida',
-            })
-            var fech = new Date();
-            fech.setDate(fechaInicio.getDate() + 6);
-            setState({
-                ...state,
-                endDate: fech,
-            })
-        }*/
-
     }
+
     const getMuiTheme = () => createMuiTheme({
         overrides: {
             MUIDataTable: {
@@ -178,18 +149,17 @@ const ListaPedidos = (props) => {
         let DataPedidos = [];
         state.pedidos.map(pedido => {
 
-            
+
             //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
                 let data = [
-                    [pedido.PedidoId,pedido.Sincronizado],
-                    [pedido.Cliente.Nombre,pedido.Sincronizado],
-                    [moment(pedido.FechaActual).format('DD/MM/YYYY'),pedido.Sincronizado],
-                    [pedido.Sincronizado],
-                    [pedido.NumeroPedido,pedido.Sincronizado],
-                    [pedido.Linea.Linea,pedido.Sincronizado],
-                    [pedido.NombreColeccion,pedido.Sincronizado],
-                    [pedido.TotalUnidades,pedido.Sincronizado],
-                    [moment(pedido.FechaEntrega).format('DD/MM/YYYY'),pedido.Sincronizado],
+                    pedido.PedidoId,
+                    pedido.Cliente.Nombre,
+                    moment(pedido.FechaActual).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaActual).format('DD/MM/YYYY') : "",
+                    pedido.Linea.Linea,
+                    pedido.NombreColeccion,
+                    pedido.TotalUnidades,
+                    moment(pedido.FechaEntrega).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaEntrega).format('DD/MM/YYYY') : "",
+                    pedido.ErrorAx,
                     <div>
 
                         <span className="mr-1">
@@ -197,8 +167,8 @@ const ListaPedidos = (props) => {
                         </span>
 
                         <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, true)} size="small" color={"primary"}>
-                                <PrintOutlined />
+                            <Button className='my-1' variant="outlined" disabled={pedido.Procesando} onClick={() => sincronizarPedido(pedido.PedidoId)} size="small" color={"primary"}>
+                                Sincronizar
                             </Button>
                         </span >
                     </div>
@@ -258,40 +228,33 @@ const ListaPedidos = (props) => {
     } else {
         return (
             <div className="px-3">
-                <div className="row mb-3">
-                <div className='col-lg-2 col-sm-4 col-12'>
-                        <DatePicker
-                            disableToolbar
-                            autoOk
-                            label={"Fecha Inicio"}
-                            variant="inline"
-                            format={"DD/MM/YYYY"}
-                            value={fechaInicio}
-                            onChange={(date) => handleFechaInicio(date)}
-                        />
-
-                    </div>
-                    <div className='col-lg-2 col-sm-4 col-12'>
-                        <DatePicker
-                            disableToolbar
-                            autoOk
-                            minDate={fechaInicio}
-                            maxDate ={moment(fechaInicio).add(365, 'days')}
-                            label={"Fecha Fin"}
-                            variant="inline"
-                            format={"DD/MM/YYYY"}
-                            value={fechaFin}
-                            onChange={(date) => handleFechaFin(date)}
-                        />
-                    </div>
-
-                    <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 15 }}>
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => cargarPedidos(fechaInicio, fechaFin)}>Obtener
-                    </Button>
-                    </div>
+                <Dialog
+                    disableBackdropClick 
+                    scroll={'paper'}
+                    open={loading}
+                    >
+                        <DialogTitle className="text-center" id="scroll-dialog-title">
+                            <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                                Sincronizando
+                        </div>
+                        </DialogTitle>
+                        <DialogContent>
+                        
+                        <div className="d-flex flex-grow-1 align-items-center justify-content-center">
+                                <div className="row">
+                                    <div className="col-12 text-center">
+                                        <CircularProgress disableShrink/>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            
+                        </DialogContent>
+                </Dialog>
+                <div>
+                <div style ={{textAlign:'center',fontSize:28}} className="alert alert-warning alert-dismissible fade show" role="alert">
+                    <FiAlertTriangle style={{ fontSize: 32, color: 'orange'}} /> Los pedidos mostrados en esta pantalla están registrados únicamente en la nube pero no en AX.
+                </div>
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>
@@ -329,105 +292,14 @@ const ListaPedidos = (props) => {
 
 
 const HeadersListaPedidos = [
-    {
-        name: "No. Pedido",
-        options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
-        }
-      },
-      {
-        name: "Cliente",
-        options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
-        }
-      },
-      {
-        name: "Fecha Pedido",
-        options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
-        }
-      },
-      {
-        name: "Sincronizado",
-        options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[0])?'green':'orange',fontWeight:'bold'}}>{value[0]?"Si":"No"}</p>
-            );
-          }
-        }
-      },
-      {
-        name: "Num Pedido Ax",
-        options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'green':'orange',fontWeight:'bold'}}>{value[0]===""?"No disponible":value[0]}</p>
-            );
-          }
-        }
-      },
-      {
-        name: "Linea",
-        options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
-        }
-      },
-      {
-        name: "Paquete",
-        options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
-        }
-      },
-      {
-        name: "Total unidades",
-        options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
-        }
-      },
-      {
-        name: "Fecha Entrega",
-        options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
-        }
-      },
+    "No. Pedido",
+    "Cliente",
+    "Fecha Pedido",
+    "Línea",
+    "Paquete",
+    "Total Unidades",
+    "Fecha Entrega",
+    "Ultimo mensaje de error",
     {
         label: "Acciones",
         options: {
@@ -438,7 +310,6 @@ const HeadersListaPedidos = [
 ];
 
 const DatatableOptions = {
-    filter:true,
     filterType: "dropdown",
     responsive: "scrollMaxHeight",
     print: false,
@@ -494,6 +365,3 @@ const DatatableOptions = {
         },
     }
 };
-
-
-export default ListaPedidos;

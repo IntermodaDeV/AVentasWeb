@@ -56,6 +56,7 @@ const SelectCliente = (props) => {
     const clientes = useSelector(e=>e.clientesContado);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const Comunidad = useSelector(e=>e.comunidadesAutonomas);
+    const BloqueoCredito = useSelector(e=>e.Permisos[0].BloqueoCredito);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -98,7 +99,9 @@ const SelectCliente = (props) => {
     }else{
         props.setCliente();
     }
-
+    props.onSetTableValue({});
+    props.onSetTotalPedido(0);
+    props.onSetNumeroOrden(null);
    }
 
     const handleClose = () => {
@@ -124,7 +127,7 @@ const SelectCliente = (props) => {
     if (!(props.autocompleteValue != null && (props.autocompleteValue.FacturacionEntrega === "No" || props.autocompleteValue.FacturacionEntrega === "Nunca"))) {
         FacturacionEntrega = (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra en mora.
+                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con floqueo ó en mora.
             </div>
         )
 
@@ -206,6 +209,7 @@ const SelectCliente = (props) => {
                             </div>
 
                         </div>
+                        {(!BloqueoCredito) &&
                         <div className="col-md-6">
                             <span className={styles["TCenterContainer"]}>
                                 <h5 className={styles["TCenter"]}>Información Crediticia</h5>
@@ -271,7 +275,7 @@ const SelectCliente = (props) => {
                                     </tr>
                                 </tbody>
                             </table>
-                        </div>
+                        </div>}
 
                     </div>
 

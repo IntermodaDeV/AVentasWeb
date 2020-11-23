@@ -43,7 +43,8 @@ const CargarAsignaciones = (props)=>{
         result = result.filter(x=>(x.CodigoCliente!=="" && x.CodigoAsesor!=="" && x.FechaAsignacion!=="" && x.HoraInicio!=="" && x.HoraFinal!=="" && x.idPrioridad!==""));
         fetch(`${APIURL}/api/asignaciones/cargar`,{
             headers:{
-                "Content-type":"application/json"
+                "Content-type":"application/json",
+                'Authorization':'Bearer ' + localStorage.getItem('token')
             },
             method:"POST",
             body:JSON.stringify(result)
