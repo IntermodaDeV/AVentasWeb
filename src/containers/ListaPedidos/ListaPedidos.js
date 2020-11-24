@@ -182,6 +182,7 @@ const ListaPedidos = (props) => {
             //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
                 let data = [
                     [pedido.PedidoId,pedido.Sincronizado],
+                    [pedido.Cliente.Codigo,pedido.Sincronizado],
                     [pedido.Cliente.Nombre,pedido.Sincronizado],
                     [moment(pedido.FechaActual).format('DD/MM/YYYY'),pedido.Sincronizado],
                     [pedido.Sincronizado],
@@ -331,6 +332,17 @@ const ListaPedidos = (props) => {
 const HeadersListaPedidos = [
     {
         name: "No. Pedido",
+        options: {
+          filter: true,
+          customBodyRender: (value, tableMeta, updateValue) => {
+            return (
+                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+            );
+          }
+        }
+      },
+      {
+        name: "Codigo Cliente",
         options: {
           filter: true,
           customBodyRender: (value, tableMeta, updateValue) => {

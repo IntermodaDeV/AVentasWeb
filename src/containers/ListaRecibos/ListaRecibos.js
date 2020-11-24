@@ -136,17 +136,17 @@ const ListaRecibos = (props) => {
                 {
                     NumeroRecibo: recib.NumeroRecibo,
                     CodigoCliente: recib.CodigoCliente,
+                    NombreCliente : recib.Cliente.Nombre,
                     Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
                     IdTipoPago: recib.TipoPago.Descripcion,
                     Referencia: recib.Referencia,
                     FechaCheque: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
-                    IdBanco: recib.IdBanco,
-                    IdCuentaBancaria: recib.IdCuentaBancaria,
+                    IdBanco: recib.DescripcionBanco,
                     Valor: recib.Valor,
                     IdMoneda: recib.IdMoneda,
                     Sincronizado: recib.Sincronizado?"Si":"No",
                     CodigoAsesor: recib.CodigoAsesor,
-                    IdFactura: recib.IdFactura,
+                    IdFactura: recib.DetalleRecibo[0].Factura,
                     Descuento: recib.Descuento,
                     Acciones:
                         <div>
@@ -249,6 +249,14 @@ const HeadersListaRecibos = [
         }
     },
     {
+        name: "NombreCliente",
+        label: "Nombre Cliente",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
         name: "IdTipoPago",
         label: "TipoPago",
         options: {
@@ -275,14 +283,6 @@ const HeadersListaRecibos = [
     {
         name: "IdBanco",
         label: "Banco",
-        options: {
-            filter: true,
-            sort: true,
-        }
-    },
-    {
-        name: "IdCuentaBancaria",
-        label: "Cuenta Bancaria",
         options: {
             filter: true,
             sort: true,

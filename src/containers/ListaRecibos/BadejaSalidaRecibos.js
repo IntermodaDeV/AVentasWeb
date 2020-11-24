@@ -20,12 +20,13 @@ import ImpresionBandejaSalida from "components/ListadoRecibos/ImpresionBandejaSa
 import {useSelector,useDispatch} from 'react-redux';
 import { FiAlertTriangle } from 'react-icons/fi';
 import axios from 'axios';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle   from '@material-ui/core/DialogTitle';
+import CircularProgress from '@material-ui/core/CircularProgress';
 moment.locale('es');
 
 const BadejaSalidaRecibos = (props) => {
     const urlApi = APIURL;
-    const [error] = useState(false);
-    const [isLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
     const [recibos, setRecibos] = useState([]);
     const [recibo, setRecibo] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
@@ -66,7 +67,8 @@ const BadejaSalidaRecibos = (props) => {
             if(navigator.onLine){
                 setLoading(true);
                 const recibo = RecibosCache.find(x=>x.ReciboId===reciboId);
-                const request = await axios.post(urlApi +'/api/Recibo', recibo, {
+                let Ruta =recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/Recibo';
+                const request = await axios.post(urlApi + Ruta, recibo, {
                     headers: {
                         'Authorization': 'Bearer ' + localStorage.getItem('token'),
                         'Content-Type': 'application/json'
@@ -74,7 +76,6 @@ const BadejaSalidaRecibos = (props) => {
                 });
                 
                 if(request.data){
-                    console.log("request.data",request.data)
                     const nuevosRecibos = RecibosCache.filter(x=>x.ReciboId !== reciboId);
                     dispatch({type:"SET_RESETRECIBOSENCACHE",payload:nuevosRecibos});
                     setRecibos(nuevosRecibos);
@@ -109,6 +110,7 @@ const BadejaSalidaRecibos = (props) => {
                 let data = {
                     NumeroRecibo: recib.CodigoUltimoRecibo,
                     CodigoCliente: recib.CodigoCliente,
+                    NombreCliente : recib.NombreCliente,
                     Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
                     FechaCheque: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
                     IdBanco: recib.Pagos[0].Banco,
@@ -155,13 +157,7 @@ const BadejaSalidaRecibos = (props) => {
     const RegresarListaRecibos = () => {
         setRecibo(null);
     }
-
-    if (!isLoaded) {
-        return <Loader interval={1800} />;
-    }
-    if (error) {
-        return <div>Error: {error.message}</div>;
-    }
+    
     if (recibo != null) {
         
         return (
@@ -173,6 +169,29 @@ const BadejaSalidaRecibos = (props) => {
         return (
             <>
              <div className="px-3">
+             <Dialog
+                    disableBackdropClick 
+                    scroll={'paper'}
+                    open={isLoading}
+                    >
+                        <DialogTitle className="text-center" id="scroll-dialog-title">
+                            <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                                Sincronizando
+                        </div>
+                        </DialogTitle>
+                        <DialogContent>
+                        
+                        <div className="d-flex flex-grow-1 align-items-center justify-content-center">
+                                <div className="row">
+                                    <div className="col-12 text-center">
+                                        <CircularProgress disableShrink/>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                            
+                        </DialogContent>
+                </Dialog>
                 <div style ={{textAlign:'center',fontSize: '28px'}} className="alert alert-danger alert-dismissible fade show" role="alert">
                     <FiAlertTriangle style={{ fontSize: '32px', color: 'red'}} /> Los recibos mostrados en esta pantalla están registrados únicamente en su maquina
                 </div>
@@ -200,9 +219,7 @@ const BadejaSalidaRecibos = (props) => {
                         />
                     }
                 </Dialog >
-
-        </div>
-            <LoadingModal title={'recibos'} Open={isLoading}/>
+            </div>
             </>
         );
     }
@@ -235,14 +252,14 @@ const HeadersListaRecibos = [
             sort: true,
         }
     },
-    /*{
-        name: "Referencia",
-        label: "Referencia",
+    {
+        name: "NombreCliente",
+        label: "Nombre Cliente",
         options: {
             filter: true,
             sort: true,
         }
-    },*/
+    },
     {
         name: "FechaCheque",
         label: "Fecha Cheque",

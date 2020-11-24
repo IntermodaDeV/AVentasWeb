@@ -119,6 +119,8 @@ const DetalleRecibo = (props) => {
                                 }
                             } else {
                                 cuotasAgrupadas.push({
+                                    Tipo : fact.Tipo,
+                                    FechaFactura : cuot.FechaFactura,
                                     NumeroCuota: cuot.NumeroCuota,
                                     NumeroFactura: fact.Factura,
                                     Valor: cuot.ValorCuota,
@@ -208,13 +210,17 @@ const DetalleRecibo = (props) => {
                 Number(cuotAgru.APagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //APagar:
                 Number(cuotAgru.PagoAplicado).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //PagoAplicado:
                 <FaEye onClick={(event) => { OpenModal(event, cuotAgru.Cuotas) }} size={"20px"} />, //Acciones:
+                cuotAgru.FechaFactura, // Fecha Factura
+                cuotAgru.Tipo, //tipo de Documento
+                
             ]
         });
         return {
             Cuotas: cuotas,
             DescuentoAplicado: descuentoAcumulado,
             ValorAPagar : Number(localStorage.getItem('valorPagos')),
-            DescuentoTotal: Number(localStorage.getItem('DescuentoFacturas'))
+            DescuentoTotal: Number(localStorage.getItem('DescuentoFacturas')),
+            agrupadas: true
         }
     }
     const CalculoCuotasSingAgruparYDescuento = () => {
@@ -280,7 +286,8 @@ const DetalleRecibo = (props) => {
             Cuotas: cuotasProcesadas,
             DescuentoAplicado: descuentoAcumulado,
             ValorAPagar : Number(localStorage.getItem('valorPagos')),
-            DescuentoTotal: Number(localStorage.getItem('DescuentoFacturas'))
+            DescuentoTotal: Number(localStorage.getItem('DescuentoFacturas')),
+            agrupadas: false
         };
     }
     const CuotasSinAgrupar = () => {
@@ -518,6 +525,7 @@ const DetalleRecibo = (props) => {
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
         if(!navigator.onLine)
         {
+            let ValorPago = Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0));
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
                 Fecha: pagosXRecibo[0].fecha,
@@ -527,6 +535,8 @@ const DetalleRecibo = (props) => {
                 NombreCliente : props.Cliente.Nombre,
                 Direccion : props.Cliente.Direccion,
                 Asesor: localStorage.getItem('codigo'),
+                Tipo: localStorage.getItem('isAnticipo') === 'true' ? "Anticipo [D-O]" : "",
+                EsAnticipo : localStorage.getItem('isAnticipo') === 'true'? true : false,
                 Pagos: pagosXRecibo.map(pagXRecib => {
                     return {
                         "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,
@@ -535,11 +545,11 @@ const DetalleRecibo = (props) => {
                         "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,
                         "Banco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].NombreBanco : "",
                         "Orden": 1,
-                        "Valor": pagXRecib.valor-saldoAFavor,
+                        "Valor":localStorage.getItem('isAnticipo') === 'true' ? Number(pagXRecib.valor) : Number(pagXRecib.valor-saldoAFavor),
                         "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,
                         "Referencia": pagXRecib.referencia,
                         "ReferenciaTransaccionAbierta": "",
-                        "Monto": Number(pagXRecib.valor-saldoAFavor),
+                        "Monto": localStorage.getItem('isAnticipo') === 'true' ? Number(pagXRecib.valor) : Number(pagXRecib.valor-saldoAFavor),
                     }
                 }),
                 Descripcion: '',
@@ -547,19 +557,19 @@ const DetalleRecibo = (props) => {
                 SubFacturas: props.CuotasAPagar,
                 NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
                 EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
-                CodigoUltimoRecibo : "No Disponible",
-                Total : Number(pagosXRecibo[0].valor),
+                CodigoUltimoRecibo : " Disponible",
+                Total :  ValorPago,
                 Facturas : cuotasYDescuentoAplicado.Cuotas.map(fact => {
                     return {
-                        "Aplicado" : Number(fact[13].replace(',', '')),
-                        "Dias" :fact[5],
-                        "EsAbono" : fact[12] !== fact[13] ? true : false,
-                        "Fecha" : Date(fact[4]),
+                        "Aplicado" : localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ?  Number(fact[10].replace(',', '')) : Number(fact[13].replace(',', '')),
+                        "Dias" :cuotasYDescuentoAplicado.agrupadas ? "" : fact[5],
+                        "EsAbono" :cuotasYDescuentoAplicado.agrupadas ? fact[10] !== fact[9] ? true : false : fact[12] !== fact[13] ? true : false,
+                        "Fecha" :cuotasYDescuentoAplicado.agrupadas ? Date(fact[12]) : Date(fact[4]),
                         "IdFactura" : fact[1],
                         "NumeroFEL" : "",
-                        "Parcial" : fact[12].replace(',', ''),
-                        "Parcial2" : fact[11].replace(',', ''),
-                        "TipoDocumento" : fact[0]
+                        "Parcial" :localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ? fact[7].replace(',', '') : fact[12].replace(',', ''),
+                        "Parcial2" : cuotasYDescuentoAplicado.agrupadas ? fact[8].replace(',', '') :  fact[11].replace(',', ''),
+                        "TipoDocumento" : cuotasYDescuentoAplicado.agrupadas ? fact[13] : fact[0]
                     }
                 }),
             }
