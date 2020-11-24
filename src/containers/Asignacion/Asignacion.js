@@ -50,7 +50,10 @@ export default class Asignacion extends Component {
         TipoValues: [],
         TipoInitialValues: [],
         ArrayTipoValues : [],
-        showCargar:false
+        showCargar:false,
+        Asesores: [],
+        AsesorSelected: null,
+        RutasSinFiltro : []
     }
 
     setCargar = (show)=>{
@@ -84,18 +87,30 @@ export default class Asignacion extends Component {
                                         }
                                         return false;
                                     });*/
+                                let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
+                                let Asesores = [];
+                                let AsesorSelect = null;
+                                Asesor.map((Ase, index) => {
+                                    if (index === 0) {
+                                        AsesorSelect = Ase;
+                                    }
+                                    let Valores = { key: Ase, value: Ase, text: Ase }
+                                    Asesores.push(Valores);
+                                })
+
                                 let Rutas = Array.from(new Set(result.map(s=> s.CodigoRuta)))
                                 .map(CodigoRuta => {
                                     return {
                                         Ruta : result.find(s => s.CodigoRuta === CodigoRuta).Ruta,
-                                        Codigo : CodigoRuta
+                                        Codigo : CodigoRuta,
+                                        Asesor : result.find(s => s.CodigoRuta === CodigoRuta).Asesor,
                                     };
                                 });
 
                                 let DropdownRutas = [];
                                 let RutaSelected = null;
 
-                                Rutas.map((Ruta, ind) => {
+                                Rutas.filter(r=> r.Asesor === AsesorSelect).map((Ruta, ind) => {
                                     if (ind === 0) {
                                         RutaSelected = Ruta.Ruta;
                                     }
@@ -109,6 +124,9 @@ export default class Asignacion extends Component {
                                     Rutas: DropdownRutas,
                                     clientes: result,
                                     isLoaded: true,
+                                    Asesores: Asesores,
+                                    AsesorSelected : AsesorSelect,
+                                    RutasSinFiltro : Rutas
                                 })
 
                             },
@@ -370,6 +388,21 @@ export default class Asignacion extends Component {
                                         />
                                     </div>
 
+                                    <div className={styles.ComboBoxContainer + ' col-lg-2 mb-lg-0 col-12 mb-1'}>
+                                        <div className="row" style={{ fontWeight: 300, fontSize: 13 }}>
+                                            <span>Asesor</span>
+                                        </div>
+                                        <Dropdown
+                                            placeholder="Asesor"
+                                            selection
+                                            className={styles.ComboBoxOnTop}
+                                            onChange={(e, { value }) => this.handleOnChangeAsesor(value)}
+                                            options={this.state.Asesores}
+                                            noResultsMessage={"No hay resultados"}
+                                            closeOnChange={true}
+                                            value={this.state.AsesorSelected}
+                                        />
+                                    </div>
 
                                     <div className={styles.ComboBoxContainer + ' col-lg-3 mb-lg-0 col-12 mb-1'}>
                                         <div className="row" style={{ fontWeight: 300, fontSize: 13 }}>
@@ -387,7 +420,7 @@ export default class Asignacion extends Component {
                                         />
                                     </div>
 
-                                    <div className="col-lg-3 my-lg-0 col-6 my-1" style={{ paddingTop: 15 }}>
+                                    <div className="col-lg-1 my-lg-0 col-6 my-1" style={{ paddingTop: 15 }}>
 
                                         <Button
                                             variant="outlined"
@@ -711,7 +744,25 @@ export default class Asignacion extends Component {
             RutaSelected: value,
         });
     }
+    handleOnChangeAsesor = (value) => {
+       let RutaFiltrada = this.state.RutasSinFiltro.filter(r => r.Asesor === value);
+       let DropdownRutas = [];
+       let RutaSelected = null;
 
+       RutaFiltrada.map((Ruta, ind) => {
+           if (ind === 0) {
+               RutaSelected = Ruta.Ruta;
+           }
+           let Opciones = { key: Ruta.Codigo, value: Ruta.Ruta, text: Ruta.Codigo + " - " + Ruta.Ruta }
+           DropdownRutas.push(Opciones);
+           return true;
+       })
+        this.setState({
+            AsesorSelected : value,
+            Rutas: DropdownRutas,
+            RutaSelected : RutaSelected
+        });
+    }
     handleFechaDialogInicio = (fecha) => {
         var date = moment(fecha).toDate();
         this.setState({
@@ -1060,7 +1111,7 @@ export default class Asignacion extends Component {
                     let asignacionIndex = 0;
                     let horarioChoca = false;
                     ListaAsignaciones.some((asignacion, ind) => {
-                        if (Date.parse(asignacion.HoraInicio) > Date.parse(this.state.HoraDialogInicio)) {
+                        if (Date.parse(asignacion.HoraInicio) > Date.parse(this.state.HoraDialogInicio) && asignacion.Asesor === this.state.AsesorSelected) {
                             encontrado = true;
                             asignacionIndex = ind;
                             return true;
@@ -1069,7 +1120,7 @@ export default class Asignacion extends Component {
                         if (horarioChoca === false) {
                             let fechaAsignacionIni = moment(asignacion.HoraInicio).toDate();
                             let fechaAsignacionFin = moment(asignacion.HoraFin).toDate();
-                            horarioChoca = ((fechaAsignacionIni > this.state.HoraDialogInicio && fechaAsignacionIni < this.state.HoraDialogFin) || (this.state.HoraDialogInicio > fechaAsignacionIni && this.state.HoraDialogInicio < fechaAsignacionFin));
+                            horarioChoca = ((fechaAsignacionIni > this.state.HoraDialogInicio && fechaAsignacionIni < this.state.HoraDialogFin && asignacion.Asesor === this.state.AsesorSelected) || (this.state.HoraDialogInicio > fechaAsignacionIni && this.state.HoraDialogInicio < fechaAsignacionFin && asignacion.Asesor === this.state.AsesorSelected));
                         }
 
                         return false;
@@ -1085,20 +1136,20 @@ export default class Asignacion extends Component {
                         return false;
                     }
                     if (encontrado) {
-                        ListaAsignaciones.splice(asignacionIndex, 0, { cliente: cliente, HoraInicio: moment(this.state.HoraDialogInicio).format(), HoraFin: moment(this.state.HoraDialogFin).format(), IdPrioridad: this.state.RadioValue, IdTipoVisita: this.state.TipoVisitaClienteDialogValue });
+                        ListaAsignaciones.splice(asignacionIndex, 0, { cliente: cliente, HoraInicio: moment(this.state.HoraDialogInicio).format(), HoraFin: moment(this.state.HoraDialogFin).format(), IdPrioridad: this.state.RadioValue, IdTipoVisita: this.state.TipoVisitaClienteDialogValue, Asesor: this.state.AsesorSelected });
                     }
                     else {
-                        ListaAsignaciones.push({ cliente: cliente, HoraInicio: moment(this.state.HoraDialogInicio).format(), HoraFin: moment(this.state.HoraDialogFin).format(), IdPrioridad: this.state.RadioValue, IdTipoVisita: this.state.TipoVisitaClienteDialogValue });
+                        ListaAsignaciones.push({ cliente: cliente, HoraInicio: moment(this.state.HoraDialogInicio).format(), HoraFin: moment(this.state.HoraDialogFin).format(), IdPrioridad: this.state.RadioValue, IdTipoVisita: this.state.TipoVisitaClienteDialogValue, Asesor: this.state.AsesorSelected });
                     }
 
                     asignaciones[index].asignaciones = ListaAsignaciones;
                 }
                 else {
-                    let dia = { fecha: current_datetime, asignaciones: [{ cliente: cliente, HoraInicio: moment(this.state.HoraDialogInicio).format(), HoraFin: moment(this.state.HoraDialogFin).format(), IdPrioridad: this.state.RadioValue, IdTipoVisita: this.state.TipoVisitaClienteDialogValue }] }
+                    let dia = { fecha: current_datetime, asignaciones: [{ cliente: cliente, HoraInicio: moment(this.state.HoraDialogInicio).format(), HoraFin: moment(this.state.HoraDialogFin).format(), IdPrioridad: this.state.RadioValue, IdTipoVisita: this.state.TipoVisitaClienteDialogValue, Asesor: this.state.AsesorSelected }] }
                     asignaciones.push(dia);
                 }
             } else {
-                let dia = { fecha: current_datetime, asignaciones: [{ cliente: cliente, HoraInicio: moment(this.state.HoraDialogInicio).format(), HoraFin: moment(this.state.HoraDialogFin).format(), IdPrioridad: this.state.RadioValue, IdTipoVisita: this.state.TipoVisitaClienteDialogValue }] }
+                let dia = { fecha: current_datetime, asignaciones: [{ cliente: cliente, HoraInicio: moment(this.state.HoraDialogInicio).format(), HoraFin: moment(this.state.HoraDialogFin).format(), IdPrioridad: this.state.RadioValue, IdTipoVisita: this.state.TipoVisitaClienteDialogValue, Asesor: this.state.AsesorSelected }] }
                 asignaciones.push(dia);
             }
 
@@ -1192,7 +1243,7 @@ export default class Asignacion extends Component {
                     {
                         this.state.clientes.map((cliente, ind) => {
 
-                            if (cliente.Ruta === this.state.RutaSelected) {
+                            if (cliente.Asesor == this.state.AsesorSelected && cliente.Ruta === this.state.RutaSelected) {
                                 var filas = this.Filas(header, cliente);
 
                                 return (
