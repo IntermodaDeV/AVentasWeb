@@ -297,24 +297,6 @@ class Pedidos extends React.Component {
         .catch(error=>this.setState({error}))
     }
 
-    cargarComunidadAutonoma = () =>{
-        ///const empresa = localStorage.getItem('empresa');
-        /*let pais = "HND";
-
-        if(empresa === "imcr")
-        {
-            pais = "CRI";
-        }else if(empresa === "imgt")
-        {
-            pais = "GTM";
-        }*/
-
-        fetch(`${this.urlApi}/api/transporte/comunidadautonoma`)
-        .then(res=>res.json())
-        .then(data=>this.props.onStoreComunidades(data))
-        .catch(error=>this.setState({error}))
-    }
-
     cargarImpuestoClientes = (empresa) =>{
         //const empresa = localStorage.getItem('empresa');
         fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/clientes`)
@@ -2541,7 +2523,6 @@ const mapDispatchToProps = dispatch => {
             { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
         onStoreEmpresasTransporte:(empresas)=>dispatch({type:'SET_EMPRESASTRANSPORTE',payload:empresas}),
         onStorePrecioCajas:(precioCajas)=>dispatch({type:'SET_PRECIOCAJAS',payload:precioCajas}),
-        onStoreComunidades:(comunidades)=>dispatch({type:'SET_COMUNIDADAUTONOMA',payload:comunidades}),
         onStoreImpuestoClientes:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOS',payload:impuestos}),
         onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos}),
         onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},

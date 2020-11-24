@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Loader from 'components/Global/Loader';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Button } from "@material-ui/core";
 import DetalleRecibo from 'components/ListadoRecibos/DetalleRecibo';
@@ -7,7 +6,6 @@ import { PrintOutlined } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
 import { APIURL } from 'utils/Enviroment';
-import LoadingModal from '../../components/Global/LoadingModal';
 import  TableFooter from "@material-ui/core/TableFooter";
 import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
