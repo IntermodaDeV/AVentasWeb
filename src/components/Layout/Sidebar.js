@@ -39,7 +39,8 @@ import {
     LocationOnOutlined,
     HelpOutline,
     Public,
-    Security
+    Security,
+    AccountBox
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
@@ -89,13 +90,15 @@ const navItems = [
         ]
     },
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
+    { to: '/cartera', name: 'Cartera', dataTut: 'DataTut_Agenda', Icon: AccountBox },
     { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },
     {
         to: '/recibos', name: 'Recibos', dataTut: 'DataTut_Recibos', Icon: Receipt,
         expanded: [
+            { to: '/lista-recibos-BandejaSalida', name: 'Bandeja Salida', dataTut: 'DataTut_BandejaSalida', Icon: ListAlt, backgroundColor:'#c41021' },
+            { to: '/lista-recibos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_BandejaSalida', Icon: ListAlt, backgroundColor:'#d49008' },
             { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:''  },
-            { to: '/lista-recibos-BandejaSalida', name: 'Bandeja Salida', dataTut: 'DataTut_BandejaSalida', Icon: ListAlt, backgroundColor:'#c41021' },
         ]
     },
     {

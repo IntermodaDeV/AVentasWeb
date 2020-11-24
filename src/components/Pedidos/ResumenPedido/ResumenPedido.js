@@ -631,7 +631,7 @@ const ResumenPedido = (props) => {
             </CardContent>
             <div className="col-12">
                 {(!BloqueoCredito) &&
-                    <button className="btn btn-secondary float-right mb-3 mx-2" onClick={() => Finalizar()}>
+                    <button disabled={props.loadingRecibo} className="btn btn-secondary float-right mb-3 mx-2" onClick={() => Finalizar()}>
                         {props.loadingRecibo ?
                             <ScaleLoader
                                 css={{ height: '25px', bottom: '5px', position: 'relative', transform: 'scale(0.6)' }}

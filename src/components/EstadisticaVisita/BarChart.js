@@ -6,23 +6,42 @@ import 'moment/locale/es';
 moment.locale('es');
 
 const BarChart = props => {
-    //const [fecha,setFecha]     = useState(moment().subtract(6,'month'));
+    console.log(props)
     const [visitas,setVisitas] = useState([]);
 
     const cargarVisitasPorMes = () =>{
-        //let fechaInicio = moment(fecha).format();
 
-        fetch(`${APIURL}/api/estadisticavisita/mes`)
+        fetch(`${APIURL}/api/estadisticavisita/mes`,{
+            headers: {
+                'Authorization':
+                    'Bearer ' + localStorage.getItem('token')
+
+            }
+        })
         .then(res=>res.json())
         .then(data=>setVisitas(data));
     }
 
     const obtenerCabeceras = () =>{
-        return visitas.map((visita)=>visita.MES);
+        return visitas.filter(x=>x.EMPRESA==='IMHN').map((visita)=>visita.MES);
     }
 
     const obtenerValores = () =>{
-        return visitas.map((visita)=>visita.VISITAS);
+        if(props.empresa===null){
+            let totales = [];
+            const imhn = visitas.filter(x=>x.EMPRESA==="IMHN").map((visita)=>visita.VISITAS);
+            const imcr = visitas.filter(x=>x.EMPRESA==="IMCR").map((visita)=>visita.VISITAS);
+            const imgt = visitas.filter(x=>x.EMPRESA==="IMGT").map((visita)=>visita.VISITAS);
+
+            for(let i=0;i<imhn.length;i++){
+                let total = imhn[i]+imcr[i]+imgt[i];
+                totales.push(total);
+            }
+
+            return totales;
+        }
+
+        return visitas.filter(x=>x.EMPRESA===props.empresa).map((visita)=>visita.VISITAS);
     }
 
     const obtenerData = ()=>{
@@ -62,25 +81,6 @@ const BarChart = props => {
 
     return (
         <div className="card" style={{padding:'20px',marginBottom:'20px'}}>
-            {/*<div style={{display:'flex'}}>
-                    <DatePicker
-                        disableToolbar
-                        autoOk
-                        minDateMessage={"Fecha Inválida"}
-                        label={"Fecha"}
-                        variant="inline"
-                        // minDate={this.state.startDate}
-                        format={"DD/MM/YYYY"}
-                        value={fecha}
-                        onChange={(date) => setFecha(date)}
-                    />
-                    <Button
-                        style={{marginLeft:'50px'}}
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => cargarVisitasPorMes()}>Obtener
-                    </Button>
-            </div>*/}
             {visitas.length===0
             ?<h4>No hay registros</h4>
             :<Bar data={obtenerData} options={options}/>
