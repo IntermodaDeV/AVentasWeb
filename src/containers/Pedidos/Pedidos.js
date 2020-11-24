@@ -123,7 +123,6 @@ class Pedidos extends React.Component {
         Promise.all([this.cargarClientes(),
         this.cargarMaestroLinea(),
         this.cargarTiposColeccion(),
-        this.cargarComunidadAutonoma(),
         this.cargarTiposPedido()]).then(this.setState({
             isLoaded: true,
         }));
