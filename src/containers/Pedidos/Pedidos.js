@@ -1309,18 +1309,19 @@ class Pedidos extends React.Component {
             const { data,error } = await post(this.urlApi + "/api/PedidosXCliente",pedido,"SET_PEDIDOSINCRONIZAR");
 
             if(error){
-                let mensaje = "Ha ocurrido un error y no se pudo realizar el pedido.";
-
                 if(error.response){
-                    mensaje = error.response.data.Message;
+                    let mensaje = error.response.data.Message;
+                    Swal.fire({
+                        type: 'error',
+                        title: 'Error',
+                        text: mensaje,
+                    })
+                    this.setState({ loadingRecibo: false });
+                }else{
+                    let numPedido = data.EncabezadoPedido.PedidoId;
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+                    this.props.onSetNumeroOrden(numPedido);
                 }
-
-                Swal.fire({
-                    type: 'error',
-                    title: 'Error',
-                    text: mensaje,
-                })
-                this.setState({ loadingRecibo: false });
             }else{
                 let numPedido = data.EncabezadoPedido.PedidoId;
                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
