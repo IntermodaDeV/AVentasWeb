@@ -7,13 +7,14 @@ import moment from "moment";
 import 'moment/locale/es';
 import { APIURL } from 'utils/Enviroment';
 import Listado from 'components/ListadoRecibos/Listado';
-import {Loading} from 'components/Global/Loading';
-import  TableFooter from "@material-ui/core/TableFooter";
-import  TableRow from "@material-ui/core/TableRow";
-import  TablePagination from "@material-ui/core/TablePagination";
+import { Loading } from 'components/Global/Loading';
+import TableFooter from "@material-ui/core/TableFooter";
+import TableRow from "@material-ui/core/TableRow";
+import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import { IsAllow } from 'components/Seguridad/Permisos';
 import axios from 'axios';
+import { FiAlertTriangle } from 'react-icons/fi';
 
 moment.locale('es');
 
@@ -28,11 +29,10 @@ export const ListaReciboPendiente = (props) => {
     const [recibo, setRecibo] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
     const [DialogRecibo, setDialogRecibo] = useState(null);
-    const [isLoading,setLoading] = useState(false);
+    const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {
-        if(!IsAllow("/lista-recibos"))
-        {
+        if (!IsAllow("/lista-recibos")) {
             props.history.push('/home');
         }
         cargarRecibos();
@@ -41,8 +41,8 @@ export const ListaReciboPendiente = (props) => {
     }, []);
 
     const cambiarRecibo = (recibo) => {
-         setRecibo(recibo);
-     }
+        setRecibo(recibo);
+    }
 
     const cargarRecibos = async () => {
         fetch(urlApi + "/api/Recibo/Pendiente", {
@@ -61,7 +61,7 @@ export const ListaReciboPendiente = (props) => {
                     res.json()
                         .then(
                             (result) => {
-                                
+
                                 setRecibos(result);
                                 setIsLoaded(true);
                             },
@@ -117,11 +117,15 @@ export const ListaReciboPendiente = (props) => {
         }
     }
 
-    const sincronizar = async (recibo)=>{
-        if(navigator.onLine){
-            try{
+    const sincronizar = async (recibo) => {
+        let ruta = `${urlApi}/api/Recibo/Pendiente/${recibo.recibo}`;
+        if (recibo.anticipo) {
+            ruta = `${urlApi}/api/Recibo/Anticipo/Pendiente/${recibo.recibo}`;
+        }
+        if (navigator.onLine) {
+            try {
                 setLoading(true);
-                const request = await axios.post(`${urlApi}/api/Recibo/Pendiente/${recibo}`);
+                const request = await axios.post(ruta);
                 setLoading(false);
                 Swal.fire({
                     type: 'success',
@@ -129,11 +133,11 @@ export const ListaReciboPendiente = (props) => {
                     text: request.data,
                 });
                 cargarRecibos();
-            }catch(err){
+            } catch (err) {
                 setLoading(false);
                 let mensaje = "Ha ocurrido un error y no se pudo sincronizar el recibo con AX.";
 
-                if(err.response){
+                if (err.response) {
                     mensaje = err.response.data.Message;
                 }
 
@@ -143,13 +147,13 @@ export const ListaReciboPendiente = (props) => {
                     text: mensaje,
                 })
             }
-        }else{
+        } else {
             Swal.fire({
                 title: 'Sin Internet',
                 text: 'Necesita internet para sincronizar el recibo',
                 type: 'warning',
                 confirmButtonText: 'Ok',
-              })
+            })
         }
     }
 
@@ -179,19 +183,19 @@ export const ListaReciboPendiente = (props) => {
                     IdCuentaBancaria: recib.IdCuentaBancaria,
                     Valor: recib.Valor,
                     IdMoneda: recib.IdMoneda,
-                    Sincronizado: recib.Sincronizado?"Si":"No",
+                    Sincronizado: recib.Sincronizado ? "Si" : "No",
                     CodigoAsesor: recib.CodigoAsesor,
                     IdFactura: recib.IdFactura,
                     Descuento: recib.Descuento,
                     Acciones:
                         <div>
 
-                             <span className="mr-1">
+                            <span className="mr-1">
                                 <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
-                            </span> 
+                            </span>
 
                             <span className="ml-1">
-                                <Button className='my-1' variant="outlined" onClick={() => sincronizar(recib.NumeroRecibo)} size="small" color={"primary"}>
+                                <Button className='my-1' variant="outlined" onClick={() => sincronizar({ recibo: recib.NumeroRecibo, anticipo: recib.Anticipo })} size="small" color={"primary"}>
                                     Sincronizar
                                 </Button>
                             </span >
@@ -224,7 +228,7 @@ export const ListaReciboPendiente = (props) => {
         return <div>Error: {error.message}</div>;
     }
     if (recibo != null) {
-        
+
         return (
             <DetalleRecibo
                 recibo={recibo}
@@ -233,19 +237,22 @@ export const ListaReciboPendiente = (props) => {
     } else {
         return (
             <>
-            <Listado
-                startDate={startDate}
-                endDate={endDate}
-                handleFechaInicio={handleFechaInicio}
-                handleFechaFin={handleFechaFin}
-                DataRecibos={DataRecibos}
-                HeadersListaRecibos={HeadersListaRecibos}
-                DatatableOptions={DatatableOptions}
-                showDialog={showDialog}
-                hidePrint={hidePrint}
-                DialogRecibo={DialogRecibo}
-            />
-            <Loading title="Sincronizando Recibo" open={isLoading}/>
+                <div style={{ textAlign: 'center', fontSize: '28px' }} className="alert alert-warning alert-dismissible fade show" role="alert">
+                    <FiAlertTriangle style={{ fontSize: '32px', color: 'orange' }} /> Los recibos mostrados en esta pantalla están registrados únicamente en la nube pero no en AX.
+            </div>
+                <Listado
+                    startDate={startDate}
+                    endDate={endDate}
+                    handleFechaInicio={handleFechaInicio}
+                    handleFechaFin={handleFechaFin}
+                    DataRecibos={DataRecibos}
+                    HeadersListaRecibos={HeadersListaRecibos}
+                    DatatableOptions={DatatableOptions}
+                    showDialog={showDialog}
+                    hidePrint={hidePrint}
+                    DialogRecibo={DialogRecibo}
+                />
+                <Loading title="Sincronizando Recibo" open={isLoading} />
             </>
         );
     }
@@ -384,20 +391,20 @@ const DatatableOptions = {
     selectableRows: 'none',
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
         <TableFooter>
-              <TableRow>
+            <TableRow>
                 <TablePagination
-                  count={count}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={(_, page) => changePage(page)}
-                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
-                  rowsPerPageOptions={[10, 15, 100]}
-                  ActionsComponent={CustomFooter}
-                  labelRowsPerPage="Filas por página:"
+                    count={count}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onChangePage={(_, page) => changePage(page)}
+                    onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                    rowsPerPageOptions={[10, 15, 100]}
+                    ActionsComponent={CustomFooter}
+                    labelRowsPerPage="Filas por página:"
                 />
-              </TableRow>
-            </TableFooter>
-      ),
+            </TableRow>
+        </TableFooter>
+    ),
     textLabels: {
         body: {
             noMatch: "No se han encontrado recibos",
