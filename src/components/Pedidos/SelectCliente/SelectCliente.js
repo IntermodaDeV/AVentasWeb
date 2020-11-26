@@ -102,6 +102,7 @@ const SelectCliente = (props) => {
     props.onSetTableValue({});
     props.onSetTotalPedido(0);
     props.onSetNumeroOrden(null);
+    localStorage.removeItem("ColeccionSeleccionada");
    }
 
     const handleClose = () => {

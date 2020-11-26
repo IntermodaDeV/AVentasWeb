@@ -32,11 +32,10 @@ export const ListaReciboPendiente = (props) => {
     const [isLoading, setLoading] = useState(false);
 
     useEffect(() => {
-        if (!IsAllow("/lista-recibos")) {
+        if (!IsAllow("/lista-recibos-pendientes")) {
             props.history.push('/home');
         }
         cargarRecibos();
-        //cargarClientes();
         // eslint-disable-next-line
     }, []);
 

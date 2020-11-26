@@ -52,6 +52,9 @@ class Agenda extends Component {
         IdAsignacion:0,
         checkin:null,
         checkout:null,
+        Asesores: [],
+        AsesorSelected: null,
+        OpenModalAsesor: false,
     }
 
     myRef = React.createRef();
@@ -73,13 +76,16 @@ class Agenda extends Component {
                     res.json()
                         .then(
                             (result) => {
+                                let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
+                                let AsesorSelect = Asesor[0];
                                 this.setState({
                                     clientes: result,
+                                    Asesores: Asesor,
+                                    AsesorSelected : AsesorSelect,
                                 });
-
+                                
                                 var fecha = this.getFechas(2);
                                 this.cargarAsignaciones(fecha.Inicio, fecha.Fin);
-
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -280,6 +286,7 @@ class Agenda extends Component {
 
         asignaciones.map(dia => {
             dia.asignaciones.map(asignacion => {
+            if(asignacion.Asesor === this.state.AsesorSelected){
                 let prioridad = asignacion.IdPrioridad;
                 let textColor = 'white';
                 let color = asignacion.ColorRelleno;
@@ -343,6 +350,7 @@ class Agenda extends Component {
                 tareas.push(tarea);
                 eventos.push(evento);
                 return false;
+            }
             })
             return false;
         })
@@ -507,7 +515,9 @@ class Agenda extends Component {
     onClickAsignacion = () => {
         this.props.history.push("/Asignacion");
     }
-
+    onClickAsesores = () => {
+        this.setState({ OpenModalAsesor: true});
+    }
     onCloseModalAtendido = () => {
         let noAtendido = false;
         if (!this.state.noAtendido) {
@@ -527,6 +537,20 @@ class Agenda extends Component {
         this.state.CausaNoVenta.map((tipo) => {
             let opcion = (
                 <MenuItem key={tipo.IdRazonNoVentaTipo} value={tipo.IdRazonNoVentaTipo}>{tipo.Tipo}</MenuItem>
+            )
+            opciones.push(opcion);
+            return false;
+        });
+        return opciones
+    }
+
+    opcionAsesores = () => {
+        const opciones = [];
+
+        this.state.Asesores.map((ase, index) => {
+
+            let opcion = (
+                <MenuItem key={ase} value={ase}>{ase}</MenuItem>
             )
             opciones.push(opcion);
             return false;
@@ -554,6 +578,21 @@ class Agenda extends Component {
         });
         return opciones
     }
+    
+    onChangeAsesor = () => {
+        var eventos = this.setAsignaciones(this.state.Asignaciones);
+
+        this.setState({
+            Eventos: eventos,
+            OpenModalAsesor: false,
+        })
+    }
+
+    handleOnChangeAsesor = (event) => {
+         this.setState({
+            AsesorSelected : event.target.value,
+         });
+     }
 
     handleChangeTipo = (event) => {
         this.setState({
@@ -710,7 +749,7 @@ class Agenda extends Component {
                         {
                             this.state.isLoaded ?
                                 <div className="col-12">
-                                    <Calendar onClickAgenda={this.onClickAgenda} asignaciones={this.state.Eventos} onClickEvento={this.onClickEvento} onClickAsignacion={this.onClickAsignacion} />
+                                    <Calendar onClickAgenda={this.onClickAgenda} asignaciones={this.state.Eventos} onClickEvento={this.onClickEvento} onClickAsignacion={this.onClickAsignacion} onClickAsesores={this.onClickAsesores} AsesorSelected = {this.state.AsesorSelected}/>
                                 </div>
                                 :
                                 <div style={{ marginTop: 15 }}>
@@ -1006,6 +1045,58 @@ class Agenda extends Component {
                                             color={'#3f51b5'}
                                             loading={this.state.GuardarAsignacion} /> : 'Guardar'
                                 }
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                }
+
+                {
+                    <Dialog
+                        scroll={'paper'}
+                        open={this.state.OpenModalAsesor}
+                        className={styles.AtenderContainer}
+                        onClose={() =>  this.setState({ OpenModalAsesor: false})}
+                        aria-labelledby="No-Atendido-Modal">
+                        <DialogTitle
+                            className="text-center"
+                            id="scroll-dialog-title">
+                            <div
+                                style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                                Asesores Disponibles
+                            </div>
+                        </DialogTitle>
+                        <DialogContent >
+                            {
+                                <>
+                                    <div className="row">
+                                        <div className="col-12 my-1">
+                                            <FormControl style={{ display: 'flex' }}>
+                                                <InputLabel htmlFor="demo-controlled-open-select">Asesor</InputLabel>
+                                                <Select
+                                                    value={(this.state.AsesorSelected === null ? '' : this.state.AsesorSelected)}
+                                                    onChange={this.handleOnChangeAsesor}>
+                                                    {
+                                                        this.opcionAsesores()
+                                                    }
+
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                    </div>
+                                </>
+                            }
+                        </DialogContent>
+                        <DialogActions>
+                            <Button variant="outlined" onClick={() =>  this.setState({ OpenModalAsesor: false})} color="primary">
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                className={"py-1"}
+                                style={{ height: '35px' }}
+                                onClick={() => this.onChangeAsesor()}>
+                                Aceptar
                             </Button>
                         </DialogActions>
                     </Dialog>

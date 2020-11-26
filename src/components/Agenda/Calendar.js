@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect } from 'react';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -12,29 +12,16 @@ import '@fullcalendar/daygrid/main.css';
 import '@fullcalendar/timegrid/main.css';
 import '@fullcalendar/list/main.css';
 
+const Calendario = props => {
 
-export default class Calendario extends Component {
-
-    render() {
-        return <div id="calendar" className="CalendarioAgenda"></div>;
-    }
-
-
-    getHeight = () => {
+    const getHeight = () => {
         let h = window.innerHeight - 130;
-        // if (window.innerWidth > 768) {
-        //     h -= 130;
-        // }
-        // else {
-        //     h -= 130
-        // }
         return h;
     }
 
-    componentDidMount() {
-
+    useEffect(()=>{
         var calendarEl = document.getElementById('calendar');
-        var eventos = this.props.asignaciones;
+        var eventos = props.asignaciones;
 
         var calendar = new Calendar(calendarEl, {
             plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
@@ -44,13 +31,20 @@ export default class Calendario extends Component {
                 Asignacion: {
                     text: 'Asignación',
                     click: () => {
-                        this.props.onClickAsignacion();
+                        props.onClickAsignacion();
+                    }
+                },
+                Asesores: {
+                    text: props.AsesorSelected,
+                    click: () => {
+                        props.onClickAsesores();
                     }
                 }
+                
             },
-            dateClick: (info) => this.props.onClickAgenda(info),
+            dateClick: (info) => props.onClickAgenda(info),
             header: {
-                right: 'prev,next today Asignacion',
+                right: 'prev,next today Asignacion, Asesores',
                 left: 'title',
                 center: 'dayGridMonth,listWeek,listDay'
             },
@@ -60,7 +54,7 @@ export default class Calendario extends Component {
             },
             editable: true,
             droppable: true,
-            height: this.getHeight,
+            height: getHeight(),
             eventLimit: true,
             eventSources: [
                 {
@@ -75,10 +69,19 @@ export default class Calendario extends Component {
                 minute: '2-digit',
                 meridiem: 'short'
             },
-            eventClick: (info) => this.props.onClickEvento(info),
+            eventClick: (info) => props.onClickEvento(info),
 
         });
 
         calendar.render();
-    }
+
+        return ()=>{
+            calendar.destroy();
+        }
+    },[props.asignaciones])
+
+
+    return <div id="calendar" className="CalendarioAgenda"></div>;
 }
+
+export default Calendario;

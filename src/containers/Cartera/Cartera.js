@@ -43,6 +43,9 @@ export const Cartera = props => {
     }
 
     useEffect(() => {
+        if (!IsAllow("/cartera")) {
+            props.history.push('/home');
+        }
         cargarCartera();
         dispatch({ type: 'SET_CUENTAIMPRIMIR', payload: [] });
         // eslint-disable-next-line
@@ -90,7 +93,6 @@ export const Cartera = props => {
                             )
                         }}
                     />
-                    {/*<label>Busqueda:</label><input type="text" onChange={(e) => { handleChangeBusqueda(e.target.value) }} style={{ borderRadius: '100px', marginLeft: '10px', width: '50%' }} />*/}
                     <ListaClientes clientes={filtrados} seleccionarCliente={seleccionarCliente} seleccionado={cliente} />
                 </div>
                     <div className="col-md-9">
