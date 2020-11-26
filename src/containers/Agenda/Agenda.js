@@ -285,6 +285,7 @@ class Agenda extends Component {
         let tareas = [];
 
         asignaciones.map(dia => {
+            // eslint-disable-next-line
             dia.asignaciones.map(asignacion => {
             if(asignacion.Asesor === this.state.AsesorSelected){
                 let prioridad = asignacion.IdPrioridad;

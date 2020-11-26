@@ -90,6 +90,7 @@ export default class Asignacion extends Component {
                                 let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
                                 let Asesores = [];
                                 let AsesorSelect = null;
+                                // eslint-disable-next-line
                                 Asesor.map((Ase, index) => {
                                     if (index === 0) {
                                         AsesorSelect = Ase;
@@ -1243,7 +1244,7 @@ export default class Asignacion extends Component {
                     {
                         this.state.clientes.map((cliente, ind) => {
 
-                            if (cliente.Asesor == this.state.AsesorSelected && cliente.Ruta === this.state.RutaSelected) {
+                            if (cliente.Asesor === this.state.AsesorSelected && cliente.Ruta === this.state.RutaSelected) {
                                 var filas = this.Filas(header, cliente);
 
                                 return (

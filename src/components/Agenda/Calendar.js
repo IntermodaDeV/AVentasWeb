@@ -78,6 +78,7 @@ const Calendario = props => {
         return ()=>{
             calendar.destroy();
         }
+        // eslint-disable-next-line
     },[props.asignaciones])
 
 
