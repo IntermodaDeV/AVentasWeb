@@ -18,6 +18,8 @@ import SearchIcon from "@material-ui/icons/Search";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import { IsAllow } from 'components/Seguridad/Permisos';
+import CachedIcon from '@material-ui/icons/Cached';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
@@ -45,10 +47,19 @@ export const Cartera = props => {
     }
 
     const recargarClientes = () =>{
-        localStorage.removeItem('expiracion-Cartera');
-        setCliente(undefined);
-        setLoading(true);
-        cargarCartera();
+        if(navigator.onLine){
+            localStorage.removeItem('expiracion-Cartera');
+            setCliente(undefined);
+            setLoading(true);
+            cargarCartera();
+        }else{
+            Swal.fire({
+                title: 'Sin Internet',
+                text: 'Necesita internet para sincronizar la cartera',
+                type: 'warning',
+                confirmButtonText: 'Ok',
+            })
+        }
     }
 
     useEffect(() => {
@@ -88,9 +99,10 @@ export const Cartera = props => {
             {loading
                 ? <Loading open={loading} title="Cargando cartera de clientes" />
                 : (<><div className="col-md-3 h-100">
+                    <div style={{display:'flex',justifyContent:'space-between'}}>
                     <TextField
                         onChange={(e) => { handleChangeBusqueda(e.target.value) }}
-                        style={{ width: '100%', marginBottom: '15px' }}
+                        style={{ width: '90%', marginBottom: '15px' }}
                         label="Buscar"
                         InputProps={{
                             endAdornment: (
@@ -102,10 +114,11 @@ export const Cartera = props => {
                             )
                         }}
                     />
+                    <Button style={{height:45}} onClick={recargarClientes} variant="contained" color="primary"><CachedIcon/></Button>
+                    </div>
                     <ListaClientes clientes={filtrados} seleccionarCliente={seleccionarCliente} seleccionado={cliente} />
                 </div>
                     <div className="col-md-9">
-                    <Button onClick={recargarClientes} variant="contained" color="primary">Recargar</Button>
                         <Paper square>
                             <Tabs
                                 value={value}
