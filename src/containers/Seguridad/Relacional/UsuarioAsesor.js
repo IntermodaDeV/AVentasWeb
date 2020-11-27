@@ -77,7 +77,6 @@ export const UsuarioAsesor = (props) =>{
     }
 
     const asignarAsesores = async (id) =>{
-        debugger;
         try{
             await axios.post(`${APIURL}/api/AsignarAsesores/${id}/${usuario}/${localStorage.getItem('codigo')}`);
             cargarPantallas(usuario);

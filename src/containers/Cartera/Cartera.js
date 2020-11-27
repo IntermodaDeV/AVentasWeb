@@ -16,13 +16,14 @@ import IconButton from "@material-ui/core/IconButton";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import SearchIcon from "@material-ui/icons/Search";
 import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 import { IsAllow } from 'components/Seguridad/Permisos';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
     const clientes = useSelector(e => e.Cartera);
     const [value, setValue] = useState(0);
-    const [cliente, setCliente] = useState(clientes[0]);
+    const [cliente, setCliente] = useState(undefined);
     const [loading, setLoading] = useState(true);
     const [filtrados, setFiltrados] = useState([]);
 
@@ -41,6 +42,13 @@ export const Cartera = props => {
             setFiltrados(data);
             setLoading(false);
         }
+    }
+
+    const recargarClientes = () =>{
+        localStorage.removeItem('expiracion-Cartera');
+        setCliente(undefined);
+        setLoading(true);
+        cargarCartera();
     }
 
     useEffect(() => {
@@ -97,6 +105,7 @@ export const Cartera = props => {
                     <ListaClientes clientes={filtrados} seleccionarCliente={seleccionarCliente} seleccionado={cliente} />
                 </div>
                     <div className="col-md-9">
+                    <Button onClick={recargarClientes} variant="contained" color="primary">Recargar</Button>
                         <Paper square>
                             <Tabs
                                 value={value}
