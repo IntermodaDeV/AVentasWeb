@@ -95,8 +95,8 @@ const navItems = [
     {
         to: '/recibos', name: 'Recibos', dataTut: 'DataTut_Recibos', Icon: Receipt,
         expanded: [
-            { to: '/lista-recibos-BandejaSalida', name: 'Bandeja Salida', dataTut: 'DataTut_BandejaSalida', Icon: ListAlt, backgroundColor:'#c41021' },
-            { to: '/lista-recibos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_BandejaSalida', Icon: ListAlt, backgroundColor:'#d49008' },
+            { to: '/lista-recibos-BandejaSalida', name: 'Bandeja Salida', dataTut: 'DataTut_BandejaSalida', Icon: Input, backgroundColor:'#c41021' },
+            { to: '/lista-recibos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_BandejaSalida', Icon: AllInbox, backgroundColor:'#d49008' },
             { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:''  },
         ]
