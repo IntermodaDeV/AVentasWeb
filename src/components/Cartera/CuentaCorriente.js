@@ -29,7 +29,7 @@ export const CuentaCorriente = props => {
                                 TipoPedido: <span className={colorFuente}>{acuXTip.TipoPedido}</span>,// TipoPedido
                                 Factura: <span className={colorFuente}>{fact.Factura}</span>,// Factura
                                 NumeroFEL: <span className={colorFuente}>{fact.NumeroFEL}</span>,
-                                IdAcuerdoxCliente: <span className={colorFuente}>{acu.Acuerdo}</span>,// IdAcuerdoxCliente
+                                IdAcuerdoxCliente: <span className={colorFuente}>{cuot.IdAcuerdoxCliente}</span>,// IdAcuerdoxCliente
                                 NumeroCuota: <span className={colorFuente}>{cuot.NumeroCuota}</span>,// NumeroCuota
                                 FechaFactura: <span className={colorFuente}>{moment(cuot.FechaFactura).format("DD/MM/YYYY")}</span>,// FechaFactura
                                 FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento
@@ -49,7 +49,7 @@ export const CuentaCorriente = props => {
                                 Tipo: <span className={colorFuente}>{cuot.TipoDocumento}</span>, // Tipo
                                 TipoPedido: <span className={colorFuente}>{acuXTip.TipoPedido}</span>,// TipoPedido
                                 Factura: <span className={colorFuente}>{fact.Factura}</span>,// Factura
-                                IdAcuerdoxCliente: <span className={colorFuente}>{acu.Acuerdo}</span>,// IdAcuerdoxCliente
+                                IdAcuerdoxCliente: <span className={colorFuente}>{cuot.IdAcuerdoxCliente}</span>,// IdAcuerdoxCliente
                                 NumeroCuota: <span className={colorFuente}>{cuot.NumeroCuota}</span>,// NumeroCuota
                                 FechaFactura: <span className={colorFuente}>{moment(cuot.FechaFactura).format("DD/MM/YYYY")}</span>,// FechaFactura
                                 FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento

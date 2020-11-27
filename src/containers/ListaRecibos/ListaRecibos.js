@@ -61,7 +61,7 @@ const ListaRecibos = (props) => {
                     res.json()
                         .then(
                             (result) => {
-                                
+                               
                                 setRecibos(result);
                                 setIsLoaded(true);
                                 setLoading(false);
@@ -168,8 +168,11 @@ const ListaRecibos = (props) => {
             return false;
 
         });
+        
+        DataRecibos.sort((a,b) => (a.NumeroRecibo > b.NumeroRecibo) ? -1 : ((b.NumeroRecibo > a.NumeroRecibo) ? 1 : 0));
 
         return DataRecibos;
+       
     }
 
     const showPrint = (recibo) => {
