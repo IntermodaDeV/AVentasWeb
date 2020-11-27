@@ -79,6 +79,9 @@ const useStyles = makeStyles(theme => ({
 const navItems = [
     { to: '/estadistica-visita', name: 'Estadistica Visita', dataTut: 'DataTut_EstadisticaVisista', Icon: AssessmentIcon },
     { to: '/DashBoard-Comercial', name: 'Estadistica Comercial', dataTut: 'DataTut_DashBoardComercial', Icon: Dashboard },
+    { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },
+    { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
+    { to: '/cartera', name: 'Cartera Clientes', dataTut: 'DataTut_Agenda', Icon: AccountBox },
     //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
     {
         to: '/pedidos', name: 'Pedidos', dataTut: 'DataTut_Pedidos', Icon: FeaturedPlayListOutlined,
@@ -89,9 +92,6 @@ const navItems = [
             { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt, backgroundColor:''  },
         ]
     },
-    { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
-    { to: '/cartera', name: 'Cartera', dataTut: 'DataTut_Agenda', Icon: AccountBox },
-    { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },
     {
         to: '/recibos', name: 'Recibos', dataTut: 'DataTut_Recibos', Icon: Receipt,
         expanded: [
