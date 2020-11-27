@@ -2,11 +2,10 @@ import React from 'react';
 import AccountCircleRoundedIcon from '@material-ui/icons/AccountCircleRounded';
 
 export const Cliente = (props) => {
-    let style, styleText;
+    let style, styleText,styleIcon;
 
     if (props.seleccionado === undefined) {
         style = {
-            border: '1px solid #ccc',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -18,9 +17,13 @@ export const Cliente = (props) => {
             fontWeight: "normal"
         }
 
+        styleIcon = {
+            width:42,
+            height:42
+        }
+
     } else {
         style = {
-            border: '1px solid #ccc',
             cursor: 'pointer',
             backgroundColor: (props.seleccionado.Codigo === props.codigo) ? "#243746" : "",
             display: 'flex',
@@ -32,12 +35,18 @@ export const Cliente = (props) => {
             color: (props.seleccionado.Codigo === props.codigo) ? "#ffffff" : "#000000",
             fontWeight: (props.seleccionado.Codigo === props.codigo) ? "bold" : "normal"
         }
+
+        styleIcon = {
+            width:42,
+            height:42,
+            color: (props.seleccionado.Codigo === props.codigo) ? "#ffffff" : "#000000",
+        }
     }
 
     return (
         <div onClick={() => { props.seleccionarCliente(props.codigo) }} style={style}>
             <div style={{ marginRight: '10px', marginLeft: '10px' }}>
-                <AccountCircleRoundedIcon />
+                <AccountCircleRoundedIcon style={styleIcon}/>
             </div>
             <div>
                 <h5 style={styleText}>{props.nombre}</h5>

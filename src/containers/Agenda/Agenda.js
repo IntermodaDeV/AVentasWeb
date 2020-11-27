@@ -903,22 +903,15 @@ class Agenda extends Component {
                                                         </tr>
                                                     </tbody>
                                                 </table>
-                                                <FormGroup row className={"mb-1"}>                                                    
-                                                    {/*<FormControlLabel
-                                                        control={
-                                                            <Checkbox color="default" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))} checked={this.state.noAtendido} onChange={(event) => this.setState({ noAtendido: event.target.checked, mostarNoAtendido: true })} value="Atender" />
-                                                        }
-                                                        label="No se Atendió"
-                                                    />*/}
+                                                <div>
+                                                {this.state.AsesorSelected === localStorage.getItem('asesor') && <FormGroup row className={"mb-1"}>                                                    
                                                     <Button style={{marginRight:'10px'}}color="primary" variant="outlined" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))}  onClick={() => this.setState((prevState)=>({ ...prevState,noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Atendió</Button>
 
                                                     {!this.verifyBlock("checkin")
                                                     ?<Button disabled={this.verifyBlock("checkin")}  variant="outlined" onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
                                                     :<Button disabled={this.verifyBlock("checkout")} variant="outlined" onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>}
-                                                </FormGroup>
-
-                                                
-
+                                                </FormGroup>}
+                                                </div>
                                             </div>
                                         </div>
 
