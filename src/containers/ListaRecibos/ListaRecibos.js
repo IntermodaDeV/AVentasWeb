@@ -147,35 +147,34 @@ const ListaRecibos = (props) => {
 
             if (moment(fechaIni) < moment(recib.Fecha) && moment(recib.Fecha) < moment(fechaFin)) {
                 let data =
-                {
-                    NumeroRecibo: recib.NumeroRecibo,
-                    CodigoCliente: recib.CodigoCliente,
-                    NombreCliente : recib.Cliente.Nombre,
-                    Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
-                    IdTipoPago: recib.TipoPago.Descripcion,
-                    Referencia: recib.Referencia,
-                    FechaCheque: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
-                    IdBanco: recib.DescripcionBanco,
-                    Valor: recib.Valor,
-                    IdMoneda: recib.IdMoneda,
-                    Sincronizado: recib.Sincronizado?"Si":"No",
-                    CodigoAsesor: recib.CodigoAsesor,
-                    IdFactura: recib.DetalleRecibo[0].Factura,
-                    Descuento: recib.Descuento,
-                    Acciones:
-                        <div>
+                [
+                    [recib.NumeroRecibo,recib.Sincronizado],
+                    [recib.CodigoCliente,recib.Sincronizado],
+                    [recib.Cliente.Nombre,recib.Sincronizado],
+                    [moment(recib.Fecha).format('DD/MM/YYYY'),recib.Sincronizado],
+                    [recib.TipoPago.Descripcion,recib.Sincronizado],
+                    [recib.Referencia,recib.Sincronizado],
+                    [moment(recib.Fecha).format('DD/MM/YYYY'),recib.Sincronizado],
+                    [recib.DescripcionBanco,recib.Sincronizado],
+                    [recib.Valor,recib.Sincronizado],
+                    [recib.IdMoneda,recib.Sincronizado],
+                    [recib.Sincronizado],
+                    [recib.CodigoAsesor,recib.Sincronizado],
+                    [recib.DetalleRecibo[0].Factura,recib.Sincronizado],
+                    [recib.Descuento,recib.Sincronizado],
+                    <div>
 
-                             <span className="mr-1">
-                                <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
-                            </span> 
+                            <span className="mr-1">
+                            <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
+                        </span> 
 
-                            <span className="ml-1">
-                                <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
-                                    <PrintOutlined />
-                                </Button>
-                            </span >
-                        </div>
-                }
+                        <span className="ml-1">
+                            <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
+                                <PrintOutlined />
+                            </Button>
+                        </span >
+                    </div>
+                ]
 
                 DataRecibos.push(data);
             }
@@ -250,6 +249,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -258,6 +262,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -266,6 +275,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -274,6 +288,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -282,6 +301,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -290,6 +314,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -298,6 +327,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -306,6 +340,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -314,6 +353,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -322,6 +366,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -330,6 +379,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[0])?'green':'orange',fontWeight:'bold'}}>{value[0]?"Si":"No"}</p>
+                );
+              }
         }
     },
     {
@@ -338,6 +392,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -346,6 +405,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -354,6 +418,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
