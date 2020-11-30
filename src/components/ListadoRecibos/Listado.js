@@ -1,9 +1,10 @@
-import React from 'react'
+import React from 'react';
 import { Dialog } from "@material-ui/core";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from "mui-datatables";
 import Recibo from "components/ListadoRecibos/Recibo";
+import { Dropdown } from "semantic-ui-react";
 import moment from "moment";
 moment.locale('es');
 
@@ -52,6 +53,18 @@ const Listado = (props) => {
                         onChange={(date) => props.handleFechaFin(date)}
                     />
                 </div>
+                <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                    <Dropdown
+                        placeholder="Asesor"
+                        selection
+                        style={{zIndex:999}}
+                        onChange={(e, { value }) =>  props.handleOnChangeAsesor(value)}
+                        options={props.Asesores}
+                        noResultsMessage={"No hay resultados"}
+                        closeOnChange={true}
+                        value={props.AsesorSelected}
+                    />
+                 </div>
             </div>
             <div>
                 <MuiThemeProvider theme={getMuiTheme()}>

@@ -16,6 +16,7 @@ import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import {IsAllow} from 'components/Seguridad/Permisos';
+import { Dropdown } from "semantic-ui-react";
 moment.locale('es');
 
 const ListaPedidos = (props) => {
@@ -30,13 +31,16 @@ const ListaPedidos = (props) => {
         clientes: [],
         pedido: null,
         Detalles: [],
+        Asesores: [],
+        ListaPedidos: [],
     });
     const [showDialog, setShowDialog] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
     const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
     const [fechaFin, setFechaFin] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
+    const [AsesorSelected, setAsesorSelected] = useState(null);
     useEffect(() => {
-        if(!IsAllow("/lista-pedidos"))
+        if(!IsAllow(props.match.url))
         {
             props.history.push('/home');
         }
@@ -66,13 +70,22 @@ const ListaPedidos = (props) => {
                     res.json()
                         .then(
                             (result) => {
-
+                                let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
+                                let asesores = [];
+                                Asesor.map((Ase) => {
+ 
+                                 let Valores = { key: Ase, value: Ase, text: Ase }
+                                 asesores.push(Valores);
+                                 return true;
+                             })
                                 setState({
                                     ...state,
                                     isLoaded: true,
-                                    pedidos: result
+                                    pedidos: result,
+                                    Asesores: asesores,
                                 });
                             },
+                            setAsesorSelected(AsesorSelected === null ? Asesor : AsesorSelected),
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
                             // exceptions from actual bugs in components.
@@ -176,9 +189,8 @@ const ListaPedidos = (props) => {
     })
     const DataPedidos = () => {
         let DataPedidos = [];
-        state.pedidos.map(pedido => {
+        state.pedidos.filter(p =>p.Asesor === AsesorSelected).map(pedido => {
 
-            
             //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
                 let data = [
                     [pedido.PedidoId,pedido.Sincronizado],
@@ -242,6 +254,9 @@ const ListaPedidos = (props) => {
         setState({ ...state, pedido: null });
     }
 
+    const handleOnChangeAsesor = (value) => {
+        setAsesorSelected(value);
+     }
     if (!state.isLoaded) {
         return <Loader interval={1800} />;
     }
@@ -285,7 +300,18 @@ const ListaPedidos = (props) => {
                             onChange={(date) => handleFechaFin(date)}
                         />
                     </div>
-
+                    <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                        <Dropdown
+                            placeholder="Asesor"
+                            selection
+                            style={{zIndex:999}}
+                            onChange={(e, { value }) =>  handleOnChangeAsesor(value)}
+                            options={state.Asesores}
+                            noResultsMessage={"No hay resultados"}
+                            closeOnChange={true}
+                            value={AsesorSelected}
+                        />
+                    </div>
                     <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 15 }}>
                     <Button
                         variant="outlined"

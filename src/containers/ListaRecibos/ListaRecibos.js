@@ -28,7 +28,8 @@ const ListaRecibos = (props) => {
     const [showDialog, setShowDialog] = useState(false);
     const [DialogRecibo, setDialogRecibo] = useState(null);
     const [isLoading,setLoading] = useState(false);
-
+    const [Asesores, setAsesores] = useState([]);
+    const [AsesorSelected, setAsesorSelected] = useState(null);
     useEffect(() => {
         if(!IsAllow("/lista-recibos"))
         {
@@ -61,10 +62,20 @@ const ListaRecibos = (props) => {
                     res.json()
                         .then(
                             (result) => {
-                               
+                               let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
+                               let Asesores = [];
+                               Asesor.map((Ase) => {
+
+                                let Valores = { key: Ase, value: Ase, text: Ase }
+                                Asesores.push(Valores);
+                                return true;
+                            })
+
+                                setAsesores(Asesores)
                                 setRecibos(result);
                                 setIsLoaded(true);
                                 setLoading(false);
+                                setAsesorSelected(Asesor[0])
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -118,6 +129,9 @@ const ListaRecibos = (props) => {
         }
     }
 
+    const handleOnChangeAsesor = (value) => {
+        setAsesorSelected(value);
+     }
     const DataRecibos = () => {
         let DataRecibos = [];
 
@@ -125,7 +139,7 @@ const ListaRecibos = (props) => {
 
         }
 
-        recibos.map(recib => {
+        recibos.filter(r => r.Asesor === AsesorSelected).map(recib => {
 
             let fechaIni = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
             let fechaFin = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
@@ -217,6 +231,9 @@ const ListaRecibos = (props) => {
                 showDialog={showDialog}
                 hidePrint={hidePrint}
                 DialogRecibo={DialogRecibo}
+                Asesores = {Asesores}
+                AsesorSelected = {AsesorSelected}
+                handleOnChangeAsesor = {handleOnChangeAsesor}
             />
             <LoadingModal title={'recibos'} Open={isLoading}/>
             </>
