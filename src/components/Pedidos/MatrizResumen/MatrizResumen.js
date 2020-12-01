@@ -145,6 +145,7 @@ const MatrizResumen = (props) => {
                                                                 Eliminar={props.Eliminar}
                                                                 Precio={precio.Precio}
                                                                 CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
+                                                                cantidadMinima={producto.CantidadMinima}
                                                             />
                                                         )
                                                     }

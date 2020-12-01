@@ -23,6 +23,13 @@ const CeldaTallas = (props) => {
             timer: 1500
         });
     }
+
+    const esMultiplo = (multiplo,cantidad)=>{
+        let result = cantidad%multiplo;
+        return result===0;
+    }
+
+    // eslint-disable-next-line
     const onBlur = (text, codigoProducto, codigoColor, codigoTalla, precio) => {
         const valor = (text.target.validity.valid) ? text.target.value : 0;
 
@@ -52,14 +59,58 @@ const CeldaTallas = (props) => {
         }
     }
 
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        background:'red',
+        timer: 3000,
+      })
+
+
+    const alertaMultiplo = (multiplo) =>{
+
+        Toast.fire({
+            title: `<span style='color:#FFF'>Cantidad ingresada no es multiplo ${multiplo}<span>`,
+            icon: 'error'
+        });
+    }
+
     const handleChange = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio)=>
     {
-            const cantidad = isNaN(parseInt(text.target.value))?0:parseInt(text.target.value);
-            if(props.futuro === true && props.disponible < cantidad)
-            {
+        const cantidad = isNaN(parseInt(text.target.value))?0:parseInt(text.target.value);
+        if(props.NoEsFuturo === true && props.disponible < cantidad)
+        {
+            if(props.cantidadMinima===0){
                 return alertaFisicoDisponible();
             }
-            props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);         
+        }
+
+        if(props.cantidadMinima>0){
+            if(esMultiplo(props.cantidadMinima,cantidad) && cantidad>props.disponible){
+                text.target.value = props.disponible;
+                props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
+                return;
+            }
+        }
+        
+        props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);   
+    }
+
+    const handleMultiplo = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio)=>{
+        if(props.cantidadMinima>0){
+            const cantidad = isNaN(parseInt(text.target.value))?0:parseInt(text.target.value);
+            if(!esMultiplo(props.cantidadMinima,cantidad)){
+
+                if(cantidad===props.disponible){
+                    return;
+                }
+
+                alertaMultiplo(props.cantidadMinima);
+                text.target.value = 0;
+                props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
+            }
+        }
     }
 
     const isDisabled = () => {
@@ -68,7 +119,7 @@ const CeldaTallas = (props) => {
             return true;
         }
 
-        if (props.futuro) {
+        if (props.NoEsFuturo) {
             if (props.hasBackOrder === 'N' || props.hasBackOrder === 'n') {
                 if (props.disponible === 0) {
                     return true;
@@ -88,7 +139,7 @@ const CeldaTallas = (props) => {
         <td className="p-1" style={{ backgroundColor: Focused ? '#D5EEE3' : 'unset', verticalAlign: "middle" }} onClick={clickEnCelda}>
             <div className={"row " + styles.Border}>
                 {
-                    props.futuro &&
+                    props.NoEsFuturo &&
                     <>
                         <div className={"col-12 px-0 " + styles.BordetBottom} style={{ fontSize: 11, textAlign: 'center' }}>
                             {/* <div className="row justify-content-center">
@@ -151,8 +202,8 @@ const CeldaTallas = (props) => {
             <input
                 disabled={isDisabled()}
                 onFocusCapture={() => onFocus()}
-                onBlurCapture={(text) => onBlur(text, props.codigoProducto, props.codigoColor, props.codigoTalla, props.precio)}
                 onKeyDownCapture={(event) => props.handleArrowKeys(event)}
+                onBlurCapture={(text)=>handleMultiplo(text, props.codigoProducto, props.codigoColor, props.grupoTalla, props.codigoTalla, props.precio)}
                 type="text"
                 ref={props.ref}
                 pattern="[0-9]*"

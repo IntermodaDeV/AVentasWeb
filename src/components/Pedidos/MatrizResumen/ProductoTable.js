@@ -283,7 +283,7 @@ const ProductoTable = (props) => {
                                         disponible={valorTalla.Disponible}
                                         backorder={backOrder}
                                         hasBackOrder={hasBackOrder}
-                                        futuro={props.futuro}
+                                        NoEsFuturo={props.futuro}
                                         handleArrowKeys={handleArrowKeys}
                                         precio={valorTalla.Precio}
                                         codigoProducto={props.codigoProducto}
@@ -297,6 +297,7 @@ const ProductoTable = (props) => {
                                         color={null}
                                         setListaImagenesPrincipal={null}
                                         CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
+                                        cantidadMinima={props.producto.CantidadMinima}
                                     />
                                 )
                             })

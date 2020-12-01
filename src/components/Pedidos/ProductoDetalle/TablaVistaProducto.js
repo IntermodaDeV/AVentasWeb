@@ -202,7 +202,7 @@ const TablaVistaProducto = (props) => {
                                                 disponible={valorTalla.Disponible}
                                                 backorder={backOrder}
                                                 hasBackOrder={props.hasBackOrder}
-                                                futuro={props.futuro}
+                                                NoEsFuturo={props.futuro}
                                                 handleArrowKeys={handleArrowKeys}
                                                 precio={valorTalla.Precio}
                                                 codigoProducto={props.codigoProducto}
@@ -216,6 +216,7 @@ const TablaVistaProducto = (props) => {
                                                 setListaImagenesPrincipal={hasImages?props.setListaImagenes:null}
                                                 onChange={props.onchangeText}
                                                 CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
+                                                cantidadMinima={props.producto.CantidadMinima}
                                             />
                                         )
                                     })

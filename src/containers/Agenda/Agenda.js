@@ -904,7 +904,7 @@ class Agenda extends Component {
                                                     </tbody>
                                                 </table>
                                                 <div>
-                                                {this.state.AsesorSelected === localStorage.getItem('asesor') && <FormGroup row className={"mb-1"}>                                                    
+                                                {this.state.AsesorSelected === localStorage.getItem('codigo') && <FormGroup row className={"mb-1"}>                                                    
                                                     <Button style={{marginRight:'10px'}}color="primary" variant="outlined" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))}  onClick={() => this.setState((prevState)=>({ ...prevState,noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Atendió</Button>
 
                                                     {!this.verifyBlock("checkin")
