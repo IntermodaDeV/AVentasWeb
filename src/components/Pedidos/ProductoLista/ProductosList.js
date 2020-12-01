@@ -39,13 +39,13 @@ const SoldOut = (producto) => {
 }
 
 const Productos = (props) => {
-    const searched = (nombre, texto) => {
+    const searched = (nombre, codigo,texto) => {
         if (texto === '') {
             return true;
         }
         let found = false;
 
-        found = nombre.toLowerCase().includes(texto.toLowerCase());
+        found = nombre.toLowerCase().includes(texto.toLowerCase()) || codigo.toLowerCase().includes(texto.toLowerCase());
         return found;
     }
     let isFuture = false;
@@ -123,7 +123,7 @@ const Productos = (props) => {
         if (props.filtroEdad === null || props.filtroEdad === edad.IdEdad) {
             edad.ProductosXEdad.map((producto) => {
                 if (isFuture || !props.NoStock) {
-                    let encontrado = searched(producto.NombreProducto, props.buscador);
+                    let encontrado = searched(producto.NombreProducto, producto.ProductoId ,props.buscador);
 
                     if (encontrado) {
                         if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos)) {
@@ -138,7 +138,7 @@ const Productos = (props) => {
                     let Sold = SoldOut(producto);
 
                     if (!Sold) {
-                        let encontrado = searched(producto.NombreProducto, props.buscador);
+                        let encontrado = searched(producto.NombreProducto, producto.ProductoId,props.buscador);
 
                         if (encontrado) {
                             if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos)) {

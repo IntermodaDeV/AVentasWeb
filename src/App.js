@@ -28,8 +28,10 @@ import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
 import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
 import {Home} from 'containers/Home/Home';
 import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPendientes';
+import { ListaReciboPendiente } from 'containers/ListaRecibos/ListaReciboPendiente';
+import { Cartera } from 'containers/Cartera/Cartera';
 import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
-
+import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -82,12 +84,23 @@ const App = props => {
               exact
               path='/DashBoard-Comercial'
               layout={MainLayout}
-              component={()=>( <iframe title="reporte" src="http://cubo-intermoda/tableros/powerbi/Comercial/Operativo%20Comercial?rs:Embed=true" position="relative" top="0" height="100%" width="100%" /> )}
+              component={()=>( <iframe title="reporte" frameBorder="0" src="http://cubo-intermoda/tableros/powerbi/Comercial/Operativo%20Comercial?rs:Embed=true" position="relative" top="0" height="100%" width="100%" /> )}
             />
             <LayoutRoute
               path='/lista-pedidos-BandejaSalida'
               layout={MainLayout}
               component={BandejaSalida}
+            />
+            <LayoutRoute
+              exact
+              path='/lista-recibos-pendientes'
+              layout={MainLayout}
+              component={ListaReciboPendiente}
+            />
+            <LayoutRoute
+              path='/cartera'
+              layout={MainLayout}
+              component={Cartera}
             />
             {/*<LayoutRoute
               exact
@@ -118,6 +131,12 @@ const App = props => {
               path='/lista-recibos'
               layout={MainLayout}
               component={ListaRecibos}
+            />
+             <LayoutRoute
+              exact
+              path='/lista-recibos-BandejaSalida'
+              layout={MainLayout}
+              component={BadejaSalidaRecibos}
             />
             <LayoutRoute
               exact

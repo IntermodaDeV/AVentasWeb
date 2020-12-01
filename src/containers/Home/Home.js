@@ -9,6 +9,7 @@ export const Home = (props) => {
         cargarEmpresas();
         cargarMonedas();
         cargarClientesContado();
+        cargarComunidadAutonoma();
          // eslint-disable-next-line
     }, []);
     const ObtenerPermisos = ()=>{
@@ -30,6 +31,13 @@ export const Home = (props) => {
                 )
             }
         })
+    }
+
+    const cargarComunidadAutonoma = () =>{
+        fetch(`${APIURL}/api/transporte/comunidadautonoma`)
+        .then(res=>res.json())
+        .then(data=>dispatch({type:'SET_COMUNIDADAUTONOMA',payload:data}))
+        .catch(error=>this.setState({error}))
     }
 
     const cargarEmpresas = ()=>{

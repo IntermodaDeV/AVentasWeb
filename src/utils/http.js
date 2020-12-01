@@ -20,7 +20,7 @@ export const get = async (url, key, subkey) => {
         });
 
         data = request.data;
-        localStorage.setItem(`expiracion-${key}`, moment().add(1, 'minutes'));
+        localStorage.setItem(`expiracion-${key}`, moment().add(1, 'day'));
 
     } catch (err) {
         return { data, error: err };

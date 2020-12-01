@@ -7,27 +7,20 @@ import moment from "moment";
 import 'moment/locale/es';
 import {useSelector} from 'react-redux';
 
-const Recibo = (props) => {
-    const Monedas = useSelector(e=>e.AbreviacionMonedas);
-    const clientesContado = useSelector(e=>e.clientesContado);
+const ImpresionBandejaSalida = (props) => {
     const empresas = useSelector(e=>e.Empresas);
-    let NombreCliente = props.recibo.Cliente.Nombre;
-    let DireccionCliente=props.recibo.Cliente.Direccion; 
-    const clienteContado = props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
-    let valor = props.recibo.Valor;
+    let NombreCliente = props.recibo.NombreCliente;
+    let DireccionCliente=props.recibo.Direccion; 
+    const clienteContado = "";//props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
+    let valor = props.recibo.Total;
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
-    const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Cliente.Moneda).Abreviacion;
+    const moneda = "";//Monedas.find(e=>e.IdMoneda === props.recibo.Moneda).Abreviacion;
     if(clienteContado!==null && clienteContado!==undefined)
     {
-            if(valor < 10000)
-            {
-                NombreCliente = 'CONSUMIDOR FINAL';
-            }
-            else
-            {
-                NombreCliente = clienteContado.Nombre;
-            }
-        DireccionCliente = clienteContado.Direccion;
+        if(valor < 10000)
+        {
+            NombreCliente = 'CONSUMIDOR FINAL';
+        }
     }
 
     const componentRef = React.useRef();
@@ -53,12 +46,12 @@ const Recibo = (props) => {
                         <div className="row">
                             <div className="col p-0 text-left">
                                 <h3 className={"font-weight-normal  m-auto " + styles.LineHeight_Normal}>
-                                    {props.recibo.Cliente.Codigo}
+                                    {props.recibo.CodigoCliente}
                                 </h3>
                             </div>
                             <div className="col p-0 text-center">
                                 <h2 className={"font-weight-bold " + styles.Title + styles.LineHeight_1_5}>
-                                    {'No. ' + props.recibo.NumeroRecibo}
+                                    {'No Disponible'}
                                 </h2>
                             </div>
                         </div>
@@ -105,23 +98,25 @@ const Recibo = (props) => {
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        {props.recibo.Pagos.map((pag, index) => (
                                         <tr className={styles.TableRow}>
                                             <td>
-                                                {props.recibo.TipoPago.Descripcion}
+                                                {pag.TipoPago}
                                             </td>
                                             <td>
-                                                {moment(props.recibo.FechaPago).format("DD/MM/YYYY")}
+                                                {moment(props.recibo.Fecha).format("DD/MM/YYYY")}
                                             </td>
                                             <td>
-                                                {props.recibo.Referencia}
+                                                {pag.Referencia}
                                             </td>
                                             <td>
-                                                {props.recibo.DescripcionBanco}
+                                                {pag.Banco}
                                             </td>
                                             <td className={styles.TableCellAmmount}>
-                                                {numberWithCommas(props.recibo.Valor)}
+                                                {numberWithCommas(pag.Monto)}
                                             </td>
                                         </tr>
+                                        ))}
                                     </tbody>
                                 </table>
                             </div>
@@ -152,15 +147,15 @@ const Recibo = (props) => {
 
                                     <tbody>
                                         {
-                                            props.recibo.DetalleRecibo.map((factu, index) => {
+                                            props.recibo.Facturas.map((factu, index) => {
                                                 return (
                                                     <React.Fragment key={index}>
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
-                                                                {factu.Tipo}
+                                                                {factu.TipoDocumento}
                                                             </td>
                                                             <td>
-                                                                {moment(factu.FechaFactura).format("DD/MM/YYYY")}
+                                                                {moment(factu.Fecha).format("DD/MM/YYYY")}
                                                             </td>
                                                             <td>
                                                              {factu.EsAbono === true && "Abono"}
@@ -170,8 +165,7 @@ const Recibo = (props) => {
 
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
-                                                                {/* 6,182.40 */}
-                                                                {numberWithCommas(Number(factu.ValorFactura))}
+                                                            {numberWithCommas(factu.Parcial)}
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
 
@@ -179,27 +173,25 @@ const Recibo = (props) => {
                                                         </tr>
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
-                                                                {factu.Factura}
-                                                                {factu.NumeroFel !== "" && factu.NumeroFel !== null  && 
-                                                                " - FEL: " + factu.NumeroFel                                                    
+                                                                {factu.IdFactura}
+                                                                {factu.NumeroFEL !== "" && factu.NumeroFEL !== null  && 
+                                                                " - FEL: " + factu.NumeroFEL                                                    
                                                                 } 
                                                             </td>
                                                             <td>
-                                                                {"Dias: " + factu.DiasVencimiento}
+                                                                {"Dias: " + factu.Dias}
                                                             </td>
                                                             <td>
                                                                 Desc
-                                                        {/* {factu.Parcial2 !=='0' ? 'D':'' } */}
                                                             </td>
                                                             <td>
 
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
-                                                                {numberWithCommas(Number(factu.Descuento))}
-                                                                {/* {factu.Parcial2} */}
+                                                                {numberWithCommas(Number(factu.Parcial2))}
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
-                                                                {numberWithCommas(factu.Valor)}
+                                                                {numberWithCommas(factu.Aplicado)}
                                                             </td>
                                                         </tr>
                                                     </React.Fragment>
@@ -213,7 +205,7 @@ const Recibo = (props) => {
                                 <h3 className={"font-weight-bold text-right " + styles.LineHeight_Normal}>
                                     Total Recibo:
                                     {moneda}
-                                    {numberWithCommas(props.recibo.Valor)}
+                                    {numberWithCommas(Number(props.recibo.Total))}
                                 </h3>
                             </div>
 
@@ -258,4 +250,4 @@ const numberWithCommas = (x) => {
     return parts.join(".");
 }
 
-export default Recibo;
+export default ImpresionBandejaSalida;

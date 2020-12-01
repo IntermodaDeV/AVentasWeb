@@ -46,7 +46,9 @@ const initialState = {
     AbreviacionMonedas:[],
     Permisos:[],
     PedidoSincronizar:[],
-    ReciboSincronizar:[]
+    ReciboSincronizar:[],
+    RecibosEnCache:[],
+    Cartera:[]
 }
 
 const calcularLimite = (state) => {
@@ -522,6 +524,14 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if(action.type==='SET_RECIBOSENCACHE')
+    {
+        return{
+            ...state,
+            RecibosEnCache:[...state.RecibosEnCache,action.payload]
+        }
+    }
+
     if(action.type==='SET_RECIBOSINCRONIZAR')
     {
         return{
@@ -537,12 +547,26 @@ const reducer = (state = initialState, action) => {
             PedidoSincronizar:action.payload
         }
     }
-
+    if(action.type==='SET_RESETRECIBOSENCACHE')
+    {
+        return{
+            ...state,
+            RecibosEnCache:action.payload
+        }
+    }
     if(action.type==='SET_RESETRECIBOSINCRONIZAR')
     {
         return{
             ...state,
             ReciboSincronizar:action.payload
+        }
+    }
+
+    if(action.type==='SET_CARTERA')
+    {
+        return{
+            ...state,
+            Cartera:action.payload
         }
     }
 

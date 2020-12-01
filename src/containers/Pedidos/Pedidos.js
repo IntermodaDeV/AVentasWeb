@@ -123,7 +123,6 @@ class Pedidos extends React.Component {
         Promise.all([this.cargarClientes(),
         this.cargarMaestroLinea(),
         this.cargarTiposColeccion(),
-        this.cargarComunidadAutonoma(),
         this.cargarTiposPedido()]).then(this.setState({
             isLoaded: true,
         }));
@@ -294,24 +293,6 @@ class Pedidos extends React.Component {
         fetch(`${this.urlApi}/api/transporte/${empresa}/preciocaja`)
         .then(res=>res.json())
         .then(data=>this.props.onStorePrecioCajas(data))
-        .catch(error=>this.setState({error}))
-    }
-
-    cargarComunidadAutonoma = () =>{
-        ///const empresa = localStorage.getItem('empresa');
-        /*let pais = "HND";
-
-        if(empresa === "imcr")
-        {
-            pais = "CRI";
-        }else if(empresa === "imgt")
-        {
-            pais = "GTM";
-        }*/
-
-        fetch(`${this.urlApi}/api/transporte/comunidadautonoma`)
-        .then(res=>res.json())
-        .then(data=>this.props.onStoreComunidades(data))
         .catch(error=>this.setState({error}))
     }
 
@@ -1328,18 +1309,19 @@ class Pedidos extends React.Component {
             const { data,error } = await post(this.urlApi + "/api/PedidosXCliente",pedido,"SET_PEDIDOSINCRONIZAR");
 
             if(error){
-                let mensaje = "Ha ocurrido un error y no se pudo realizar el pedido.";
-
                 if(error.response){
-                    mensaje = error.response.data.Message;
+                    let mensaje = error.response.data.Message;
+                    Swal.fire({
+                        type: 'error',
+                        title: 'Error',
+                        text: mensaje,
+                    })
+                    this.setState({ loadingRecibo: false });
+                }else{
+                    let numPedido = data.EncabezadoPedido.PedidoId;
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+                    this.props.onSetNumeroOrden(numPedido);
                 }
-
-                Swal.fire({
-                    type: 'error',
-                    title: 'Error',
-                    text: mensaje,
-                })
-                this.setState({ loadingRecibo: false });
             }else{
                 let numPedido = data.EncabezadoPedido.PedidoId;
                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
@@ -2541,7 +2523,6 @@ const mapDispatchToProps = dispatch => {
             { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
         onStoreEmpresasTransporte:(empresas)=>dispatch({type:'SET_EMPRESASTRANSPORTE',payload:empresas}),
         onStorePrecioCajas:(precioCajas)=>dispatch({type:'SET_PRECIOCAJAS',payload:precioCajas}),
-        onStoreComunidades:(comunidades)=>dispatch({type:'SET_COMUNIDADAUTONOMA',payload:comunidades}),
         onStoreImpuestoClientes:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOS',payload:impuestos}),
         onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos}),
         onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},

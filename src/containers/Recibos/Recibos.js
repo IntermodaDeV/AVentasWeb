@@ -108,7 +108,7 @@ const Recibos = (props) => {
                 TipoPedido: <span className={colorFuente}>{acuXTip.TipoPedido}</span>,// TipoPedido
                 Factura: <span className={colorFuente}>{fact.Factura}</span>,// Factura
                 NumeroFEL: <span className={colorFuente}>{fact.NumeroFEL}</span>,
-                IdAcuerdoxCliente: <span className={colorFuente}>{acu.Acuerdo}</span>,// IdAcuerdoxCliente
+                IdAcuerdoxCliente: <span className={colorFuente}>{cuot.IdAcuerdoxCliente}</span>,// IdAcuerdoxCliente
                 NumeroCuota: <span className={colorFuente}>{cuot.NumeroCuota}</span>,// NumeroCuota
                 FechaFactura: <span className={colorFuente}>{moment(cuot.FechaFactura).format("DD/MM/YYYY")}</span>,// FechaFactura
                 FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento
@@ -127,7 +127,7 @@ const Recibos = (props) => {
                 TipoPedido: acuXTip.TipoPedido,// TipoPedido
                 Factura: fact.Factura,// Factura
                 NumeroFEL: fact.NumeroFEL,
-                IdAcuerdoxCliente: acu.Acuerdo,// IdAcuerdoxCliente
+                IdAcuerdoxCliente: cuot.IdAcuerdoxCliente,// IdAcuerdoxCliente
                 NumeroCuota: cuot.NumeroCuota,// NumeroCuota
                 FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
                 FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
@@ -147,7 +147,7 @@ const Recibos = (props) => {
                 Tipo: <span className={colorFuente}>{cuot.TipoDocumento}</span>, // Tipo
                 TipoPedido: <span className={colorFuente}>{acuXTip.TipoPedido}</span>,// TipoPedido
                 Factura: <span className={colorFuente}>{fact.Factura}</span>,// Factura
-                IdAcuerdoxCliente: <span className={colorFuente}>{acu.Acuerdo}</span>,// IdAcuerdoxCliente
+                IdAcuerdoxCliente: <span className={colorFuente}>{cuot.IdAcuerdoxCliente}</span>,// IdAcuerdoxCliente
                 NumeroCuota: <span className={colorFuente}>{cuot.NumeroCuota}</span>,// NumeroCuota
                 FechaFactura: <span className={colorFuente}>{moment(cuot.FechaFactura).format("DD/MM/YYYY")}</span>,// FechaFactura
                 FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento
@@ -165,7 +165,7 @@ const Recibos = (props) => {
                 Tipo: cuot.TipoDocumento, // Tipo
                 TipoPedido: acuXTip.TipoPedido,// TipoPedido
                 Factura: fact.Factura,// Factura
-                IdAcuerdoxCliente: acu.Acuerdo,// IdAcuerdoxCliente
+                IdAcuerdoxCliente: cuot.IdAcuerdoxCliente,// IdAcuerdoxCliente
                 NumeroCuota: cuot.NumeroCuota,// NumeroCuota
                 FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
                 FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
@@ -184,22 +184,22 @@ const Recibos = (props) => {
       });
     });
     agrupacionCuentCorriente.sort((a, b) => {
-      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-        return 1;
-      }
-      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-        return -1;
-      }
-      if (moment(a.FechaVencimiento, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-        return -1;
-      }
-      if (a.NumeroCuota < b.NumeroCuota) {
+      if (Number(a.NumeroCuota.props.children) < Number(b.NumeroCuota.props.children)) {
 
         return -1;
       }
-      if (a.NumeroCuota > b.NumeroCuota) {
+      if (Number(a.NumeroCuota.props.children) > Number(b.NumeroCuota.props.children)) {
 
         return 1;
+      }
+      if (moment(a.FechaVencimiento.props.children, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento.props.children, "DD/MM/YYYY"), 'day')) {
+        return 1;
+      }
+      if (moment(a.FechaVencimiento.props.children, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento.props.children, "DD/MM/YYYY"), 'day')) {
+        return -1;
+      }
+      if (moment(a.FechaVencimiento.props.children, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento.props.children, "DD/MM/YYYY"), 'day')) {
+        return -1;
       }
       return 0;
 

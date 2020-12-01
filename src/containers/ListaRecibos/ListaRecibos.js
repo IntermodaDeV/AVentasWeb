@@ -28,7 +28,8 @@ const ListaRecibos = (props) => {
     const [showDialog, setShowDialog] = useState(false);
     const [DialogRecibo, setDialogRecibo] = useState(null);
     const [isLoading,setLoading] = useState(false);
-
+    const [Asesores, setAsesores] = useState([]);
+    const [AsesorSelected, setAsesorSelected] = useState(null);
     useEffect(() => {
         if(!IsAllow("/lista-recibos"))
         {
@@ -61,10 +62,20 @@ const ListaRecibos = (props) => {
                     res.json()
                         .then(
                             (result) => {
-                                
+                               let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
+                               let Asesores = [];
+                               Asesor.map((Ase) => {
+
+                                let Valores = { key: Ase, value: Ase, text: Ase }
+                                Asesores.push(Valores);
+                                return true;
+                            })
+
+                                setAsesores(Asesores)
                                 setRecibos(result);
                                 setIsLoaded(true);
                                 setLoading(false);
+                                setAsesorSelected(Asesor[0])
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -118,6 +129,9 @@ const ListaRecibos = (props) => {
         }
     }
 
+    const handleOnChangeAsesor = (value) => {
+        setAsesorSelected(value);
+     }
     const DataRecibos = () => {
         let DataRecibos = [];
 
@@ -125,7 +139,7 @@ const ListaRecibos = (props) => {
 
         }
 
-        recibos.map(recib => {
+        recibos.filter(r => r.Asesor === AsesorSelected).map(recib => {
 
             let fechaIni = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
             let fechaFin = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
@@ -133,43 +147,45 @@ const ListaRecibos = (props) => {
 
             if (moment(fechaIni) < moment(recib.Fecha) && moment(recib.Fecha) < moment(fechaFin)) {
                 let data =
-                {
-                    NumeroRecibo: recib.NumeroRecibo,
-                    CodigoCliente: recib.CodigoCliente,
-                    Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
-                    IdTipoPago: recib.TipoPago.Descripcion,
-                    Referencia: recib.Referencia,
-                    FechaCheque: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
-                    IdBanco: recib.IdBanco,
-                    IdCuentaBancaria: recib.IdCuentaBancaria,
-                    Valor: recib.Valor,
-                    IdMoneda: recib.IdMoneda,
-                    Sincronizado: recib.Sincronizado?"Si":"No",
-                    CodigoAsesor: recib.CodigoAsesor,
-                    IdFactura: recib.IdFactura,
-                    Descuento: recib.Descuento,
-                    Acciones:
-                        <div>
+                [
+                    [recib.NumeroRecibo,recib.Sincronizado],
+                    [recib.CodigoCliente,recib.Sincronizado],
+                    [recib.Cliente.Nombre,recib.Sincronizado],
+                    [moment(recib.Fecha).format('DD/MM/YYYY'),recib.Sincronizado],
+                    [recib.TipoPago.Descripcion,recib.Sincronizado],
+                    [recib.Referencia,recib.Sincronizado],
+                    [moment(recib.Fecha).format('DD/MM/YYYY'),recib.Sincronizado],
+                    [recib.DescripcionBanco,recib.Sincronizado],
+                    [recib.Valor,recib.Sincronizado],
+                    [recib.IdMoneda,recib.Sincronizado],
+                    [recib.Sincronizado],
+                    [recib.CodigoAsesor,recib.Sincronizado],
+                    [recib.DetalleRecibo[0].Factura,recib.Sincronizado],
+                    [recib.Descuento,recib.Sincronizado],
+                    <div>
 
-                             <span className="mr-1">
-                                <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
-                            </span> 
+                            <span className="mr-1">
+                            <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
+                        </span> 
 
-                            <span className="ml-1">
-                                <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
-                                    <PrintOutlined />
-                                </Button>
-                            </span >
-                        </div>
-                }
+                        <span className="ml-1">
+                            <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
+                                <PrintOutlined />
+                            </Button>
+                        </span >
+                    </div>
+                ]
 
                 DataRecibos.push(data);
             }
             return false;
 
         });
+        
+        DataRecibos.sort((a,b) => (a.NumeroRecibo > b.NumeroRecibo) ? -1 : ((b.NumeroRecibo > a.NumeroRecibo) ? 1 : 0));
 
         return DataRecibos;
+       
     }
 
     const showPrint = (recibo) => {
@@ -214,6 +230,9 @@ const ListaRecibos = (props) => {
                 showDialog={showDialog}
                 hidePrint={hidePrint}
                 DialogRecibo={DialogRecibo}
+                Asesores = {Asesores}
+                AsesorSelected = {AsesorSelected}
+                handleOnChangeAsesor = {handleOnChangeAsesor}
             />
             <LoadingModal title={'recibos'} Open={isLoading}/>
             </>
@@ -230,6 +249,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -238,6 +262,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -246,6 +275,24 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
+        }
+    },
+    {
+        name: "NombreCliente",
+        label: "Nombre Cliente",
+        options: {
+            filter: true,
+            sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -254,6 +301,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -262,6 +314,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -270,6 +327,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -278,14 +340,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-        }
-    },
-    {
-        name: "IdCuentaBancaria",
-        label: "Cuenta Bancaria",
-        options: {
-            filter: true,
-            sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -294,6 +353,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -302,6 +366,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -310,6 +379,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[0])?'green':'orange',fontWeight:'bold'}}>{value[0]?"Si":"No"}</p>
+                );
+              }
         }
     },
     {
@@ -318,6 +392,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -326,6 +405,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
@@ -334,6 +418,11 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
         }
     },
     {
