@@ -14,6 +14,7 @@ import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import {IsAllow} from 'components/Seguridad/Permisos';
+import { useSelector } from 'react-redux';
 moment.locale('es');
 
 const ListaRecibos = (props) => {
@@ -30,16 +31,25 @@ const ListaRecibos = (props) => {
     const [isLoading,setLoading] = useState(false);
     const [Asesores, setAsesores] = useState([]);
     const [AsesorSelected, setAsesorSelected] = useState(null);
+    const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
     useEffect(() => {
         if(!IsAllow("/lista-recibos"))
         {
             props.history.push('/home');
         }
-        cargarRecibos();
+            cargarRecibos();
+        let Asesores = [];
+            AsesoresUsuario.map((Ase) => {
+            let Valores = { key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }
+            Asesores.push(Valores);
+            return true;
+        })
+        setAsesores(Asesores)
+        setAsesorSelected(AsesoresUsuario[0].Usuario)
         //cargarClientes();
         // eslint-disable-next-line
     }, []);
-
+   
     const cambiarRecibo = (recibo) => {
          setRecibo(recibo);
      }
@@ -52,8 +62,7 @@ const ListaRecibos = (props) => {
                     'Bearer ' + localStorage.getItem('token')
 
             }
-        })
-            .then(res => {
+        }).then(res => {
                 if (res.status === 401) {
                     localStorage.setItem('token', '');
                     window.location.reload();
@@ -62,20 +71,9 @@ const ListaRecibos = (props) => {
                     res.json()
                         .then(
                             (result) => {
-                               let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
-                               let Asesores = [];
-                               Asesor.map((Ase) => {
-
-                                let Valores = { key: Ase, value: Ase, text: Ase }
-                                Asesores.push(Valores);
-                                return true;
-                            })
-
-                                setAsesores(Asesores)
                                 setRecibos(result);
                                 setIsLoaded(true);
                                 setLoading(false);
-                                setAsesorSelected(Asesor[0])
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow

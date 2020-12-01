@@ -17,6 +17,7 @@ import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import { Dropdown } from "semantic-ui-react";
+import { useSelector } from 'react-redux';
 moment.locale('es');
 
 const ListaPedidos = (props) => {
@@ -39,11 +40,13 @@ const ListaPedidos = (props) => {
     const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
     const [fechaFin, setFechaFin] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
     const [AsesorSelected, setAsesorSelected] = useState(null);
+    const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
     useEffect(() => {
         if(!IsAllow(props.match.url))
         {
             props.history.push('/home');
         }
+        setAsesorSelected(AsesoresUsuario[0].Usuario);
         cargarPedidos("1900-01-01", "1900-01-01");
         //cargarClientes();
         // eslint-disable-next-line
@@ -53,7 +56,7 @@ const ListaPedidos = (props) => {
     const cargarPedidos = async (FechaInicio, FechaFin) => {
         var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
         var Fin = moment(FechaFin).format("YYYY-MM-DD");
-        let Asesor = localStorage.getItem('codigo');
+        let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
         fetch(urlApi + "/api/PedidosXCliente/"+ Asesor + "/" + Inicio + "/" + Fin, {
             headers: {
                 'Authorization':
@@ -70,13 +73,11 @@ const ListaPedidos = (props) => {
                     res.json()
                         .then(
                             (result) => {
-                                let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
                                 let asesores = [];
-                                Asesor.map((Ase) => {
- 
-                                 let Valores = { key: Ase, value: Ase, text: Ase }
-                                 asesores.push(Valores);
-                                 return true;
+                                AsesoresUsuario.map((Ase) => {
+                                let Valores = { key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }
+                                asesores.push(Valores);
+                                return true;
                              })
                                 setState({
                                     ...state,
@@ -85,7 +86,6 @@ const ListaPedidos = (props) => {
                                     Asesores: asesores,
                                 });
                             },
-                            setAsesorSelected(AsesorSelected === null ? Asesor : AsesorSelected),
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
                             // exceptions from actual bugs in components.
