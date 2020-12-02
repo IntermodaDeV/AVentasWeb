@@ -60,7 +60,9 @@ class Agenda extends Component {
     myRef = React.createRef();
 
     cargarClientes = async () => {
-        fetch(this.urlApi + "/api/cliente/agenda", {
+        let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
+        let Asesor = this.state.AsesorSelected === null ? asesores[0] : this.state.AsesorSelected;
+        fetch(this.urlApi + "/api/cliente/agenda/" + Asesor, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -76,12 +78,8 @@ class Agenda extends Component {
                     res.json()
                         .then(
                             (result) => {
-                                let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
-                                let AsesorSelect = Asesor[0];
                                 this.setState({
                                     clientes: result,
-                                    Asesores: Asesor,
-                                    AsesorSelected : AsesorSelect,
                                 });
                                 
                                 var fecha = this.getFechas(2);
@@ -99,6 +97,14 @@ class Agenda extends Component {
                 }
 
             })
+    }
+
+    cargarAsesores = () => {
+        let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
+        this.setState({
+            Asesores: asesores,
+            AsesorSelected : asesores[0],
+        });
     }
 
     cargarEmpresas = ()=>{
@@ -125,8 +131,8 @@ class Agenda extends Component {
     cargarAsignaciones = (FechaInicio, FechaFin) => {
         var inicio = moment(FechaInicio).format();
         var fin = moment(FechaFin).format();
-
-        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}`, {
+        var asesor = this.state.AsesorSelected;
+        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}&Asesor=${asesor}`, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token'),
@@ -581,8 +587,8 @@ class Agenda extends Component {
     }
     
     onChangeAsesor = () => {
+        this.cargarClientes();
         var eventos = this.setAsignaciones(this.state.Asignaciones);
-
         this.setState({
             Eventos: eventos,
             OpenModalAsesor: false,
@@ -701,6 +707,7 @@ class Agenda extends Component {
         {
             this.props.history.push('/home');
         }
+        this.cargarAsesores()
         this.cargarClientes();
         this.cargarRazonNoVenta();
         this.cargarEmpresas();
@@ -1122,7 +1129,8 @@ const ObtenerCoordenadas = (resolve, reject) => {
 
 const mapStateToProps = state => ({
     empresas:state.empresas,
-    asignaciones:state.Asignaciones
+    asignaciones:state.Asignaciones,
+    Permisos: state.Permisos
 });
 
 const mapDispatchToProps = dispatch =>({

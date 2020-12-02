@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog } from "@material-ui/core";
+import { Button, Dialog } from "@material-ui/core";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from "mui-datatables";
@@ -29,7 +29,7 @@ const Listado = (props) => {
     return (
         <div className="px-3">
             <div className="row mb-3">
-                <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                <div className='col-lg-2 my-lg-0 col-6 my-1'>
                     <DatePicker
                         disableToolbar
                         autoOk
@@ -41,7 +41,7 @@ const Listado = (props) => {
                     />
 
                 </div>
-                <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                <div className='col-lg-2 my-lg-0 col-6 my-1'>
                     <DatePicker
                         disableToolbar
                         autoOk
@@ -53,7 +53,7 @@ const Listado = (props) => {
                         onChange={(date) => props.handleFechaFin(date)}
                     />
                 </div>
-                <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
                     <Dropdown
                         placeholder="Asesor"
                         selection
@@ -64,6 +64,14 @@ const Listado = (props) => {
                         closeOnChange={true}
                         value={props.AsesorSelected}
                     />
+                 </div>
+                 <div className="col-lg-1 col-sm-2 col-4"  style={{ paddingTop: 10 }}>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => props.cargarRecibos(props.startDate, props.endDate)}
+                        >Obtener
+                    </Button>
                  </div>
             </div>
             <div>

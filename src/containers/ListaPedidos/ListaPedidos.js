@@ -300,7 +300,7 @@ const ListaPedidos = (props) => {
                             onChange={(date) => handleFechaFin(date)}
                         />
                     </div>
-                    <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                    <div className='col-lg-2 col-sm-4 col-6'  style={{ paddingTop: 10 }}>
                         <Dropdown
                             placeholder="Asesor"
                             selection
@@ -312,7 +312,7 @@ const ListaPedidos = (props) => {
                             value={AsesorSelected}
                         />
                     </div>
-                    <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 15 }}>
+                    <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 10 }}>
                     <Button
                         variant="outlined"
                         color="primary"

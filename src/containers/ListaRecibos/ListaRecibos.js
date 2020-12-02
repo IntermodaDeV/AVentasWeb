@@ -22,8 +22,8 @@ const ListaRecibos = (props) => {
 
     const [error, setError] = useState(false);
     const [isLoaded, setIsLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
-    const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
-    const [endDate, setEndDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1));
+    const [startDate, setStartDate] =  useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
+    const [endDate, setEndDate] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
     const [recibos, setRecibos] = useState([]);
     const [recibo, setRecibo] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
@@ -37,7 +37,7 @@ const ListaRecibos = (props) => {
         {
             props.history.push('/home');
         }
-            cargarRecibos();
+            cargarRecibos("1900-01-01", "1900-01-01");
         let Asesores = [];
             AsesoresUsuario.map((Ase) => {
             let Valores = { key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }
@@ -54,9 +54,12 @@ const ListaRecibos = (props) => {
          setRecibo(recibo);
      }
 
-    const cargarRecibos = async () => {
+    const cargarRecibos = async (FechaInicio, FechaFin) => {
         setLoading(true);
-        fetch(urlApi + "/api/Recibo", {
+        var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
+        var Fin = moment(FechaFin).format("YYYY-MM-DD");
+        let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
+        fetch(urlApi + "/api/Recibo/" + Asesor + "/" + Inicio + "/" + Fin, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -129,7 +132,7 @@ const ListaRecibos = (props) => {
 
     const handleOnChangeAsesor = (value) => {
         setAsesorSelected(value);
-    }
+     }
     const DataRecibos = () => {
         let DataRecibos = [];
 
@@ -231,6 +234,7 @@ const ListaRecibos = (props) => {
                 Asesores = {Asesores}
                 AsesorSelected = {AsesorSelected}
                 handleOnChangeAsesor = {handleOnChangeAsesor}
+                cargarRecibos = {cargarRecibos}
             />
             <LoadingModal title={'recibos'} Open={isLoading}/>
             </>

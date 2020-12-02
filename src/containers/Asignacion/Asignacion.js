@@ -147,8 +147,8 @@ export default class Asignacion extends Component {
     cargarAsignaciones = (FechaInicio, FechaFin) => {
         var inicio = moment(FechaInicio).format();
         var fin = moment(FechaFin).format();
-
-        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}`, {
+        var asesor = null;
+        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}&Asesor=${asesor}`, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token'),
