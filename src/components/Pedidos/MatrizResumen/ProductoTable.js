@@ -196,6 +196,7 @@ const ProductoTable = (props) => {
                         </PopupState>
                         <div className="pl-2">
                             <FiTrash2 className={styles.FiTrash2} onClick={() => EliminarProducto(props.grupoTalla, props.codigoProducto, props.producto.NombreProducto)} />
+                        {props.producto.CantidadMinima>0 && <span style={{color:"red",fontSize:13,fontWeight:'bold'}}>Este producto se vende en múltiplos de {props.producto.CantidadMinima}</span>}
                         </div>
                     </div>
 

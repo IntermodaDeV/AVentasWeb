@@ -29,6 +29,7 @@ import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
 import {Home} from 'containers/Home/Home';
 import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPendientes';
 import { ListaReciboPendiente } from 'containers/ListaRecibos/ListaReciboPendiente';
+import { ListaReciboCreditos } from 'containers/ListaRecibos/ListaReciboCreditos';
 import { Cartera } from 'containers/Cartera/Cartera';
 import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
@@ -96,6 +97,12 @@ const App = props => {
               path='/lista-recibos-pendientes'
               layout={MainLayout}
               component={ListaReciboPendiente}
+            />
+            <LayoutRoute
+              exact
+              path='/lista-recibos-creditos'
+              layout={MainLayout}
+              component={ListaReciboCreditos}
             />
             <LayoutRoute
               path='/cartera'

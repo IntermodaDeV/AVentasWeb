@@ -48,7 +48,10 @@ const initialState = {
     PedidoSincronizar:[],
     ReciboSincronizar:[],
     RecibosEnCache:[],
-    Cartera:[]
+    Cartera:[],
+    MonedasGlobal:[],
+    BancosGlobal:[],
+    TipoPagoGlobal:[]
 }
 
 const calcularLimite = (state) => {
@@ -459,6 +462,31 @@ const reducer = (state = initialState, action) => {
             Monedas:action.payload
         }
     }
+
+    if(action.type==='SET_MONEDASGLOBAL')
+    {
+        return{
+            ...state,
+            MonedasGlobal:action.payload
+        }
+    }
+
+    if(action.type==='SET_BANCOSGLOBAL')
+    {
+        return{
+            ...state,
+            BancosGlobal:action.payload
+        }
+    }
+
+    if(action.type==='SET_TIPOPAGOGLOBAL')
+    {
+        return{
+            ...state,
+            TipoPagoGlobal:action.payload
+        }
+    }
+
     if(action.type==='SET_PERMISOS')
     {
         return{

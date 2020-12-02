@@ -3,23 +3,22 @@ import Loader from 'components/Global/Loader';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { Button } from "@material-ui/core";
 import DetalleRecibo from 'components/ListadoRecibos/DetalleRecibo';
-import { PrintOutlined } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
 import { APIURL } from 'utils/Enviroment';
 import Listado from 'components/ListadoRecibos/Listado';
-import LoadingModal from './../../components/Global/LoadingModal';
-import  TableFooter from "@material-ui/core/TableFooter";
-import  TableRow from "@material-ui/core/TableRow";
-import  TablePagination from "@material-ui/core/TablePagination";
+import { Loading } from 'components/Global/Loading';
+import TableFooter from "@material-ui/core/TableFooter";
+import TableRow from "@material-ui/core/TableRow";
+import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import { IsAllow } from 'components/Seguridad/Permisos';
+import axios from 'axios';
 import { useSelector } from 'react-redux';
+
 moment.locale('es');
 
-const ListaRecibos = (props) => {
-    const urlApi = APIURL;
-
+export const ListaReciboCreditos = (props) => {
     const [error, setError] = useState(false);
     const [isLoaded, setIsLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
     const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
@@ -28,41 +27,37 @@ const ListaRecibos = (props) => {
     const [recibo, setRecibo] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
     const [DialogRecibo, setDialogRecibo] = useState(null);
-    const [isLoading,setLoading] = useState(false);
+    const [isLoading, setLoading] = useState(false);
     const [Asesores, setAsesores] = useState([]);
     const [AsesorSelected, setAsesorSelected] = useState(null);
-    const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
+    const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
+
     useEffect(() => {
-        if(!IsAllow("/lista-recibos"))
-        {
+        if (!IsAllow("/lista-recibos-creditos")) {
             props.history.push('/home');
         }
-            cargarRecibos();
-        let Asesores = [];
-            AsesoresUsuario.map((Ase) => {
-            let Valores = { key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }
-            Asesores.push(Valores);
-            return true;
-        })
-        setAsesores(Asesores)
+
+        let asesores = AsesoresUsuario.map(e => ({ key: e.Usuario, value: e.Usuario, text: e.Usuario }));
+        setAsesores(asesores);
         setAsesorSelected(AsesoresUsuario[0].Usuario)
-        //cargarClientes();
+
+        cargarRecibos();
         // eslint-disable-next-line
     }, []);
-   
+
     const cambiarRecibo = (recibo) => {
-         setRecibo(recibo);
-     }
+        setRecibo(recibo);
+    }
 
     const cargarRecibos = async () => {
-        setLoading(true);
-        fetch(urlApi + "/api/Recibo", {
+        fetch(APIURL + "/api/Recibo", {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
 
             }
-        }).then(res => {
+        })
+            .then(res => {
                 if (res.status === 401) {
                     localStorage.setItem('token', '');
                     window.location.reload();
@@ -71,9 +66,9 @@ const ListaRecibos = (props) => {
                     res.json()
                         .then(
                             (result) => {
+
                                 setRecibos(result);
                                 setIsLoaded(true);
-                                setLoading(false);
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -127,17 +122,50 @@ const ListaRecibos = (props) => {
         }
     }
 
-    const handleOnChangeAsesor = (value) => {
-        setAsesorSelected(value);
+    const sincronizar = async (recibo) => {
+        let ruta = `${APIURL}/api/Recibo/Pendiente/${recibo.recibo}`;
+        if (recibo.anticipo) {
+            ruta = `${APIURL}/api/Recibo/Anticipo/Pendiente/${recibo.recibo}`;
+        }
+        if (navigator.onLine) {
+            try {
+                setLoading(true);
+                const request = await axios.post(ruta);
+                setLoading(false);
+                Swal.fire({
+                    type: 'success',
+                    title: 'Sincronizado',
+                    text: request.data,
+                });
+                cargarRecibos();
+            } catch (err) {
+                setLoading(false);
+                let mensaje = "Ha ocurrido un error y no se pudo sincronizar el recibo con AX.";
+
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+
+                Swal.fire({
+                    type: 'error',
+                    title: 'Error',
+                    text: mensaje,
+                })
+            }
+        } else {
+            Swal.fire({
+                title: 'Sin Internet',
+                text: 'Necesita internet para sincronizar el recibo',
+                type: 'warning',
+                confirmButtonText: 'Ok',
+            })
+        }
     }
+
     const DataRecibos = () => {
         let DataRecibos = [];
 
-        if (recibos != null) {
-
-        }
-
-        recibos.filter(r => r.Asesor === AsesorSelected).map(recib => {
+        recibos.filter(r => r.Asesor === AsesorSelected).forEach(recib => {
 
             let fechaIni = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
             let fechaFin = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
@@ -145,50 +173,40 @@ const ListaRecibos = (props) => {
 
             if (moment(fechaIni) < moment(recib.Fecha) && moment(recib.Fecha) < moment(fechaFin)) {
                 let data =
-                [
-                    [recib.NumeroRecibo,recib.Sincronizado],
-                    [recib.CodigoCliente,recib.Sincronizado],
-                    [recib.Cliente.Nombre,recib.Sincronizado],
-                    [moment(recib.Fecha).format('DD/MM/YYYY'),recib.Sincronizado],
-                    [recib.TipoPago.Descripcion,recib.Sincronizado],
-                    [recib.Referencia,recib.Sincronizado],
-                    [moment(recib.Fecha).format('DD/MM/YYYY'),recib.Sincronizado],
-                    [recib.DescripcionBanco,recib.Sincronizado],
-                    [recib.Valor,recib.Sincronizado],
-                    [recib.IdMoneda,recib.Sincronizado],
-                    [recib.Sincronizado],
-                    [recib.CodigoAsesor,recib.Sincronizado],
-                    [recib.DetalleRecibo[0].Factura,recib.Sincronizado],
-                    [recib.Descuento,recib.Sincronizado],
-                    <div>
+                {
+                    NumeroRecibo: recib.NumeroRecibo,
+                    CodigoCliente: recib.CodigoCliente,
+                    Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
+                    IdTipoPago: recib.TipoPago.Descripcion,
+                    Referencia: recib.Referencia,
+                    FechaCheque: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
+                    IdBanco: recib.IdBanco,
+                    IdCuentaBancaria: recib.IdCuentaBancaria,
+                    Valor: recib.Valor,
+                    IdMoneda: recib.IdMoneda,
+                    Sincronizado: recib.Sincronizado ? "Si" : "No",
+                    CodigoAsesor: recib.CodigoAsesor,
+                    IdFactura: recib.IdFactura,
+                    Descuento: recib.Descuento,
+                    Acciones:
+                        <div>
 
                             <span className="mr-1">
-                            <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
-                        </span> 
+                                <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
+                            </span>
 
-                        <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
-                                <PrintOutlined />
-                            </Button>
-                        </span >
-                    </div>
-                ]
+                            <span className="ml-1">
+                                <Button className='my-1' variant="outlined" onClick={() => sincronizar({ recibo: recib.NumeroRecibo, anticipo: recib.Anticipo })} size="small" color={"primary"}>
+                                    Sincronizar
+                                </Button>
+                            </span >
+                        </div>
+                }
 
                 DataRecibos.push(data);
             }
-            return false;
-
         });
-        
-        DataRecibos.sort((a,b) => (a.NumeroRecibo > b.NumeroRecibo) ? -1 : ((b.NumeroRecibo > a.NumeroRecibo) ? 1 : 0));
-
         return DataRecibos;
-       
-    }
-
-    const showPrint = (recibo) => {
-        setDialogRecibo(recibo);
-        setShowDialog(true);
     }
 
     const hidePrint = () => {
@@ -196,6 +214,9 @@ const ListaRecibos = (props) => {
         setDialogRecibo(null);
     }
 
+    const handleOnChangeAsesor = (value) => {
+        setAsesorSelected(value);
+    }
 
     const RegresarListaRecibos = () => {
         setRecibo(null);
@@ -208,7 +229,7 @@ const ListaRecibos = (props) => {
         return <div>Error: {error.message}</div>;
     }
     if (recibo != null) {
-        
+
         return (
             <DetalleRecibo
                 recibo={recibo}
@@ -217,22 +238,22 @@ const ListaRecibos = (props) => {
     } else {
         return (
             <>
-            <Listado
-                startDate={startDate}
-                endDate={endDate}
-                handleFechaInicio={handleFechaInicio}
-                handleFechaFin={handleFechaFin}
-                DataRecibos={DataRecibos}
-                HeadersListaRecibos={HeadersListaRecibos}
-                DatatableOptions={DatatableOptions}
-                showDialog={showDialog}
-                hidePrint={hidePrint}
-                DialogRecibo={DialogRecibo}
-                Asesores = {Asesores}
-                AsesorSelected = {AsesorSelected}
-                handleOnChangeAsesor = {handleOnChangeAsesor}
-            />
-            <LoadingModal title={'recibos'} Open={isLoading}/>
+                <Listado
+                    startDate={startDate}
+                    endDate={endDate}
+                    handleFechaInicio={handleFechaInicio}
+                    handleFechaFin={handleFechaFin}
+                    DataRecibos={DataRecibos}
+                    HeadersListaRecibos={HeadersListaRecibos}
+                    DatatableOptions={DatatableOptions}
+                    showDialog={showDialog}
+                    hidePrint={hidePrint}
+                    DialogRecibo={DialogRecibo}
+                    Asesores={Asesores}
+                    AsesorSelected={AsesorSelected}
+                    handleOnChangeAsesor={handleOnChangeAsesor}
+                />
+                <Loading title="Sincronizando Recibo" open={isLoading} />
             </>
         );
     }
@@ -247,11 +268,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -260,11 +276,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -273,24 +284,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
-        }
-    },
-    {
-        name: "NombreCliente",
-        label: "Nombre Cliente",
-        options: {
-            filter: true,
-            sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -299,11 +292,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -312,11 +300,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -325,11 +308,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -338,11 +316,14 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
+        }
+    },
+    {
+        name: "IdCuentaBancaria",
+        label: "Cuenta Bancaria",
+        options: {
+            filter: true,
+            sort: true,
         }
     },
     {
@@ -351,11 +332,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -364,11 +340,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -377,11 +348,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[0])?'green':'orange',fontWeight:'bold'}}>{value[0]?"Si":"No"}</p>
-                );
-              }
         }
     },
     {
@@ -390,11 +356,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -403,11 +364,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -416,11 +372,6 @@ const HeadersListaRecibos = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
         }
     },
     {
@@ -441,20 +392,20 @@ const DatatableOptions = {
     selectableRows: 'none',
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
         <TableFooter>
-              <TableRow>
+            <TableRow>
                 <TablePagination
-                  count={count}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={(_, page) => changePage(page)}
-                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
-                  rowsPerPageOptions={[10, 15, 100]}
-                  ActionsComponent={CustomFooter}
-                  labelRowsPerPage="Filas por página:"
+                    count={count}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onChangePage={(_, page) => changePage(page)}
+                    onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                    rowsPerPageOptions={[10, 15, 100]}
+                    ActionsComponent={CustomFooter}
+                    labelRowsPerPage="Filas por página:"
                 />
-              </TableRow>
-            </TableFooter>
-      ),
+            </TableRow>
+        </TableFooter>
+    ),
     textLabels: {
         body: {
             noMatch: "No se han encontrado recibos",
@@ -489,6 +440,3 @@ const DatatableOptions = {
         },
     }
 };
-
-
-export default ListaRecibos;

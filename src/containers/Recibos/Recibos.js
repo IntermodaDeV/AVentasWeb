@@ -24,7 +24,7 @@ import {IsAllow} from 'components/Seguridad/Permisos';
 import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
-
+import { get } from 'utils/http';
 
 moment.locale('es');
 const Recibos = (props) => {
@@ -288,8 +288,8 @@ const Recibos = (props) => {
     cargarClientes()
   }
 
-  const cargarClientes = () => {
-    fetch(urlApi + '/api/cliente/cuenta', {
+  const cargarClientes = async () => {
+    /*fetch(urlApi + '/api/cliente/cuenta', {
       headers: {
         Authorization: 'Bearer ' + localStorage.getItem('token')
       }
@@ -317,15 +317,27 @@ const Recibos = (props) => {
     })
 
     setClientes(props.clientes);
-    setClientesFiltrados(props.clientes);
+    setClientesFiltrados(props.clientes);*/
+
+    const { data, error } = await get(`${urlApi}/api/cliente/cuenta`, "Recibo","clientes");
+    if (error) {
+      console.log(error);
+    } else {
+      setLoading(false);
+      props.onStoreReciboClientes(data);
+      setClientes(data);
+      setClientesFiltrados(data);
+    }
   }
 
   const cargarMonedas = () =>{
     let empresa = localStorage.getItem('EmpresaCliente');
-    fetch(`${urlApi}/api/moneda/${empresa}`)
+    const monedas = props.monedasGlobal.filter(x=>x.Empresa===empresa);
+    props.onSaveMonedas(monedas);
+    /*fetch(`${urlApi}/api/moneda/${empresa}`)
     .then(res=>res.json())
     .then(data=>{props.onSaveMonedas(data)})
-    .catch(error=>console.log(error))
+    .catch(error=>console.log(error))*/
   }
   const cargarFacturasXCliente = () => {
     props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas);
@@ -640,7 +652,7 @@ const mapStateToProps = state => {
     cuotasAPagar: state.Recibo.cuotasAPagar,
     facturasXCliente: state.Recibo.facturasXCliente,
     cuotasCuentaCorriente: state.Recibo.cuotasCuentaCorriente,
-
+    monedasGlobal:state.MonedasGlobal,
     loading: state.Recibo.loading,
     Paises:state.Permisos[0].EmpresasUsuarios
   };

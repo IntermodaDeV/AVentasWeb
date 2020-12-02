@@ -1,69 +1,100 @@
-import React,{useEffect} from 'react';
-import {APIURL} from 'utils/Enviroment';
-import {useDispatch} from 'react-redux';
+import React, { useEffect } from 'react';
+import { APIURL } from 'utils/Enviroment';
+import { useDispatch } from 'react-redux';
+import { get } from 'utils/http';
 export const Home = (props) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
         ObtenerPermisos();
         cargarEmpresas();
-        cargarMonedas();
+        cargarAbreviacionMonedas();
         cargarClientesContado();
         cargarComunidadAutonoma();
-         // eslint-disable-next-line
+        cargarMonedas();
+        cargarBancos();
+        cargarTipoPago();
+        // eslint-disable-next-line
     }, []);
-    const ObtenerPermisos = ()=>{
+
+    const ObtenerPermisos = () => {
         fetch(`${APIURL}/api/Accesos/${localStorage.getItem('codigo')}`)
-        .then(res => {
-            if (res.status === 401) {
-                window.location.reload();
-            }
-            if (res.status === 200) {
-            res.json()
-            .then(data=> 
-                    {
-                    console.log("data",data)
-                    dispatch({type:'SET_PERMISOS',payload:data});
-                    },
-                    (error) => {
-                        console.log(error)
-                    }
-                )
-            }
-        })
+            .then(res => {
+                if (res.status === 401) {
+                    window.location.reload();
+                }
+                if (res.status === 200) {
+                    res.json()
+                        .then(data => {
+                            console.log("data", data)
+                            dispatch({ type: 'SET_PERMISOS', payload: data });
+                        },
+                            (error) => {
+                                console.log(error)
+                            }
+                        )
+                }
+            })
     }
 
-    const cargarComunidadAutonoma = () =>{
+    const cargarComunidadAutonoma = () => {
         fetch(`${APIURL}/api/transporte/comunidadautonoma`)
-        .then(res=>res.json())
-        .then(data=>dispatch({type:'SET_COMUNIDADAUTONOMA',payload:data}))
-        .catch(error=>this.setState({error}))
+            .then(res => res.json())
+            .then(data => dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data }))
+            .catch(error => this.setState({ error }))
     }
 
-    const cargarEmpresas = ()=>{
+    const cargarEmpresas = () => {
         fetch(`${APIURL}/api/empresa/empresas`)
-        .then(res=>res.json())
-        .then(data=>{ dispatch({type:'SET_EMPRESAS',payload:data})})
-        .catch(error=>console.log(error))
+            .then(res => res.json())
+            .then(data => { dispatch({ type: 'SET_EMPRESAS', payload: data }) })
+            .catch(error => console.log(error))
     }
 
-    const cargarMonedas = () =>{
+    const cargarAbreviacionMonedas = () => {
         fetch(`${APIURL}/api/moneda`)
-        .then(res=>res.json()) 
-        .then(data=>{ dispatch({type:'SET_ABREVACIONMONEDAS',payload:data})})
-        .catch(error=>console.log(error))
+            .then(res => res.json())
+            .then(data => { dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data }) })
+            .catch(error => console.log(error))
     }
 
-    const cargarClientesContado = ()=>{
-        fetch(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`)
-        .then(res=>res.json())
-        .then(data=>{dispatch({type:'SET_CLIENTESCONTADO',payload:data})})
-        .catch(error=>console.log(error))
+    const cargarMonedas = async () => {
+        const { data, error } = await get(`${APIURL}/api/moneda/monedas`, "MonedasGlobal");
+        if (error) {
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_MONEDASGLOBAL", payload: data });
+        }
     }
-    return(
-        <div style={{height:'100%'}} className="container-fluid">
+
+    const cargarBancos = async () => {
+        const { data, error } = await get(`${APIURL}/api/banco`, "BancosGlobal");
+        if (error) {
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_BANCOSGLOBAL", payload: data });
+        }
+    }
+
+    const cargarTipoPago = async () => {
+        const { data, error } = await get(`${APIURL}/api/tipopago`, "TipoPagoGlobal");
+        if (error) {
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_TIPOPAGOGLOBAL", payload: data });
+        }
+    }
+
+    const cargarClientesContado = () => {
+        fetch(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`)
+            .then(res => res.json())
+            .then(data => { dispatch({ type: 'SET_CLIENTESCONTADO', payload: data }) })
+            .catch(error => console.log(error))
+    }
+    return (
+        <div style={{ height: '100%' }} className="container-fluid">
             <div class="card-body text-center">
-              <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
+                <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
             </div>
         </div>
     )

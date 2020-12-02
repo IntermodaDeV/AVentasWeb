@@ -26,6 +26,8 @@ const urlApi = APIURL
 const DetalleRecibo = (props) => {
     // const [totalAPagar, setTotalAPagar] = useState(0.00);
     const Monedas = useSelector(e=>e.Monedas);
+    const BancosGlobal = useSelector(e=>e.BancosGlobal);
+    const TipoPagoGlobal = useSelector(e=>e.TipoPagoGlobal);
     const [bancos, setBancos] = useState([]);
     const [ModalRecibo, setModalRecibo] = useState(false);
     const [recibosAplicados, setRecibosAplicados] = useState([]);
@@ -434,7 +436,9 @@ const DetalleRecibo = (props) => {
     }
     const cargarBancos = () => {
         let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa')
-        fetch(urlApi + "/api/banco/" + empresa, {
+        const bancosEmpresa = BancosGlobal.filter(x=>x.EmpresaId===empresa);
+        setBancos(bancosEmpresa)
+        /*fetch(urlApi + "/api/banco/" + empresa, {
             headers: {
                 Authorization: 'Bearer ' + localStorage.getItem('token')
             }
@@ -454,12 +458,14 @@ const DetalleRecibo = (props) => {
                     }
                 )
             }
-        })
+        })*/
     };
 
     const cargarTiposPago = () => {
-        let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa')
-        fetch(urlApi + '/api/TipoPago/'+empresa, {
+        let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa');
+        const tipoPagoEmpresa = TipoPagoGlobal.filter(x=>x.EmpresaId===empresa);
+        setTiposPago(tipoPagoEmpresa);
+        /*fetch(urlApi + '/api/TipoPago/'+empresa, {
             headers: {
                 Authorization: 'Bearer ' + localStorage.getItem('token')
             }
@@ -479,7 +485,7 @@ const DetalleRecibo = (props) => {
                     }
                 )
             }
-        })
+        })*/
     };
 
     const CargarDatos = () => {

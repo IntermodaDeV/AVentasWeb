@@ -3,7 +3,7 @@ import { Button } from '@material-ui/core'
 import notFound from 'assets/nodisponible.png';
 import { FaEye } from "react-icons/fa";
 import Lightbox from 'react-image-lightbox';
-//import ReactTooltip from 'react-tooltip'
+import { FiAlertTriangle } from 'react-icons/fi';
 import TablaVistaProducto from 'components/Pedidos/ProductoDetalle/TablaVistaProducto';
 import Slider from "components/Pedidos/ProductoDetalle/Slider";
 import RelatedContainer from "components/Pedidos/ProductoDetalle/RelatedContainer";
@@ -191,6 +191,7 @@ const VistaProducto = (props) => {
                     <div className="col-12 mt-2">
                         <div className="my-2">
                             <Button color="primary" variant="outlined" onClickCapture={toggleSelect}>{selected ? "Quitar" : "Agregar"}</Button>
+                            {props.producto.CantidadMinima>0 && <div style={{color:"red",display:"inline",marginLeft:15,fontSize:20}}><FiAlertTriangle style={{color:'red'}}/> Este producto se vende en múltiplos de {props.producto.CantidadMinima}</div>}
                         </div>
                     </div>
                     <div className="col-12 p-0 mt-3">

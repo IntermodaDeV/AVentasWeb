@@ -20,7 +20,8 @@ export const get = async (url, key, subkey) => {
         });
 
         data = request.data;
-        localStorage.setItem(`expiracion-${key}`, moment().add(1, 'day'));
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-${key}`, moment(`${fecha} 23:59:59`));
 
     } catch (err) {
         return { data, error: err };
