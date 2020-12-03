@@ -40,7 +40,8 @@ import {
     HelpOutline,
     Public,
     Security,
-    AccountBox
+    AccountBox,
+    SyncAlt
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
@@ -99,6 +100,7 @@ const navItems = [
             { to: '/lista-recibos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_BandejaSalida', Icon: AllInbox, backgroundColor:'#d49008' },
             { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:''  },
+            { to: '/lista-recibos-creditos', name: 'Resincronización recibos', dataTut: 'DataTut_ListadoRecibos', Icon: SyncAlt, backgroundColor:''  }
         ]
     },
     {
