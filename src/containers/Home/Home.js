@@ -6,14 +6,18 @@ export const Home = (props) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        ObtenerPermisos();
-        cargarEmpresas();
-        cargarAbreviacionMonedas();
-        cargarClientesContado();
-        cargarComunidadAutonoma();
-        cargarMonedas();
-        cargarBancos();
-        cargarTipoPago();
+        if(navigator.onLine){
+            ObtenerPermisos();
+            cargarEmpresas();
+            cargarAbreviacionMonedas();
+            cargarClientesContado();
+            cargarComunidadAutonoma();
+            cargarMonedas();
+            cargarBancos();
+            cargarTipoPago();
+            cargarConfiguraciones();
+            cargarTipoVisitas();
+        }
         // eslint-disable-next-line
     }, []);
 
@@ -82,6 +86,24 @@ export const Home = (props) => {
             console.log(error);
         } else {
             dispatch({ type: "SET_TIPOPAGOGLOBAL", payload: data });
+        }
+    }
+
+    const cargarConfiguraciones = async () => {
+        const { data, error } = await get(`${APIURL}/api/configuraciones`, "Configuraciones");
+        if (error) {
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_CONFIGURACIONES", payload: data });
+        }
+    }
+
+    const cargarTipoVisitas = async () => {
+        const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
+        if (error) {
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_TIPOVISITA", payload: data });
         }
     }
 

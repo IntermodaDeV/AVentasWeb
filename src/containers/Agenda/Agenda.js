@@ -25,6 +25,7 @@ import moment from "moment";
 import {connect} from 'react-redux';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import { FaEye } from "react-icons/fa";
+import { get } from 'utils/http';
 moment.locale('es');
 class Agenda extends Component {
     urlApi = APIURL;
@@ -702,6 +703,24 @@ class Agenda extends Component {
             })
     }
 
+    cargarConfiguraciones = async () => {
+        const { data, error } = await get(`${APIURL}/api/configuraciones`, "Configuraciones");
+        if (error) {
+            console.log(error);
+        } else {
+            this.props.onSaveConfiguraciones(data);
+        }
+    }
+
+    cargarTipoVisitas = async () => {
+        const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
+        if (error) {
+            console.log(error);
+        } else {
+           this.props.onSaveTipoVisita(data);
+        }
+    }
+
     componentDidMount() {
         if(!IsAllow("/agenda"))
         {
@@ -710,9 +729,8 @@ class Agenda extends Component {
         this.cargarAsesores()
         this.cargarClientes();
         this.cargarRazonNoVenta();
-        this.cargarEmpresas();
-        this.cargarMonedas();
-        this.cargarClientesContado();
+        this.cargarTipoVisitas();
+        this.cargarConfiguraciones();
     }
 
     verifyBlock = (action)=>{
@@ -1137,7 +1155,9 @@ const mapDispatchToProps = dispatch =>({
     onSaveEmpresas:(empresas)=>{dispatch({type:'SET_EMPRESAS',payload:empresas})},
     onSaveMonedas:(monedas)=>{dispatch({type:'SET_ABREVACIONMONEDAS',payload:monedas})},
     onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})},
-    onSaveAsignaciones:(asignaciones)=>{dispatch({type:'SET_ASIGNACIONES',payload:asignaciones})}
+    onSaveAsignaciones:(asignaciones)=>{dispatch({type:'SET_ASIGNACIONES',payload:asignaciones})},
+    onSaveTipoVisita:(data)=>{dispatch({ type: "SET_TIPOVISITA", payload: data })},
+    onSaveConfiguraciones:(data)=>{dispatch({ type: "SET_CONFIGURACIONES", payload: data })}
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(Agenda);

@@ -25,6 +25,7 @@ import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
 import { get } from 'utils/http';
+import axios from 'axios';
 
 moment.locale('es');
 const Recibos = (props) => {
@@ -330,6 +331,20 @@ const Recibos = (props) => {
     }
   }
 
+  const cargarCliente = async ()=>{
+    if(navigator.onLine){
+      try{
+        let request = await axios.get(`${urlApi}/api/cliente/cuenta/${props.clienteSelected.Codigo}`,{headers:{Authorization: 'Bearer ' + localStorage.getItem('token')}});
+        let clientesStorage = props.clientes;
+        let index = clientesStorage.map(e=>e.Codigo).indexOf(props.clienteSelected.Codigo);
+        clientesStorage[index] = request.data;
+        props.onStoreReciboClientes(clientesStorage);
+      }catch(err){
+        console.log(err);
+      }
+    }
+  }
+
   const cargarMonedas = () =>{
     let empresa = localStorage.getItem('EmpresaCliente');
     const monedas = props.monedasGlobal.filter(x=>x.Empresa===empresa);
@@ -361,7 +376,7 @@ const Recibos = (props) => {
 
   const Finalizar = () => {
     //setModalRecibo(false);
-    cargarClientes();
+    cargarCliente();
     dispatch({type:'delete_pedidoselected'})
     props.history.push(`/recibos`);
 }

@@ -21,11 +21,11 @@ import {
     CardBody,
     CardHeader
 } from 'reactstrap';
-
+import {connect} from 'react-redux';
 import moment from "moment";
 moment.locale('es');
 
-export default class Asignacion extends Component {
+class Asignacion extends Component {
     urlApi = APIURL;
     state = {
         startDate: new Date(),
@@ -170,53 +170,16 @@ export default class Asignacion extends Component {
 
             })
     }
+    
     cargarTiposAsignacionCliente = () => {
-        fetch(this.urlApi + "/api/TipoVisitaCliente", {
-            // headers: {
-            //     'Authorization':
-            //         'Bearer ' + localStorage.getItem('token'),
-            // }
-        })
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                this.getTipos(result);
-                                this.setState({
-                                    TiposVisitaCliente: result,
-                                });
-                            },
-                        )
-                }
-
-            })
+        this.setState((prevState)=>({...prevState,TiposVisitaCliente:this.props.TipoVisita}));
+        this.getTipos(this.props.TipoVisita);
     }
 
     cargarTiempoEstimado = () => {
-        fetch(this.urlApi + "/api/Configuraciones", {
-            // headers: {
-            //     'Authorization':
-            //         'Bearer ' + localStorage.getItem('token'),
-            // }
-        })
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                this.setState({
-                                    LoadedTiempoEstimado: true,
-                                    Configuraciones: result
-                                });
-                            },
-                        )
-                }
-
-            })
+        this.setState((prevState)=>({...prevState,LoadedTiempoEstimado:true,Configuraciones:this.props.Configuraciones}))
     }
+
     cargarPrioridadesAsignacion = () => {
         fetch(this.urlApi + "/api/PrioridadAsignacion", {
             // headers: {
@@ -265,8 +228,8 @@ export default class Asignacion extends Component {
 
     getTiempos() {
 
-        if (this.state.Configuraciones) {
-            let { IN, MV } = this.state.Configuraciones;
+        if (this.props.Configuraciones) {
+            let { IN, MV } = this.props.Configuraciones;
 
             let Tiempos = [];
             let Interval = parseInt(IN);
@@ -1342,3 +1305,10 @@ const getRadio = (Color, ColorChecked) => {
 
     return <RadioColor />;
 }
+
+const mapStateToProps = state =>({
+    Configuraciones:state.Configuraciones,
+    TipoVisita:state.TipoVisita
+})
+
+export default connect(mapStateToProps)(Asignacion);

@@ -132,7 +132,7 @@ const SelectCliente = (props) => {
                     <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={alerta} TransitionComponent={TransitionGrow}>
                         <MySnackbarContentWrapper
                             variant="error"
-                            message="El cliente actualmente se encuentra en mora"
+                            message="El cliente actualmente se encuentra con bloqueo ó  en mora."
                         />
                     </Snackbar>
 

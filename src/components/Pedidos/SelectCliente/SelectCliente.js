@@ -128,7 +128,7 @@ const SelectCliente = (props) => {
     if (!(props.autocompleteValue != null && (props.autocompleteValue.FacturacionEntrega === "No" || props.autocompleteValue.FacturacionEntrega === "Nunca"))) {
         FacturacionEntrega = (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con floqueo ó en mora.
+                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con bloqueo ó en mora.
             </div>
         )
 
@@ -361,7 +361,7 @@ const SelectCliente = (props) => {
             <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={alerta} TransitionComponent={TransitionGrow}>
                 <MySnackbarContentWrapper
                     variant="error"
-                    message="El cliente actualmente se encuentra en mora"
+                    message="El cliente actualmente se encuentra con bloqueo ó  en mora."
                 />
             </Snackbar>
 

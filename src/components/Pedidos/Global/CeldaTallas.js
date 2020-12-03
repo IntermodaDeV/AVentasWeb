@@ -111,6 +111,8 @@ const CeldaTallas = (props) => {
                 props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
             }
         }
+        setFocused(false)
+        props.onBlur();
     }
 
     const isDisabled = () => {

@@ -41,7 +41,7 @@ export const ListaReciboCreditos = (props) => {
         setAsesores(asesores);
         setAsesorSelected(AsesoresUsuario[0].Usuario)
 
-        cargarRecibos();
+        cargarRecibos("1900-01-01", "1900-01-01");
         // eslint-disable-next-line
     }, []);
 
@@ -49,7 +49,8 @@ export const ListaReciboCreditos = (props) => {
         setRecibo(recibo);
     }
 
-    const cargarRecibos = async () => {
+    // eslint-disable-next-line
+    /*const cargarRecibos = async () => {
         fetch(APIURL + "/api/Recibo", {
             headers: {
                 'Authorization':
@@ -80,9 +81,43 @@ export const ListaReciboCreditos = (props) => {
                         )
                 }
             })
+    }*/
+
+    const cargarRecibos = async (FechaInicio, FechaFin) => {
+        setLoading(true);
+        var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
+        var Fin = moment(FechaFin).format("YYYY-MM-DD");
+        let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
+        fetch(APIURL + "/api/Recibo/" + Asesor + "/" + Inicio + "/" + Fin, {
+            headers: {
+                'Authorization':
+                    'Bearer ' + localStorage.getItem('token')
+
+            }
+        }).then(res => {
+                if (res.status === 401) {
+                    localStorage.setItem('token', '');
+                    window.location.reload();
+                }
+                if (res.status === 200) {
+                    res.json()
+                        .then(
+                            (result) => {
+                                setRecibos(result);
+                                setIsLoaded(true);
+                                setLoading(false);
+                            },
+                            // Note: it's important to handle errors here
+                            // instead of a catch() block so that we don't swallow
+                            // exceptions from actual bugs in components.
+                            (error) => {
+                                setError(error);
+                                setIsLoaded(true);
+                            }
+                        )
+                }
+            })
     }
-
-
 
     const handleFechaInicio = (fecha) => {
 
@@ -137,7 +172,6 @@ export const ListaReciboCreditos = (props) => {
                     title: 'Sincronizado',
                     text: request.data,
                 });
-                cargarRecibos();
             } catch (err) {
                 setLoading(false);
                 let mensaje = "Ha ocurrido un error y no se pudo sincronizar el recibo con AX.";
@@ -252,6 +286,7 @@ export const ListaReciboCreditos = (props) => {
                     Asesores={Asesores}
                     AsesorSelected={AsesorSelected}
                     handleOnChangeAsesor={handleOnChangeAsesor}
+                    cargarRecibos = {cargarRecibos}
                 />
                 <Loading title="Sincronizando Recibo" open={isLoading} />
             </>

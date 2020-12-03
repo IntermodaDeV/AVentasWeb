@@ -51,7 +51,9 @@ const initialState = {
     Cartera:[],
     MonedasGlobal:[],
     BancosGlobal:[],
-    TipoPagoGlobal:[]
+    TipoPagoGlobal:[],
+    Configuraciones:null,
+    TipoVisita:[]
 }
 
 const calcularLimite = (state) => {
@@ -595,6 +597,20 @@ const reducer = (state = initialState, action) => {
         return{
             ...state,
             Cartera:action.payload
+        }
+    }
+
+    if(action.type === 'SET_CONFIGURACIONES'){
+        return {
+            ...state,
+            Configuraciones:action.payload
+        }
+    }
+
+    if(action.type === 'SET_TIPOVISITA'){
+        return {
+            ...state,
+            TipoVisita:action.payload
         }
     }
 
