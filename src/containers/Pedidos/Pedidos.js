@@ -1318,12 +1318,12 @@ class Pedidos extends React.Component {
                     })
                     this.setState({ loadingRecibo: false });
                 }else{
-                    let numPedido = data === undefined || data === null? "No Disponible" : data;
+                    let numPedido = data === undefined || data === null? "No Disponible" : data.EncabezadoPedido.PedidoId;
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                     this.props.onSetNumeroOrden(numPedido);
                 }
             }else{
-                let numPedido = data === undefined || data === null? "No Disponible" : data;
+                let numPedido = data === undefined || data === null? "No Disponible" : data.EncabezadoPedido.PedidoId;
                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                 this.props.onSetNumeroOrden(numPedido);
             }
