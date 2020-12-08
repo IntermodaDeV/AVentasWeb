@@ -86,14 +86,15 @@
     }
 
     const disableF5 = e =>{
-      alert('Debe disponer de internet para poder actualizar.');
       if (localStorage.getItem('Conexion') === "offline") {
-        if ((e.which || e.keyCode) == 116) {
+        if ((e.which || e.keyCode) === 116) {
+          alert('Debe disponer de internet para poder actualizar.');
           e.preventDefault();
         }
       } else {
         if (!navigator.onLine) {
-          if ((e.which || e.keyCode) == 116) {
+          if ((e.which || e.keyCode) === 116) {
+            alert('Debe disponer de internet para poder actualizar.');
             e.preventDefault();
           }
         }

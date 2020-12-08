@@ -28,6 +28,10 @@ import {useDispatch,useSelector} from 'react-redux';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import logo from './iconfinder_Close_2001866.png';
 import {numberWithCommas} from 'utils/common';
+import CachedIcon from '@material-ui/icons/Cached';
+import axios from 'axios';
+import { Loading } from 'components/Global/Loading';
+import { APIURL } from 'utils/Enviroment';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -57,6 +61,8 @@ const SelectCliente = (props) => {
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const Comunidad = useSelector(e=>e.comunidadesAutonomas);
     const BloqueoCredito = useSelector(e=>e.Permisos[0].BloqueoCredito);
+    const [loading,setLoading] = useState(false);
+    const [mensaje,setMensaje] = useState("Cargando clientes")
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -79,6 +85,64 @@ const SelectCliente = (props) => {
     var alerta = false;
     var EsVisible = false;
     var options = [];
+
+    const mostrarAdvertencia = (title,text,type)=>{
+        Swal.fire({
+            title: title,
+            text: text,
+            type: type,
+            confirmButtonText: 'Ok',
+        })
+    }
+
+    const recargarClientes = () =>{
+        if (localStorage.getItem("Conexion") === "offline") {
+            mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
+        } else {
+            if (!navigator.onLine) {
+                mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
+            } else {
+                setLoading(true)
+                axios.get(APIURL + "/api/cliente/pedido", {
+                    headers: {
+                        'Authorization':
+                            'Bearer ' + localStorage.getItem('token')
+                    }
+                }).then(data => {
+                    dispatch({ type: 'STORE_CLIENTES', clientes: data.data })
+                    recargarListaPrecios(data.data);
+                }).catch(err => {
+                    console.log(err);
+                    setLoading(false)
+                })
+            }
+        }
+    }
+
+    const recargarListaPrecios = data => {
+        setMensaje("Cargando colecciones")
+        const listaPrecios = [...new Set(data.map(x => x.GrupoPrecio))];
+        const paises = [...new Set(data.map(x => x.EmpresaId))];
+
+        axios.get(APIURL + "/api/colecciones/listaprecios", {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            params: {
+                ListaPrecios: listaPrecios,
+                Paises: paises
+            }
+        })
+            .then(data => { 
+                dispatch({type:'SET_LISTAPRECIOS',payload:data.data});
+                setLoading(false);
+                setMensaje("Cargando clientes")
+            })
+            .catch(err => {
+                setLoading(false);
+                console.log(err)
+            });
+    }
 
    const continuarPedido = ()=>{
     if(props.autocompleteValue.Credito[0].Disponible<=1){
@@ -338,6 +402,7 @@ const SelectCliente = (props) => {
                                 color="primary">
                                 Continuar
                                 </Button>
+                                <Button style={{marginLeft:15}} onClick={recargarClientes} variant="contained" color="primary"><CachedIcon/></Button>
                         </div>
                     </div>
 
@@ -393,6 +458,7 @@ const SelectCliente = (props) => {
 
                 </Dialog>
             }
+            <Loading open={loading} title={mensaje}/>
         </div>
     );
 }

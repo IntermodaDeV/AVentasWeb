@@ -27,7 +27,6 @@ import {
     ExpansionPanelDetails as MuiExpansionPanelDetails,
 } from '@material-ui/core';
 import axios from 'axios';
-import CachedIcon from '@material-ui/icons/Cached';
 import { post,postPedidoStorage } from 'utils/http';
 
 //Components
@@ -115,7 +114,7 @@ class Pedidos extends React.Component {
         NumPedido: '#',
         clientes:[],
         clientesFiltrados:[],
-        paisSeleccionado:null
+        paisSeleccionado:null,
     };
 
 
@@ -198,35 +197,7 @@ class Pedidos extends React.Component {
             this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
     }
 
-    recargarClientes = () =>{
-        axios.get(this.urlApi + "/api/cliente/pedido", {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
-            }
-        }).then(data => {
-            this.props.onStoreClientes(data.data);
-            this.recargarListaPrecios(data.data);
-        }).catch(err => console.log(err))
-    }
-
-    recargarListaPrecios = data => {
-        const listaPrecios = [...new Set(data.map(x => x.GrupoPrecio))];
-        const paises = [...new Set(data.map(x => x.EmpresaId))];
-
-        axios.get(this.urlApi + "/api/colecciones/listaprecios", {
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            params: {
-                ListaPrecios: listaPrecios,
-                Paises: paises
-            }
-        })
-            .then(data => { this.props.onSaveListaPrecios(data.data) })
-            .catch(err => console.log(err));
-    }
-
+    
     cargarTiposPedido = () => {
         fetch(this.urlApi + "/api/tipopedido")
             .then(res => res.json())
@@ -2306,7 +2277,6 @@ class Pedidos extends React.Component {
                         />
                         <Redirect from={this.props.match.url + '/Colecciones'} to={this.props.match.url + '/Colecciones/B'} />
                         <div>
-                            <Button style={{height:45,float:'right',zIndex:9}} onClick={this.recargarClientes} variant="contained" color="primary"><CachedIcon/></Button>
                             {this.props.Paises.length>1 &&
                             <div className="container-fluid" style={{display:'flex',marginBottom:'10px'}}>
                                 <h4>Filtro por pais</h4>
