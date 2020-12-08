@@ -27,6 +27,7 @@ import {
     ExpansionPanelDetails as MuiExpansionPanelDetails,
 } from '@material-ui/core';
 import axios from 'axios';
+import CachedIcon from '@material-ui/icons/Cached';
 import { post,postPedidoStorage } from 'utils/http';
 
 //Components
@@ -128,45 +129,10 @@ class Pedidos extends React.Component {
         }));
     }
     cargarColecciones = (grupoPrecio, empresa) => {
-        //const empresa = localStorage.getItem('empresa')
-        this.setState({
-            loadingColecciones: true
-        });
-        fetch(this.urlApi + "/api/ColeccionesXLinea/" + grupoPrecio+"/"+empresa, {
-            headers: {
-                'Accept-Encoding': 'gzip',
-                'Content-Encoding': 'gzip'
-            }
-        })
-            .then(res => {
-                if (res.status !== 200) {
-                    localStorage.setItem('token', '');
-                    window.location.reload();
-
-                } else {
-                    res.json().then(
-                        (result) => {
-                            this.setState({
-                                loadingColecciones: false
-                            });
-                            
-                            this.props.onStoreColecciones(result);
-                        })
-                }
-
-            },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
-                (error) => {
-                    this.setState({
-                        isLoaded: true,
-                        loadingColecciones: false,
-                        error
-                    });
-                }
-            )
+        let colecciones = this.props.ListaPrecios.filter((x)=>x.GrupoPrecio===grupoPrecio && x.EmpresaId===empresa);
+        this.props.onStoreColecciones(colecciones);
     }
+    
     cargarMaestroLinea = () => {
         fetch(this.urlApi + "/api/maestrolinea/")
             .then(res => {
@@ -230,6 +196,35 @@ class Pedidos extends React.Component {
 
             })
             this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
+    }
+
+    recargarClientes = () =>{
+        axios.get(this.urlApi + "/api/cliente/pedido", {
+            headers: {
+                'Authorization':
+                    'Bearer ' + localStorage.getItem('token')
+            }
+        }).then(data => {
+            this.props.onStoreClientes(data.data);
+            this.recargarListaPrecios(data.data);
+        }).catch(err => console.log(err))
+    }
+
+    recargarListaPrecios = data => {
+        const listaPrecios = [...new Set(data.map(x => x.GrupoPrecio))];
+        const paises = [...new Set(data.map(x => x.EmpresaId))];
+
+        axios.get(this.urlApi + "/api/colecciones/listaprecios", {
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            params: {
+                ListaPrecios: listaPrecios,
+                Paises: paises
+            }
+        })
+            .then(data => { this.props.onSaveListaPrecios(data.data) })
+            .catch(err => console.log(err));
     }
 
     cargarTiposPedido = () => {
@@ -778,15 +773,17 @@ class Pedidos extends React.Component {
                 confirmButtonText: 'Ok'
               })
         }else{
-            //this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
-            this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
-            this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
-            this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
-            this.cargarEmpresasTransporte(this.state.autocompleteValue.EmpresaId);
-            this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
-            //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
+            if(localStorage.getItem("Conexion")==="offline"){
+                this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
+            }else{
+                this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
+                this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
+                this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
+                this.cargarEmpresasTransporte(this.state.autocompleteValue.EmpresaId);
+                this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
+                //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
+            }
             this.props.onSetCliente(this.state.autocompleteValue);
-            this.props.onStoreColecciones([])
             this.props.history.push("/Pedidos/Linea");
         }
     }
@@ -2309,6 +2306,7 @@ class Pedidos extends React.Component {
                         />
                         <Redirect from={this.props.match.url + '/Colecciones'} to={this.props.match.url + '/Colecciones/B'} />
                         <div>
+                            <Button style={{height:45,float:'right',zIndex:9}} onClick={this.recargarClientes} variant="contained" color="primary"><CachedIcon/></Button>
                             {this.props.Paises.length>1 &&
                             <div className="container-fluid" style={{display:'flex',marginBottom:'10px'}}>
                                 <h4>Filtro por pais</h4>
@@ -2495,7 +2493,8 @@ const mapStateToProps = state => {
         flete:state.flete,
         requiereEntrega:state.requiereEntrega,
         impuesto:state.Impuesto,
-        Paises:state.Permisos[0].EmpresasUsuarios
+        Paises:state.Permisos[0].EmpresasUsuarios,
+        ListaPrecios:state.ListaPrecios
     };
 };
 const mapDispatchToProps = dispatch => {
@@ -2526,6 +2525,7 @@ const mapDispatchToProps = dispatch => {
         onStoreImpuestoClientes:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOS',payload:impuestos}),
         onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos}),
         onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
+        onSaveListaPrecios:(precios)=>{dispatch({type:'SET_LISTAPRECIOS',payload:precios})}
     };
 };
 /* const linkButton = {

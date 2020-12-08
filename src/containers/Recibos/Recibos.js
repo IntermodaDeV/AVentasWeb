@@ -26,6 +26,8 @@ import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
 import { get } from 'utils/http';
 import axios from 'axios';
+import Button from '@material-ui/core/Button';
+import CachedIcon from '@material-ui/icons/Cached';
 
 moment.locale('es');
 const Recibos = (props) => {
@@ -331,6 +333,19 @@ const Recibos = (props) => {
     }
   }
 
+  const recargarClientes = ()=>{
+    axios.get(`${urlApi}/api/cliente/cuenta`,{
+      headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          'Content-Type': 'application/json'
+      }})
+      .then(data=>{
+        console.log(data.data)
+        props.onStoreReciboClientes(data.data);
+      })
+      .catch(err=>console.log(err))
+  }
+
   const cargarCliente = async ()=>{
     if(navigator.onLine){
       try{
@@ -514,6 +529,7 @@ const Recibos = (props) => {
       <Route path={props.match.url} exact render={() => (
         <div className="row">
           <div className="col-12">
+          <Button style={{height:45,float:'right'}} onClick={recargarClientes} variant="contained" color="primary"><CachedIcon/></Button>
           {props.Paises.length>1 &&
                 <div className="container-fluid" style={{display:'flex',marginBottom:'10px'}}>
                     <h4>Seleccione un pais</h4>

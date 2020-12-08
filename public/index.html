@@ -86,8 +86,17 @@
     }
 
     const disableF5 = e =>{
-      if(!navigator.onLine){
-        if ((e.which || e.keyCode) == 116) e.preventDefault();
+      alert('Debe disponer de internet para poder actualizar.');
+      if (localStorage.getItem('Conexion') === "offline") {
+        if ((e.which || e.keyCode) == 116) {
+          e.preventDefault();
+        }
+      } else {
+        if (!navigator.onLine) {
+          if ((e.which || e.keyCode) == 116) {
+            e.preventDefault();
+          }
+        }
       }
     }
 
