@@ -53,6 +53,10 @@ const initialState = {
     BancosGlobal:[],
     TipoPagoGlobal:[],
     Configuraciones:null,
+    EmpresaTransporteGlobal:[],
+    PrecioCajasGlobal:[],
+    ClienteImpuestosGlobal:[],
+    ProductoImpuestosGlobal:[],
     TipoVisita:[],
     ListaPrecios:[]
 }
@@ -401,11 +405,27 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if(action.type==='SET_EMPRESASTRANSPORTEGLOBAL')
+    {
+        return{
+            ...state,
+            EmpresaTransporteGlobal:action.payload
+        }
+    }
+
     if(action.type==='SET_PRECIOCAJAS')
     {
         return{
             ...state,
             precioCajas:action.payload
+        }
+    }
+
+    if(action.type==='SET_PRECIOCAJASGLOBAL')
+    {
+        return{
+            ...state,
+            PrecioCajasGlobal:action.payload
         }
     }
 
@@ -425,11 +445,27 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if(action.type==='SET_CLIENTEIMPUESTOSGLOBAL')
+    {
+        return{
+            ...state,
+            ClienteImpuestosGlobal:action.payload
+        }
+    }
+
     if(action.type==='SET_PRODUCTOIMPUESTOS')
     {
         return{
             ...state,
             ProductoImpuestos:action.payload
+        }
+    }
+
+    if(action.type==='SET_PRODUCTOIMPUESTOSGLOBAL')
+    {
+        return{
+            ...state,
+            ProductoImpuestosGlobal:action.payload
         }
     }
 

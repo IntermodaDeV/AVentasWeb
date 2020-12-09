@@ -3,8 +3,8 @@ import moment from 'moment';
 import store from 'store/store';
 import { APIURL } from 'utils/Enviroment';
 
-export const get = async (url, key, subkey) => {
-    var data, error;
+export const get = async (url, key, subkey,config) => {
+    var data, error,configParams;
 
     try {
         data = getLocalStorage(key, subkey);
@@ -13,11 +13,23 @@ export const get = async (url, key, subkey) => {
             return { data, error };
         }
 
-        const request = await axios.get(url, {
-            headers: {
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
+        if(config){
+            debugger;
+            configParams={
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                ...config
             }
-        });
+        }else{
+            configParams={
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            }
+        }
+
+        const request = await axios.get(url, configParams);
 
         data = request.data;
         let fecha = moment(new Date()).format("YYYY-MM-DD");

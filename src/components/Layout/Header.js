@@ -38,7 +38,9 @@ const Header = () => {
     const [Visible, setVisible] = React.useState(null);
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-    const UsuarioOficina = useSelector(e=>e.Permisos[0].UsuarioOficina);
+    const Permisos = useSelector(e=> e.Permisos);
+    const UsuarioOficina = Permisos !== undefined && Permisos !== null && Permisos.length > 0 ? Permisos[0].UsuarioOficina : false;
+   
     const StyledMenu = withStyles({
         paper: {
           border: '1px solid #d3d4d5',
@@ -175,7 +177,7 @@ const Header = () => {
                             aria-haspopup="true"
                             variant="contained"
                             hidden = {UsuarioOficina}
-                            onClick={handleClick}>{localStorage.getItem("Conexion") !== "" ? localStorage.getItem("Conexion") : "Online"}
+                            onClick={handleClick}>{localStorage.getItem("Conexion") !== null? localStorage.getItem("Conexion") : "Online"}
                         </Button>
                             <StyledMenu
                                 id="customized-menu"
