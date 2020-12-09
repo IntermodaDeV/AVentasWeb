@@ -55,18 +55,21 @@ const VerticalLinearStepper = (props) => {
         if(!props.loading){
          return setActiveStep((prevActiveStep) => prevActiveStep + 1);
         }
+        break;
       case 1:
         props.CargaModuloPedidos();
         if(!props.loading){
           return setActiveStep((prevActiveStep) => prevActiveStep + 1);
         }
+        break;
       case 2:
         props.CargaModuloRecibo();
         if(!props.loading){
           return setActiveStep((prevActiveStep) => prevActiveStep + 1);
         }
-      /*default:
-        return setActiveStep((prevActiveStep) => prevActiveStep + 1);*/
+        break;
+      default:
+        return setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
   };
 

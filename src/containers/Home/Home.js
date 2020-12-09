@@ -65,158 +65,181 @@ export const Home = (props) => {
             })
     }
 
-    const cargarComunidadAutonoma = () => {
-        fetch(`${APIURL}/api/transporte/comunidadautonoma`)
-            .then(res => res.json())
-            .then(data => dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data }))
-            .catch(error => this.setState({ error }))
+    const cargarComunidadAutonoma = async () => {
+        setloading(true);
+        setMensaje('Cargando Monedas');
+        const { data, error } = await get(`${APIURL}/api/transporte/comunidadautonoma`, "comunidadesAutonomas");
+        if (error) {
+            setloading(false);
+            console.log(error);
+        } else {
+            setloading(false);
+            dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data });
+        }
+    }
+   
+    const cargarEmpresas = async () => {
+        setloading(true);
+        setMensaje('Cargando Empresas');
+        const { data, error } = await get(`${APIURL}/api/empresa/empresas`, "Empresas");
+        if (error) {
+            setloading(false);
+            console.log(error);
+        } else {
+            setloading(false);
+            dispatch({ type: 'SET_EMPRESAS', payload: data });
+        }
     }
 
-    const cargarEmpresas = () => {
-        fetch(`${APIURL}/api/empresa/empresas`)
-            .then(res => res.json())
-            .then(data => { dispatch({ type: 'SET_EMPRESAS', payload: data }) })
-            .catch(error => console.log(error))
-    }
-
-    const cargarAbreviacionMonedas = () => {
-        fetch(`${APIURL}/api/moneda`)
-            .then(res => res.json())
-            .then(data => { dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data }) })
-            .catch(error => console.log(error))
+    const cargarAbreviacionMonedas = async () => {
+        setloading(true);
+        setMensaje('Cargando Monedas');
+        const { data, error } = await get(`${APIURL}/api/moneda`, "AbreviacionMonedas");
+        if (error) {
+            setloading(false);
+            console.log(error);
+        } else {
+            setloading(false);
+            dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data });
+        }
     }
 
     const cargarMonedas = async () => {
+        setloading(true);
+        setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/moneda/monedas`, "MonedasGlobal");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
+            setloading(false);
             dispatch({ type: "SET_MONEDASGLOBAL", payload: data });
         }
     }
 
     const cargarConfiguraciones = async () => {
+        setloading(true);
+        setMensaje('Cargando Configuraciones');
         const { data, error } = await get(`${APIURL}/api/configuraciones`, "Configuraciones");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
+            setloading(false);
             dispatch({ type: "SET_CONFIGURACIONES", payload: data });
         }
     }
 
     const cargarTipoVisitas = async () => {
+        setloading(true);
+        setMensaje('Cargando Tipo Visitas');
         const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
+            setloading(false);
             dispatch({ type: "SET_TIPOVISITA", payload: data });
         }
     }
 
-    const cargarClientesContado = () => {
-        fetch(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`)
-            .then(res => res.json())
-            .then(data => { dispatch({ type: 'SET_CLIENTESCONTADO', payload: data }) })
-            .catch(error => console.log(error))
+    const cargarClientesContado = async () => {
+        setloading(true);
+        setMensaje('Cargando Clientes de Contado');
+        const { data, error } = await get(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`, "clientesContado");
+        if (error) {
+            setloading(false);
+            console.log(error);
+        } else {
+            setloading(false);
+            dispatch({ type: "SET_CLIENTESCONTADO", payload: data });
+        }
     }
 
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE RECIBOS --------------------------------------*/
 
     const cargarClientesRecibos = async () => {
+        setloading(true);
+        setMensaje('Cargando Clientes de Recibo');
         const { data, error } = await get(`${APIURL}/api/cliente/cuenta`, "Recibo", "clientes");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
+            setloading(false);
             dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data });
         }
     }
 
     const cargarTipoPago = async () => {
+        setloading(true);
+        setMensaje('Cargando tipo de pago');
         const { data, error } = await get(`${APIURL}/api/tipopago`, "TipoPagoGlobal");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
+            setloading(false);
             dispatch({ type: "SET_TIPOPAGOGLOBAL", payload: data });
         }
     }
 
     const cargarBancos = async () => {
+        setloading(true);
+        setMensaje('Cargando Bancos');
         const { data, error } = await get(`${APIURL}/api/banco`, "BancosGlobal");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
+            setloading(false);
             dispatch({ type: "SET_BANCOSGLOBAL", payload: data });
         }
     }
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/
 
-    const cargarMaestroLinea = () => {
+    const cargarMaestroLinea = async () => {
         setloading(true);
         setMensaje('Cargando lineas');
-        fetch(APIURL + "/api/maestrolinea/")
-            .then(res => {
-                if (res.status === 401) {
-                    localStorage.setItem('token', '');
-                    window.location.reload();
-                }
-                if (res.status === 200) {
-                    res.json().then(
-                        (result) => {
-                            setloading(false);
-                            dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: result });
-                        },
-                        (error) => {
-                            this.setState({
-                                isLoaded: true,
-                                error
-                            });
-                        }
-                    )
-                }
-            })
+        const { data, error } = await get(`${APIURL}/api/maestrolinea`, "MaestroLineas");
+        if (error) {
+            setloading(false);
+            console.log(error);
+        } else {
+            setloading(false);
+            dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: data });
+        }
     }
-
-    const cargarTiposColeccion = () => {
+    const cargarTiposColeccion = async () => {
         setloading(true);
         setMensaje('Cargando Tipos Coleccion');
-        fetch(APIURL + "/api/TiposColeccion")
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    setloading(false);
-                    dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: result });
-                },
-                (error) => {
-                    this.setState({
-                        error
-                    });
-                }
-            )
+        const { data, error } = await get(`${APIURL}/api/TiposColeccion`, "TiposColeccion");
+        if (error) {
+            setloading(false);
+            console.log(error);
+        } else {
+            setloading(false);
+            dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: data });
+        }
     }
 
-    const cargarTiposPedido = () => {
+    const cargarTiposPedido = async () => {
         setloading(true);
-        setMensaje('Cargando Tipos Pedido');
-        fetch(APIURL + "/api/tipopedido")
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    setloading(false);
-                    dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: result });
-                },
-                (error) => {
-                    this.setState({
-
-                        error
-                    });
-                }
-            )
+        setMensaje('Cargando Tipos de Pedidos');
+        const { data, error } = await get(`${APIURL}/api/tipopedido`, "TiposPedido");
+        if (error) {
+            setloading(false);
+            console.log(error);
+        } else {
+            setloading(false);
+            dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: data });
+        }
     }
-
+   
     const cargarEmpresasTransporte = async () => {
         setloading(true);
         setMensaje('Cargando Empresas Transporte');
-        const { data, error } = await get(`${APIURL}/api/transporte/empresas`, "TransporteGlobal");
+        const { data, error } = await get(`${APIURL}/api/transporte/empresas`, "EmpresaTransporteGlobal");
         if (error) {
             setloading(false);
             console.log(error);
@@ -242,7 +265,7 @@ export const Home = (props) => {
     const cargarImpuestoClientes = async () => {
         setloading(true);
         setMensaje('Cargando Impuestos Clientes');
-        const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Clientes`, "ImpuestoClientesGlobal");
+        const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Clientes`, "ClienteImpuestosGlobal");
         if (error) {
             setloading(false);
             console.log(error);
@@ -255,7 +278,7 @@ export const Home = (props) => {
     const cargarImpuestoProductos = async () => {
         setloading(true);
         setMensaje('Cargando Impuestos Productos')
-        const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Articulos`, "ImpuestoArticulosGlobal");
+        const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Articulos`, "ProductoImpuestosGlobal");
         if (error) {
             setloading(false);
             console.log(error);
@@ -275,7 +298,7 @@ export const Home = (props) => {
         } else {
             setloading(false);
             cargarListaPrecios(data);
-            dispatch({ type: 'STORE_CLIENTES', payload: data });
+            dispatch({ type: 'STORE_CLIENTES', clientes: data });
         }
     }
 
