@@ -1,26 +1,29 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState } from 'react';
 import { APIURL } from 'utils/Enviroment';
 import { useDispatch } from 'react-redux';
+import { Loading } from 'components/Global/Loading';
 import { get } from 'utils/http';
 import SteperSync from 'containers/Home/SteperSync';
+import { getLocalStorage } from 'utils/http';
+import moment from 'moment';
+import axios from 'axios';
+
 export const Home = (props) => {
     const dispatch = useDispatch();
-    const [loading, setloading] = useState(false);
-    useEffect(() => {
-        // eslint-disable-next-line
-    }, []);
+    const [loading, setloading] = useState(false);  
+    const [mensaje,setMensaje] = useState('');
 
     const CargarModuloConfiguraciones = () => {
-            setloading(true);
-            ObtenerPermisos();
-            cargarEmpresas();
-            cargarAbreviacionMonedas();
-            cargarClientesContado();
-            cargarComunidadAutonoma();
-            cargarMonedas();
-            cargarConfiguraciones();
-            cargarTipoVisitas();
-            setloading(false);
+        setloading(true);
+        ObtenerPermisos();
+        cargarEmpresas();
+        cargarAbreviacionMonedas();
+        cargarClientesContado();
+        cargarComunidadAutonoma();
+        cargarMonedas();
+        cargarConfiguraciones();
+        cargarTipoVisitas();
+        setloading(false);
     }
 
     const CargaModuloRecibo = () => {
@@ -120,14 +123,14 @@ export const Home = (props) => {
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE RECIBOS --------------------------------------*/
 
     const cargarClientesRecibos = async () => {
-        const { data, error } = await get(`${APIURL}/api/cliente/cuenta`, "Recibo","clientes");
+        const { data, error } = await get(`${APIURL}/api/cliente/cuenta`, "Recibo", "clientes");
         if (error) {
-          console.log(error);
+            console.log(error);
         } else {
             dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data });
         }
-      }
-    
+    }
+
     const cargarTipoPago = async () => {
         const { data, error } = await get(`${APIURL}/api/tipopago`, "TipoPagoGlobal");
         if (error) {
@@ -145,9 +148,11 @@ export const Home = (props) => {
             dispatch({ type: "SET_BANCOSGLOBAL", payload: data });
         }
     }
-    /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/  
+    /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/
 
-   const cargarMaestroLinea = () => {
+    const cargarMaestroLinea = () => {
+        setloading(true);
+        setMensaje('Cargando lineas');
         fetch(APIURL + "/api/maestrolinea/")
             .then(res => {
                 if (res.status === 401) {
@@ -157,6 +162,7 @@ export const Home = (props) => {
                 if (res.status === 200) {
                     res.json().then(
                         (result) => {
+                            setloading(false);
                             dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: result });
                         },
                         (error) => {
@@ -171,10 +177,13 @@ export const Home = (props) => {
     }
 
     const cargarTiposColeccion = () => {
+        setloading(true);
+        setMensaje('Cargando Tipos Coleccion');
         fetch(APIURL + "/api/TiposColeccion")
             .then(res => res.json())
             .then(
                 (result) => {
+                    setloading(false);
                     dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: result });
                 },
                 (error) => {
@@ -186,10 +195,13 @@ export const Home = (props) => {
     }
 
     const cargarTiposPedido = () => {
+        setloading(true);
+        setMensaje('Cargando Tipos Pedido');
         fetch(APIURL + "/api/tipopedido")
             .then(res => res.json())
             .then(
                 (result) => {
+                    setloading(false);
                     dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: result });
                 },
                 (error) => {
@@ -202,73 +214,116 @@ export const Home = (props) => {
     }
 
     const cargarEmpresasTransporte = async () => {
+        setloading(true);
+        setMensaje('Cargando Empresas Transporte');
         const { data, error } = await get(`${APIURL}/api/transporte/empresas`, "TransporteGlobal");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
-            dispatch({type:'SET_EMPRESASTRANSPORTEGLOBAL',payload:data});
+            setloading(false);
+            dispatch({ type: 'SET_EMPRESASTRANSPORTEGLOBAL', payload: data });
         }
     }
 
     const cargarPrecioCajas = async () => {
+        setloading(true);
+        setMensaje('Cargando Precio Cajas');
         const { data, error } = await get(`${APIURL}/api/transporte/preciocaja`, "PrecioCajasGlobal");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
-            dispatch({type:'SET_PRECIOCAJASGLOBAL',payload:data});
+            setloading(false);
+            dispatch({ type: 'SET_PRECIOCAJASGLOBAL', payload: data });
         }
     }
 
     const cargarImpuestoClientes = async () => {
+        setloading(true);
+        setMensaje('Cargando Impuestos Clientes');
         const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Clientes`, "ImpuestoClientesGlobal");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
-            dispatch({type:'SET_CLIENTEIMPUESTOSGLOBAL',payload:data});
+            setloading(false);
+            dispatch({ type: 'SET_CLIENTEIMPUESTOSGLOBAL', payload: data });
         }
     }
 
     const cargarImpuestoProductos = async () => {
+        setloading(true);
+        setMensaje('Cargando Impuestos Productos')
         const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Articulos`, "ImpuestoArticulosGlobal");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
-            dispatch({type:'SET_PRODUCTOIMPUESTOSGLOBAL',payload:data});
+            setloading(false);
+            dispatch({ type: 'SET_PRODUCTOIMPUESTOSGLOBAL', payload: data });
         }
     }
 
     const cargarClientesPedidos = async () => {
-        const { data, error } = await get(`${APIURL}/api/cliente/pedido`, "ClientesPedidoGlobal");
+        setloading(true);
+        setMensaje('Cargando Cliente Pedidos')
+        const { data, error } = await get(`${APIURL}/api/cliente/pedido`, "clientes");
         if (error) {
+            setloading(false);
             console.log(error);
         } else {
-            recargarListaPrecios(data);
-            dispatch({type:'STORE_CLIENTES',payload:data});
+            setloading(false);
+            cargarListaPrecios(data);
+            dispatch({ type: 'STORE_CLIENTES', payload: data });
         }
     }
 
-    const recargarListaPrecios = async (clientes) => {
-        const listaPrecios = [...new Set(clientes.map(x => x.GrupoPrecio))];
-        const paises = [...new Set(clientes.map(x => x.EmpresaId))];
+    const cargarListaPrecios = (clientes) => {
+        setloading(true);
+        setMensaje('Cargando Colecciones')
+        let data = getLocalStorage("ListaPrecios");
 
-        const { data, error } = await get(`${APIURL}/colecciones/listaprecios`, "ListaPrecios",null,{params:{ListaPrecios:listaPrecios,Paises:paises}});
-        if (error) {
-            console.log(error);
+        if (data) {
+            setloading(false);
+            dispatch({ type: 'SET_LISTAPRECIOS', payload: data });
         } else {
-            dispatch({type:'SET_LISTAPRECIOS',payload:data});
-        }
+            const listaPrecios = [...new Set(clientes.map(x => x.GrupoPrecio))];
+            const paises = [...new Set(clientes.map(x => x.EmpresaId))];
 
+            axios.get(APIURL + "/api/colecciones/listaprecios", {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                params: {
+                    ListaPrecios: listaPrecios,
+                    Paises: paises
+                }
+            })
+                .then(res => {
+                    dispatch({ type: 'SET_LISTAPRECIOS', payload: res.data });
+                    let fecha = moment(new Date()).format("YYYY-MM-DD");
+                    localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
+                    setloading(false);
+                })
+                .catch(err => {
+                    console.log(err)
+                    setloading(false);
+                });
+        }
     }
+
     return (
         <div style={{ height: '100%' }} className="container-fluid">
             <div class="card-body text-center">
+                <Loading open={loading} title={mensaje}/>
                 <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
-                <hr/>
-                <SteperSync 
-                    CargaModuloRecibo = {CargaModuloRecibo} 
-                    CargarModuloConfiguraciones = {CargarModuloConfiguraciones}
-                    CargaModuloPedidos = {CargaModuloPedidos}
-                    loading = {loading}> 
+                <hr />
+                <SteperSync
+                    CargaModuloRecibo={CargaModuloRecibo}
+                    CargarModuloConfiguraciones={CargarModuloConfiguraciones}
+                    CargaModuloPedidos={CargaModuloPedidos}
+                    loading={loading}>
                 </SteperSync>
             </div>
         </div>
