@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getSteps() {
-  return ['Sincronizar configuraciones', 'Sincronizar Modulo de pedidos', 'Sincronizar Modulo Recibo'];
+  return ['Sincronizar configuraciones', 'Sincronizar Modulo Recibo', 'Sincronizar Modulo de pedidos'];
 }
 
 function getStepContent(step) {
@@ -36,9 +36,9 @@ function getStepContent(step) {
     case 0:
       return "Se sincronizará configuraciones necesarias en sistema";
     case 1:
-      return 'Se sincronizara listado de clientes, paquetes, precios, stock';
+      return "Se sincronizara listado de clientes, monedas, bancos, tipos de pagos";
     case 2:
-      return " Se sincronizara listado de clientes, monedas, bancos, tipos de pagos";
+      return "Se sincronizara listado de clientes, paquetes, precios, stock";
     default:
       return 'Unknown step';
   }

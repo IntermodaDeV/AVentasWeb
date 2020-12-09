@@ -46,6 +46,7 @@ export const Home = (props) => {
         cargarImpuestoClientes();
         cargarImpuestoProductos();
         cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
+        
     }
 
     const CargaModuloRecibo = () => {
@@ -152,7 +153,7 @@ export const Home = (props) => {
             setloading(false);
             dispatch({ type: "SET_TIPOVISITA", payload: data });
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            CargaModuloPedidos();
+            CargaModuloRecibo();
         }
     }
 
@@ -178,11 +179,14 @@ export const Home = (props) => {
         if (error) {
             setloading(false);
             console.log(error);
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            CargaModuloPedidos();
         } else {
             setloading(false);
             dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data });
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            CargaModuloPedidos();
         }
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
 
     const cargarTipoPago = async () => {
@@ -325,7 +329,7 @@ export const Home = (props) => {
             setloading(false);
             dispatch({ type: 'SET_LISTAPRECIOS', payload: data });
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            CargaModuloRecibo();
+            setSyncDiaria(true);
         } else {
             const listaPrecios = [...new Set(clientes.map(x => x.GrupoPrecio))];
             const paises = [...new Set(clientes.map(x => x.EmpresaId))];
@@ -345,13 +349,13 @@ export const Home = (props) => {
                     localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
                     setloading(false);
                     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-                    CargaModuloRecibo();
+                    setSyncDiaria(true);
                 })
                 .catch(err => {
                     console.log(err)
                     setloading(false);
                     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-                    CargaModuloRecibo();
+                    setSyncDiaria(true);
                 });
         }
     }
