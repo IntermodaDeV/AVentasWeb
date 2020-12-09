@@ -120,12 +120,17 @@ class Pedidos extends React.Component {
 
 
     cargarData = () => {
-        Promise.all([this.cargarClientes(),
+        /*Promise.all([this.cargarClientes(),
         this.cargarMaestroLinea(),
         this.cargarTiposColeccion(),
         this.cargarTiposPedido()]).then(this.setState({
             isLoaded: true,
-        }));
+        }));*/
+
+        this.cargarClientes();
+        this.setState({
+            isLoaded: true,
+        })
     }
     cargarColecciones = (grupoPrecio, empresa) => {
         let colecciones = this.props.ListaPrecios.filter((x)=>x.GrupoPrecio===grupoPrecio && x.EmpresaId===empresa);
@@ -161,7 +166,7 @@ class Pedidos extends React.Component {
             })
     }
     cargarClientes = () => {
-        fetch(this.urlApi + "/api/cliente/pedido", {
+        /*fetch(this.urlApi + "/api/cliente/pedido", {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -193,7 +198,7 @@ class Pedidos extends React.Component {
                         )
                 }
 
-            })
+            })*/
             this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
     }
 
@@ -219,11 +224,14 @@ class Pedidos extends React.Component {
 
     cargarMonedas = (empresa) =>{
         ///let empresa = localStorage.getItem('empresa');
-        fetch(`${this.urlApi}/api/moneda/${empresa}`)
+        /*fetch(`${this.urlApi}/api/moneda/${empresa}`)
         .then(res=>res.json())
         .then(data=>{this.props.onSaveMonedas(data)})
-        .catch(error=>console.log(error))
+        .catch(error=>console.log(error))*/
+        let monedasCliente = this.props.MonedasGlobal.filter(x => x.Empresa === empresa);
+        this.props.onSaveMonedas(monedasCliente);
     }
+
     cargarTiposColeccion = () => {
         fetch(this.urlApi + "/api/TiposColeccion")
             .then(res => res.json())
@@ -247,36 +255,44 @@ class Pedidos extends React.Component {
     cargarEmpresasTransporte = (empresa) =>{
         //const empresa = localStorage.getItem('empresa');
 
-        fetch(`${this.urlApi}/api/transporte/${empresa}/empresas`)
+        /*fetch(`${this.urlApi}/api/transporte/${empresa}/empresas`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreEmpresasTransporte(data))
-        .catch(error=>this.setState({error}))
+        .catch(error=>this.setState({error}))*/
+        let empresasTransporteCliente = this.props.EmpresaTransporteGlobal.filter(x => x.COMPANY === empresa);
+        this.props.onStoreEmpresasTransporte(empresasTransporteCliente);
     }
 
     cargarPrecioCajas = (empresa) =>{
         //const empresa = localStorage.getItem('empresa');
 
-        fetch(`${this.urlApi}/api/transporte/${empresa}/preciocaja`)
+        /*fetch(`${this.urlApi}/api/transporte/${empresa}/preciocaja`)
         .then(res=>res.json())
         .then(data=>this.props.onStorePrecioCajas(data))
-        .catch(error=>this.setState({error}))
+        .catch(error=>this.setState({error}))*/
+        let precioCajasCliente = this.props.PrecioCajasGlobal.filter(x => x.COMPANY === empresa);
+        this.props.onStorePrecioCajas(precioCajasCliente);
     }
 
     cargarImpuestoClientes = (empresa) =>{
         //const empresa = localStorage.getItem('empresa');
-        fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/clientes`)
+        /*fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/clientes`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreImpuestoClientes(data))
-        .catch(error=>this.setState({error}))
+        .catch(error=>this.setState({error}))*/
+        let impuestosCliente = this.props.ClienteImpuestosGlobal.filter(x => x.EMPRESA === empresa);
+        this.props.onStoreImpuestoClientes(impuestosCliente);
     }
 
     cargarImpuestoProductos = (empresa) =>{
         //const empresa = localStorage.getItem('empresa');
 
-        fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/articulos`)
+        /*fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/articulos`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreImpuestoProductos(data))
-        .catch(error=>this.setState({error}))
+        .catch(error=>this.setState({error}))*/
+        let impuestoProductosCliente = this.props.ProductoImpuestosGlobal.filter(x=>x.EMPRESA===empresa);
+        this.props.onStoreImpuestoProductos(impuestoProductosCliente);
     }
 
     Alerta = () => {
@@ -746,14 +762,13 @@ class Pedidos extends React.Component {
         }else{
             if(localStorage.getItem("Conexion")==="offline"){
                 this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
-            }else{
-                this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
-                this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
-                this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
-                this.cargarEmpresasTransporte(this.state.autocompleteValue.EmpresaId);
-                this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
-                //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
             }
+            this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
+            this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
+            this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
+            this.cargarEmpresasTransporte(this.state.autocompleteValue.EmpresaId);
+            this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
+            //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
             this.props.onSetCliente(this.state.autocompleteValue);
             this.props.history.push("/Pedidos/Linea");
         }
@@ -2464,7 +2479,12 @@ const mapStateToProps = state => {
         requiereEntrega:state.requiereEntrega,
         impuesto:state.Impuesto,
         Paises:state.Permisos[0].EmpresasUsuarios,
-        ListaPrecios:state.ListaPrecios
+        ListaPrecios:state.ListaPrecios,
+        MonedasGlobal:state.MonedasGlobal,
+        EmpresaTransporteGlobal:state.EmpresaTransporteGlobal,
+        PrecioCajasGlobal:state.PrecioCajasGlobal,
+        ClienteImpuestosGlobal:state.ClienteImpuestosGlobal,
+        ProductoImpuestosGlobal:state.ProductoImpuestosGlobal
     };
 };
 const mapDispatchToProps = dispatch => {
