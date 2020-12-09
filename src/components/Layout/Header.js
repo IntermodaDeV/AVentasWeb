@@ -156,6 +156,9 @@ const Header = () => {
             </MenuItem>
         </Menu>
     );
+    if(localStorage.getItem("Conexion") === null){
+        localStorage.setItem("Conexion", "Online");
+    }
     return (
         <div className={styles.MarginBottomHeader}>
             <AppBar color="default" position="static">
@@ -177,7 +180,7 @@ const Header = () => {
                             aria-haspopup="true"
                             variant="contained"
                             hidden = {UsuarioOficina}
-                            onClick={handleClick}>{localStorage.getItem("Conexion") !== null? localStorage.getItem("Conexion") : "Online"}
+                            onClick={handleClick}>{localStorage.getItem("Conexion")}
                         </Button>
                             <StyledMenu
                                 id="customized-menu"

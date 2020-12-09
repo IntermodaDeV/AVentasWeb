@@ -9,7 +9,8 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { ScaleLoader } from 'react-spinners';
 import { MdCheckCircle } from "react-icons/md";
-
+import CachedIcon from '@material-ui/icons/Cached';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
@@ -45,86 +46,66 @@ function getStepContent(step) {
 
 const VerticalLinearStepper = (props) => {
   const classes = useStyles();
-  const [activeStep, setActiveStep] = React.useState(0);
   const steps = getSteps();
 
-  const handleNext = () => {
-    switch (activeStep) {
-      case 0:
+  const mostrarAdvertencia = (title,text,type)=>{
+    Swal.fire({
+        title: title,
+        text: text,
+        type: type,
+        confirmButtonText: 'Ok',
+    })
+}
+
+  const SyncDiaria = () => {
+    if (localStorage.getItem("Conexion") === "offline") {
+      mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede realizar sincronización diaria.", "warning");
+    }
+    else {
+      if (!navigator.onLine) {
+        mostrarAdvertencia('Sin internet', 'Necesita internet para poder realizar sincronización diaria.', 'warning');
+      }
+      else {
         props.CargarModuloConfiguraciones();
-        if(!props.loading){
-         return setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        }
-        break;
-      case 1:
-        props.CargaModuloPedidos();
-        if(!props.loading){
-          return setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        }
-        break;
-      case 2:
-        props.CargaModuloRecibo();
-        if(!props.loading){
-          return setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        }
-        break;
-      default:
-        return setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      }
     }
   };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const handleReset = () => {
-    setActiveStep(0);
-  };
-
   return (
     <div className={classes.root}>
-      <Stepper activeStep={activeStep} orientation="vertical">
+      <div className={classes.actionsContainer}>
+        <div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={SyncDiaria}
+            className={classes.button}
+          >
+            {props.loading ?
+              <ScaleLoader
+                css={{ height: '25px', bottom: '5px', position: 'relative', transform: 'scale(0.6)' }}
+                size={'20px'}
+                color={'#fff'}
+
+                loading={props.loadingRecibo} /> : "Sincronización Diaria"
+            }
+          </Button>
+
+        </div>
+      </div>
+     
+      <Stepper activeStep={props.activeStep} orientation="vertical">
         {steps.map((label, index) => (
           <Step key={label}>
             <StepLabel><h3>{label}</h3></StepLabel>
             <StepContent>
               <Typography>{getStepContent(index)}</Typography>
-              <div className={classes.actionsContainer}>
-                <div>
-                  <Button
-                    disabled={activeStep === 0}
-                    onClick={handleBack}
-                    className={classes.button}
-                  >
-                    Regresar
-                  </Button>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNext}
-                    className={classes.button}
-                  >
-
-                      {props.loading ?
-                            <ScaleLoader
-                                css={{ height: '25px', bottom: '5px', position: 'relative', transform: 'scale(0.6)' }}
-                                size={'20px'}
-                                color={'#fff'}
-                                loading={props.loadingRecibo} /> : 'Sincronizar'
-                        }
-                  </Button>
-                </div>
-              </div>
             </StepContent>
           </Step>
         ))}
       </Stepper>
-      {activeStep === steps.length && (
+      {props.activeStep === steps.length && (
         <Paper square elevation={0} className={classes.resetContainer}>
-        <Typography><h3 style={{color:'green'}}>Proceso de sincronizacion ejecutado correctamente<MdCheckCircle/></h3></Typography>
-          <Button onClick={handleReset} className={classes.button}>
-            Re-Sincronizar
-          </Button>
+          <Typography><h3 style={{ color: 'green' }}>Proceso de sincronizacion ejecutado correctamente<MdCheckCircle /></h3></Typography>
         </Paper>
       )}
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { APIURL } from 'utils/Enviroment';
 import { useDispatch } from 'react-redux';
 import { Loading } from 'components/Global/Loading';
@@ -7,14 +7,26 @@ import SteperSync from 'containers/Home/SteperSync';
 import { getLocalStorage } from 'utils/http';
 import moment from 'moment';
 import axios from 'axios';
+import { FiAlertTriangle } from 'react-icons/fi';
 
 export const Home = (props) => {
     const dispatch = useDispatch();
     const [loading, setloading] = useState(false);  
     const [mensaje,setMensaje] = useState('');
+    const [activeStep, setActiveStep] = useState(0);
+    const [SyncDiaria, setSyncDiaria] = useState(true);  
+    
+    useEffect(() => {
+        let data = getLocalStorage("ListaPrecios");
+        if(data === null)
+        {
+            dispatch({ type: 'SET_PERMISOS', payload: [] });
+            setSyncDiaria(false);
+        }
+        // eslint-disable-next-line
+    },[])
 
     const CargarModuloConfiguraciones = () => {
-        setloading(true);
         ObtenerPermisos();
         cargarEmpresas();
         cargarAbreviacionMonedas();
@@ -22,20 +34,10 @@ export const Home = (props) => {
         cargarComunidadAutonoma();
         cargarMonedas();
         cargarConfiguraciones();
-        cargarTipoVisitas();
-        setloading(false);
-    }
-
-    const CargaModuloRecibo = () => {
-        setloading(true);
-        cargarBancos();
-        cargarClientesRecibos();
-        cargarTipoPago();
-        setloading(false);
+        cargarTipoVisitas(); ///Siempre debe ser el Ultimo Metodo
     }
 
     const CargaModuloPedidos = () => {
-        setloading(true);
         cargarMaestroLinea();
         cargarTiposColeccion();
         cargarTiposPedido();
@@ -43,9 +45,16 @@ export const Home = (props) => {
         cargarPrecioCajas();
         cargarImpuestoClientes();
         cargarImpuestoProductos();
-        cargarClientesPedidos();
-        setloading(false);
+        cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
     }
+
+    const CargaModuloRecibo = () => {
+        cargarBancos();
+        cargarTipoPago();
+        cargarClientesRecibos();///Siempre debe ser el Ultimo Metodo
+    }
+
+   
     const ObtenerPermisos = () => {
         fetch(`${APIURL}/api/Accesos/${localStorage.getItem('codigo')}`)
             .then(res => {
@@ -137,9 +146,13 @@ export const Home = (props) => {
         if (error) {
             setloading(false);
             console.log(error);
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            CargaModuloPedidos();
         } else {
             setloading(false);
             dispatch({ type: "SET_TIPOVISITA", payload: data });
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            CargaModuloPedidos();
         }
     }
 
@@ -169,6 +182,7 @@ export const Home = (props) => {
             setloading(false);
             dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data });
         }
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
     }
 
     const cargarTipoPago = async () => {
@@ -297,8 +311,8 @@ export const Home = (props) => {
             console.log(error);
         } else {
             setloading(false);
-            cargarListaPrecios(data);
             dispatch({ type: 'STORE_CLIENTES', clientes: data });
+            cargarListaPrecios(data);
         }
     }
 
@@ -310,6 +324,8 @@ export const Home = (props) => {
         if (data) {
             setloading(false);
             dispatch({ type: 'SET_LISTAPRECIOS', payload: data });
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            CargaModuloRecibo();
         } else {
             const listaPrecios = [...new Set(clientes.map(x => x.GrupoPrecio))];
             const paises = [...new Set(clientes.map(x => x.EmpresaId))];
@@ -328,10 +344,14 @@ export const Home = (props) => {
                     let fecha = moment(new Date()).format("YYYY-MM-DD");
                     localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
                     setloading(false);
+                    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                    CargaModuloRecibo();
                 })
                 .catch(err => {
                     console.log(err)
                     setloading(false);
+                    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                    CargaModuloRecibo();
                 });
         }
     }
@@ -342,11 +362,19 @@ export const Home = (props) => {
                 <Loading open={loading} title={mensaje}/>
                 <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
                 <hr />
+                {
+                    SyncDiaria === false &&
+                    <div style ={{textAlign:'center',fontSize: '26px'}} className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <FiAlertTriangle style={{ fontSize: '30px', color: 'red'}} /> ¡Necesita realizar la sincronización diaria obligatoria para acceder al sistema!
+                    </div>
+                }
+                
                 <SteperSync
                     CargaModuloRecibo={CargaModuloRecibo}
                     CargarModuloConfiguraciones={CargarModuloConfiguraciones}
                     CargaModuloPedidos={CargaModuloPedidos}
-                    loading={loading}>
+                    loading={loading}
+                    activeStep = {activeStep}>
                 </SteperSync>
             </div>
         </div>
