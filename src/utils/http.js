@@ -143,3 +143,17 @@ const backgroundPost = async (url, info) => {
         return { data, error: err }
     }
 }
+
+export const verificarConexion = async() => {
+    if (navigator.onLine) {
+        try {
+            // eslint-disable-next-line
+            const request = await axios.get(APIURL + "/api/configuraciones/conexion");
+            return true;
+        } catch (err) {
+            return false;
+        }
+    } else {
+        return false;
+    }
+}
