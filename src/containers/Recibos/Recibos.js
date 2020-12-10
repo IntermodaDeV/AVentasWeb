@@ -291,44 +291,46 @@ const Recibos = (props) => {
   }
 
   const cargarClientes = async () => {
-    /*fetch(urlApi + '/api/cliente/cuenta', {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token')
-      }
-    }).then(res => {
-      if (res.status === 401) {
-        localStorage.setItem('token', '')
-        window.location.reload()
-      }
-      if (res.status === 200) {
-        res.json().then(
-          result => {
-            setLoading(false);
-            props.onStoreReciboClientes(result);
-            setClientes(result);
-            setClientesFiltrados(result);
-          },
-          // Note: it's important to handle errors here
-          // instead of a catch() block so that we don't swallow
-          // exceptions from actual bugs in components.
-          error => {
+    if (props.UsuarioOficina) {
+      fetch(urlApi + '/api/cliente/cuenta', {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token')
+        }
+      }).then(res => {
+        if (res.status === 401) {
+          localStorage.setItem('token', '')
+          window.location.reload()
+        }
+        if (res.status === 200) {
+          res.json().then(
+            result => {
+              setLoading(false);
+              props.onStoreReciboClientes(result);
+              setClientes(result);
+              setClientesFiltrados(result);
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            error => {
 
-          }
-        )
-      }
-    })
+            }
+          )
+        }
+      })
 
-    setClientes(props.clientes);
-    setClientesFiltrados(props.clientes);*/
-
-    const { data, error } = await get(`${urlApi}/api/cliente/cuenta`, "Recibo","clientes");
-    if (error) {
-      console.log(error);
+      setClientes(props.clientes);
+      setClientesFiltrados(props.clientes);
     } else {
-      setLoading(false);
-      props.onStoreReciboClientes(data);
-      setClientes(data);
-      setClientesFiltrados(data);
+      const { data, error } = await get(`${urlApi}/api/cliente/cuenta`, "Recibo", "clientes");
+      if (error) {
+        console.log(error);
+      } else {
+        setLoading(false);
+        props.onStoreReciboClientes(data);
+        setClientes(data);
+        setClientesFiltrados(data);
+      }
     }
   }
 
@@ -671,7 +673,8 @@ const mapStateToProps = state => {
     cuotasCuentaCorriente: state.Recibo.cuotasCuentaCorriente,
     monedasGlobal:state.MonedasGlobal,
     loading: state.Recibo.loading,
-    Paises:state.Permisos[0].EmpresasUsuarios
+    Paises:state.Permisos[0].EmpresasUsuarios,
+    UsuarioOficina:state.Permisos[0].UsuarioOficina
   };
 };
 const mapDispatchToProps = dispatch => {

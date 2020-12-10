@@ -166,40 +166,43 @@ class Pedidos extends React.Component {
             })
     }
     cargarClientes = () => {
-        /*fetch(this.urlApi + "/api/cliente/pedido", {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
+        if (this.props.UsuarioOficina) {
+            fetch(this.urlApi + "/api/cliente/pedido", {
+                headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token')
 
-            }
-        })
-            .then(res => {
-                if (res.status === 401) {
-                    localStorage.setItem('token', '');
-                    window.location.reload();
                 }
-                if (res.status === 200) {
-                    res.json()
-                        .then(
-                            (result) => {
-                                this.props.onStoreClientes(result);
-                                this.setState((prevState)=>({...prevState,clientes:result,clientesFiltrados:result}));
-                            },
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                this.setState({
+            })
+                .then(res => {
+                    if (res.status === 401) {
+                        localStorage.setItem('token', '');
+                        window.location.reload();
+                    }
+                    if (res.status === 200) {
+                        res.json()
+                            .then(
+                                (result) => {
+                                    this.props.onStoreClientes(result);
+                                    this.setState((prevState) => ({ ...prevState, clientes: result, clientesFiltrados: result }));
+                                },
+                                // Note: it's important to handle errors here
+                                // instead of a catch() block so that we don't swallow
+                                // exceptions from actual bugs in components.
+                                (error) => {
+                                    this.setState({
 
-                                    error
-                                });
-                                this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
-                            }
-                        )
-                }
+                                        error
+                                    });
+                                    this.setState((prevState) => ({ ...prevState, clientes: this.props.clientes, clientesFiltrados: this.props.clientes }));
+                                }
+                            )
+                    }
 
-            })*/
-            this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
+                })
+        } else {
+            this.setState((prevState) => ({ ...prevState, clientes: this.props.clientes, clientesFiltrados: this.props.clientes }));
+        }
     }
 
     
@@ -2486,7 +2489,8 @@ const mapStateToProps = state => {
         EmpresaTransporteGlobal:state.EmpresaTransporteGlobal,
         PrecioCajasGlobal:state.PrecioCajasGlobal,
         ClienteImpuestosGlobal:state.ClienteImpuestosGlobal,
-        ProductoImpuestosGlobal:state.ProductoImpuestosGlobal
+        ProductoImpuestosGlobal:state.ProductoImpuestosGlobal,
+        UsuarioOficina:state.Permisos[0].UsuarioOficina
     };
 };
 const mapDispatchToProps = dispatch => {

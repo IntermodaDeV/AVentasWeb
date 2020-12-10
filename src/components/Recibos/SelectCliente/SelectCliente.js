@@ -84,6 +84,23 @@ const SelectCliente = (props) => {
         }
     }
 
+    const handleRecarga = () => {
+        Swal.fire({
+            title: 'Aviso',
+            text: '¿Desea actualizar la información en el modulo de recibos?',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                recargarClientes();
+            }
+        })
+    }
+
     const handleOnChange = (value) => {
         var val = JSON.parse(value);
 
@@ -159,7 +176,7 @@ const SelectCliente = (props) => {
                                 color="primary">
                                 Continuar
                             </Button>
-                            <Button style={{marginLeft:15}} onClick={recargarClientes} variant="contained" color="primary"><CachedIcon/></Button>
+                            <Button style={{marginLeft:15}} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon/></Button>
                         </div>
                         <Loading open={loading} title={"Cargando clientes"}/>
                     </div>

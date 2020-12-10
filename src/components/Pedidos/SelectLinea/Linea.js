@@ -10,12 +10,13 @@ import {
 } from "@material-ui/core";
 import nodisponible from 'assets/nodisponible.png';
 import { APIURL } from 'utils/Enviroment';
-import {useDispatch} from 'react-redux';
+import {useDispatch,useSelector} from 'react-redux';
 import { verificarConexion } from 'utils/http';
 
 const Linea = (props) => {
     const [Raised, setRaised] = React.useState(false);
     const dispatch = useDispatch();
+    const usuarioOficina = useSelector(e=>e.Permisos[0].UsuarioOficina);
     let imagen = props.Linea.Imagen !== null ? props.Linea.Imagen : nodisponible;
 
     if (props.Linea.Imagen === null) {
@@ -39,12 +40,18 @@ const Linea = (props) => {
     }
 
     const cargarColecciones = async () => {
-        let isOnline = await verificarConexion();
-        props.setLinea(props.Linea);
-        if(localStorage.getItem("Conexion")==="Online" && isOnline){
+        if (usuarioOficina) {
             fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}`)
-            .then(res=>res.json())
-            .then(data=>dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
+                .then(res => res.json())
+                .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
+        } else {
+            let isOnline = await verificarConexion();
+            props.setLinea(props.Linea);
+            if (localStorage.getItem("Conexion") === "Online" && isOnline) {
+                fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}`)
+                    .then(res => res.json())
+                    .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
+            }
         }
     }
 
