@@ -15,18 +15,22 @@ export const Home = (props) => {
     const [mensaje,setMensaje] = useState('');
     const [activeStep, setActiveStep] = useState(0);
     const [SyncDiaria, setSyncDiaria] = useState(true);  
+    const [UsuarioOficina, setUsuarioOficina] = useState(false);  
     
     useEffect(() => {
         let data = getLocalStorage("ListaPrecios");
         if(data === null)
         {
             dispatch({ type: 'SET_PERMISOS', payload: [] });
+            localStorage.setItem("OcurrioError", false)
             setSyncDiaria(false);
         }
         // eslint-disable-next-line
     },[])
 
     const CargarModuloConfiguraciones = () => {
+        setloading(true);
+        ////Configuracion General
         ObtenerPermisos();
         cargarEmpresas();
         cargarAbreviacionMonedas();
@@ -34,29 +38,31 @@ export const Home = (props) => {
         cargarComunidadAutonoma();
         cargarMonedas();
         cargarConfiguraciones();
+
+         ////Configuracion De Pedido
+         cargarMaestroLinea();
+         cargarTiposColeccion();
+         cargarTiposPedido(); 
+         cargarEmpresasTransporte(); 
+         cargarPrecioCajas(); 
+         cargarImpuestoClientes(); 
+         cargarImpuestoProductos();
+        /////Configuracion De Recibos
+        cargarBancos();
+        cargarTipoPago();
         cargarTipoVisitas(); ///Siempre debe ser el Ultimo Metodo
     }
 
-    const CargaModuloPedidos = () => {
-        cargarMaestroLinea();
-        cargarTiposColeccion();
-        cargarTiposPedido();
-        cargarEmpresasTransporte();
-        cargarPrecioCajas();
-        cargarImpuestoClientes();
-        cargarImpuestoProductos();
-        cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
-        
-    }
-
     const CargaModuloRecibo = () => {
-        cargarBancos();
-        cargarTipoPago();
         cargarClientesRecibos();///Siempre debe ser el Ultimo Metodo
     }
 
+    const CargaModuloPedidos = () => {
+        cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
+        
+    }
    
-    const ObtenerPermisos = () => {
+    const ObtenerPermisos = async () => {
         fetch(`${APIURL}/api/Accesos/${localStorage.getItem('codigo')}`)
             .then(res => {
                 if (res.status === 401) {
@@ -65,6 +71,7 @@ export const Home = (props) => {
                 if (res.status === 200) {
                     res.json()
                         .then(data => {
+                            setUsuarioOficina(data[0].UsuarioOficina)
                             dispatch({ type: 'SET_PERMISOS', payload: data });
                         },
                             (error) => {
@@ -76,96 +83,96 @@ export const Home = (props) => {
     }
 
     const cargarComunidadAutonoma = async () => {
-        setloading(true);
         setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/transporte/comunidadautonoma`, "comunidadesAutonomas");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data });
         }
     }
    
     const cargarEmpresas = async () => {
-        setloading(true);
         setMensaje('Cargando Empresas');
         const { data, error } = await get(`${APIURL}/api/empresa/empresas`, "Empresas");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'SET_EMPRESAS', payload: data });
         }
     }
 
     const cargarAbreviacionMonedas = async () => {
-        setloading(true);
         setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/moneda`, "AbreviacionMonedas");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data });
         }
     }
 
     const cargarMonedas = async () => {
-        setloading(true);
         setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/moneda/monedas`, "MonedasGlobal");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: "SET_MONEDASGLOBAL", payload: data });
         }
     }
 
     const cargarConfiguraciones = async () => {
-        setloading(true);
         setMensaje('Cargando Configuraciones');
         const { data, error } = await get(`${APIURL}/api/configuraciones`, "Configuraciones");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: "SET_CONFIGURACIONES", payload: data });
         }
     }
 
     const cargarTipoVisitas = async () => {
-        setloading(true);
+        console.log("UsuarioOficina",UsuarioOficina)
         setMensaje('Cargando Tipo Visitas');
         const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            CargaModuloPedidos();
+           
+            if(UsuarioOficina){
+                setSyncDiaria(true);
+                
+            }
+            else{
+                CargaModuloRecibo();
+            }
         } else {
-            setloading(false);
             dispatch({ type: "SET_TIPOVISITA", payload: data });
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            CargaModuloRecibo();
+            if(UsuarioOficina){
+                setSyncDiaria(true);
+                
+            }
+            else{
+                CargaModuloRecibo();
+            }
         }
     }
 
     const cargarClientesContado = async () => {
-        setloading(true);
         setMensaje('Cargando Clientes de Contado');
         const { data, error } = await get(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`, "clientesContado");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: "SET_CLIENTESCONTADO", payload: data });
         }
     }
@@ -173,16 +180,14 @@ export const Home = (props) => {
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE RECIBOS --------------------------------------*/
 
     const cargarClientesRecibos = async () => {
-        setloading(true);
         setMensaje('Cargando Clientes de Recibo');
         const { data, error } = await get(`${APIURL}/api/cliente/cuenta`, "Recibo", "clientes");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             CargaModuloPedidos();
         } else {
-            setloading(false);
             dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data });
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             CargaModuloPedidos();
@@ -190,27 +195,23 @@ export const Home = (props) => {
     }
 
     const cargarTipoPago = async () => {
-        setloading(true);
         setMensaje('Cargando tipo de pago');
         const { data, error } = await get(`${APIURL}/api/tipopago`, "TipoPagoGlobal");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: "SET_TIPOPAGOGLOBAL", payload: data });
         }
     }
 
     const cargarBancos = async () => {
-        setloading(true);
         setMensaje('Cargando Bancos');
         const { data, error } = await get(`${APIURL}/api/banco`, "BancosGlobal");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: "SET_BANCOSGLOBAL", payload: data });
         }
     }
@@ -221,115 +222,99 @@ export const Home = (props) => {
         setMensaje('Cargando lineas');
         const { data, error } = await get(`${APIURL}/api/maestrolinea`, "MaestroLineas");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: data });
         }
     }
     const cargarTiposColeccion = async () => {
-        setloading(true);
         setMensaje('Cargando Tipos Coleccion');
         const { data, error } = await get(`${APIURL}/api/TiposColeccion`, "TiposColeccion");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: data });
         }
     }
 
     const cargarTiposPedido = async () => {
-        setloading(true);
         setMensaje('Cargando Tipos de Pedidos');
         const { data, error } = await get(`${APIURL}/api/tipopedido`, "TiposPedido");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: data });
         }
     }
    
     const cargarEmpresasTransporte = async () => {
-        setloading(true);
         setMensaje('Cargando Empresas Transporte');
         const { data, error } = await get(`${APIURL}/api/transporte/empresas`, "EmpresaTransporteGlobal");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'SET_EMPRESASTRANSPORTEGLOBAL', payload: data });
         }
     }
 
     const cargarPrecioCajas = async () => {
-        setloading(true);
         setMensaje('Cargando Precio Cajas');
         const { data, error } = await get(`${APIURL}/api/transporte/preciocaja`, "PrecioCajasGlobal");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'SET_PRECIOCAJASGLOBAL', payload: data });
         }
     }
 
     const cargarImpuestoClientes = async () => {
-        setloading(true);
         setMensaje('Cargando Impuestos Clientes');
         const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Clientes`, "ClienteImpuestosGlobal");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'SET_CLIENTEIMPUESTOSGLOBAL', payload: data });
         }
     }
 
     const cargarImpuestoProductos = async () => {
-        setloading(true);
         setMensaje('Cargando Impuestos Productos')
         const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Articulos`, "ProductoImpuestosGlobal");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'SET_PRODUCTOIMPUESTOSGLOBAL', payload: data });
         }
     }
 
     const cargarClientesPedidos = async () => {
-        setloading(true);
         setMensaje('Cargando Cliente Pedidos')
         const { data, error } = await get(`${APIURL}/api/cliente/pedido`, "clientes");
         if (error) {
-            setloading(false);
+            localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
-            setloading(false);
             dispatch({ type: 'STORE_CLIENTES', clientes: data });
             cargarListaPrecios(data);
         }
     }
 
     const cargarListaPrecios = (clientes) => {
-        setloading(true);
         setMensaje('Cargando Colecciones')
         let data = getLocalStorage("ListaPrecios");
 
         if (data) {
-            setloading(false);
             dispatch({ type: 'SET_LISTAPRECIOS', payload: data });
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             setSyncDiaria(true);
+            setloading(false);
         } else {
             const listaPrecios = [...new Set(clientes.map(x => x.GrupoPrecio))];
             const paises = [...new Set(clientes.map(x => x.EmpresaId))];
@@ -347,15 +332,16 @@ export const Home = (props) => {
                     dispatch({ type: 'SET_LISTAPRECIOS', payload: res.data });
                     let fecha = moment(new Date()).format("YYYY-MM-DD");
                     localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
-                    setloading(false);
                     setActiveStep((prevActiveStep) => prevActiveStep + 1);
                     setSyncDiaria(true);
+                    setloading(false);
                 })
                 .catch(err => {
+                    localStorage.setItem("OcurrioError", true)
                     console.log(err)
-                    setloading(false);
                     setActiveStep((prevActiveStep) => prevActiveStep + 1);
                     setSyncDiaria(true);
+                    setloading(false);
                 });
         }
     }
@@ -374,9 +360,7 @@ export const Home = (props) => {
                 }
                 
                 <SteperSync
-                    CargaModuloRecibo={CargaModuloRecibo}
                     CargarModuloConfiguraciones={CargarModuloConfiguraciones}
-                    CargaModuloPedidos={CargaModuloPedidos}
                     loading={loading}
                     activeStep = {activeStep}>
                 </SteperSync>

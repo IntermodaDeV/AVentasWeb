@@ -106,7 +106,7 @@ const VerticalLinearStepper = (props) => {
       </Stepper>
       {props.activeStep === steps.length && (
         <Paper square elevation={0} className={classes.resetContainer}>
-          <Typography><h3 style={{ color: 'green' }}>Proceso de sincronizacion ejecutado correctamente<MdCheckCircle /></h3></Typography>
+          <Typography><h3 style={{ color: localStorage.getItem("OcurrioError") === "false" ? 'green' :'red' }}>{localStorage.getItem("OcurrioError") === "false" ?"Proceso de sincronizacion ejecutado correctamente" : "Proceso de sincronizacion ejecutado con errores"}<MdCheckCircle /></h3></Typography>     
         </Paper>
       )}
     </div>

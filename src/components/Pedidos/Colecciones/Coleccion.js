@@ -13,7 +13,7 @@ import {
 import styles from "components/Pedidos/Colecciones/Coleccion.module.css";
 import {useSelector,useDispatch} from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
-
+import { verificarConexion } from 'utils/http';
 import 'moment/locale/es'
 moment.locale('es');
 
@@ -30,11 +30,12 @@ const Coleccion = (props) => {
   const dispatch = useDispatch();
   const coleccion = useSelector(e=>e.coleccion);
   
-  const selectColeccion = ()=>{
+  const selectColeccion = async ()=>{
+    let isOnline = await verificarConexion();
     let HoraIngreso = localStorage.getItem('HoraIngreso');
     let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
 
-    if (localStorage.getItem("Conexion") === "Online") {
+    if (localStorage.getItem("Conexion") === "Online" && isOnline) {
       if (props.coleccion.CodigoColeccion !== localStorage.getItem('ColeccionSeleccionada') || coleccion === null || coleccion.Edades === undefined || coleccion.Edades.length === 0 || HoraActual > HoraIngreso) {
         fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${localStorage.getItem('empresa')}`)
           .then(res => res.json())
