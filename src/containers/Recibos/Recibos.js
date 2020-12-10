@@ -26,6 +26,7 @@ import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
 import { get } from 'utils/http';
 import axios from 'axios';
+import { verificarConexion } from 'utils/http';
 
 moment.locale('es');
 const Recibos = (props) => {
@@ -332,7 +333,8 @@ const Recibos = (props) => {
   }
 
   const cargarCliente = async ()=>{
-    if(navigator.onLine){
+    let isOnline = await verificarConexion();
+    if(isOnline){
       try{
         let request = await axios.get(`${urlApi}/api/cliente/cuenta/${props.clienteSelected.Codigo}`,{headers:{Authorization: 'Bearer ' + localStorage.getItem('token')}});
         let clientesStorage = props.clientes;

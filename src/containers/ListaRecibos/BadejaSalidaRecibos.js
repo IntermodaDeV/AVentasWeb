@@ -21,6 +21,7 @@ import axios from 'axios';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle   from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { verificarConexion } from 'utils/http';
 moment.locale('es');
 
 const BadejaSalidaRecibos = (props) => {
@@ -59,10 +60,10 @@ const BadejaSalidaRecibos = (props) => {
         }
     })
     const Sincronizar = async (reciboId) => {
-
+        let isOnline = await verificarConexion();
         try{
 
-            if(navigator.onLine){
+            if(isOnline){
                 setLoading(true);
                 const recibo = RecibosCache.find(x=>x.ReciboId===reciboId);
                 let Ruta =recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/Recibo';

@@ -15,7 +15,7 @@ import AsignacionModal from 'components/Agenda/AsignacionModal';
 import CargarAsignaciones from 'components/Agenda/CargarAsignaciones';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import 'sweetalert2/src/sweetalert2.scss'
-
+import { verificarConexion } from 'utils/http';
 import {
     Card,
     CardBody,
@@ -759,8 +759,9 @@ class Asignacion extends Component {
         });
     }
 
-    onClick = () => {
-        if (navigator.onLine) {
+    onClick = async () => {
+        let isOnline = await verificarConexion();
+        if (isOnline) {
             this.setState({
                 GuardarAsignacion: true,
             })

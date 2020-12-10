@@ -32,6 +32,7 @@ import CachedIcon from '@material-ui/icons/Cached';
 import axios from 'axios';
 import { Loading } from 'components/Global/Loading';
 import { APIURL } from 'utils/Enviroment';
+import { verificarConexion } from 'utils/http';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -95,11 +96,12 @@ const SelectCliente = (props) => {
         })
     }
 
-    const recargarClientes = () =>{
+    const recargarClientes = async () =>{
+        let isOnline = await verificarConexion();
         if (localStorage.getItem("Conexion") === "offline") {
             mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
         } else {
-            if (!navigator.onLine) {
+            if (!isOnline) {
                 mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
             } else {
                 setLoading(true)

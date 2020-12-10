@@ -15,7 +15,7 @@ import CustomFooter from 'components/Layout/CustomFooter';
 import { IsAllow } from 'components/Seguridad/Permisos';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-
+import { verificarConexion } from 'utils/http';
 moment.locale('es');
 
 export const ListaReciboCreditos = (props) => {
@@ -158,11 +158,12 @@ export const ListaReciboCreditos = (props) => {
     }
 
     const sincronizar = async (recibo) => {
+        let isOnline = await verificarConexion();
         let ruta = `${APIURL}/api/Recibo/Pendiente/${recibo.recibo}`;
         if (recibo.anticipo) {
             ruta = `${APIURL}/api/Recibo/Anticipo/Pendiente/${recibo.recibo}`;
         }
-        if (navigator.onLine) {
+        if (isOnline) {
             try {
                 setLoading(true);
                 const request = await axios.post(ruta);

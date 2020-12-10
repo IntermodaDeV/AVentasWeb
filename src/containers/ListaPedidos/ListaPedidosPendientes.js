@@ -18,6 +18,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { FiAlertTriangle } from 'react-icons/fi';
 import Dialog        from '@material-ui/core/Dialog';
 import { Loading } from 'components/Global/Loading';
+import { verificarConexion } from 'utils/http';
 
 moment.locale('es');
 
@@ -91,7 +92,8 @@ export const ListaPedidosPendientes = (props) => {
     }
 
     const sincronizarPedido = async (pedido)=>{
-        if(navigator.onLine){
+        let isOnline = await verificarConexion();
+        if(isOnline){
             try{
                 setLoading(true);
                 const request = await axios.post(urlApi + "/api/PedidosXCliente/sincronizar/"+pedido);

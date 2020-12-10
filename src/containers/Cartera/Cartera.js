@@ -22,6 +22,7 @@ import CachedIcon from '@material-ui/icons/Cached';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import axios from 'axios';
 import { Dropdown } from "semantic-ui-react";
+import { verificarConexion } from 'utils/http';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
@@ -68,8 +69,9 @@ export const Cartera = props => {
         }
     }
 
-    const recargarClientes = () =>{
-        if(navigator.onLine){
+    const recargarClientes = async () =>{
+        let isOnline = await verificarConexion();
+        if(isOnline){
             localStorage.removeItem('expiracion-Cartera');
             setCliente(undefined);
             setLoading(true);

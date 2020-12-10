@@ -20,6 +20,7 @@ import { FiAlertTriangle } from 'react-icons/fi';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle   from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { verificarConexion } from 'utils/http';
 moment.locale('es');
 
 const BandejaSalida = (props) => {
@@ -54,8 +55,9 @@ const BandejaSalida = (props) => {
     }, []);
 
     const Sincronizar = async (pedidoId) =>{
+        let isOnline = await verificarConexion();
         try{
-            if(navigator.onLine){
+            if(isOnline){
                 setLoading(true);
                 const pedido = PedidosCache.find(x=>x.PedidoId===pedidoId);
                 const request = await axios.post(urlApi +'/api/PedidosXCliente', pedido, {

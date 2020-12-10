@@ -9,7 +9,7 @@ import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { ScaleLoader } from 'react-spinners';
 import { MdCheckCircle } from "react-icons/md";
-import CachedIcon from '@material-ui/icons/Cached';
+import { verificarConexion } from 'utils/http';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -57,12 +57,13 @@ const VerticalLinearStepper = (props) => {
     })
 }
 
-  const SyncDiaria = () => {
+  const SyncDiaria = async () => {
+    let isOnline = await verificarConexion();
     if (localStorage.getItem("Conexion") === "offline") {
       mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede realizar sincronización diaria.", "warning");
     }
     else {
-      if (!navigator.onLine) {
+      if (!isOnline) {
         mostrarAdvertencia('Sin internet', 'Necesita internet para poder realizar sincronización diaria.', 'warning');
       }
       else {

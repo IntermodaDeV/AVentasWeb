@@ -30,9 +30,10 @@ export const get = async (url, key, subkey) => {
 }
 
 export const post = async (url, info, action) => {
+    let isOnline = await verificarConexion();
     var data, error;
     try {
-        if (navigator.onLine) {
+        if (isOnline) {
             const request = await axios.post(url, info, {
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -67,12 +68,13 @@ export const postPedidoStorage = (info)=>{
 }
 
 export const backgroundPostPedidos = async () => {
+    let isOnline = await verificarConexion();
     const url = APIURL + "/api/PedidosXCliente";
     const globalState = store.getState();
     const pedidoSincronizar = globalState["PedidoSincronizar"];
     let newPedidoSincronizar = [];
 
-    if (navigator.onLine && pedidoSincronizar.length > 0) {
+    if (isOnline && pedidoSincronizar.length > 0) {
         for (let pedido of pedidoSincronizar) {
             const { error } = await backgroundPost(url, pedido);
 
@@ -86,12 +88,13 @@ export const backgroundPostPedidos = async () => {
 }
 
 export const backgroundPostRecibos = async () => {
+    let isOnline = await verificarConexion();
     const url = APIURL + "/api/Recibo";
     const globalState = store.getState();
     const reciboSincronizar = globalState["ReciboSincronizar"];
     let newReciboSincronizar = [];
 
-    if (navigator.onLine && reciboSincronizar.length > 0) {
+    if (isOnline && reciboSincronizar.length > 0) {
         for (let recibo of reciboSincronizar) {
             const { error } = await backgroundPost(url, recibo);
 

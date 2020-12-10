@@ -17,6 +17,7 @@ import { FaEye } from "react-icons/fa";
 import MySnackbarContentWrapper from 'components/Global/snackbar';
 import Snackbar from '@material-ui/core/Snackbar';
 import {useSelector, useDispatch} from 'react-redux';
+import { verificarConexion } from 'utils/http';
 moment.locale('es');
 
 const urlApi = APIURL
@@ -527,9 +528,10 @@ const DetalleRecibo = (props) => {
         });
     }
 
-    const EnviarReciboApi = (location) => {
+    const EnviarReciboApi = async (location) => {
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
-        if(!navigator.onLine)
+        let isOnline = await verificarConexion();
+        if(!isOnline)
         {
             let ValorPago = Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0));
             let ReciboCache = {

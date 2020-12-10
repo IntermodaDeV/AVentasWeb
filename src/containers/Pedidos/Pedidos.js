@@ -58,7 +58,7 @@ import FiltroChips from 'components/Pedidos/ProductoLista/FiltroChips';
 import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
-
+import { verificarConexion } from 'utils/http';
 
 const ReactSwal = withReactContent(Swal)
 
@@ -1173,7 +1173,8 @@ class Pedidos extends React.Component {
     }
 
     enviarPedidoAx = async (pedido) =>{
-        if(navigator.onLine){
+        let isOnline = await verificarConexion();
+        if(isOnline){
             try{
                 const request = await axios.post(this.urlApi + "/api/PedidosXCliente/postax",pedido,{
                     headers: {
@@ -1202,7 +1203,7 @@ class Pedidos extends React.Component {
     
   
     enviarPeticionPedido = async (location, correlativo) => {
-
+        let isOnline = await verificarConexion();
         let pedido = {
             NumeroReferencia : correlativo,
             PedidoId: 100 + (Math.random() * (10000 - 100)),
@@ -1269,7 +1270,7 @@ class Pedidos extends React.Component {
             }
         })
 
-        if(!navigator.onLine){
+        if(!isOnline){
             Swal.fire({
                 type: 'warning',
                 title: 'Advertencia',
@@ -1408,8 +1409,9 @@ class Pedidos extends React.Component {
 
         }*/
     }
-    SendEmailPDF = () => {
-        if (navigator.onLine) {
+    SendEmailPDF = async () => {
+        let isOnline = await verificarConexion();
+        if (isOnline) {
             var element = document.getElementById("invoice-POS");
             html2canvas(element).then(canvas => {
                 var data = canvas.toDataURL('image/jpeg', 1.0);
