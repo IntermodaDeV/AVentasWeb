@@ -531,7 +531,8 @@ const DetalleRecibo = (props) => {
     const EnviarReciboApi = async (location) => {
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
         let isOnline = await verificarConexion();
-        if(!isOnline || localStorage.getItem("Online")==="offline")
+        debugger;
+        if(!isOnline || localStorage.getItem("Conexion")==="offline")
         {
             let ValorPago = Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0));
             let ReciboCache = {
