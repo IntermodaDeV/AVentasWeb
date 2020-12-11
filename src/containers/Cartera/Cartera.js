@@ -70,19 +70,28 @@ export const Cartera = props => {
     }
 
     const recargarClientes = async () =>{
-        let isOnline = await verificarConexion();
-        if(isOnline){
-            localStorage.removeItem('expiracion-Cartera');
-            setCliente(undefined);
-            setLoading(true);
-            cargarCartera();
-        }else{
+        if (localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
-                title: 'Sin Internet',
-                text: 'Necesita internet para sincronizar la cartera',
-                type: 'warning',
+                title: "Modo Offline",
+                text: "Se encuentra en modo offline, no puede actualizar registros.",
+                type: "warning",
                 confirmButtonText: 'Ok',
             })
+        } else {
+            let isOnline = await verificarConexion();
+            if (isOnline) {
+                localStorage.removeItem('expiracion-Cartera');
+                setCliente(undefined);
+                setLoading(true);
+                cargarCartera();
+            } else {
+                Swal.fire({
+                    title: 'Sin Internet',
+                    text: 'Necesita internet para sincronizar la cartera',
+                    type: 'warning',
+                    confirmButtonText: 'Ok',
+                })
+            }
         }
     }
 

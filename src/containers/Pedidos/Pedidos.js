@@ -1273,7 +1273,7 @@ class Pedidos extends React.Component {
             }
         })
 
-        if(!isOnline){
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
                 type: 'warning',
                 title: 'Advertencia',
@@ -1285,18 +1285,18 @@ class Pedidos extends React.Component {
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
         }
-        else if(pedido.NumeroReferencia === ""){
+        else if (pedido.NumeroReferencia === "") {
             const data = postPedidoStorage(pedido);
             let numPedido = data.EncabezadoPedido.PedidoId;
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
         }
-        else{
+        else {
 
-            const { data,error } = await post(this.urlApi + "/api/PedidosXCliente",pedido,"SET_PEDIDOSINCRONIZAR");
+            const { data, error } = await post(this.urlApi + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
 
-            if(error){
-                if(error.response){
+            if (error) {
+                if (error.response) {
                     let mensaje = error.response.data.Message;
                     Swal.fire({
                         type: 'error',
@@ -1304,13 +1304,13 @@ class Pedidos extends React.Component {
                         text: mensaje,
                     })
                     this.setState({ loadingRecibo: false });
-                }else{
-                    let numPedido = data === undefined || data === null? "No Disponible" : data;
+                } else {
+                    let numPedido = data === undefined || data === null ? "No Disponible" : data;
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                     this.props.onSetNumeroOrden(numPedido);
                 }
-            }else{
-                let numPedido = data === undefined || data === null? "No Disponible" : data;
+            } else {
+                let numPedido = data === undefined || data === null ? "No Disponible" : data;
                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                 this.props.onSetNumeroOrden(numPedido);
             }
