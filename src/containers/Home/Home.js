@@ -8,6 +8,7 @@ import { getLocalStorage } from 'utils/http';
 import moment from 'moment';
 import axios from 'axios';
 import { FiAlertTriangle } from 'react-icons/fi';
+import { verificarConexion } from 'utils/http';
 
 export const Home = (props) => {
     const dispatch = useDispatch();
@@ -18,8 +19,9 @@ export const Home = (props) => {
     const [UsuarioOficina, setUsuarioOficina] = useState(false);  
     
     useEffect(() => {
+        CargaPermisos();
         let data = getLocalStorage("ListaPrecios");
-        if(data === null)
+        if(data === null && UsuarioOficina === false)
         {
             dispatch({ type: 'SET_PERMISOS', payload: [] });
             localStorage.setItem("OcurrioError", false)
@@ -27,6 +29,13 @@ export const Home = (props) => {
         }
         // eslint-disable-next-line
     },[])
+
+    const CargaPermisos  = async () => {
+        let isOnline = await verificarConexion();
+        if(isOnline){
+            ObtenerPermisos();
+        }
+    }
 
     const CargarModuloConfiguraciones = () => {
         setloading(true);
@@ -52,7 +61,9 @@ export const Home = (props) => {
         cargarTipoPago();
         cargarTipoVisitas(); ///Siempre debe ser el Ultimo Metodo
     }
-
+    const ModuloCarteracliente = () => {
+        CarteraClientes();
+    }
     const CargaModuloRecibo = () => {
         cargarClientesRecibos();///Siempre debe ser el Ultimo Metodo
     }
@@ -148,20 +159,21 @@ export const Home = (props) => {
            
             if(UsuarioOficina){
                 setSyncDiaria(true);
-                
+                setloading(false);
             }
             else{
-                CargaModuloRecibo();
+                ModuloCarteracliente();
             }
         } else {
             dispatch({ type: "SET_TIPOVISITA", payload: data });
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             if(UsuarioOficina){
                 setSyncDiaria(true);
-                
+                setloading(false);
+                setActiveStep((prevActiveStep) => prevActiveStep + 3);
             }
             else{
-                CargaModuloRecibo();
+                ModuloCarteracliente();
             }
         }
     }
@@ -307,7 +319,7 @@ export const Home = (props) => {
     }
 
     const cargarListaPrecios = (clientes) => {
-        setMensaje('Cargando Colecciones')
+        setMensaje('Cargando Colecciones y Productos')
         let data = getLocalStorage("ListaPrecios");
 
         if (data) {
@@ -346,6 +358,26 @@ export const Home = (props) => {
         }
     }
 
+
+    /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE CARTERA DE CLIENTES--------------------------------------*/
+
+    const CarteraClientes = async () => {
+        console.log("UsuarioOficina",UsuarioOficina)
+        if (UsuarioOficina === false) {
+            const { data, error } = await get(`${APIURL}/api/cliente/${localStorage.getItem("codigo")}`, "Cartera");
+            if (error) {
+                CargaModuloRecibo();
+                setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                console.log(error);
+            } else {
+                dispatch({ type: "SET_CARTERA", payload: data });
+                setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                CargaModuloRecibo();
+            }
+        }
+    }
+
+    /*--------------------------------------------------------------------------------------------------------------------*/
     return (
         <div style={{ height: '100%' }} className="container-fluid">
             <div class="card-body text-center">
