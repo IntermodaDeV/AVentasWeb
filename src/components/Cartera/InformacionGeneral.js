@@ -19,6 +19,8 @@ export const InformacionGeneral = props => {
     }
 
     if ((props.cliente.FacturacionEntrega === "No" || props.cliente.FacturacionEntrega === "Nunca")) {
+        FacturacionEntrega = null;
+    }else{
         FacturacionEntrega = (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
                 <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con bloqueo ó en mora.

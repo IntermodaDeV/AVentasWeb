@@ -6,7 +6,6 @@ import 'moment/locale/es';
 moment.locale('es');
 
 const BarChart = props => {
-    console.log(props)
     const [visitas,setVisitas] = useState([]);
 
     const cargarVisitasPorMes = () =>{

@@ -6,8 +6,6 @@ import { MdPlaylistAdd } from "react-icons/md";
 export const TablaUsuario = props => {
     const {roles,modificarEstado,modificarBloqueoCredito,modificarTodosAsesores,UpdateUsuarioOficina} = props;
 
-    console.log(roles);
-
     return (
         <div>
             {roles.length===0

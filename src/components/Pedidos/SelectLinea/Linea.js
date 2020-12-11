@@ -41,6 +41,7 @@ const Linea = (props) => {
 
     const cargarColecciones = async () => {
         if (usuarioOficina) {
+            props.setLinea(props.Linea);
             fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}`)
                 .then(res => res.json())
                 .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));

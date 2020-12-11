@@ -86,6 +86,23 @@ export const Cartera = props => {
         }
     }
 
+    const handleRecarga = () => {
+        Swal.fire({
+            title: 'Aviso',
+            text: '¿Desea actualizar la información en cartera de clientes?',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                recargarClientes();
+            }
+        })
+    }
+
     useEffect(() => {
         if (!IsAllow("/cartera")) {
             props.history.push('/home');
@@ -138,7 +155,7 @@ export const Cartera = props => {
                             )
                         }}
                     />
-                    <Button style={{height:45}} onClick={recargarClientes} variant="contained" color="primary"><CachedIcon/></Button>
+                    <Button style={{height:45}} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon/></Button>
                     </div>
                     <ListaClientes clientes={filtrados} seleccionarCliente={seleccionarCliente} seleccionado={cliente} />
                 </div>
