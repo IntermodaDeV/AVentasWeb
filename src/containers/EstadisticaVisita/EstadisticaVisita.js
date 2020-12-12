@@ -8,16 +8,16 @@ import PieChart from 'components/EstadisticaVisita/PieChart';
 import Barchart from 'components/EstadisticaVisita/BarChart';
 import moment from 'moment';
 import { Dropdown } from "semantic-ui-react";
-import {APIURL} from 'utils/Enviroment';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import { APIURL } from 'utils/Enviroment';
+import { IsAllow } from 'components/Seguridad/Permisos';
 import 'moment/locale/es';
 import {
     Button
     // Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText,  Select, MenuItem 
 } from '@material-ui/core';
-import  TableFooter from "@material-ui/core/TableFooter";
-import  TableRow from "@material-ui/core/TableRow";
-import  TablePagination from "@material-ui/core/TablePagination";
+import TableFooter from "@material-ui/core/TableFooter";
+import TableRow from "@material-ui/core/TableRow";
+import TablePagination from "@material-ui/core/TablePagination";
 import {
     FaUserCheck,
     FaCheckDouble,
@@ -26,10 +26,13 @@ import {
     FaUserTimes
 } from "react-icons/fa";
 import CustomFooter from 'components/Layout/CustomFooter';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
+import { verificarConexion } from 'utils/http';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+
 moment.locale('es')
 const urlApi = APIURL
 const columns = [
@@ -98,7 +101,7 @@ const columns = [
             sort: true
         }
     },
-    
+
     {
         name: 'Pedidos',
         label: 'Cantidad Pedidos',
@@ -134,18 +137,17 @@ const columns = [
 
 ]
 const EstadisticaVisita = (props) => {
-    
+
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setFechaFin] = useState(new Date((new Date()).valueOf() + (1000 * 60 * 60 * 24) * 6 + 1));
     const [estadisticasVisita, setEstadisticasVisita] = useState([]);
     const [estadisticaVisitaFiltrada, setestadisticaVisitaFiltrada] = useState([]);
     const [Usuarios, setUsuarios] = useState([]);
     const [Selected, setSelected] = useState(null);
-    const [EmpresaSelected,setEmpresaSelected] = useState(null);
-    const Paises = useSelector(e=>e.Permisos[0].EmpresasUsuarios);
+    const [EmpresaSelected, setEmpresaSelected] = useState(null);
+    const Paises = useSelector(e => e.Permisos[0].EmpresasUsuarios);
     useEffect(() => {
-        if(!IsAllow("/estadistica-visita"))
-        {
+        if (!IsAllow("/estadistica-visita")) {
             props.history.push('/home');
         }
         CargarDatos()
@@ -153,12 +155,23 @@ const EstadisticaVisita = (props) => {
         // eslint-disable-next-line
     }, []);
 
-    const CargarDatos = () => {
-        Promise.all([cargarEstadisticaVisita(fechaInicio, fechaFin)]).then(values => {
-            setEstadisticasVisita(values[0]);
-            setestadisticaVisitaFiltrada(values[0]);
-            setOptions(values[0]);
-        });
+    const CargarDatos = async () => {
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+
+        } else {
+            Promise.all([cargarEstadisticaVisita(fechaInicio, fechaFin)]).then(values => {
+                setEstadisticasVisita(values[0]);
+                setestadisticaVisitaFiltrada(values[0]);
+                setOptions(values[0]);
+            });
+        }
     }
 
     const setOptions = (values) => {
@@ -180,20 +193,20 @@ const EstadisticaVisita = (props) => {
         selectableRowsOnClick: true,
         customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
             <TableFooter>
-              <TableRow>
-                <TablePagination
-                  count={count}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={(_, page) => changePage(page)}
-                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
-                  rowsPerPageOptions={[10, 15, 100]}
-                  ActionsComponent={CustomFooter}
-                  labelRowsPerPage="Filas por página:"
-                />
-              </TableRow>
+                <TableRow>
+                    <TablePagination
+                        count={count}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onChangePage={(_, page) => changePage(page)}
+                        onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                        rowsPerPageOptions={[10, 15, 100]}
+                        ActionsComponent={CustomFooter}
+                        labelRowsPerPage="Filas por página:"
+                    />
+                </TableRow>
             </TableFooter>
-          ),
+        ),
         // rowsSelected: selectedRowsIndex,
         textLabels: {
             body: {
@@ -248,16 +261,15 @@ const EstadisticaVisita = (props) => {
     }
 
     const PaisFiltrado = (Empresa) => {
-        if(EmpresaSelected === Empresa)
-        {
+        if (EmpresaSelected === Empresa) {
             setEmpresaSelected(null);
             setEstadisticasVisita(estadisticaVisitaFiltrada);
         }
-        else{
+        else {
             setEmpresaSelected(Empresa);
             setEstadisticasVisita(estadisticaVisitaFiltrada.filter(e => e.Empresa.toUpperCase() === Empresa.toUpperCase()))
         }
-        
+
     }
     let data = [];
     let VisitasProductivas = estadisticasVisita.reduce((acc, cur) => { return acc + cur.Productivas }, 0);
@@ -274,12 +286,12 @@ const EstadisticaVisita = (props) => {
             // PorcentajeEjecucion: estVis.PorcentajeEjecucion,
             ClienteCancelo: estVis.ClienteCancelo,
             Efectivas: estVis.Efectivas,
-            Productivas:estVis.Productivas,
-            NoAtendidas:estVis.NoAtendidas,
-            Pedidos : estVis.Pedidos,
+            Productivas: estVis.Productivas,
+            NoAtendidas: estVis.NoAtendidas,
+            Pedidos: estVis.Pedidos,
             Recibos: estVis.Recibos,
-            ValorPedidos : numberWithCommas(Number(estVis.TotalPedidos)),
-            ValorRecibos : numberWithCommas(Number(estVis.TotalRecibos))
+            ValorPedidos: numberWithCommas(Number(estVis.TotalPedidos)),
+            ValorRecibos: numberWithCommas(Number(estVis.TotalRecibos))
         });
     });
     return (
@@ -335,40 +347,37 @@ const EstadisticaVisita = (props) => {
                     </Button>
                 </div>
                 {Paises.length > 1 &&
-                            <div className="shadow-box-example hoverable" style={{display:'flex',marginBottom:'10px'}}>
-                                <h4>Filtro por Pais</h4>
-                                <div>
-                                    {
-                                    // eslint-disable-next-line
-                                    Paises.map(pais=>{
-                                        if(pais.EmpresaId==="IMHN")
-                                        {
-                                            let stylePaises={width:'40px',height:'40px',marginLeft:'25px'};
-                                            if(EmpresaSelected==="IMHN"){
-                                               stylePaises = {width:'40px',height:'40px',marginLeft:'25px',outline:'5px solid green'}
-                                            }
-                                            return <img alt="honduras" className="shadow-box-example z-depth-5" src={honduras} style={stylePaises} onClick={()=>{PaisFiltrado(pais.EmpresaId)}}/>
+                    <div className="shadow-box-example hoverable" style={{ display: 'flex', marginBottom: '10px' }}>
+                        <h4>Filtro por Pais</h4>
+                        <div>
+                            {
+                                // eslint-disable-next-line
+                                Paises.map(pais => {
+                                    if (pais.EmpresaId === "IMHN") {
+                                        let stylePaises = { width: '40px', height: '40px', marginLeft: '25px' };
+                                        if (EmpresaSelected === "IMHN") {
+                                            stylePaises = { width: '40px', height: '40px', marginLeft: '25px', outline: '5px solid green' }
                                         }
-                                        else if(pais.EmpresaId==="IMCR")
-                                        {
-                                            let stylePaises={width:'40px',height:'40px',marginLeft:'25px',shadowColor: "black"};
-                                            if(EmpresaSelected==="IMCR"){
-                                                stylePaises = {width:'40px',height:'40px',marginLeft:'25px',outline:'5px solid green'};
-                                            }
-                                            return <img alt="costarica" src={costarica} style={stylePaises} onClick={()=>{PaisFiltrado(pais.EmpresaId)}}/>
+                                        return <img alt="honduras" className="shadow-box-example z-depth-5" src={honduras} style={stylePaises} onClick={() => { PaisFiltrado(pais.EmpresaId) }} />
+                                    }
+                                    else if (pais.EmpresaId === "IMCR") {
+                                        let stylePaises = { width: '40px', height: '40px', marginLeft: '25px', shadowColor: "black" };
+                                        if (EmpresaSelected === "IMCR") {
+                                            stylePaises = { width: '40px', height: '40px', marginLeft: '25px', outline: '5px solid green' };
                                         }
-                                        else if(pais.EmpresaId==="IMGT")
-                                        {
-                                            let stylePaises={width:'40px',height:'40px',marginLeft:'25px'}
-                                            if(EmpresaSelected==="IMGT"){
-                                                stylePaises = {width:'40px',height:'40px',marginLeft:'25px',outline:'5px solid green'};
-                                            }
-                                            return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={()=>{PaisFiltrado(pais.EmpresaId)}}/>
+                                        return <img alt="costarica" src={costarica} style={stylePaises} onClick={() => { PaisFiltrado(pais.EmpresaId) }} />
+                                    }
+                                    else if (pais.EmpresaId === "IMGT") {
+                                        let stylePaises = { width: '40px', height: '40px', marginLeft: '25px' }
+                                        if (EmpresaSelected === "IMGT") {
+                                            stylePaises = { width: '40px', height: '40px', marginLeft: '25px', outline: '5px solid green' };
                                         }
-                                    })}
-                                </div>
-                            </div>
-                    }
+                                        return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={() => { PaisFiltrado(pais.EmpresaId) }} />
+                                    }
+                                })}
+                        </div>
+                    </div>
+                }
 
             </div>
 
@@ -412,8 +421,8 @@ const EstadisticaVisita = (props) => {
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
                                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Efectivas</div>
-                                   <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasEfectivas}</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasAtendidas > 0 ? ((VisitasEfectivas/VisitasAtendidas) * 100).toFixed(0) + "%": 0 + "%"}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasEfectivas}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasAtendidas > 0 ? ((VisitasEfectivas / VisitasAtendidas) * 100).toFixed(0) + "%" : 0 + "%"}</div>
                                 </div>
                                 <div className="col-auto">
                                     <FaCheckDouble size={"25px"} style={{ color: 'darkorange' }} />
@@ -430,7 +439,7 @@ const EstadisticaVisita = (props) => {
                                 <div className="col mr-2">
                                     <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Productivas</div>
                                     <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasProductivas}</div>
-                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasAtendidas > 0 ? ((VisitasProductivas/VisitasAtendidas) * 100).toFixed(0) + "%": 0 + "%"}</div>
+                                    <div className="h5 mb-0 font-weight-bold text-gray-800">{VisitasAtendidas > 0 ? ((VisitasProductivas / VisitasAtendidas) * 100).toFixed(0) + "%" : 0 + "%"}</div>
                                 </div>
                                 <div className="col-auto">
                                     <FaClipboardCheck size={"25px"} style={{ color: '#73628a' }} />
@@ -474,10 +483,10 @@ const EstadisticaVisita = (props) => {
                 </div>
             </div>
 
-            <div className="row">                         
+            <div className="row">
                 <div className="col-lg-6 my-2 col-12 order-lg-first order-last">
                     <MuiThemeProvider theme={getMuiTheme()}>
-                        <Barchart empresa={EmpresaSelected}/>
+                        <Barchart empresa={EmpresaSelected} />
                         <MUIDataTable
                             title={'Estadistica Visita'}
                             data={data}
@@ -512,8 +521,8 @@ const EstadisticaVisita = (props) => {
                             </div>
                         </div>
                         <div className="row">
-                            <FunnelChart Selected={Selected} Users={estadisticasVisita}/>
-                            <PieChart Selected={Selected} Users={estadisticasVisita}/>
+                            <FunnelChart Selected={Selected} Users={estadisticasVisita} />
+                            <PieChart Selected={Selected} Users={estadisticasVisita} />
                         </div>
                     </div>
                 </div>
@@ -524,7 +533,7 @@ const EstadisticaVisita = (props) => {
 const cargarEstadisticaVisita = (fechaInicio, fechaFin) => {
     var inicio = moment(fechaInicio).format();
     var fin = moment(fechaFin).format();
-    
+
     return new Promise((resolve, reject) => {
         fetch(urlApi + `/api/EstadisticaVisita?FechaInicio=${inicio}&FechaFin=${fin}&Usuario=${localStorage.getItem('codigo')}`, {
             headers: {
@@ -566,5 +575,5 @@ const numberWithCommas = (x) => {
     var parts = x.toString().split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join(".");
-  }
+}
 export default EstadisticaVisita;

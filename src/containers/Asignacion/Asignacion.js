@@ -294,16 +294,29 @@ class Asignacion extends Component {
         return label;
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         if(!IsAllow("/asignacion"))
         {
             this.props.history.push('/home');
         }
-        this.cargarClientes();
-        this.cargarAsignaciones(this.state.startDate, this.state.endDate);
-        this.cargarTiposAsignacionCliente();
-        this.cargarPrioridadesAsignacion();
-        this.cargarTiempoEstimado();
+
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            this.setState((prevState) => ({ ...prevState, isLoaded: true }))
+        } else {
+
+            this.cargarClientes();
+            this.cargarAsignaciones(this.state.startDate, this.state.endDate);
+            this.cargarTiposAsignacionCliente();
+            this.cargarPrioridadesAsignacion();
+            this.cargarTiempoEstimado();
+        }
     }
 
 

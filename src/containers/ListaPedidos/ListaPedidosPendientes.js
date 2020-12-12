@@ -50,6 +50,16 @@ export const ListaPedidosPendientes = (props) => {
 
 
     const cargarPedidos = async (FechaInicio, FechaFin) => {
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            setState({...state,isLoaded:true});
+        } else{
         var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
         var Fin = moment(FechaFin).format("YYYY-MM-DD");
         let Asesor = localStorage.getItem('codigo');
@@ -89,11 +99,12 @@ export const ListaPedidosPendientes = (props) => {
                         )
                 }
             })
+        }
     }
 
     const sincronizarPedido = async (pedido)=>{
         let isOnline = await verificarConexion();
-        if(isOnline){
+        if(isOnline && localStorage.getItem("Conexion")==="Online"){
             try{
                 setLoading(true);
                 const request = await axios.post(urlApi + "/api/PedidosXCliente/sincronizar/"+pedido);

@@ -15,6 +15,7 @@ import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import { useSelector } from 'react-redux';
+import { verificarConexion } from 'utils/http';
 moment.locale('es');
 
 const ListaRecibos = (props) => {
@@ -55,17 +56,27 @@ const ListaRecibos = (props) => {
      }
 
     const cargarRecibos = async (FechaInicio, FechaFin) => {
-        setLoading(true);
-        var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
-        var Fin = moment(FechaFin).format("YYYY-MM-DD");
-        let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
-        fetch(urlApi + "/api/Recibo/" + Asesor + "/" + Inicio + "/" + Fin, {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            setLoading(true);
+        } else {
+            setLoading(true);
+            var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
+            var Fin = moment(FechaFin).format("YYYY-MM-DD");
+            let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
+            fetch(urlApi + "/api/Recibo/" + Asesor + "/" + Inicio + "/" + Fin, {
+                headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token')
 
-            }
-        }).then(res => {
+                }
+            }).then(res => {
                 if (res.status === 401) {
                     localStorage.setItem('token', '');
                     window.location.reload();
@@ -88,6 +99,7 @@ const ListaRecibos = (props) => {
                         )
                 }
             })
+        }
     }
 
 

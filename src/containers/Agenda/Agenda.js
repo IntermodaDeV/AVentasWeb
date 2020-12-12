@@ -25,7 +25,7 @@ import moment from "moment";
 import {connect} from 'react-redux';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import { FaEye } from "react-icons/fa";
-import { get } from 'utils/http';
+import { get,verificarConexion } from 'utils/http';
 moment.locale('es');
 class Agenda extends Component {
     urlApi = APIURL;
@@ -183,56 +183,65 @@ class Agenda extends Component {
             })
     }
 
-    enviarCheckinApi = (location,check)=>{
+    enviarCheckinApi = async (location,check)=>{
 
-        const fechas = this.getFechas(2);
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder realizar esta accion.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+        } else {
+            const fechas = this.getFechas(2);
 
-        const parametros = {
-            IdAsignacionxAsesor:this.state.IdAsignacion,
-            location:location,
-            Fecha:new Date(),
-            Asesor:localStorage.getItem('codigo'),
-            Inicio:fechas.Inicio,
-            Fin:fechas.Fin
+            const parametros = {
+                IdAsignacionxAsesor: this.state.IdAsignacion,
+                location: location,
+                Fecha: new Date(),
+                Asesor: localStorage.getItem('codigo'),
+                Inicio: fechas.Inicio,
+                Fin: fechas.Fin
+            }
+
+            fetch(`${this.urlApi}/api/Asignaciones/${check}`, {
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify(parametros),
+                method: "POST"
+            }).then(res => {
+                if (res.status === 200) {
+                    res.json()
+                        .then(resultado => {
+                            Swal.fire({
+                                title: 'Confirmado',
+                                text: resultado.Message,
+                                type: 'success',
+                                confirmButtonText: 'Ok',
+                                target: this.myRef.current
+                            })
+                        });
+
+                    this.cargarAsignaciones(fechas.Inicio, fechas.Fin);
+
+                }
+
+                if (res.status === 400) {
+                    res.json()
+                        .then(resultado => {
+                            Swal.fire({
+                                title: 'Error',
+                                text: resultado.Message,
+                                type: 'error',
+                                confirmButtonText: 'Ok',
+                                target: this.myRef.current
+                            })
+                        });
+                }
+            })
         }
-
-        fetch(`${this.urlApi}/api/Asignaciones/${check}`,{
-            headers:{
-                "Content-type":"application/json"
-            },
-            body:JSON.stringify(parametros),
-            method:"POST"
-        }).then(res=>{
-            if(res.status===200){
-                res.json()
-                .then(resultado=>{
-                    Swal.fire({
-                        title: 'Confirmado',
-                        text: resultado.Message,
-                        type: 'success',
-                        confirmButtonText: 'Ok',
-                        target:this.myRef.current
-                      })
-                });
-
-                this.cargarAsignaciones(fechas.Inicio,fechas.Fin);
-                
-            }
-
-            if(res.status===400){
-                res.json()
-                .then(resultado=>{
-                    Swal.fire({
-                        title: 'Error',
-                        text: resultado.Message,
-                        type: 'error',
-                        confirmButtonText: 'Ok',
-                        target:this.myRef.current
-                      })
-                });
-            }
-        })
-        
     }
 
     enviarCheckin = (check)=>{
@@ -721,16 +730,29 @@ class Agenda extends Component {
         }
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         if(!IsAllow("/agenda"))
         {
             this.props.history.push('/home');
         }
-        this.cargarAsesores()
-        this.cargarClientes();
-        this.cargarRazonNoVenta();
-        this.cargarTipoVisitas();
-        this.cargarConfiguraciones();
+
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            this.setState((prevState)=>({...prevState,isLoaded:true}))
+        } else {
+
+            this.cargarAsesores()
+            this.cargarClientes();
+            this.cargarRazonNoVenta();
+            this.cargarTipoVisitas();
+            this.cargarConfiguraciones();
+        }
     }
 
     verifyBlock = (action)=>{
