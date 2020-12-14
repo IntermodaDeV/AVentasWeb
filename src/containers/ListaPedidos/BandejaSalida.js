@@ -54,23 +54,36 @@ const BandejaSalida = (props) => {
         // eslint-disable-next-line
     }, []);
 
+    const mostrarAdvertencia = (title,text,type)=>{
+        Swal.fire({
+            title: title,
+            text: text,
+            type: type,
+            confirmButtonText: 'Ok',
+        })
+    }
     const Sincronizar = async (pedidoId) =>{
         let isOnline = await verificarConexion();
-        try{
-            if(isOnline){
+        try {
+            if (localStorage.getItem("Conexion") === "offline") {
+                mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
+            } else {
+                if (!isOnline) {
+                    mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
+                } else  {
                 setLoading(true);
-                const pedido = PedidosCache.find(x=>x.PedidoId===pedidoId);
-                const request = await axios.post(urlApi +'/api/PedidosXCliente', pedido, {
+                const pedido = PedidosCache.find(x => x.PedidoId === pedidoId);
+                const request = await axios.post(urlApi + '/api/PedidosXCliente', pedido, {
                     headers: {
                         'Authorization': 'Bearer ' + localStorage.getItem('token'),
                         'Content-Type': 'application/json'
                     },
                 });
-                
-                if(request.data){
-                    const nuevosPedidos = PedidosCache.filter(x=>x.PedidoId!==pedidoId);
-                    dispatch({type:"SET_RESETPEDIDOSINCRONIZAR",payload:nuevosPedidos});
-                    setState((prevState)=>({...prevState,pedidos:nuevosPedidos}));
+
+                if (request.data) {
+                    const nuevosPedidos = PedidosCache.filter(x => x.PedidoId !== pedidoId);
+                    dispatch({ type: "SET_RESETPEDIDOSINCRONIZAR", payload: nuevosPedidos });
+                    setState((prevState) => ({ ...prevState, pedidos: nuevosPedidos }));
 
                     Swal.fire({
                         type: 'success',
@@ -80,17 +93,9 @@ const BandejaSalida = (props) => {
                 }
                 setLoading(false);
             }
-            else
-            {
-                Swal.fire({
-                    title: 'Sin Internet',
-                    text: 'Necesita internet para sincronizar el pedido',
-                    type: 'warning',
-                    confirmButtonText: 'Ok',
-                  })
             }
         }
-        catch(err){
+        catch (err) {
             setLoading(false);
         }
     }

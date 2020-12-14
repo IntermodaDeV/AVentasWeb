@@ -66,7 +66,7 @@ const MainLayout = (props) => {
       <LoadingModal/>
       <Sidebar />
       <Content fluid>
-        <Header />
+        <Header {...props}/>
         {children}
         <Footer />
       </Content>

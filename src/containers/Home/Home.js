@@ -19,13 +19,16 @@ export const Home = (props) => {
     const [UsuarioOficina, setUsuarioOficina] = useState(false);  
     
     useEffect(() => {
-        CargaPermisos();
         let data = getLocalStorage("ListaPrecios");
-        if(data === null && UsuarioOficina === false)
+        if(data === null)
         {
             dispatch({ type: 'SET_PERMISOS', payload: [] });
             localStorage.setItem("OcurrioError", false)
             setSyncDiaria(false);
+        }
+        else
+        {
+            CargaPermisos();
         }
         // eslint-disable-next-line
     },[])

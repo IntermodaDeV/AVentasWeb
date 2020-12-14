@@ -31,11 +31,13 @@ import ListItemText from '@material-ui/core/ListItemText';
 import InboxIcon from '@material-ui/icons/MoveToInbox';
 import {useSelector} from 'react-redux';
 import { FaWifi } from "react-icons/fa";
-const Header = () => {
+import { verificarConexion } from 'utils/http';
+const Header = (props) => {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
     const [Visible, setVisible] = React.useState(null);
+    const [Online, setIsOnline] = React.useState(true);
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
     const Permisos = useSelector(e=> e.Permisos);
@@ -89,20 +91,28 @@ const Header = () => {
         setMobileMoreAnchorEl(event.currentTarget);
     };
 
-    const handleClick = (event) => {
-        setVisible(event.currentTarget);
+    const handleClick = async () => {
+        let isOnline = await verificarConexion();
+        setIsOnline(isOnline);
+        setVisible(true)
+
       };
 
       const handleClose = () => {
         localStorage.setItem("Conexion", "offline");
+        props.history.push('/home');
         setVisible(null);
+        
       };
       const handleCloseOnline = () => {
         localStorage.setItem("Conexion", "Online");
+        props.history.push('/home');
         setVisible(null);
+        
       };
       const handleCloseOffline = () => {
         localStorage.setItem("Conexion", "offline");
+        props.history.push('/home');
         setVisible(null);
       };
 
@@ -189,7 +199,7 @@ const Header = () => {
                                 open={Boolean(Visible)}
                                 onClose={handleClose}>
 
-                                <StyledMenuItem>
+                                <StyledMenuItem hidden={!Online}>
                                     <MenuItem onClick={handleCloseOnline}>
                                         <ListItemIcon>
                                             <FaWifi  />
