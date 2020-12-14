@@ -1164,6 +1164,7 @@ class Pedidos extends React.Component {
     obtenerUltimoCorrelativo = async () =>{
         var correlativo = "",errorCor;
         try{
+            this.setState((prevState)=>({...prevState,loadingRecibo:true}));
             const request = await axios.get(this.urlApi + "/api/PedidosXCliente/correlativo",{headers:{
                 'Content-Type': 'application/json',
                 'Authorization':'Bearer ' + localStorage.getItem('token')

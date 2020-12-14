@@ -196,10 +196,11 @@ const Header = (props) => {
                     </Link>
                     <div className={classes.grow} />
                     <div className={classes.menuButton}>
-                        <Button style={{ textAlign: 'right' }}  aria-controls="customized-menu"
+                        <Button  aria-controls="customized-menu"
                             aria-haspopup="true"
                             variant="contained"
                             hidden = {UsuarioOficina}
+                            style={{textAlign: 'right',background:localStorage.getItem("Conexion")==="Online"?'green':'red',color:'#fff'}} 
                             onClick={handleClick}>{localStorage.getItem("Conexion")}
                         </Button>
                             <StyledMenu
