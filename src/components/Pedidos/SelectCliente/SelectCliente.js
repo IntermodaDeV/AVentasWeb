@@ -122,7 +122,7 @@ const SelectCliente = (props) => {
     }
 
     const recargarListaPrecios = data => {
-        setMensaje("Cargando colecciones")
+        setMensaje("Cargando colecciones y productos")
         const listaPrecios = [...new Set(data.map(x => x.GrupoPrecio))];
         const paises = [...new Set(data.map(x => x.EmpresaId))];
 

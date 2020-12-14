@@ -104,15 +104,25 @@ const Header = (props) => {
         setVisible(null);
         
       };
+
+    const contieneRuta = ruta => {
+        console.log(ruta);
+        return ruta.toLowerCase().includes("/pedidos") || ruta.includes("/recibos") || ruta.includes("/Recibos")|| ruta.includes("/cartera");
+    }
+
       const handleCloseOnline = () => {
-        localStorage.setItem("Conexion", "Online");
-        props.history.push('/home');
+        localStorage.setItem("Conexion", "Online")
+        if(!contieneRuta(props.history.location.pathname)){
+            props.history.push('/home');
+        }
         setVisible(null);
         
       };
       const handleCloseOffline = () => {
         localStorage.setItem("Conexion", "offline");
-        props.history.push('/home');
+        if(!contieneRuta(props.history.location.pathname)){
+            props.history.push('/home');
+        }
         setVisible(null);
       };
 
