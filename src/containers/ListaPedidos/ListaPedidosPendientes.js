@@ -193,22 +193,31 @@ export const ListaPedidosPendientes = (props) => {
         return DataPedidos;
     }
 
-    const GetPedidoDetalle = (Pedido, EsImpresion) =>{
-        let EnDetalle = EsImpresion ? null : Pedido;
-        fetch(`${APIURL}/api/PedidoDetalle/${Pedido.PedidoId}`)
-        .then(res=>res.json())
-        .then(data=>{
-            setState({
-                ...state,
-                Detalles: data,
-                pedido: EnDetalle,
-            });
-            if(EsImpresion)
-            {
-                setShowDialog(true);
-            }
-        });
-        setDialogPedido(Pedido);
+    const GetPedidoDetalle = async (Pedido, EsImpresion) =>{
+        let isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
+            Swal.fire({
+                title: 'Sin Internet',
+                text: 'Necesita internet para sincronizar el pedido',
+                type: 'warning',
+                confirmButtonText: 'Ok',
+              })
+        } else {
+            let EnDetalle = EsImpresion ? null : Pedido;
+            fetch(`${APIURL}/api/PedidoDetalle/${Pedido.PedidoId}`)
+                .then(res => res.json())
+                .then(data => {
+                    setState({
+                        ...state,
+                        Detalles: data,
+                        pedido: EnDetalle,
+                    });
+                    if (EsImpresion) {
+                        setShowDialog(true);
+                    }
+                });
+            setDialogPedido(Pedido);
+        }
     }
 
     const hidePrint = () => {
