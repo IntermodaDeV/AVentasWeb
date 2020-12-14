@@ -478,8 +478,8 @@ const FacturaTable = props => {
       }else{
         disponible = (props.Cliente.CreditoDisponible?props.Cliente.CreditoDisponible:0);
       }
-      acu.Facturas.forEach(fact => {
-        fact.Cuotas.forEach(cuot => {
+      acu.Facturas.filter(f=> f.Saldo > 0).forEach(fact => {
+        fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
           if (cuot.Saldo > 0) {
             saldo += cuot.Saldo;
             if (moment(cuot.FechaVencimiento).isSameOrBefore(moment(new Date()), 'days')) {

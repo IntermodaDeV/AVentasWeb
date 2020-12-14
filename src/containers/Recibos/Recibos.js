@@ -93,7 +93,7 @@ const Recibos = (props) => {
     props.clienteSelected.AcuerdosXTipoPedido.forEach(acuXTip => {
       acuXTip.Acuerdos.forEach(acu => {
         acu.Facturas.forEach(fact => {
-          fact.Cuotas.forEach(cuot => {
+          fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
             let diasVencimiento = moment().diff(cuot.FechaVencimiento, 'days') * -1;
             let diasDescuento = moment().diff(cuot.FechaMaxDescuento, 'days') * -1;
             let aPagar = cuot.Saldo;
@@ -633,6 +633,7 @@ const Recibos = (props) => {
               <DetalleRecibo
                 history={props.history}
                 Cliente={props.clienteSelected}
+                Clientes = {clientes}
                 Cuotas={props.cuotasXCliente}
                 CuotasAPagar={props.cuotasAPagar}
                 CargarImpresion ={CargarImpresion}

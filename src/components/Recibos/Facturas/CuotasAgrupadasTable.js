@@ -157,8 +157,8 @@ const CuotasAgrupadasTable = props => {
       let ValorVencido= 0;
       let ValorMoneda = "";
       //let facturas = [];
-      acu.Facturas.forEach(fact => {
-        fact.Cuotas.forEach(cuot => {
+      acu.Facturas.filter(f=> f.Saldo > 0).forEach(fact => {
+        fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
           cuotasSinAgrupar.push(cuot)
           let cuotaAgrupada = cuotasAgrupadas.find(cuotAgr => cuotAgr.NumeroCuota === cuot.NumeroCuota && cuot.FechaVencimiento === cuotAgr.FechaVencimiento && cuot.FechaMaxDescuento === cuotAgr.FechaMaxDescuento);
           

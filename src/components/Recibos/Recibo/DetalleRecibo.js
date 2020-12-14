@@ -53,6 +53,7 @@ const DetalleRecibo = (props) => {
     const pedidoSelected = useSelector(e=>e.pedidoSelected);
     const dispatch = useDispatch();
     let calculo =React.useRef(1);
+    let arregloModificado = [];
     
     const [pagosXRecibo, setPagosXRecibo] = useState([
         {
@@ -98,6 +99,33 @@ const DetalleRecibo = (props) => {
         }
         // eslint-disable-next-line
     }, []);
+
+    const rebajarSaldoFactura = (numFactura, numCuota, valorPago, Descuento) => {
+        let arreglocopia = [];
+        if(arregloModificado.length === 0)
+        {
+            arregloModificado = props.Clientes;
+        }
+
+        arregloModificado.filter(a => a.Codigo === props.Cliente.Codigo).forEach(function(entry) {
+            
+            entry.AcuerdosXTipoPedido.forEach(function(AcuerdosXTipoPedido) {
+
+                AcuerdosXTipoPedido.Acuerdos.forEach(function(Acuerdos) {
+
+                    Acuerdos.Facturas.filter(f => f.Factura === numFactura).forEach(function(Facturas) {
+                        Facturas.Cuotas.filter(c => c.NumeroCuota === numCuota).forEach(function(Cuotas) {
+                            Facturas.Saldo = Facturas.Saldo - valorPago - Descuento;
+                            Cuotas.Saldo = Cuotas.Saldo - valorPago - Descuento;
+                            console.log(Facturas);
+                        })
+                    });
+                } );
+            });
+        });
+        arreglocopia = arregloModificado;
+        dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: arreglocopia });
+    }
 
     const CuotasAgrupadas = () => {
         let cuotasSinAgrupar = [];
@@ -531,10 +559,10 @@ const DetalleRecibo = (props) => {
     const EnviarReciboApi = async (location) => {
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
         let isOnline = await verificarConexion();
-        debugger;
         if(!isOnline || localStorage.getItem("Conexion")==="offline")
         {
             let ValorPago = Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0));
+            let valorPagado = 0;
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
                 Fecha: pagosXRecibo[0].fecha,
@@ -569,15 +597,19 @@ const DetalleRecibo = (props) => {
                 CodigoUltimoRecibo : " Disponible",
                 Total :  ValorPago,
                 Facturas : cuotasYDescuentoAplicado.Cuotas.map(fact => {
+                    let NumeroCuota = cuotasYDescuentoAplicado.agrupadas ? fact[0] : 0;
+                    let descuento = cuotasYDescuentoAplicado.agrupadas ? fact[8].replace(',', '') :  fact[11].replace(',', '');
+                    let Aplicado = localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ?  Number(fact[10].replace(',', '')) : Number(fact[13].replace(',', ''));
+                    rebajarSaldoFactura(fact[1], NumeroCuota,Aplicado,descuento);
                     return {
-                        "Aplicado" : localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ?  Number(fact[10].replace(',', '')) : Number(fact[13].replace(',', '')),
+                        "Aplicado" : Aplicado,
                         "Dias" :cuotasYDescuentoAplicado.agrupadas ? "" : fact[5],
                         "EsAbono" :cuotasYDescuentoAplicado.agrupadas ? fact[10] !== fact[9] ? true : false : fact[12] !== fact[13] ? true : false,
                         "Fecha" :cuotasYDescuentoAplicado.agrupadas ? Date(fact[12]) : Date(fact[4]),
                         "IdFactura" : fact[1],
                         "NumeroFEL" : "",
                         "Parcial" :localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ? fact[7].replace(',', '') : fact[12].replace(',', ''),
-                        "Parcial2" : cuotasYDescuentoAplicado.agrupadas ? fact[8].replace(',', '') :  fact[11].replace(',', ''),
+                        "Parcial2" : descuento,
                         "TipoDocumento" : cuotasYDescuentoAplicado.agrupadas ? fact[13] : fact[0]
                     }
                 }),

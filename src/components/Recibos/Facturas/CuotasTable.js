@@ -183,8 +183,8 @@ moment.locale('es')
 
   props.Cuotas.forEach(fact => {
     fact.Acuerdos.forEach(acu => {
-      acu.Facturas.forEach(fact => {
-        fact.Cuotas.forEach(cuot => {
+      acu.Facturas.filter(f=> f.Saldo > 0).forEach(fact => {
+        fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
           let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
           let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days')
 
