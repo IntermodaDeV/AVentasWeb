@@ -144,9 +144,7 @@ const PagoReciboTable = (props) => {
             return;
         }
         else{
-            setHabilitado(true);
             props.EnviarRecibo()
-            setHabilitado(false);
         }
       };
     const validacionFechaPago = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray, indexBanco, referencia)=>{

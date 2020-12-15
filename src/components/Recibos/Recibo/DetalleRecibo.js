@@ -18,6 +18,7 @@ import MySnackbarContentWrapper from 'components/Global/snackbar';
 import Snackbar from '@material-ui/core/Snackbar';
 import {useSelector, useDispatch} from 'react-redux';
 import { verificarConexion } from 'utils/http';
+import { Loading } from 'components/Global/Loading';
 moment.locale('es');
 
 const urlApi = APIURL
@@ -36,6 +37,7 @@ const DetalleRecibo = (props) => {
     const [addedNewPayment, setAddedNewPayment] = useState(false);
     const [InfoModal, setInfoModal] = useState([]);
     const [openPedidoModal, setOpenPedidoModal] = useState(false);
+    const [loading,setLoading] = useState(false);
     //const [bancoSeleccionado, setBancoSeleccionado] = useState(null);
     const [cuotasYDescuentoAplicado, setCuotasYDescuentoAplicado] = useState({
         Cuotas: [],
@@ -557,12 +559,12 @@ const DetalleRecibo = (props) => {
     }
 
     const EnviarReciboApi = async (location) => {
+        setLoading(true);
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
         let isOnline = await verificarConexion();
         if(!isOnline || localStorage.getItem("Conexion")==="offline")
         {
             let ValorPago = Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0));
-            let valorPagado = 0;
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
                 Fecha: pagosXRecibo[0].fecha,
@@ -622,6 +624,7 @@ const DetalleRecibo = (props) => {
             setRecibosAplicados(ReciboCache);
             dispatch({ type: "SET_RECIBOSENCACHE", payload: ReciboCache });
             setModalRecibo(true);
+            setLoading(false);
         }
         else
         {
@@ -706,12 +709,14 @@ const DetalleRecibo = (props) => {
                             (result) => {
                                 setRecibosAplicados(result);
                                 setModalRecibo(true);
+                                setLoading(false);
 
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
                             // exceptions from actual bugs in components.
                             (error) => {
+                                setLoading(true);
                                 Swal.fire({
                                     type: 'error',
                                     title: 'Error',
@@ -729,7 +734,7 @@ const DetalleRecibo = (props) => {
                                     title: 'Error',
                                     text: result.Message,
                                 })
-
+                                setLoading(false);
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -805,6 +810,7 @@ const DetalleRecibo = (props) => {
 
     return (
         <div>
+            <Loading open={loading} title="Cargando"/>
             {props.Cliente.Pedido.length !== 0? <h3>Pago Recibido <Button color="primary" onClick={() => { OpenPedidosModal() }} variant="contained" className="float-right" style={{marginRight: '110px'}}>Asociar Pedido</Button></h3> : <h3>Pago Recibido</h3>}
             <div className="row">
                 <Card style={{ marginTop: '10px', marginBottom: '10px' }}>
