@@ -165,7 +165,7 @@ const EstadisticaVisita = (props) => {
                 confirmButtonText: 'Ok',
             });
 
-        } else {
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
             Promise.all([cargarEstadisticaVisita(fechaInicio, fechaFin)]).then(values => {
                 setEstadisticasVisita(values[0]);
                 setestadisticaVisitaFiltrada(values[0]);

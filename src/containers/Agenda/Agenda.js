@@ -193,7 +193,7 @@ class Agenda extends Component {
                 type: "warning",
                 confirmButtonText: 'Ok',
             });
-        } else {
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
             const fechas = this.getFechas(2);
 
             const parametros = {
@@ -745,13 +745,21 @@ class Agenda extends Component {
                 confirmButtonText: 'Ok',
             });
             this.setState((prevState)=>({...prevState,isLoaded:true}))
-        } else {
-
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
             this.cargarAsesores()
             this.cargarClientes();
             this.cargarRazonNoVenta();
             this.cargarTipoVisitas();
             this.cargarConfiguraciones();
+            this.setState((prevState)=>({...prevState,isLoaded:true}))
+        }else{
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            this.setState((prevState)=>({...prevState,isLoaded:true}));
         }
     }
 

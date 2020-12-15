@@ -20,7 +20,7 @@ const BarChart = props => {
                 confirmButtonText: 'Ok',
             });
 
-        } else {
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
 
             fetch(`${APIURL}/api/estadisticavisita/mes`, {
                 headers: {

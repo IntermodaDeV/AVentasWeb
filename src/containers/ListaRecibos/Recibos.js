@@ -59,7 +59,7 @@ const Recibos = (props) => {
         confirmButtonText: 'Ok',
       });
       setLoading(false);
-    } else {
+    } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
       fetch(urlApi + '/api/cliente/cuenta', {
         headers: {
           Authorization: 'Bearer ' + localStorage.getItem('token')

@@ -65,7 +65,7 @@ const ListaRecibos = (props) => {
                 confirmButtonText: 'Ok',
             });
             setLoading(true);
-        } else {
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
             setLoading(true);
             var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
             var Fin = moment(FechaFin).format("YYYY-MM-DD");

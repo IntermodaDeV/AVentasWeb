@@ -309,7 +309,7 @@ class Asignacion extends Component {
                 confirmButtonText: 'Ok',
             });
             this.setState((prevState) => ({ ...prevState, isLoaded: true }))
-        } else {
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
 
             this.cargarClientes();
             this.cargarAsignaciones(this.state.startDate, this.state.endDate);

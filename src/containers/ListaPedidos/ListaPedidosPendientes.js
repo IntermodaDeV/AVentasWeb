@@ -59,7 +59,7 @@ export const ListaPedidosPendientes = (props) => {
                 confirmButtonText: 'Ok',
             });
             setState({...state,isLoaded:true});
-        } else{
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
         var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
         var Fin = moment(FechaFin).format("YYYY-MM-DD");
         let Asesor = localStorage.getItem('codigo');
