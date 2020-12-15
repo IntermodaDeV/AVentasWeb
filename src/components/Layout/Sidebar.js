@@ -220,7 +220,7 @@ const Sidebar = (props) => {
                                                 // eslint-disable-next-line
                                                 menu.expanded.map((submenu, ind) => {
 
-                                                    if(IsAllow(submenu.to))
+                                                    if(IsAllow(submenu.to, true))
                                                     {
                                                           return (
                                                             /*<ListItemLink

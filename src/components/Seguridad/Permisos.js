@@ -1,6 +1,6 @@
 import store from 'store/store';
 
-export const IsAllow = (Ruta) => {
+export const IsAllow = (Ruta, expanded) => {
     let ModoOffline = localStorage.getItem("Conexion") === "Online" ? false : true;
     const globalState = store.getState();
     const Permisos = globalState["Permisos"];
@@ -8,19 +8,37 @@ export const IsAllow = (Ruta) => {
             for(let rol of usu.RolesUsuarios){
                 for(let fun of rol.RolesFunciones){
                     for(let pan of fun.PantallasFunciones){
-                        if(pan.Ruta.toUpperCase().includes(Ruta.toUpperCase()))
-                        {
-                            if(ModoOffline)
+                        if(expanded === true){
+                            if(pan.Ruta.toUpperCase() === Ruta.toUpperCase())
                             {
-                                if(pan.ModoOffline === true)
+                                if(ModoOffline)
                                 {
+                                    if(pan.ModoOffline === true)
+                                    {
+                                        return true;
+                                    } 
+                                }
+                                else{
                                     return true;
-                                } 
-                            }
-                            else{
-                                return true;
+                                }
                             }
                         }
+                        else{
+                            if(pan.Ruta.toUpperCase().includes(Ruta.toUpperCase()))
+                            {
+                                if(ModoOffline)
+                                {
+                                    if(pan.ModoOffline === true)
+                                    {
+                                        return true;
+                                    } 
+                                }
+                                else{
+                                    return true;
+                                }
+                            }
+                        }
+                        
                     }
                 }
             }
