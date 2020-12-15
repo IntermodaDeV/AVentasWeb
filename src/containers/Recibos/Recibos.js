@@ -334,17 +334,19 @@ const Recibos = (props) => {
     }
   }
 
-  const cargarCliente = async ()=>{
-    let isOnline = await verificarConexion();
-    if(isOnline){
-      try{
-        let request = await axios.get(`${urlApi}/api/cliente/cuenta/${props.clienteSelected.Codigo}`,{headers:{Authorization: 'Bearer ' + localStorage.getItem('token')}});
-        let clientesStorage = props.clientes;
-        let index = clientesStorage.map(e=>e.Codigo).indexOf(props.clienteSelected.Codigo);
-        clientesStorage[index] = request.data;
-        props.onStoreReciboClientes(clientesStorage);
-      }catch(err){
-        console.log(err);
+  const cargarCliente = async () => {
+    if (localStorage.getItem("Conexion") === "Online") {
+      let isOnline = await verificarConexion();
+      if (isOnline) {
+        try {
+          let request = await axios.get(`${urlApi}/api/cliente/cuenta/${props.clienteSelected.Codigo}`, { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } });
+          let clientesStorage = props.clientes;
+          let index = clientesStorage.map(e => e.Codigo).indexOf(props.clienteSelected.Codigo);
+          clientesStorage[index] = request.data;
+          props.onStoreReciboClientes(clientesStorage);
+        } catch (err) {
+          console.log(err);
+        }
       }
     }
   }

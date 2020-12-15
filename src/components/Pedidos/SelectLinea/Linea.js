@@ -12,12 +12,14 @@ import nodisponible from 'assets/nodisponible.png';
 import { APIURL } from 'utils/Enviroment';
 import {useDispatch,useSelector} from 'react-redux';
 import { verificarConexion } from 'utils/http';
+import { Loading } from 'components/Global/Loading';
 
 const Linea = (props) => {
     const [Raised, setRaised] = React.useState(false);
     const dispatch = useDispatch();
     const usuarioOficina = useSelector(e=>e.Permisos[0].UsuarioOficina);
     let imagen = props.Linea.Imagen !== null ? props.Linea.Imagen : nodisponible;
+    const [loading,setLoading] = React.useState(false);
 
     if (props.Linea.Imagen === null) {
         switch (props.Linea.Linea) {
@@ -46,18 +48,25 @@ const Linea = (props) => {
                 .then(res => res.json())
                 .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
         } else {
-            let isOnline = await verificarConexion();
-            props.setLinea(props.Linea);
-            if (localStorage.getItem("Conexion") === "Online" && isOnline) {
-                fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}`)
-                    .then(res => res.json())
-                    .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
+            if (localStorage.getItem("Conexion") === "offline") {
+                props.setLinea(props.Linea);
+            } else {
+                setLoading(true);
+                let isOnline = await verificarConexion();
+                setLoading(false);
+                props.setLinea(props.Linea);
+                if (localStorage.getItem("Conexion") === "Online" && isOnline) {
+                    fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}`)
+                        .then(res => res.json())
+                        .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
+                }
             }
         }
     }
 
     return (
         <Card raised={Raised} onMouseEnter={() => setRaised(true)} onMouseLeave={() => setRaised(false)}>
+            <Loading open={loading} title={"Verificando conexión"}/>
             <CardActionArea onClick={cargarColecciones}>
                 <CardHeader
                     title={

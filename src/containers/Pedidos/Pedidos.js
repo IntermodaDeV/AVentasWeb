@@ -763,9 +763,7 @@ class Pedidos extends React.Component {
                 confirmButtonText: 'Ok'
               })
         }else{
-            if(localStorage.getItem("Conexion")==="offline"){
-                this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
-            }
+            this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
             this.cargarMonedas(this.state.autocompleteValue.EmpresaId);

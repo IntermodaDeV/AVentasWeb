@@ -32,6 +32,8 @@ import InboxIcon from '@material-ui/icons/MoveToInbox';
 import {useSelector} from 'react-redux';
 import { FaWifi } from "react-icons/fa";
 import { verificarConexion } from 'utils/http';
+import { Loading } from 'components/Global/Loading';
+
 const Header = (props) => {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -42,6 +44,7 @@ const Header = (props) => {
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
     const Permisos = useSelector(e=> e.Permisos);
     const UsuarioOficina = Permisos !== undefined && Permisos !== null && Permisos.length > 0 ? Permisos[0].UsuarioOficina : false;
+    const [loading,setLoading] = React.useState(false);
    
     const StyledMenu = withStyles({
         paper: {
@@ -92,7 +95,9 @@ const Header = (props) => {
     };
 
     const handleClick = async () => {
+        setLoading(true);
         let isOnline = await verificarConexion();
+        setLoading(false);
         setIsOnline(isOnline);
         setVisible(true)
 
@@ -181,6 +186,7 @@ const Header = (props) => {
     }
     return (
         <div className={styles.MarginBottomHeader}>
+            <Loading open={loading} title={"Verificando conexión"}/>
             <AppBar color="default" position="static">
                 <Toolbar>
                     <IconButton

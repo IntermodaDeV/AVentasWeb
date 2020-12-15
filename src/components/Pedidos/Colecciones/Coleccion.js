@@ -14,6 +14,7 @@ import styles from "components/Pedidos/Colecciones/Coleccion.module.css";
 import {useSelector,useDispatch} from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
+import { Loading } from 'components/Global/Loading';
 import 'moment/locale/es'
 moment.locale('es');
 
@@ -30,6 +31,7 @@ const Coleccion = (props) => {
   const usuarioOficina = useSelector(e=>e.Permisos[0].UsuarioOficina);
   const dispatch = useDispatch();
   const coleccion = useSelector(e=>e.coleccion);
+  const [loading,setLoading] = React.useState(false);
 
   const cargarProductos = () => {
     fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${localStorage.getItem('empresa')}`)
@@ -49,13 +51,19 @@ const Coleccion = (props) => {
     if (usuarioOficina) {
       cargarProductos();
     } else {
-      let isOnline = await verificarConexion();
-      if (localStorage.getItem("Conexion") === "Online" && isOnline) {
-        if (props.coleccion.CodigoColeccion !== localStorage.getItem('ColeccionSeleccionada') || coleccion === null || coleccion.Edades === undefined || coleccion.Edades.length === 0 || HoraActual > HoraIngreso) {
-          cargarProductos();
-        }
-        else {
-          dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: coleccion.Edades });
+      if (localStorage.getItem("Conexion") === "Online") {
+        setLoading(true);
+        let isOnline = await verificarConexion();
+        setLoading(false);
+        if (localStorage.getItem("Conexion") === "Online" && isOnline) {
+          if (props.coleccion.CodigoColeccion !== localStorage.getItem('ColeccionSeleccionada') || coleccion === null || coleccion.Edades === undefined || coleccion.Edades.length === 0 || HoraActual > HoraIngreso) {
+            cargarProductos();
+          }
+          else {
+            dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: coleccion.Edades });
+            props.Click();
+          }
+        }else{
           props.Click();
         }
       } else {
@@ -66,6 +74,7 @@ const Coleccion = (props) => {
 
   return (
     <div className="col-lg-4 col-md-6 col-12 mb-3 mt-1">
+      <Loading open={loading} title={"Verificando conexión"}/>
       <Card raised={Raised}
         onMouseEnter={() => setRaised(true)}
         onMouseLeave={() => setRaised(false)}>
