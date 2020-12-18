@@ -20,6 +20,9 @@ import Button from '@material-ui/core/Button';
 import { IsAllow } from 'components/Seguridad/Permisos';
 import CachedIcon from '@material-ui/icons/Cached';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import axios from 'axios';
+import { Dropdown } from "semantic-ui-react";
+import { verificarConexion } from 'utils/http';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
@@ -28,38 +31,85 @@ export const Cartera = props => {
     const [cliente, setCliente] = useState(undefined);
     const [loading, setLoading] = useState(true);
     const [filtrados, setFiltrados] = useState([]);
+    const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
+    const [asesor,setAsesor] = useState(AsesoresUsuario[0]);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
-    const cargarCartera = async () => {
-        const { data, error } = await get(`${APIURL}/api/cliente`, "Cartera");
+    const cargarCartera = async (codigo) => {
+        if(AsesoresUsuario.length === 1){
+            const { data, error } = await get(`${APIURL}/api/cliente/${asesor.Usuario}`, "Cartera");
+            if (error) {
+                console.log(error);
+                setLoading(false);
+            } else {
+                dispatch({ type: "SET_CARTERA", payload: data });
+                setFiltrados(data);
+                setLoading(false);
+            }
+        }
 
-        if (error) {
-            console.log(error);
-            setLoading(false);
-        } else {
-            dispatch({ type: "SET_CARTERA", payload: data });
-            setFiltrados(data);
-            setLoading(false);
+        if(AsesoresUsuario.length > 1){
+            try{
+                let seleccionado = asesor.Usuario;
+                if(codigo){
+                    seleccionado = codigo
+                }
+                setCliente(undefined);
+                setLoading(true);
+                const request = await axios.get(`${APIURL}/api/cliente/${seleccionado}`,{headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}});
+                dispatch({ type: "SET_CARTERA", payload: request.data });
+                setFiltrados(request.data);
+                setLoading(false);
+            }catch(err){
+                console.log(err);
+            }
         }
     }
 
-    const recargarClientes = () =>{
-        if(navigator.onLine){
-            localStorage.removeItem('expiracion-Cartera');
-            setCliente(undefined);
-            setLoading(true);
-            cargarCartera();
-        }else{
+    const recargarClientes = async () =>{
+        if (localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
-                title: 'Sin Internet',
-                text: 'Necesita internet para sincronizar la cartera',
-                type: 'warning',
+                title: "Modo Offline",
+                text: "Se encuentra en modo offline, no puede actualizar registros.",
+                type: "warning",
                 confirmButtonText: 'Ok',
             })
+        } else {
+            let isOnline = await verificarConexion();
+            if (isOnline) {
+                localStorage.removeItem('expiracion-Cartera');
+                setCliente(undefined);
+                setLoading(true);
+                cargarCartera();
+            } else {
+                Swal.fire({
+                    title: 'Sin Internet',
+                    text: 'Necesita internet para sincronizar la cartera',
+                    type: 'warning',
+                    confirmButtonText: 'Ok',
+                })
+            }
         }
+    }
+
+    const handleRecarga = () => {
+        Swal.fire({
+            title: 'Aviso',
+            text: '¿Desea actualizar la información en cartera de clientes?',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                recargarClientes();
+            }
+        })
     }
 
     useEffect(() => {
@@ -114,11 +164,28 @@ export const Cartera = props => {
                             )
                         }}
                     />
-                    <Button style={{height:45}} onClick={recargarClientes} variant="contained" color="primary"><CachedIcon/></Button>
+                    <Button style={{height:45}} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon/></Button>
                     </div>
                     <ListaClientes clientes={filtrados} seleccionarCliente={seleccionarCliente} seleccionado={cliente} />
                 </div>
                     <div className="col-md-9">
+                        {AsesoresUsuario.length>1 && <Dropdown
+                            placeholder="Seleccione cliente contado"
+                            fluid
+                            search
+                            selection
+                            onChange={(e, { value }) =>{
+                                const seleccionado = AsesoresUsuario.find(x=>x.Usuario===value);
+                                setAsesor(seleccionado);
+                                cargarCartera(value);
+                            }}
+                            options={AsesoresUsuario.map(asesor => {
+                                return {key:asesor.Usuario, value:asesor.Usuario,text:asesor.Usuario}
+                            })}
+                            noResultsMessage={"No hay resultados"}
+                            closeOnChange={true}
+                            value={asesor.Usuario}
+                        />}
                         <Paper square>
                             <Tabs
                                 value={value}

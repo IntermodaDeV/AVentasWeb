@@ -84,7 +84,6 @@ const Funciones =(props) =>{
     }
 
     const CrearFuncion = async (data)=>{
-        console.log("data",data)
         try{
             await axios.post(`${APIURL}/api/Funciones/Crear`, data);
             Swal.fire({

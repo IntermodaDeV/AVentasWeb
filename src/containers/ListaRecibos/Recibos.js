@@ -20,6 +20,8 @@ const Recibos = (props) => {
   // const [clientePreSelected, setClientePreSelected] = useState(null)
   const [facturasXCliente, setFacturasXCliente] = useState(null)
   // const [tipoPedido, setTipoPedido] = useState(null)
+  import { verificarConexion } from 'utils/http';
+  import Swal from 'sweetalert2/dist/sweetalert2.js';
   const urlApi = APIURL
 
   useEffect(() => {
@@ -46,33 +48,45 @@ const Recibos = (props) => {
     cargarClientes()
   }
 
-  const cargarClientes = () => {
-    fetch(urlApi + '/api/cliente/cuenta', {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token')
-      }
-    }).then(res => {
-      if (res.status === 401) {
-        localStorage.setItem('token', '')
-        window.location.reload()
-      }
-      if (res.status === 200) {
-        res.json().then(
-          result => {
-            setLoading(false);
-            setClientes(result)
-          },
-          // Note: it's important to handle errors here
-          // instead of a catch() block so that we don't swallow
-          // exceptions from actual bugs in components.
-          error => {
-            this.setState({
-              error
-            })
-          }
-        )
-      }
-    })
+  const cargarClientes = async () => {
+    const isOnline = await verificarConexion();
+
+    if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+      Swal.fire({
+        title: "Sin internet",
+        text: "Necesita internet para poder visualizar esta pagina.",
+        type: "warning",
+        confirmButtonText: 'Ok',
+      });
+      setLoading(false);
+    } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+      fetch(urlApi + '/api/cliente/cuenta', {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token')
+        }
+      }).then(res => {
+        if (res.status === 401) {
+          localStorage.setItem('token', '')
+          window.location.reload()
+        }
+        if (res.status === 200) {
+          res.json().then(
+            result => {
+              setLoading(false);
+              setClientes(result)
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            error => {
+              this.setState({
+                error
+              })
+            }
+          )
+        }
+      })
+    }
   }
   const cargarFacturasXCliente = () => {
     setFacturasXCliente(clienteSelected.Facturas)

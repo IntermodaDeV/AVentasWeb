@@ -18,7 +18,6 @@ import {
     //NotificationsOutlined as NotificationsIcon,
     MoreVert as MoreIcon,
 } from '@material-ui/icons';
-
 //Styles
 import {
     makeStyles,
@@ -26,14 +25,57 @@ import {
 } from '@material-ui/core/styles';
 import Logo from 'assets/img/logo/Cabecera.png'
 import styles from 'components/Layout/Layout.module.css'
+import Button from '@material-ui/core/Button';
+import ListItemIcon from '@material-ui/core/ListItemIcon';
+import ListItemText from '@material-ui/core/ListItemText';
+import InboxIcon from '@material-ui/icons/MoveToInbox';
+import {useSelector} from 'react-redux';
+import { FaWifi } from "react-icons/fa";
+import { verificarConexion } from 'utils/http';
+import { Loading } from 'components/Global/Loading';
 
-const Header = () => {
+const Header = (props) => {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-
+    const [Visible, setVisible] = React.useState(null);
+    const [Online, setIsOnline] = React.useState(true);
     const isMenuOpen = Boolean(anchorEl);
     const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+    const Permisos = useSelector(e=> e.Permisos);
+    const UsuarioOficina = Permisos !== undefined && Permisos !== null && Permisos.length > 0 ? Permisos[0].UsuarioOficina : false;
+    const [loading,setLoading] = React.useState(false);
+   
+    const StyledMenu = withStyles({
+        paper: {
+          border: '1px solid #d3d4d5',
+        },
+      })((props) => (
+        <Menu
+          elevation={0}
+          getContentAnchorEl={null}
+          anchorOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          {...props}
+        />
+      ));
+      
+      const StyledMenuItem = withStyles((theme) => ({
+        root: {
+          '&:focus': {
+            backgroundColor: theme.palette.primary.main,
+            '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+              color: theme.palette.common.white,
+            },
+          },
+        },
+      }))(MenuItem);
 
     const handleProfileMenuOpen = event => {
         setAnchorEl(event.currentTarget);
@@ -51,6 +93,43 @@ const Header = () => {
     const handleMobileMenuOpen = event => {
         setMobileMoreAnchorEl(event.currentTarget);
     };
+
+    const handleClick = async () => {
+        setLoading(true);
+        let isOnline = await verificarConexion();
+        setLoading(false);
+        setIsOnline(isOnline);
+        setVisible(true)
+
+      };
+
+      const handleClose = () => {
+        localStorage.setItem("Conexion", "offline");
+        props.history.push('/home');
+        setVisible(null);
+        
+      };
+
+    const contieneRuta = ruta => {
+        console.log(ruta);
+        return ruta.toLowerCase().includes("/pedidos") || ruta.includes("/recibos") || ruta.includes("/Recibos")|| ruta.includes("/cartera");
+    }
+
+      const handleCloseOnline = () => {
+        localStorage.setItem("Conexion", "Online")
+        if(!contieneRuta(props.history.location.pathname)){
+            props.history.push('/home');
+        }
+        setVisible(null);
+        
+      };
+      const handleCloseOffline = () => {
+        localStorage.setItem("Conexion", "offline");
+        if(!contieneRuta(props.history.location.pathname)){
+            props.history.push('/home');
+        }
+        setVisible(null);
+      };
 
     const LogOut = () => {
         localStorage.clear();
@@ -102,9 +181,12 @@ const Header = () => {
             </MenuItem>
         </Menu>
     );
-
+    if(localStorage.getItem("Conexion") === null){
+        localStorage.setItem("Conexion", "Online");
+    }
     return (
         <div className={styles.MarginBottomHeader}>
+            <Loading open={loading} title={"Verificando conexión"}/>
             <AppBar color="default" position="static">
                 <Toolbar>
                     <IconButton
@@ -115,10 +197,43 @@ const Header = () => {
                     >
                         <MenuIcon />
                     </IconButton>
-                    <Link className={styles.LogoHeaderContainer} to="/dashboard">
+                    <Link className={styles.LogoHeaderContainer} to="/home">
                         <img src={Logo} className={"img-fluid " + styles.LogoHeader} alt="Logo" />
                     </Link>
                     <div className={classes.grow} />
+                    <div className={classes.menuButton}>
+                        <Button  aria-controls="customized-menu"
+                            aria-haspopup="true"
+                            variant="contained"
+                            hidden = {UsuarioOficina}
+                            style={{textAlign: 'right',background:localStorage.getItem("Conexion")==="Online"?'green':'red',color:'#fff'}} 
+                            onClick={handleClick}>{localStorage.getItem("Conexion")}
+                        </Button>
+                            <StyledMenu
+                                id="customized-menu"
+                                Visible={Visible}
+                                keepMounted
+                                open={Boolean(Visible)}
+                                onClose={handleClose}>
+
+                                <StyledMenuItem hidden={!Online}>
+                                    <MenuItem onClick={handleCloseOnline}>
+                                        <ListItemIcon>
+                                            <FaWifi  />
+                                        </ListItemIcon>
+                                        <ListItemText primary="ONLINE" />
+                                    </MenuItem>
+                                </StyledMenuItem>
+                                <StyledMenuItem>
+                                    <MenuItem onClick={handleCloseOffline}>
+                                        <ListItemIcon>
+                                            <InboxIcon fontSize="small" />
+                                        </ListItemIcon>
+                                        <ListItemText primary="OFFLINE" />
+                                    </MenuItem>
+                                </StyledMenuItem>
+                            </StyledMenu>
+                        </div>
                     <div className={classes.sectionDesktop}>
                         {/*<IconButton aria-label="Notifications" color="inherit">
                             <Badge badgeContent={17} color="secondary">
@@ -137,6 +252,7 @@ const Header = () => {
                             <AccountIcon />
                         </IconButton>
                     </div>
+            
                     <div className={classes.sectionMobile}>
                         <IconButton
                             aria-label="show more"
@@ -148,6 +264,7 @@ const Header = () => {
                             <MoreIcon />
                         </IconButton>
                     </div>
+                   
                 </Toolbar>
             </AppBar>
             {renderMobileMenu}

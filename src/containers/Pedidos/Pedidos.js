@@ -58,7 +58,7 @@ import FiltroChips from 'components/Pedidos/ProductoLista/FiltroChips';
 import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
-
+import { verificarConexion } from 'utils/http';
 
 const ReactSwal = withReactContent(Swal)
 
@@ -114,59 +114,29 @@ class Pedidos extends React.Component {
         NumPedido: '#',
         clientes:[],
         clientesFiltrados:[],
-        paisSeleccionado:null
+        paisSeleccionado:null,
     };
 
 
 
     cargarData = () => {
-        Promise.all([this.cargarClientes(),
+        /*Promise.all([this.cargarClientes(),
         this.cargarMaestroLinea(),
         this.cargarTiposColeccion(),
         this.cargarTiposPedido()]).then(this.setState({
             isLoaded: true,
-        }));
+        }));*/
+
+        this.cargarClientes();
+        this.setState({
+            isLoaded: true,
+        })
     }
     cargarColecciones = (grupoPrecio, empresa) => {
-        //const empresa = localStorage.getItem('empresa')
-        this.setState({
-            loadingColecciones: true
-        });
-        fetch(this.urlApi + "/api/ColeccionesXLinea/" + grupoPrecio+"/"+empresa, {
-            headers: {
-                'Accept-Encoding': 'gzip',
-                'Content-Encoding': 'gzip'
-            }
-        })
-            .then(res => {
-                if (res.status !== 200) {
-                    localStorage.setItem('token', '');
-                    window.location.reload();
-
-                } else {
-                    res.json().then(
-                        (result) => {
-                            this.setState({
-                                loadingColecciones: false
-                            });
-                            
-                            this.props.onStoreColecciones(result);
-                        })
-                }
-
-            },
-                // Note: it's important to handle errors here
-                // instead of a catch() block so that we don't swallow
-                // exceptions from actual bugs in components.
-                (error) => {
-                    this.setState({
-                        isLoaded: true,
-                        loadingColecciones: false,
-                        error
-                    });
-                }
-            )
+        let colecciones = this.props.ListaPrecios.filter((x)=>x.GrupoPrecio===grupoPrecio && x.EmpresaId===empresa);
+        this.props.onStoreColecciones(colecciones);
     }
+    
     cargarMaestroLinea = () => {
         fetch(this.urlApi + "/api/maestrolinea/")
             .then(res => {
@@ -196,42 +166,46 @@ class Pedidos extends React.Component {
             })
     }
     cargarClientes = () => {
-        fetch(this.urlApi + "/api/cliente/pedido", {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
+        if (this.props.UsuarioOficina) {
+            fetch(this.urlApi + "/api/cliente/pedido", {
+                headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token')
 
-            }
-        })
-            .then(res => {
-                if (res.status === 401) {
-                    localStorage.setItem('token', '');
-                    window.location.reload();
                 }
-                if (res.status === 200) {
-                    res.json()
-                        .then(
-                            (result) => {
-                                this.props.onStoreClientes(result);
-                                this.setState((prevState)=>({...prevState,clientes:result,clientesFiltrados:result}));
-                            },
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                this.setState({
-
-                                    error
-                                });
-                                this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
-                            }
-                        )
-                }
-
             })
-            this.setState((prevState)=>({...prevState,clientes:this.props.clientes,clientesFiltrados:this.props.clientes}));
+                .then(res => {
+                    if (res.status === 401) {
+                        localStorage.setItem('token', '');
+                        window.location.reload();
+                    }
+                    if (res.status === 200) {
+                        res.json()
+                            .then(
+                                (result) => {
+                                    this.props.onStoreClientes(result);
+                                    this.setState((prevState) => ({ ...prevState, clientes: result, clientesFiltrados: result }));
+                                },
+                                // Note: it's important to handle errors here
+                                // instead of a catch() block so that we don't swallow
+                                // exceptions from actual bugs in components.
+                                (error) => {
+                                    this.setState({
+
+                                        error
+                                    });
+                                    this.setState((prevState) => ({ ...prevState, clientes: this.props.clientes, clientesFiltrados: this.props.clientes }));
+                                }
+                            )
+                    }
+
+                })
+        } else {
+            this.setState((prevState) => ({ ...prevState, clientes: this.props.clientes, clientesFiltrados: this.props.clientes }));
+        }
     }
 
+    
     cargarTiposPedido = () => {
         fetch(this.urlApi + "/api/tipopedido")
             .then(res => res.json())
@@ -253,11 +227,14 @@ class Pedidos extends React.Component {
 
     cargarMonedas = (empresa) =>{
         ///let empresa = localStorage.getItem('empresa');
-        fetch(`${this.urlApi}/api/moneda/${empresa}`)
+        /*fetch(`${this.urlApi}/api/moneda/${empresa}`)
         .then(res=>res.json())
         .then(data=>{this.props.onSaveMonedas(data)})
-        .catch(error=>console.log(error))
+        .catch(error=>console.log(error))*/
+        let monedasCliente = this.props.MonedasGlobal.filter(x => x.Empresa === empresa);
+        this.props.onSaveMonedas(monedasCliente);
     }
+
     cargarTiposColeccion = () => {
         fetch(this.urlApi + "/api/TiposColeccion")
             .then(res => res.json())
@@ -281,36 +258,44 @@ class Pedidos extends React.Component {
     cargarEmpresasTransporte = (empresa) =>{
         //const empresa = localStorage.getItem('empresa');
 
-        fetch(`${this.urlApi}/api/transporte/${empresa}/empresas`)
+        /*fetch(`${this.urlApi}/api/transporte/${empresa}/empresas`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreEmpresasTransporte(data))
-        .catch(error=>this.setState({error}))
+        .catch(error=>this.setState({error}))*/
+        let empresasTransporteCliente = this.props.EmpresaTransporteGlobal.filter(x => x.COMPANY === empresa);
+        this.props.onStoreEmpresasTransporte(empresasTransporteCliente);
     }
 
     cargarPrecioCajas = (empresa) =>{
         //const empresa = localStorage.getItem('empresa');
 
-        fetch(`${this.urlApi}/api/transporte/${empresa}/preciocaja`)
+        /*fetch(`${this.urlApi}/api/transporte/${empresa}/preciocaja`)
         .then(res=>res.json())
         .then(data=>this.props.onStorePrecioCajas(data))
-        .catch(error=>this.setState({error}))
+        .catch(error=>this.setState({error}))*/
+        let precioCajasCliente = this.props.PrecioCajasGlobal.filter(x => x.COMPANY === empresa);
+        this.props.onStorePrecioCajas(precioCajasCliente);
     }
 
     cargarImpuestoClientes = (empresa) =>{
         //const empresa = localStorage.getItem('empresa');
-        fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/clientes`)
+        /*fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/clientes`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreImpuestoClientes(data))
-        .catch(error=>this.setState({error}))
+        .catch(error=>this.setState({error}))*/
+        let impuestosCliente = this.props.ClienteImpuestosGlobal.filter(x => x.EMPRESA === empresa);
+        this.props.onStoreImpuestoClientes(impuestosCliente);
     }
 
     cargarImpuestoProductos = (empresa) =>{
         //const empresa = localStorage.getItem('empresa');
 
-        fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/articulos`)
+        /*fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/articulos`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreImpuestoProductos(data))
-        .catch(error=>this.setState({error}))
+        .catch(error=>this.setState({error}))*/
+        let impuestoProductosCliente = this.props.ProductoImpuestosGlobal.filter(x=>x.EMPRESA===empresa);
+        this.props.onStoreImpuestoProductos(impuestoProductosCliente);
     }
 
     Alerta = () => {
@@ -577,7 +562,7 @@ class Pedidos extends React.Component {
         if (!(selectClienteProps.clienteSelected != null && (selectClienteProps.clienteSelected.FacturacionEntrega === "No" || selectClienteProps.clienteSelected.FacturacionEntrega === "Nunca"))) {
             FacturacionEntrega = (
                 <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con floqueo ó  en mora.
+                    <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con bloqueo ó  en mora.
             </div>
             )
 
@@ -778,7 +763,7 @@ class Pedidos extends React.Component {
                 confirmButtonText: 'Ok'
               })
         }else{
-            //this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
+            this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
             this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
@@ -786,7 +771,6 @@ class Pedidos extends React.Component {
             this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
             //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
             this.props.onSetCliente(this.state.autocompleteValue);
-            this.props.onStoreColecciones([])
             this.props.history.push("/Pedidos/Linea");
         }
     }
@@ -1178,6 +1162,7 @@ class Pedidos extends React.Component {
     obtenerUltimoCorrelativo = async () =>{
         var correlativo = "",errorCor;
         try{
+            this.setState((prevState)=>({...prevState,loadingRecibo:true}));
             const request = await axios.get(this.urlApi + "/api/PedidosXCliente/correlativo",{headers:{
                 'Content-Type': 'application/json',
                 'Authorization':'Bearer ' + localStorage.getItem('token')
@@ -1190,7 +1175,8 @@ class Pedidos extends React.Component {
     }
 
     enviarPedidoAx = async (pedido) =>{
-        if(navigator.onLine){
+        let isOnline = await verificarConexion();
+        if(isOnline){
             try{
                 const request = await axios.post(this.urlApi + "/api/PedidosXCliente/postax",pedido,{
                     headers: {
@@ -1219,7 +1205,7 @@ class Pedidos extends React.Component {
     
   
     enviarPeticionPedido = async (location, correlativo) => {
-
+        let isOnline = await verificarConexion();
         let pedido = {
             NumeroReferencia : correlativo,
             PedidoId: 100 + (Math.random() * (10000 - 100)),
@@ -1286,7 +1272,7 @@ class Pedidos extends React.Component {
             }
         })
 
-        if(!navigator.onLine){
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
                 type: 'warning',
                 title: 'Advertencia',
@@ -1298,18 +1284,18 @@ class Pedidos extends React.Component {
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
         }
-        else if(pedido.NumeroReferencia === ""){
+        else if (pedido.NumeroReferencia === "") {
             const data = postPedidoStorage(pedido);
             let numPedido = data.EncabezadoPedido.PedidoId;
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
         }
-        else{
+        else {
 
-            const { data,error } = await post(this.urlApi + "/api/PedidosXCliente",pedido,"SET_PEDIDOSINCRONIZAR");
+            const { data, error } = await post(this.urlApi + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
 
-            if(error){
-                if(error.response){
+            if (error) {
+                if (error.response) {
                     let mensaje = error.response.data.Message;
                     Swal.fire({
                         type: 'error',
@@ -1317,13 +1303,13 @@ class Pedidos extends React.Component {
                         text: mensaje,
                     })
                     this.setState({ loadingRecibo: false });
-                }else{
-                    let numPedido = data.EncabezadoPedido.PedidoId;
+                } else {
+                    let numPedido = data === undefined || data === null ? "No Disponible" : data;
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                     this.props.onSetNumeroOrden(numPedido);
                 }
-            }else{
-                let numPedido = data.EncabezadoPedido.PedidoId;
+            } else {
+                let numPedido = data === undefined || data === null ? "No Disponible" : data;
                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                 this.props.onSetNumeroOrden(numPedido);
             }
@@ -1425,8 +1411,9 @@ class Pedidos extends React.Component {
 
         }*/
     }
-    SendEmailPDF = () => {
-        if (navigator.onLine) {
+    SendEmailPDF = async () => {
+        let isOnline = await verificarConexion();
+        if (isOnline) {
             var element = document.getElementById("invoice-POS");
             html2canvas(element).then(canvas => {
                 var data = canvas.toDataURL('image/jpeg', 1.0);
@@ -2495,7 +2482,14 @@ const mapStateToProps = state => {
         flete:state.flete,
         requiereEntrega:state.requiereEntrega,
         impuesto:state.Impuesto,
-        Paises:state.Permisos[0].EmpresasUsuarios
+        Paises:state.Permisos[0].EmpresasUsuarios,
+        ListaPrecios:state.ListaPrecios,
+        MonedasGlobal:state.MonedasGlobal,
+        EmpresaTransporteGlobal:state.EmpresaTransporteGlobal,
+        PrecioCajasGlobal:state.PrecioCajasGlobal,
+        ClienteImpuestosGlobal:state.ClienteImpuestosGlobal,
+        ProductoImpuestosGlobal:state.ProductoImpuestosGlobal,
+        UsuarioOficina:state.Permisos[0].UsuarioOficina
     };
 };
 const mapDispatchToProps = dispatch => {
@@ -2526,6 +2520,7 @@ const mapDispatchToProps = dispatch => {
         onStoreImpuestoClientes:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOS',payload:impuestos}),
         onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos}),
         onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
+        onSaveListaPrecios:(precios)=>{dispatch({type:'SET_LISTAPRECIOS',payload:precios})}
     };
 };
 /* const linkButton = {

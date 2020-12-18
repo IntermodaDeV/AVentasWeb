@@ -4,7 +4,6 @@ import PopupState, {
     bindTrigger,
     bindPopover
 } from 'material-ui-popup-state';
-import { APIURL } from 'utils/Enviroment';
 import ToggleIcon from 'material-ui-toggle-icon'
 import { Visibility, VisibilityOff } from '@material-ui/icons'
 import { Popover, Typography, Card, CardContent, CardMedia } from "@material-ui/core";
@@ -14,6 +13,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 import 'sweetalert2/src/sweetalert2.scss';
+import { useSelector } from 'react-redux';
 
 
 const ProductoTable = (props) => {
@@ -21,9 +21,8 @@ const ProductoTable = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [IsOpen, setIsOpen] = useState(false);
+    const Configuraciones = useSelector(e=>e.Configuraciones);
 
-
-    const urlApi = APIURL;
     let ArregloProductos = Object.keys(props.producto.Colores).map((key) => ([key, props.producto.Colores[key]]));
     ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1);
 
@@ -60,24 +59,7 @@ const ProductoTable = (props) => {
     }
 
     const cargarBackOrder = () => {
-        fetch(urlApi + "/api/Configuraciones", {
-            // headers: {
-            //     'Authorization':
-            //         'Bearer ' + localStorage.getItem('token'),
-            // }
-        })
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                setHasBackOrder(result.BO)
-                            },
-                        )
-                }
-
-            })
+        setHasBackOrder(Configuraciones.BO)
     }
 
     const onFocus = () => {
@@ -196,6 +178,7 @@ const ProductoTable = (props) => {
                         </PopupState>
                         <div className="pl-2">
                             <FiTrash2 className={styles.FiTrash2} onClick={() => EliminarProducto(props.grupoTalla, props.codigoProducto, props.producto.NombreProducto)} />
+                        {props.producto.CantidadMinima>0 && <span style={{color:"red",fontSize:13,fontWeight:'bold'}}>Este producto se vende en múltiplos de {props.producto.CantidadMinima}</span>}
                         </div>
                     </div>
 
@@ -283,7 +266,7 @@ const ProductoTable = (props) => {
                                         disponible={valorTalla.Disponible}
                                         backorder={backOrder}
                                         hasBackOrder={hasBackOrder}
-                                        futuro={props.futuro}
+                                        NoEsFuturo={props.futuro}
                                         handleArrowKeys={handleArrowKeys}
                                         precio={valorTalla.Precio}
                                         codigoProducto={props.codigoProducto}
@@ -297,6 +280,7 @@ const ProductoTable = (props) => {
                                         color={null}
                                         setListaImagenesPrincipal={null}
                                         CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
+                                        cantidadMinima={props.producto.CantidadMinima}
                                     />
                                 )
                             })

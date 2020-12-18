@@ -11,6 +11,12 @@ import {
     CardContent,
 } from '@material-ui/core';
 import {useDispatch} from 'react-redux';
+import CachedIcon from '@material-ui/icons/Cached';
+import axios from 'axios';
+import { Loading } from 'components/Global/Loading';
+import { APIURL } from 'utils/Enviroment';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { verificarConexion } from 'utils/http';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -20,6 +26,7 @@ const SelectCliente = (props) => {
 
     const [Value, setValue] = useState(null);
     const dispatch = useDispatch();
+    const [loading,setLoading] = useState(false);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -40,6 +47,59 @@ const SelectCliente = (props) => {
     var alerta = false;
     var EsVisible = false;
     var options = [];
+
+    const mostrarAdvertencia = (title,text,type)=>{
+        Swal.fire({
+            title: title,
+            text: text,
+            type: type,
+            confirmButtonText: 'Ok',
+        })
+    }
+
+    const recargarClientes = async () => {
+        let isOnline = await verificarConexion();
+        if (localStorage.getItem("Conexion") === "offline") {
+            mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
+        } else {
+            if (!isOnline) {
+                mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
+            } else {
+                setLoading(true)
+                axios.get(`${APIURL}/api/cliente/cuenta`, {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(data => {
+                        setLoading(false)
+                        dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data.data })
+                    })
+                    .catch(err => {
+                        setLoading(false);
+                        console.log(err)
+                    })
+            }
+        }
+    }
+
+    const handleRecarga = () => {
+        Swal.fire({
+            title: 'Aviso',
+            text: '¿Desea actualizar la información en el modulo de recibos?',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.value) {
+                recargarClientes();
+            }
+        })
+    }
 
     const handleOnChange = (value) => {
         var val = JSON.parse(value);
@@ -116,7 +176,9 @@ const SelectCliente = (props) => {
                                 color="primary">
                                 Continuar
                             </Button>
+                            <Button style={{marginLeft:15}} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon/></Button>
                         </div>
+                        <Loading open={loading} title={"Cargando clientes"}/>
                     </div>
 
                     {
@@ -132,7 +194,7 @@ const SelectCliente = (props) => {
                     <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={alerta} TransitionComponent={TransitionGrow}>
                         <MySnackbarContentWrapper
                             variant="error"
-                            message="El cliente actualmente se encuentra en mora"
+                            message="El cliente actualmente se encuentra con bloqueo ó  en mora."
                         />
                     </Snackbar>
 

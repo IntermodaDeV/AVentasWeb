@@ -25,6 +25,7 @@ import moment from "moment";
 import {connect} from 'react-redux';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import { FaEye } from "react-icons/fa";
+import { get,verificarConexion } from 'utils/http';
 moment.locale('es');
 class Agenda extends Component {
     urlApi = APIURL;
@@ -60,7 +61,9 @@ class Agenda extends Component {
     myRef = React.createRef();
 
     cargarClientes = async () => {
-        fetch(this.urlApi + "/api/cliente/agenda", {
+        let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
+        let Asesor = this.state.AsesorSelected === null ? asesores[0] : this.state.AsesorSelected;
+        fetch(this.urlApi + "/api/cliente/agenda/" + Asesor, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token')
@@ -76,12 +79,8 @@ class Agenda extends Component {
                     res.json()
                         .then(
                             (result) => {
-                                let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
-                                let AsesorSelect = Asesor[0];
                                 this.setState({
                                     clientes: result,
-                                    Asesores: Asesor,
-                                    AsesorSelected : AsesorSelect,
                                 });
                                 
                                 var fecha = this.getFechas(2);
@@ -99,6 +98,14 @@ class Agenda extends Component {
                 }
 
             })
+    }
+
+    cargarAsesores = () => {
+        let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
+        this.setState({
+            Asesores: asesores,
+            AsesorSelected : asesores[0],
+        });
     }
 
     cargarEmpresas = ()=>{
@@ -125,8 +132,8 @@ class Agenda extends Component {
     cargarAsignaciones = (FechaInicio, FechaFin) => {
         var inicio = moment(FechaInicio).format();
         var fin = moment(FechaFin).format();
-
-        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}`, {
+        var asesor = this.state.AsesorSelected;
+        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}&Asesor=${asesor}`, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token'),
@@ -176,56 +183,65 @@ class Agenda extends Component {
             })
     }
 
-    enviarCheckinApi = (location,check)=>{
+    enviarCheckinApi = async (location,check)=>{
 
-        const fechas = this.getFechas(2);
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder realizar esta accion.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+            const fechas = this.getFechas(2);
 
-        const parametros = {
-            IdAsignacionxAsesor:this.state.IdAsignacion,
-            location:location,
-            Fecha:new Date(),
-            Asesor:localStorage.getItem('codigo'),
-            Inicio:fechas.Inicio,
-            Fin:fechas.Fin
+            const parametros = {
+                IdAsignacionxAsesor: this.state.IdAsignacion,
+                location: location,
+                Fecha: new Date(),
+                Asesor: localStorage.getItem('codigo'),
+                Inicio: fechas.Inicio,
+                Fin: fechas.Fin
+            }
+
+            fetch(`${this.urlApi}/api/Asignaciones/${check}`, {
+                headers: {
+                    "Content-type": "application/json"
+                },
+                body: JSON.stringify(parametros),
+                method: "POST"
+            }).then(res => {
+                if (res.status === 200) {
+                    res.json()
+                        .then(resultado => {
+                            Swal.fire({
+                                title: 'Confirmado',
+                                text: resultado.Message,
+                                type: 'success',
+                                confirmButtonText: 'Ok',
+                                target: this.myRef.current
+                            })
+                        });
+
+                    this.cargarAsignaciones(fechas.Inicio, fechas.Fin);
+
+                }
+
+                if (res.status === 400) {
+                    res.json()
+                        .then(resultado => {
+                            Swal.fire({
+                                title: 'Error',
+                                text: resultado.Message,
+                                type: 'error',
+                                confirmButtonText: 'Ok',
+                                target: this.myRef.current
+                            })
+                        });
+                }
+            })
         }
-
-        fetch(`${this.urlApi}/api/Asignaciones/${check}`,{
-            headers:{
-                "Content-type":"application/json"
-            },
-            body:JSON.stringify(parametros),
-            method:"POST"
-        }).then(res=>{
-            if(res.status===200){
-                res.json()
-                .then(resultado=>{
-                    Swal.fire({
-                        title: 'Confirmado',
-                        text: resultado.Message,
-                        type: 'success',
-                        confirmButtonText: 'Ok',
-                        target:this.myRef.current
-                      })
-                });
-
-                this.cargarAsignaciones(fechas.Inicio,fechas.Fin);
-                
-            }
-
-            if(res.status===400){
-                res.json()
-                .then(resultado=>{
-                    Swal.fire({
-                        title: 'Error',
-                        text: resultado.Message,
-                        type: 'error',
-                        confirmButtonText: 'Ok',
-                        target:this.myRef.current
-                      })
-                });
-            }
-        })
-        
     }
 
     enviarCheckin = (check)=>{
@@ -581,8 +597,8 @@ class Agenda extends Component {
     }
     
     onChangeAsesor = () => {
+        this.cargarClientes();
         var eventos = this.setAsignaciones(this.state.Asignaciones);
-
         this.setState({
             Eventos: eventos,
             OpenModalAsesor: false,
@@ -696,16 +712,55 @@ class Agenda extends Component {
             })
     }
 
-    componentDidMount() {
+    cargarConfiguraciones = async () => {
+        const { data, error } = await get(`${APIURL}/api/configuraciones`, "Configuraciones");
+        if (error) {
+            console.log(error);
+        } else {
+            this.props.onSaveConfiguraciones(data);
+        }
+    }
+
+    cargarTipoVisitas = async () => {
+        const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
+        if (error) {
+            console.log(error);
+        } else {
+           this.props.onSaveTipoVisita(data);
+        }
+    }
+
+    async componentDidMount() {
         if(!IsAllow("/agenda"))
         {
             this.props.history.push('/home');
         }
-        this.cargarClientes();
-        this.cargarRazonNoVenta();
-        this.cargarEmpresas();
-        this.cargarMonedas();
-        this.cargarClientesContado();
+
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            this.setState((prevState)=>({...prevState,isLoaded:true}))
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+            this.cargarAsesores()
+            this.cargarClientes();
+            this.cargarRazonNoVenta();
+            this.cargarTipoVisitas();
+            this.cargarConfiguraciones();
+            this.setState((prevState)=>({...prevState,isLoaded:true}))
+        }else{
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            this.setState((prevState)=>({...prevState,isLoaded:true}));
+        }
     }
 
     verifyBlock = (action)=>{
@@ -904,7 +959,7 @@ class Agenda extends Component {
                                                     </tbody>
                                                 </table>
                                                 <div>
-                                                {this.state.AsesorSelected === localStorage.getItem('asesor') && <FormGroup row className={"mb-1"}>                                                    
+                                                {this.state.AsesorSelected === localStorage.getItem('codigo') && <FormGroup row className={"mb-1"}>                                                    
                                                     <Button style={{marginRight:'10px'}}color="primary" variant="outlined" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))}  onClick={() => this.setState((prevState)=>({ ...prevState,noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Atendió</Button>
 
                                                     {!this.verifyBlock("checkin")
@@ -1122,14 +1177,17 @@ const ObtenerCoordenadas = (resolve, reject) => {
 
 const mapStateToProps = state => ({
     empresas:state.empresas,
-    asignaciones:state.Asignaciones
+    asignaciones:state.Asignaciones,
+    Permisos: state.Permisos
 });
 
 const mapDispatchToProps = dispatch =>({
     onSaveEmpresas:(empresas)=>{dispatch({type:'SET_EMPRESAS',payload:empresas})},
     onSaveMonedas:(monedas)=>{dispatch({type:'SET_ABREVACIONMONEDAS',payload:monedas})},
     onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})},
-    onSaveAsignaciones:(asignaciones)=>{dispatch({type:'SET_ASIGNACIONES',payload:asignaciones})}
+    onSaveAsignaciones:(asignaciones)=>{dispatch({type:'SET_ASIGNACIONES',payload:asignaciones})},
+    onSaveTipoVisita:(data)=>{dispatch({ type: "SET_TIPOVISITA", payload: data })},
+    onSaveConfiguraciones:(data)=>{dispatch({ type: "SET_CONFIGURACIONES", payload: data })}
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(Agenda);

@@ -201,7 +201,7 @@ const ResumenPedido = (props) => {
                         if ((props.Cliente.FacturacionEntrega !== "No" && props.Cliente.FacturacionEntrega !== "Nunca")) {
                             Swal.fire({
                                 title: 'Aviso',
-                                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque actualmente el cliente se encuentra en mora.',
+                                text: 'El pedido será subido a AX pero no será autorizado automáticamente, porque el cliente actualmente se encuentra con bloqueo ó  en mora.',
                                 type: 'warning',
                                 showCancelButton: true,
                                 confirmButtonColor: '#3085d6',
@@ -216,7 +216,7 @@ const ResumenPedido = (props) => {
                         } else if ((totalGlobal + impuesto) > props.Cliente.CreditoDisponible && TipoCredito.TipoPedido !== 'Contado') {
                             Swal.fire({
                                 title: 'Aviso',
-                                text: 'El pedido sera subido a AX pero no sera autorizado automaticamente, porque supero su limite de credito.',
+                                text: 'El pedido será subido a AX pero no será autorizado automáticamente, porque superó su límite de crédito.',
                                 type: 'warning',
                                 showCancelButton: true,
                                 confirmButtonColor: '#3085d6',

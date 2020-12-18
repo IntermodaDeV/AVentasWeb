@@ -13,7 +13,8 @@ import {
 import styles from "components/Pedidos/Colecciones/Coleccion.module.css";
 import {useSelector,useDispatch} from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
-
+import { verificarConexion } from 'utils/http';
+import { Loading } from 'components/Global/Loading';
 import 'moment/locale/es'
 moment.locale('es');
 
@@ -27,34 +28,53 @@ const CardHeader = withStyles({
 const Coleccion = (props) => {
   const [Raised, setRaised] = React.useState(false);
   const cliente = useSelector(e=>e.cliente);
+  const usuarioOficina = useSelector(e=>e.Permisos[0].UsuarioOficina);
   const dispatch = useDispatch();
   const coleccion = useSelector(e=>e.coleccion);
-  
-  const selectColeccion = ()=>{
-    let HoraIngreso = localStorage.getItem('HoraIngreso');
-    let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
+  const [loading,setLoading] = React.useState(false);
 
-    if(props.coleccion.CodigoColeccion !== localStorage.getItem('ColeccionSeleccionada') || coleccion === null || coleccion.Edades === undefined || coleccion.Edades.length===0 || HoraActual > HoraIngreso)
-    {
-      fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${localStorage.getItem('empresa')}`)
-      .then(res=>res.json())
-      .then(data=>{
+  const cargarProductos = () => {
+    fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${localStorage.getItem('empresa')}`)
+      .then(res => res.json())
+      .then(data => {
         props.Click();
-        dispatch({type:'SET_PRODUCTOSCOLECCION',payload:data});
+        dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: data });
         localStorage.setItem("ColeccionSeleccionada", props.coleccion.CodigoColeccion)
         localStorage.setItem("HoraIngreso", moment(new Date()).format('YYYY-MM-DDTHH:mm'))
       });
+  }
+  
+  const selectColeccion = async () => {
+    let HoraIngreso = localStorage.getItem('HoraIngreso');
+    let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
+
+    if (usuarioOficina) {
+      cargarProductos();
+    } else {
+      if (localStorage.getItem("Conexion") === "Online") {
+        setLoading(true);
+        let isOnline = await verificarConexion();
+        setLoading(false);
+        if (localStorage.getItem("Conexion") === "Online" && isOnline) {
+          if (props.coleccion.CodigoColeccion !== localStorage.getItem('ColeccionSeleccionada') || coleccion === null || coleccion.Edades === undefined || coleccion.Edades.length === 0 || HoraActual > HoraIngreso) {
+            cargarProductos();
+          }
+          else {
+            dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: coleccion.Edades });
+            props.Click();
+          }
+        }else{
+          props.Click();
+        }
+      } else {
+        props.Click()
+      }
     }
-    else
-    {
-      dispatch({type:'SET_PRODUCTOSCOLECCION',payload:coleccion.Edades});
-      props.Click();
-    }
-   
   }
 
   return (
     <div className="col-lg-4 col-md-6 col-12 mb-3 mt-1">
+      <Loading open={loading} title={"Verificando conexión"}/>
       <Card raised={Raised}
         onMouseEnter={() => setRaised(true)}
         onMouseLeave={() => setRaised(false)}>

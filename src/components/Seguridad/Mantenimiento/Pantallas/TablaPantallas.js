@@ -5,7 +5,7 @@ import { MdCheckCircle,MdCancel } from "react-icons/md";
 import { MdPlaylistAdd } from "react-icons/md";
 
 export const TablaPantallas = props => {
-    const {pantallas,modificarEstado,modificarPantalla} = props;
+    const {pantallas,modificarEstado,modificarPantalla,modificarModoOffline} = props;
 
     return (
         <div>
@@ -32,6 +32,7 @@ export const TablaPantallas = props => {
                                 <th style={{textAlign:'center'}}>Pantalla</th>
                                 <th style={{textAlign:'center'}}>Ruta</th>
                                 <th style={{textAlign:'center'}}>Estado</th>
+                                <th style={{textAlign:'center'}}>Modo Offline</th>
                                 <th style={{textAlign:'center'}}>Acciones</th>
                             </tr>
                         </thead>
@@ -41,6 +42,7 @@ export const TablaPantallas = props => {
                                     <th style={{textAlign:'center'}}>{pantalla.Nombre}</th>
                                     <th style={{textAlign:'center'}}>{pantalla.Ruta}</th>
                                     <th style={{textAlign:'center',color:pantalla.Status?"green":"red"}}>{pantalla.Status?<p>Activo <MdCheckCircle/> </p>:<p>Inactivo <MdCancel/> </p>}</th>
+                                    <th style={{textAlign:'center'}}><input type="checkbox" checked={pantalla.ModoOffline} onChange={(e)=>{modificarModoOffline(pantalla.Id)}} style={{ height: 20, width: 20}}/></th>
                                     <th style={{textAlign:'center'}}>
                                         <button style={{marginLeft:'10px'}} 
                                                 className="btn btn-warning" 

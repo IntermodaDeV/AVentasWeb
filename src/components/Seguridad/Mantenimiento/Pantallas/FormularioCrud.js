@@ -11,7 +11,8 @@ const validationSchema = yup.object().shape(
 {
     Nombre: yup.string().required('El nombre es obligatorio'),
     Ruta:yup.string().required('La ruta es obligatoria'),
-    Status: yup.boolean()
+    Status: yup.boolean(),
+    ModoOffline:yup.boolean()
 });
 
 export const FormularioCrud = props => {
@@ -28,6 +29,7 @@ export const FormularioCrud = props => {
             Nombre: Valores.Nombre,
             Status: Valores.Status,
             Ruta: Valores.Ruta,
+            ModoOffline:Valores.ModoOffline,
             Usuario: localStorage.getItem('codigo')
         }
         edit=true;
@@ -38,6 +40,7 @@ export const FormularioCrud = props => {
             Nombre: '',
             Status: true,
             Ruta:'',
+            ModoOffline:false,
             Usuario: localStorage.getItem('codigo')
         }
         edit=false;
@@ -93,6 +96,17 @@ export const FormularioCrud = props => {
                                 />
                                 }
                                 label={"Activar"}
+                            />
+                            <FormControlLabel
+                                control={
+                                <Field
+                                    type="checkbox"
+                                    name="ModoOffline"
+                                    checked={values.ModoOffline}
+                                    as={CheckBox}
+                                />
+                                }
+                                label={"Modo Offline"}
                             />
                         </div>
                         <DialogActions>

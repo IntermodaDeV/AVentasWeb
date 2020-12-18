@@ -17,6 +17,8 @@ import { FaEye } from "react-icons/fa";
 import MySnackbarContentWrapper from 'components/Global/snackbar';
 import Snackbar from '@material-ui/core/Snackbar';
 import {useSelector, useDispatch} from 'react-redux';
+import { verificarConexion } from 'utils/http';
+import { Loading } from 'components/Global/Loading';
 moment.locale('es');
 
 const urlApi = APIURL
@@ -26,6 +28,8 @@ const urlApi = APIURL
 const DetalleRecibo = (props) => {
     // const [totalAPagar, setTotalAPagar] = useState(0.00);
     const Monedas = useSelector(e=>e.Monedas);
+    const BancosGlobal = useSelector(e=>e.BancosGlobal);
+    const TipoPagoGlobal = useSelector(e=>e.TipoPagoGlobal);
     const [bancos, setBancos] = useState([]);
     const [ModalRecibo, setModalRecibo] = useState(false);
     const [recibosAplicados, setRecibosAplicados] = useState([]);
@@ -33,6 +37,7 @@ const DetalleRecibo = (props) => {
     const [addedNewPayment, setAddedNewPayment] = useState(false);
     const [InfoModal, setInfoModal] = useState([]);
     const [openPedidoModal, setOpenPedidoModal] = useState(false);
+    const [loading,setLoading] = useState(false);
     //const [bancoSeleccionado, setBancoSeleccionado] = useState(null);
     const [cuotasYDescuentoAplicado, setCuotasYDescuentoAplicado] = useState({
         Cuotas: [],
@@ -50,6 +55,7 @@ const DetalleRecibo = (props) => {
     const pedidoSelected = useSelector(e=>e.pedidoSelected);
     const dispatch = useDispatch();
     let calculo =React.useRef(1);
+    let arregloModificado = [];
     
     const [pagosXRecibo, setPagosXRecibo] = useState([
         {
@@ -95,6 +101,33 @@ const DetalleRecibo = (props) => {
         }
         // eslint-disable-next-line
     }, []);
+
+    const rebajarSaldoFactura = (numFactura, numCuota, valorPago, Descuento) => {
+        let arreglocopia = [];
+        if(arregloModificado.length === 0)
+        {
+            arregloModificado = props.Clientes;
+        }
+
+        arregloModificado.filter(a => a.Codigo === props.Cliente.Codigo).forEach(function(entry) {
+            
+            entry.AcuerdosXTipoPedido.forEach(function(AcuerdosXTipoPedido) {
+
+                AcuerdosXTipoPedido.Acuerdos.forEach(function(Acuerdos) {
+
+                    Acuerdos.Facturas.filter(f => f.Factura === numFactura).forEach(function(Facturas) {
+                        Facturas.Cuotas.filter(c => c.NumeroCuota === numCuota).forEach(function(Cuotas) {
+                            Facturas.Saldo = Facturas.Saldo - valorPago - Descuento;
+                            Cuotas.Saldo = Cuotas.Saldo - valorPago - Descuento;
+                            console.log(Facturas);
+                        })
+                    });
+                } );
+            });
+        });
+        arreglocopia = arregloModificado;
+        dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: arreglocopia });
+    }
 
     const CuotasAgrupadas = () => {
         let cuotasSinAgrupar = [];
@@ -434,7 +467,9 @@ const DetalleRecibo = (props) => {
     }
     const cargarBancos = () => {
         let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa')
-        fetch(urlApi + "/api/banco/" + empresa, {
+        const bancosEmpresa = BancosGlobal.filter(x=>x.EmpresaId===empresa);
+        setBancos(bancosEmpresa)
+        /*fetch(urlApi + "/api/banco/" + empresa, {
             headers: {
                 Authorization: 'Bearer ' + localStorage.getItem('token')
             }
@@ -454,12 +489,14 @@ const DetalleRecibo = (props) => {
                     }
                 )
             }
-        })
+        })*/
     };
 
     const cargarTiposPago = () => {
-        let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa')
-        fetch(urlApi + '/api/TipoPago/'+empresa, {
+        let empresa = localStorage.getItem('EmpresaCliente') !== null ? localStorage.getItem('EmpresaCliente') : localStorage.getItem('empresa');
+        const tipoPagoEmpresa = TipoPagoGlobal.filter(x=>x.EmpresaId===empresa);
+        setTiposPago(tipoPagoEmpresa);
+        /*fetch(urlApi + '/api/TipoPago/'+empresa, {
             headers: {
                 Authorization: 'Bearer ' + localStorage.getItem('token')
             }
@@ -479,7 +516,7 @@ const DetalleRecibo = (props) => {
                     }
                 )
             }
-        })
+        })*/
     };
 
     const CargarDatos = () => {
@@ -521,9 +558,11 @@ const DetalleRecibo = (props) => {
         });
     }
 
-    const EnviarReciboApi = (location) => {
+    const EnviarReciboApi = async (location) => {
+        setLoading(true);
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
-        if(!navigator.onLine)
+        let isOnline = await verificarConexion();
+        if(!isOnline || localStorage.getItem("Conexion")==="offline")
         {
             let ValorPago = Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0));
             let ReciboCache = {
@@ -560,15 +599,19 @@ const DetalleRecibo = (props) => {
                 CodigoUltimoRecibo : " Disponible",
                 Total :  ValorPago,
                 Facturas : cuotasYDescuentoAplicado.Cuotas.map(fact => {
+                    let NumeroCuota = cuotasYDescuentoAplicado.agrupadas ? fact[0] : 0;
+                    let descuento = cuotasYDescuentoAplicado.agrupadas ? fact[8].replace(',', '') :  fact[11].replace(',', '');
+                    let Aplicado = localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ?  Number(fact[10].replace(',', '')) : Number(fact[13].replace(',', ''));
+                    rebajarSaldoFactura(fact[1], NumeroCuota,Aplicado,descuento);
                     return {
-                        "Aplicado" : localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ?  Number(fact[10].replace(',', '')) : Number(fact[13].replace(',', '')),
+                        "Aplicado" : Aplicado,
                         "Dias" :cuotasYDescuentoAplicado.agrupadas ? "" : fact[5],
                         "EsAbono" :cuotasYDescuentoAplicado.agrupadas ? fact[10] !== fact[9] ? true : false : fact[12] !== fact[13] ? true : false,
                         "Fecha" :cuotasYDescuentoAplicado.agrupadas ? Date(fact[12]) : Date(fact[4]),
                         "IdFactura" : fact[1],
                         "NumeroFEL" : "",
                         "Parcial" :localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ? fact[7].replace(',', '') : fact[12].replace(',', ''),
-                        "Parcial2" : cuotasYDescuentoAplicado.agrupadas ? fact[8].replace(',', '') :  fact[11].replace(',', ''),
+                        "Parcial2" : descuento,
                         "TipoDocumento" : cuotasYDescuentoAplicado.agrupadas ? fact[13] : fact[0]
                     }
                 }),
@@ -581,6 +624,7 @@ const DetalleRecibo = (props) => {
             setRecibosAplicados(ReciboCache);
             dispatch({ type: "SET_RECIBOSENCACHE", payload: ReciboCache });
             setModalRecibo(true);
+            setLoading(false);
         }
         else
         {
@@ -665,12 +709,14 @@ const DetalleRecibo = (props) => {
                             (result) => {
                                 setRecibosAplicados(result);
                                 setModalRecibo(true);
+                                setLoading(false);
 
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
                             // exceptions from actual bugs in components.
                             (error) => {
+                                setLoading(true);
                                 Swal.fire({
                                     type: 'error',
                                     title: 'Error',
@@ -688,7 +734,7 @@ const DetalleRecibo = (props) => {
                                     title: 'Error',
                                     text: result.Message,
                                 })
-
+                                setLoading(false);
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -764,6 +810,7 @@ const DetalleRecibo = (props) => {
 
     return (
         <div>
+            <Loading open={loading} title="Cargando"/>
             {props.Cliente.Pedido.length !== 0? <h3>Pago Recibido <Button color="primary" onClick={() => { OpenPedidosModal() }} variant="contained" className="float-right" style={{marginRight: '110px'}}>Asociar Pedido</Button></h3> : <h3>Pago Recibido</h3>}
             <div className="row">
                 <Card style={{ marginTop: '10px', marginBottom: '10px' }}>

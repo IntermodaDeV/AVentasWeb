@@ -18,6 +18,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { FiAlertTriangle } from 'react-icons/fi';
 import Dialog        from '@material-ui/core/Dialog';
 import { Loading } from 'components/Global/Loading';
+import { verificarConexion } from 'utils/http';
 
 moment.locale('es');
 
@@ -49,6 +50,16 @@ export const ListaPedidosPendientes = (props) => {
 
 
     const cargarPedidos = async (FechaInicio, FechaFin) => {
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            setState({...state,isLoaded:true});
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
         var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
         var Fin = moment(FechaFin).format("YYYY-MM-DD");
         let Asesor = localStorage.getItem('codigo');
@@ -88,10 +99,12 @@ export const ListaPedidosPendientes = (props) => {
                         )
                 }
             })
+        }
     }
 
     const sincronizarPedido = async (pedido)=>{
-        if(navigator.onLine){
+        let isOnline = await verificarConexion();
+        if(isOnline && localStorage.getItem("Conexion")==="Online"){
             try{
                 setLoading(true);
                 const request = await axios.post(urlApi + "/api/PedidosXCliente/sincronizar/"+pedido);
@@ -180,22 +193,31 @@ export const ListaPedidosPendientes = (props) => {
         return DataPedidos;
     }
 
-    const GetPedidoDetalle = (Pedido, EsImpresion) =>{
-        let EnDetalle = EsImpresion ? null : Pedido;
-        fetch(`${APIURL}/api/PedidoDetalle/${Pedido.PedidoId}`)
-        .then(res=>res.json())
-        .then(data=>{
-            setState({
-                ...state,
-                Detalles: data,
-                pedido: EnDetalle,
-            });
-            if(EsImpresion)
-            {
-                setShowDialog(true);
-            }
-        });
-        setDialogPedido(Pedido);
+    const GetPedidoDetalle = async (Pedido, EsImpresion) =>{
+        let isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
+            Swal.fire({
+                title: 'Sin Internet',
+                text: 'Necesita internet para sincronizar el pedido',
+                type: 'warning',
+                confirmButtonText: 'Ok',
+              })
+        } else {
+            let EnDetalle = EsImpresion ? null : Pedido;
+            fetch(`${APIURL}/api/PedidoDetalle/${Pedido.PedidoId}`)
+                .then(res => res.json())
+                .then(data => {
+                    setState({
+                        ...state,
+                        Detalles: data,
+                        pedido: EnDetalle,
+                    });
+                    if (EsImpresion) {
+                        setShowDialog(true);
+                    }
+                });
+            setDialogPedido(Pedido);
+        }
     }
 
     const hidePrint = () => {

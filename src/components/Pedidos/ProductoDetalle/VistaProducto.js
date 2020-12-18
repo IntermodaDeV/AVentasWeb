@@ -3,13 +3,13 @@ import { Button } from '@material-ui/core'
 import notFound from 'assets/nodisponible.png';
 import { FaEye } from "react-icons/fa";
 import Lightbox from 'react-image-lightbox';
-//import ReactTooltip from 'react-tooltip'
+import { FiAlertTriangle } from 'react-icons/fi';
 import TablaVistaProducto from 'components/Pedidos/ProductoDetalle/TablaVistaProducto';
 import Slider from "components/Pedidos/ProductoDetalle/Slider";
 import RelatedContainer from "components/Pedidos/ProductoDetalle/RelatedContainer";
 import Expandable from "components/Pedidos/ProductoDetalle/Expandable";
 import styles from 'components/Pedidos/ProductoDetalle/VistaProducto.module.css';
-import {APIURL} from 'utils/Enviroment';
+import { useSelector } from 'react-redux';
 
 const VistaProducto = (props) => {
     const [precioProducto, setPrecio] = useState(undefined);
@@ -19,8 +19,7 @@ const VistaProducto = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
     const [imagenes] = useState(props.producto.ListaImagenes);
     const [IsOpen, setIsOpen] = useState(false);
-
-    const urlApi = APIURL;
+    const Configuraciones = useSelector(e=>e.Configuraciones);
 
     useEffect(() => {
         // Update the document title using the browser API
@@ -55,24 +54,7 @@ const VistaProducto = (props) => {
     }, [props.producto]);
 
     const cargarBackOrder = () => {
-        fetch(urlApi + "/api/Configuraciones", {
-            // headers: {
-            //     'Authorization':
-            //         'Bearer ' + localStorage.getItem('token'),
-            // }
-        })
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                setHasBackOrder(result.BO)
-                            },
-                        )
-                }
-
-            })
+        setHasBackOrder(Configuraciones.BO)
     }
 
     const Mounted = () => {
@@ -191,6 +173,7 @@ const VistaProducto = (props) => {
                     <div className="col-12 mt-2">
                         <div className="my-2">
                             <Button color="primary" variant="outlined" onClickCapture={toggleSelect}>{selected ? "Quitar" : "Agregar"}</Button>
+                            {props.producto.CantidadMinima>0 && <div style={{color:"red",display:"inline",marginLeft:15,fontSize:20}}><FiAlertTriangle style={{color:'red'}}/> Este producto se vende en múltiplos de {props.producto.CantidadMinima}</div>}
                         </div>
                     </div>
                     <div className="col-12 p-0 mt-3">

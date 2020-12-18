@@ -24,7 +24,7 @@
       work correctly both with client-side routing and a non-root public URL.
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
-    <link rel="stylesheet" href="%PUBLIC_URL%/style.css?v=1.1.4">
+    <link rel="stylesheet" href="%PUBLIC_URL%/style.css?v=1.1.9">
   <title>Intermoda</title>
   <style type="text/css">
     body {
@@ -84,6 +84,24 @@
     } else {
       console.log('Service Worker is not supported by browser.');
     }
+
+    const disableF5 = e =>{
+      if (localStorage.getItem('Conexion') === "offline") {
+        if ((e.which || e.keyCode) === 116) {
+          alert('Debe disponer de internet para poder actualizar.');
+          e.preventDefault();
+        }
+      } else {
+        if (!navigator.onLine) {
+          if ((e.which || e.keyCode) === 116) {
+            alert('Debe disponer de internet para poder actualizar.');
+            e.preventDefault();
+          }
+        }
+      }
+    }
+
+    document.addEventListener("keydown",disableF5)
   </script>
   <!--Start of Tawk.to Script-->
 <script type="text/javascript">

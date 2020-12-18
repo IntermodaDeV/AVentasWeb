@@ -6,11 +6,12 @@ import { Radio, RadioGroup, FormControl, FormLabel, FormControlLabel } from '@ma
 import styles from './AsignacionModal.module.css';
 import moment from "moment";
 import {APIURL} from 'utils/Enviroment';
+import {useSelector} from 'react-redux';
 moment.locale('es');
 
 
 const Modal = (props) => {
-    const [LoadedTiempoEstimado, setLoadedTiempoEstimado] = useState(false);
+    const [LoadedTiempoEstimado,setLoadedTiempoEstimado] = useState(false);
     const [RadioValue, setRadioValue] = useState('');
     const [HoraDialogFin, setHoraDialogFin] = useState(new Date());
     const [TiempoTotal, setTiempoTotal] = useState('');
@@ -19,6 +20,9 @@ const Modal = (props) => {
     const [TiposVisitaCliente, setTiposVisitaCliente] = useState([]);
     const [TipoValues, setTipoValues] = useState([]);
     const [TipoInitialValues, setTipoInitialValues] = useState([]);
+
+    const Configuracion = useSelector(e=>e.Configuraciones);
+    const TipoVisita = useSelector(e=>e.TipoVisita);
 
     let NoWarn = "" + LoadedTiempoEstimado + HoraDialogFin + TiempoTotal + TiposVisitaCliente + TipoInitialValues;
     
@@ -31,7 +35,6 @@ const Modal = (props) => {
 
 
     useEffect(() => {
-
         cargarPrioridadesAsignacion();
         cargarTiempoEstimado();
         cargarTiposAsignacionCliente();
@@ -39,37 +42,13 @@ const Modal = (props) => {
     }, []);
 
     const cargarTiposAsignacionCliente = () => {
-        fetch(urlApi + "/api/TipoVisitaCliente")
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                getTipos(result);
-                                setTiposVisitaCliente(result);
-                            },
-                        )
-                }
-
-            })
+        getTipos(TipoVisita);
+        setTiposVisitaCliente(TipoVisita);
     }
 
     const cargarTiempoEstimado = () => {
-        fetch(urlApi + "/api/Configuraciones")
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                setLoadedTiempoEstimado(true)
-                                setConfiguraciones(result);
-                            },
-                        )
-                }
-
-            })
+        setLoadedTiempoEstimado(true)
+        setConfiguraciones(Configuracion);
     }
 
     const cargarPrioridadesAsignacion = () => {

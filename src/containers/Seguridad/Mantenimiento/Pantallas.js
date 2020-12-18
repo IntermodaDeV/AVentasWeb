@@ -115,6 +115,33 @@ export const Pantallas = props => {
         }
     }
 
+    const modificarModoOffline = async (id)=>{
+        try{
+            await axios.post(`${APIURL}/api/pantalla/modooffline/${id}`);
+            Swal.fire({
+                title: 'Confirmado',
+                text: "Se ha cambiado el estado exitosamente.",
+                type: 'success',
+                confirmButtonText: 'Ok',
+            }).then(e=>{
+                cargarPantallas();
+            });
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha modificado la pantalla.";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
     const abrirModificarPantalla = (rol)=>{
         setPantalla(rol);
         setMostar(true);
@@ -139,7 +166,7 @@ export const Pantallas = props => {
                 </DialogContent>
             </Dialog>
             
-            <TablaPantallas pantallas={pantallas} modificarEstado={modificarEstado} modificarPantalla={abrirModificarPantalla} setMostar={setMostar}/>
+            <TablaPantallas pantallas={pantallas} modificarEstado={modificarEstado} modificarPantalla={abrirModificarPantalla} modificarModoOffline={modificarModoOffline} setMostar={setMostar}/>
         </div>
     )
 }

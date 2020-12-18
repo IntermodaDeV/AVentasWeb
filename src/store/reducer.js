@@ -48,7 +48,17 @@ const initialState = {
     PedidoSincronizar:[],
     ReciboSincronizar:[],
     RecibosEnCache:[],
-    Cartera:[]
+    Cartera:[],
+    MonedasGlobal:[],
+    BancosGlobal:[],
+    TipoPagoGlobal:[],
+    Configuraciones:null,
+    EmpresaTransporteGlobal:[],
+    PrecioCajasGlobal:[],
+    ClienteImpuestosGlobal:[],
+    ProductoImpuestosGlobal:[],
+    TipoVisita:[],
+    ListaPrecios:[]
 }
 
 const calcularLimite = (state) => {
@@ -395,11 +405,27 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if(action.type==='SET_EMPRESASTRANSPORTEGLOBAL')
+    {
+        return{
+            ...state,
+            EmpresaTransporteGlobal:action.payload
+        }
+    }
+
     if(action.type==='SET_PRECIOCAJAS')
     {
         return{
             ...state,
             precioCajas:action.payload
+        }
+    }
+
+    if(action.type==='SET_PRECIOCAJASGLOBAL')
+    {
+        return{
+            ...state,
+            PrecioCajasGlobal:action.payload
         }
     }
 
@@ -419,11 +445,27 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if(action.type==='SET_CLIENTEIMPUESTOSGLOBAL')
+    {
+        return{
+            ...state,
+            ClienteImpuestosGlobal:action.payload
+        }
+    }
+
     if(action.type==='SET_PRODUCTOIMPUESTOS')
     {
         return{
             ...state,
             ProductoImpuestos:action.payload
+        }
+    }
+
+    if(action.type==='SET_PRODUCTOIMPUESTOSGLOBAL')
+    {
+        return{
+            ...state,
+            ProductoImpuestosGlobal:action.payload
         }
     }
 
@@ -459,6 +501,31 @@ const reducer = (state = initialState, action) => {
             Monedas:action.payload
         }
     }
+
+    if(action.type==='SET_MONEDASGLOBAL')
+    {
+        return{
+            ...state,
+            MonedasGlobal:action.payload
+        }
+    }
+
+    if(action.type==='SET_BANCOSGLOBAL')
+    {
+        return{
+            ...state,
+            BancosGlobal:action.payload
+        }
+    }
+
+    if(action.type==='SET_TIPOPAGOGLOBAL')
+    {
+        return{
+            ...state,
+            TipoPagoGlobal:action.payload
+        }
+    }
+
     if(action.type==='SET_PERMISOS')
     {
         return{
@@ -567,6 +634,27 @@ const reducer = (state = initialState, action) => {
         return{
             ...state,
             Cartera:action.payload
+        }
+    }
+
+    if(action.type === 'SET_CONFIGURACIONES'){
+        return {
+            ...state,
+            Configuraciones:action.payload
+        }
+    }
+
+    if(action.type === 'SET_TIPOVISITA'){
+        return {
+            ...state,
+            TipoVisita:action.payload
+        }
+    }
+
+    if(action.type === 'SET_LISTAPRECIOS'){
+        return {
+            ...state,
+            ListaPrecios:action.payload
         }
     }
 

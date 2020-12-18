@@ -135,6 +135,9 @@ const PagoReciboTable = (props) => {
         //   setSelectedRowsIndex(allRowsSelected.map(row => row.dataIndex))
         // }
     }
+
+    const [habilitado,setHabilitado] = useState(true);
+
     const Validaciones = () => {
         if(props.Pedido !== null && localStorage.getItem('Faltante') !== '0'){
             props.showAlert(true,'El valor de pago tiene que ser igual al valor del pedido seleccionado');
@@ -144,7 +147,6 @@ const PagoReciboTable = (props) => {
             props.EnviarRecibo()
         }
       };
-    const [habilitado,setHabilitado] = useState(true);
     const validacionFechaPago = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray, indexBanco, referencia)=>{
         /*
             0 Cheque             [0=Cheque al dia,1=Cheque posfechado]
@@ -575,7 +577,7 @@ const PagoReciboTable = (props) => {
                 }
                 <Button
                     className="ml-1"
-                    onClick={() => { Validaciones() }}
+                    onClick={() => { Validaciones(); }}
                     variant="contained"
                     disabled={habilitado}
                     color="primary">

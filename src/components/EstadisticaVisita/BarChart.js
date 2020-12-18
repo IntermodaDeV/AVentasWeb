@@ -3,23 +3,35 @@ import { Bar } from "react-chartjs-2";
 import {APIURL} from 'utils/Enviroment';
 import moment from 'moment';
 import 'moment/locale/es';
+import { verificarConexion } from 'utils/http';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 moment.locale('es');
 
 const BarChart = props => {
-    console.log(props)
     const [visitas,setVisitas] = useState([]);
 
-    const cargarVisitasPorMes = () =>{
+    const cargarVisitasPorMes = async () =>{
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
 
-        fetch(`${APIURL}/api/estadisticavisita/mes`,{
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
 
-            }
-        })
-        .then(res=>res.json())
-        .then(data=>setVisitas(data));
+            fetch(`${APIURL}/api/estadisticavisita/mes`, {
+                headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token')
+
+                }
+            })
+                .then(res => res.json())
+                .then(data => setVisitas(data));
+        }
     }
 
     const obtenerCabeceras = () =>{

@@ -156,6 +156,7 @@ const MatrizResumen = (props) => {
                                         const prod = findProduct(codigoProducto);
                                         const productoImpuesto = productoImpuestos.find(x=>x.GRUPO===prod.GrupoImpuesto).IMPUESTO;
                                         let producto = props.tableValue[grupoTalla].Productos[codigoProducto];
+                                        producto = {...producto,CantidadMinima:prod.CantidadMinima};
                                         let tallas = props.tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
                                         let IsDist = checkDist(tallas);
                                         let productoConCantindad = false;

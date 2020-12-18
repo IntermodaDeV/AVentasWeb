@@ -1,69 +1,404 @@
-import React,{useEffect} from 'react';
-import {APIURL} from 'utils/Enviroment';
-import {useDispatch} from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { APIURL } from 'utils/Enviroment';
+import { useDispatch } from 'react-redux';
+import { Loading } from 'components/Global/Loading';
+import { get } from 'utils/http';
+import SteperSync from 'containers/Home/SteperSync';
+import { getLocalStorage } from 'utils/http';
+import moment from 'moment';
+import axios from 'axios';
+import { FiAlertTriangle } from 'react-icons/fi';
+import { verificarConexion } from 'utils/http';
+
 export const Home = (props) => {
     const dispatch = useDispatch();
-
+    const [loading, setloading] = useState(false);  
+    const [mensaje,setMensaje] = useState('');
+    const [activeStep, setActiveStep] = useState(0);
+    const [SyncDiaria, setSyncDiaria] = useState(true);  
+    const [UsuarioOficina, setUsuarioOficina] = useState(false);  
+    
     useEffect(() => {
+        let data = getLocalStorage("ListaPrecios");
+        if(data === null)
+        {
+            dispatch({ type: 'SET_PERMISOS', payload: [] });
+            localStorage.setItem("OcurrioError", false)
+            setSyncDiaria(false);
+        }
+        else
+        {
+            CargaPermisos();
+        }
+        // eslint-disable-next-line
+    },[])
+
+    const CargaPermisos  = async () => {
+        let isOnline = await verificarConexion();
+        if(isOnline){
+            ObtenerPermisos();
+        }
+    }
+
+    const CargarModuloConfiguraciones = () => {
+        setloading(true);
+        ////Configuracion General
         ObtenerPermisos();
         cargarEmpresas();
-        cargarMonedas();
+        cargarAbreviacionMonedas();
         cargarClientesContado();
         cargarComunidadAutonoma();
-         // eslint-disable-next-line
-    }, []);
-    const ObtenerPermisos = ()=>{
+        cargarMonedas();
+        cargarConfiguraciones();
+
+         ////Configuracion De Pedido
+         cargarMaestroLinea();
+         cargarTiposColeccion();
+         cargarTiposPedido(); 
+         cargarEmpresasTransporte(); 
+         cargarPrecioCajas(); 
+         cargarImpuestoClientes(); 
+         cargarImpuestoProductos();
+        /////Configuracion De Recibos
+        cargarBancos();
+        cargarTipoPago();
+        cargarTipoVisitas(); ///Siempre debe ser el Ultimo Metodo
+    }
+    const ModuloCarteracliente = () => {
+        CarteraClientes();
+    }
+    const CargaModuloRecibo = () => {
+        cargarClientesRecibos();///Siempre debe ser el Ultimo Metodo
+    }
+
+    const CargaModuloPedidos = () => {
+        cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
+        
+    }
+   
+    const ObtenerPermisos = async () => {
         fetch(`${APIURL}/api/Accesos/${localStorage.getItem('codigo')}`)
-        .then(res => {
-            if (res.status === 401) {
-                window.location.reload();
+            .then(res => {
+                if (res.status === 401) {
+                    window.location.reload();
+                }
+                if (res.status === 200) {
+                    res.json()
+                        .then(data => {
+                            setUsuarioOficina(data[0].UsuarioOficina)
+                            dispatch({ type: 'SET_PERMISOS', payload: data });
+                        },
+                            (error) => {
+                                console.log(error)
+                            }
+                        )
+                }
+            })
+    }
+
+    const cargarComunidadAutonoma = async () => {
+        setMensaje('Cargando Monedas');
+        const { data, error } = await get(`${APIURL}/api/transporte/comunidadautonoma`, "comunidadesAutonomas");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data });
+        }
+    }
+   
+    const cargarEmpresas = async () => {
+        setMensaje('Cargando Empresas');
+        const { data, error } = await get(`${APIURL}/api/empresa/empresas`, "Empresas");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'SET_EMPRESAS', payload: data });
+        }
+    }
+
+    const cargarAbreviacionMonedas = async () => {
+        setMensaje('Cargando Monedas');
+        const { data, error } = await get(`${APIURL}/api/moneda`, "AbreviacionMonedas");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data });
+        }
+    }
+
+    const cargarMonedas = async () => {
+        setMensaje('Cargando Monedas');
+        const { data, error } = await get(`${APIURL}/api/moneda/monedas`, "MonedasGlobal");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_MONEDASGLOBAL", payload: data });
+        }
+    }
+
+    const cargarConfiguraciones = async () => {
+        setMensaje('Cargando Configuraciones');
+        const { data, error } = await get(`${APIURL}/api/configuraciones`, "Configuraciones");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_CONFIGURACIONES", payload: data });
+        }
+    }
+
+    const cargarTipoVisitas = async () => {
+        console.log("UsuarioOficina",UsuarioOficina)
+        setMensaje('Cargando Tipo Visitas');
+        const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+           
+            if(UsuarioOficina){
+                setSyncDiaria(true);
+                setloading(false);
             }
-            if (res.status === 200) {
-            res.json()
-            .then(data=> 
-                    {
-                    console.log("data",data)
-                    dispatch({type:'SET_PERMISOS',payload:data});
-                    },
-                    (error) => {
-                        console.log(error)
-                    }
-                )
+            else{
+                ModuloCarteracliente();
             }
-        })
+        } else {
+            dispatch({ type: "SET_TIPOVISITA", payload: data });
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            if(UsuarioOficina){
+                setSyncDiaria(true);
+                setloading(false);
+                setActiveStep((prevActiveStep) => prevActiveStep + 3);
+            }
+            else{
+                ModuloCarteracliente();
+            }
+        }
     }
 
-    const cargarComunidadAutonoma = () =>{
-        fetch(`${APIURL}/api/transporte/comunidadautonoma`)
-        .then(res=>res.json())
-        .then(data=>dispatch({type:'SET_COMUNIDADAUTONOMA',payload:data}))
-        .catch(error=>this.setState({error}))
+    const cargarClientesContado = async () => {
+        setMensaje('Cargando Clientes de Contado');
+        const { data, error } = await get(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`, "clientesContado");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_CLIENTESCONTADO", payload: data });
+        }
     }
 
-    const cargarEmpresas = ()=>{
-        fetch(`${APIURL}/api/empresa/empresas`)
-        .then(res=>res.json())
-        .then(data=>{ dispatch({type:'SET_EMPRESAS',payload:data})})
-        .catch(error=>console.log(error))
+    /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE RECIBOS --------------------------------------*/
+
+    const cargarClientesRecibos = async () => {
+        setMensaje('Cargando Clientes de Recibo');
+        const { data, error } = await get(`${APIURL}/api/cliente/cuenta`, "Recibo", "clientes");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            CargaModuloPedidos();
+        } else {
+            dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data });
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            CargaModuloPedidos();
+        }
     }
 
-    const cargarMonedas = () =>{
-        fetch(`${APIURL}/api/moneda`)
-        .then(res=>res.json()) 
-        .then(data=>{ dispatch({type:'SET_ABREVACIONMONEDAS',payload:data})})
-        .catch(error=>console.log(error))
+    const cargarTipoPago = async () => {
+        setMensaje('Cargando tipo de pago');
+        const { data, error } = await get(`${APIURL}/api/tipopago`, "TipoPagoGlobal");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_TIPOPAGOGLOBAL", payload: data });
+        }
     }
 
-    const cargarClientesContado = ()=>{
-        fetch(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`)
-        .then(res=>res.json())
-        .then(data=>{dispatch({type:'SET_CLIENTESCONTADO',payload:data})})
-        .catch(error=>console.log(error))
+    const cargarBancos = async () => {
+        setMensaje('Cargando Bancos');
+        const { data, error } = await get(`${APIURL}/api/banco`, "BancosGlobal");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_BANCOSGLOBAL", payload: data });
+        }
     }
-    return(
-        <div style={{height:'100%'}} className="container-fluid">
+    /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/
+
+    const cargarMaestroLinea = async () => {
+        setloading(true);
+        setMensaje('Cargando lineas');
+        const { data, error } = await get(`${APIURL}/api/maestrolinea`, "MaestroLineas");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: data });
+        }
+    }
+    const cargarTiposColeccion = async () => {
+        setMensaje('Cargando Tipos Coleccion');
+        const { data, error } = await get(`${APIURL}/api/TiposColeccion`, "TiposColeccion");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: data });
+        }
+    }
+
+    const cargarTiposPedido = async () => {
+        setMensaje('Cargando Tipos de Pedidos');
+        const { data, error } = await get(`${APIURL}/api/tipopedido`, "TiposPedido");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: data });
+        }
+    }
+   
+    const cargarEmpresasTransporte = async () => {
+        setMensaje('Cargando Empresas Transporte');
+        const { data, error } = await get(`${APIURL}/api/transporte/empresas`, "EmpresaTransporteGlobal");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'SET_EMPRESASTRANSPORTEGLOBAL', payload: data });
+        }
+    }
+
+    const cargarPrecioCajas = async () => {
+        setMensaje('Cargando Precio Cajas');
+        const { data, error } = await get(`${APIURL}/api/transporte/preciocaja`, "PrecioCajasGlobal");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'SET_PRECIOCAJASGLOBAL', payload: data });
+        }
+    }
+
+    const cargarImpuestoClientes = async () => {
+        setMensaje('Cargando Impuestos Clientes');
+        const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Clientes`, "ClienteImpuestosGlobal");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'SET_CLIENTEIMPUESTOSGLOBAL', payload: data });
+        }
+    }
+
+    const cargarImpuestoProductos = async () => {
+        setMensaje('Cargando Impuestos Productos')
+        const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Articulos`, "ProductoImpuestosGlobal");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'SET_PRODUCTOIMPUESTOSGLOBAL', payload: data });
+        }
+    }
+
+    const cargarClientesPedidos = async () => {
+        setMensaje('Cargando Cliente Pedidos')
+        const { data, error } = await get(`${APIURL}/api/cliente/pedido`, "clientes");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: 'STORE_CLIENTES', clientes: data });
+            cargarListaPrecios(data);
+        }
+    }
+
+    const cargarListaPrecios = (clientes) => {
+        setMensaje('Cargando Colecciones y Productos')
+        let data = getLocalStorage("ListaPrecios");
+
+        if (data) {
+            dispatch({ type: 'SET_LISTAPRECIOS', payload: data });
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            setSyncDiaria(true);
+            setloading(false);
+        } else {
+            const listaPrecios = [...new Set(clientes.map(x => x.GrupoPrecio))];
+            const paises = [...new Set(clientes.map(x => x.EmpresaId))];
+
+            axios.get(APIURL + "/api/colecciones/listaprecios", {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                params: {
+                    ListaPrecios: listaPrecios,
+                    Paises: paises
+                }
+            })
+                .then(res => {
+                    dispatch({ type: 'SET_LISTAPRECIOS', payload: res.data });
+                    let fecha = moment(new Date()).format("YYYY-MM-DD");
+                    localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
+                    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                    setSyncDiaria(true);
+                    setloading(false);
+                })
+                .catch(err => {
+                    localStorage.setItem("OcurrioError", true)
+                    console.log(err)
+                    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                    setSyncDiaria(true);
+                    setloading(false);
+                });
+        }
+    }
+
+
+    /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE CARTERA DE CLIENTES--------------------------------------*/
+
+    const CarteraClientes = async () => {
+        console.log("UsuarioOficina",UsuarioOficina)
+        if (UsuarioOficina === false) {
+            const { data, error } = await get(`${APIURL}/api/cliente/${localStorage.getItem("codigo")}`, "Cartera");
+            if (error) {
+                CargaModuloRecibo();
+                setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                console.log(error);
+            } else {
+                dispatch({ type: "SET_CARTERA", payload: data });
+                setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                CargaModuloRecibo();
+            }
+        }
+    }
+
+    /*--------------------------------------------------------------------------------------------------------------------*/
+    return (
+        <div style={{ height: '100%' }} className="container-fluid">
             <div class="card-body text-center">
-              <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
+                <Loading open={loading} title={mensaje}/>
+                <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
+                <hr />
+                {
+                    SyncDiaria === false &&
+                    <div style ={{textAlign:'center',fontSize: '26px'}} className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <FiAlertTriangle style={{ fontSize: '30px', color: 'red'}} /> ¡Necesita realizar la sincronización diaria obligatoria para acceder al sistema!
+                    </div>
+                }
+                
+                <SteperSync
+                    CargarModuloConfiguraciones={CargarModuloConfiguraciones}
+                    loading={loading}
+                    activeStep = {activeStep}>
+                </SteperSync>
             </div>
         </div>
     )

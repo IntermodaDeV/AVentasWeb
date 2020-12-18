@@ -12,7 +12,6 @@ export const get = async (url, key, subkey) => {
         if (data) {
             return { data, error };
         }
-
         const request = await axios.get(url, {
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -20,7 +19,8 @@ export const get = async (url, key, subkey) => {
         });
 
         data = request.data;
-        localStorage.setItem(`expiracion-${key}`, moment().add(1, 'day'));
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-${key}`, moment(`${fecha} 23:59:59`));
 
     } catch (err) {
         return { data, error: err };
@@ -30,9 +30,10 @@ export const get = async (url, key, subkey) => {
 }
 
 export const post = async (url, info, action) => {
+    let isOnline = await verificarConexion();
     var data, error;
     try {
-        if (navigator.onLine) {
+        if (isOnline) {
             const request = await axios.post(url, info, {
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token'),
@@ -67,12 +68,13 @@ export const postPedidoStorage = (info)=>{
 }
 
 export const backgroundPostPedidos = async () => {
+    let isOnline = await verificarConexion();
     const url = APIURL + "/api/PedidosXCliente";
     const globalState = store.getState();
     const pedidoSincronizar = globalState["PedidoSincronizar"];
     let newPedidoSincronizar = [];
 
-    if (navigator.onLine && pedidoSincronizar.length > 0) {
+    if (isOnline && pedidoSincronizar.length > 0) {
         for (let pedido of pedidoSincronizar) {
             const { error } = await backgroundPost(url, pedido);
 
@@ -86,12 +88,13 @@ export const backgroundPostPedidos = async () => {
 }
 
 export const backgroundPostRecibos = async () => {
+    let isOnline = await verificarConexion();
     const url = APIURL + "/api/Recibo";
     const globalState = store.getState();
     const reciboSincronizar = globalState["ReciboSincronizar"];
     let newReciboSincronizar = [];
 
-    if (navigator.onLine && reciboSincronizar.length > 0) {
+    if (isOnline && reciboSincronizar.length > 0) {
         for (let recibo of reciboSincronizar) {
             const { error } = await backgroundPost(url, recibo);
 
@@ -104,7 +107,7 @@ export const backgroundPostRecibos = async () => {
     }
 }
 
-const getLocalStorage = (key, subkey) => {
+export const getLocalStorage = (key, subkey) => {
     const globalState = store.getState();
     let local = localStorage.getItem(`expiracion-${key}`);
 
@@ -141,5 +144,19 @@ const backgroundPost = async (url, info) => {
         return { data, error };
     } catch (err) {
         return { data, error: err }
+    }
+}
+
+export const verificarConexion = async() => {
+    if (navigator.onLine) {
+        try {
+            // eslint-disable-next-line
+            const request = await axios.get(APIURL + "/api/configuraciones/conexion");
+            return true;
+        } catch (err) {
+            return false;
+        }
+    } else {
+        return false;
     }
 }

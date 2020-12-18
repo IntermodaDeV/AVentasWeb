@@ -14,14 +14,11 @@ import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import { IsAllow } from 'components/Seguridad/Permisos';
 import axios from 'axios';
-import { FiAlertTriangle } from 'react-icons/fi';
+import { useSelector } from 'react-redux';
 import { verificarConexion } from 'utils/http';
-
 moment.locale('es');
 
-export const ListaReciboPendiente = (props) => {
-    const urlApi = APIURL;
-
+export const ListaReciboCreditos = (props) => {
     const [error, setError] = useState(false);
     const [isLoaded, setIsLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
     const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
@@ -31,12 +28,20 @@ export const ListaReciboPendiente = (props) => {
     const [showDialog, setShowDialog] = useState(false);
     const [DialogRecibo, setDialogRecibo] = useState(null);
     const [isLoading, setLoading] = useState(false);
+    const [Asesores, setAsesores] = useState([]);
+    const [AsesorSelected, setAsesorSelected] = useState(null);
+    const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
 
     useEffect(() => {
-        if (!IsAllow("/lista-recibos-pendientes")) {
+        if (!IsAllow("/lista-recibos-creditos")) {
             props.history.push('/home');
         }
-        cargarRecibos();
+
+        let asesores = AsesoresUsuario.map(e => ({ key: e.Usuario, value: e.Usuario, text: e.Usuario }));
+        setAsesores(asesores);
+        setAsesorSelected(AsesoresUsuario[0].Usuario)
+
+        cargarRecibos("1900-01-01", "1900-01-01");
         // eslint-disable-next-line
     }, []);
 
@@ -44,51 +49,75 @@ export const ListaReciboPendiente = (props) => {
         setRecibo(recibo);
     }
 
-    const cargarRecibos = async () => {
-        let isOnline = await verificarConexion();
-        if (!isOnline) {
-            Swal.fire({
-                title: "Sin internet",
-                text: "Necesita internet para poder visualizar esta pagina.",
-                type: "warning",
-                confirmButtonText: 'Ok',
-            });
-            setIsLoaded(true);
-        } else {
-            fetch(urlApi + "/api/Recibo/Pendiente", {
-                headers: {
-                    'Authorization':
-                        'Bearer ' + localStorage.getItem('token')
+    // eslint-disable-next-line
+    /*const cargarRecibos = async () => {
+        fetch(APIURL + "/api/Recibo", {
+            headers: {
+                'Authorization':
+                    'Bearer ' + localStorage.getItem('token')
 
+            }
+        })
+            .then(res => {
+                if (res.status === 401) {
+                    localStorage.setItem('token', '');
+                    window.location.reload();
+                }
+                if (res.status === 200) {
+                    res.json()
+                        .then(
+                            (result) => {
+
+                                setRecibos(result);
+                                setIsLoaded(true);
+                            },
+                            // Note: it's important to handle errors here
+                            // instead of a catch() block so that we don't swallow
+                            // exceptions from actual bugs in components.
+                            (error) => {
+                                setError(error);
+                                setIsLoaded(true);
+                            }
+                        )
                 }
             })
-                .then(res => {
-                    if (res.status === 401) {
-                        localStorage.setItem('token', '');
-                        window.location.reload();
-                    }
-                    if (res.status === 200) {
-                        res.json()
-                            .then(
-                                (result) => {
+    }*/
 
-                                    setRecibos(result);
-                                    setIsLoaded(true);
-                                },
-                                // Note: it's important to handle errors here
-                                // instead of a catch() block so that we don't swallow
-                                // exceptions from actual bugs in components.
-                                (error) => {
-                                    setError(error);
-                                    setIsLoaded(true);
-                                }
-                            )
-                    }
-                })
-        }
+    const cargarRecibos = async (FechaInicio, FechaFin) => {
+        setLoading(true);
+        var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
+        var Fin = moment(FechaFin).format("YYYY-MM-DD");
+        let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
+        fetch(APIURL + "/api/Recibo/" + Asesor + "/" + Inicio + "/" + Fin, {
+            headers: {
+                'Authorization':
+                    'Bearer ' + localStorage.getItem('token')
+
+            }
+        }).then(res => {
+                if (res.status === 401) {
+                    localStorage.setItem('token', '');
+                    window.location.reload();
+                }
+                if (res.status === 200) {
+                    res.json()
+                        .then(
+                            (result) => {
+                                setRecibos(result);
+                                setIsLoaded(true);
+                                setLoading(false);
+                            },
+                            // Note: it's important to handle errors here
+                            // instead of a catch() block so that we don't swallow
+                            // exceptions from actual bugs in components.
+                            (error) => {
+                                setError(error);
+                                setIsLoaded(true);
+                            }
+                        )
+                }
+            })
     }
-
-
 
     const handleFechaInicio = (fecha) => {
 
@@ -130,11 +159,11 @@ export const ListaReciboPendiente = (props) => {
 
     const sincronizar = async (recibo) => {
         let isOnline = await verificarConexion();
-        let ruta = `${urlApi}/api/Recibo/Pendiente/${recibo.recibo}`;
+        let ruta = `${APIURL}/api/Recibo/Pendiente/${recibo.recibo}`;
         if (recibo.anticipo) {
-            ruta = `${urlApi}/api/Recibo/Anticipo/Pendiente/${recibo.recibo}`;
+            ruta = `${APIURL}/api/Recibo/Anticipo/Pendiente/${recibo.recibo}`;
         }
-        if (isOnline && localStorage.getItem("Conexion")==="Online") {
+        if (isOnline) {
             try {
                 setLoading(true);
                 const request = await axios.post(ruta);
@@ -144,7 +173,6 @@ export const ListaReciboPendiente = (props) => {
                     title: 'Sincronizado',
                     text: request.data,
                 });
-                cargarRecibos();
             } catch (err) {
                 setLoading(false);
                 let mensaje = "Ha ocurrido un error y no se pudo sincronizar el recibo con AX.";
@@ -172,11 +200,7 @@ export const ListaReciboPendiente = (props) => {
     const DataRecibos = () => {
         let DataRecibos = [];
 
-        if (recibos != null) {
-
-        }
-
-        recibos.map(recib => {
+        recibos.filter(r => r.Asesor === AsesorSelected).forEach(recib => {
 
             let fechaIni = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
             let fechaFin = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
@@ -216,10 +240,7 @@ export const ListaReciboPendiente = (props) => {
 
                 DataRecibos.push(data);
             }
-            return false;
-
         });
-
         return DataRecibos;
     }
 
@@ -228,6 +249,9 @@ export const ListaReciboPendiente = (props) => {
         setDialogRecibo(null);
     }
 
+    const handleOnChangeAsesor = (value) => {
+        setAsesorSelected(value);
+    }
 
     const RegresarListaRecibos = () => {
         setRecibo(null);
@@ -249,9 +273,6 @@ export const ListaReciboPendiente = (props) => {
     } else {
         return (
             <>
-                <div style={{ textAlign: 'center', fontSize: '28px' }} className="alert alert-warning alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '32px', color: 'orange' }} /> Los recibos mostrados en esta pantalla están registrados únicamente en la nube pero no en AX.
-            </div>
                 <Listado
                     startDate={startDate}
                     endDate={endDate}
@@ -263,6 +284,10 @@ export const ListaReciboPendiente = (props) => {
                     showDialog={showDialog}
                     hidePrint={hidePrint}
                     DialogRecibo={DialogRecibo}
+                    Asesores={Asesores}
+                    AsesorSelected={AsesorSelected}
+                    handleOnChangeAsesor={handleOnChangeAsesor}
+                    cargarRecibos = {cargarRecibos}
                 />
                 <Loading title="Sincronizando Recibo" open={isLoading} />
             </>

@@ -24,7 +24,9 @@ import {IsAllow} from 'components/Seguridad/Permisos';
 import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
-
+import { get } from 'utils/http';
+import axios from 'axios';
+import { verificarConexion } from 'utils/http';
 
 moment.locale('es');
 const Recibos = (props) => {
@@ -91,7 +93,7 @@ const Recibos = (props) => {
     props.clienteSelected.AcuerdosXTipoPedido.forEach(acuXTip => {
       acuXTip.Acuerdos.forEach(acu => {
         acu.Facturas.forEach(fact => {
-          fact.Cuotas.forEach(cuot => {
+          fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
             let diasVencimiento = moment().diff(cuot.FechaVencimiento, 'days') * -1;
             let diasDescuento = moment().diff(cuot.FechaMaxDescuento, 'days') * -1;
             let aPagar = cuot.Saldo;
@@ -288,44 +290,75 @@ const Recibos = (props) => {
     cargarClientes()
   }
 
-  const cargarClientes = () => {
-    fetch(urlApi + '/api/cliente/cuenta', {
-      headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token')
-      }
-    }).then(res => {
-      if (res.status === 401) {
-        localStorage.setItem('token', '')
-        window.location.reload()
-      }
-      if (res.status === 200) {
-        res.json().then(
-          result => {
-            setLoading(false);
-            props.onStoreReciboClientes(result);
-            setClientes(result);
-            setClientesFiltrados(result);
-          },
-          // Note: it's important to handle errors here
-          // instead of a catch() block so that we don't swallow
-          // exceptions from actual bugs in components.
-          error => {
+  const cargarClientes = async () => {
+    if (props.UsuarioOficina) {
+      fetch(urlApi + '/api/cliente/cuenta', {
+        headers: {
+          Authorization: 'Bearer ' + localStorage.getItem('token')
+        }
+      }).then(res => {
+        if (res.status === 401) {
+          localStorage.setItem('token', '')
+          window.location.reload()
+        }
+        if (res.status === 200) {
+          res.json().then(
+            result => {
+              setLoading(false);
+              props.onStoreReciboClientes(result);
+              setClientes(result);
+              setClientesFiltrados(result);
+            },
+            // Note: it's important to handle errors here
+            // instead of a catch() block so that we don't swallow
+            // exceptions from actual bugs in components.
+            error => {
 
-          }
-        )
-      }
-    })
+            }
+          )
+        }
+      })
 
-    setClientes(props.clientes);
-    setClientesFiltrados(props.clientes);
+      setClientes(props.clientes);
+      setClientesFiltrados(props.clientes);
+    } else {
+      const { data, error } = await get(`${urlApi}/api/cliente/cuenta`, "Recibo", "clientes");
+      if (error) {
+        console.log(error);
+      } else {
+        setLoading(false);
+        props.onStoreReciboClientes(data);
+        setClientes(data);
+        setClientesFiltrados(data);
+      }
+    }
+  }
+
+  const cargarCliente = async () => {
+    if (localStorage.getItem("Conexion") === "Online") {
+      let isOnline = await verificarConexion();
+      if (isOnline) {
+        try {
+          let request = await axios.get(`${urlApi}/api/cliente/cuenta/${props.clienteSelected.Codigo}`, { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } });
+          let clientesStorage = props.clientes;
+          let index = clientesStorage.map(e => e.Codigo).indexOf(props.clienteSelected.Codigo);
+          clientesStorage[index] = request.data;
+          props.onStoreReciboClientes(clientesStorage);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    }
   }
 
   const cargarMonedas = () =>{
     let empresa = localStorage.getItem('EmpresaCliente');
-    fetch(`${urlApi}/api/moneda/${empresa}`)
+    const monedas = props.monedasGlobal.filter(x=>x.Empresa===empresa);
+    props.onSaveMonedas(monedas);
+    /*fetch(`${urlApi}/api/moneda/${empresa}`)
     .then(res=>res.json())
     .then(data=>{props.onSaveMonedas(data)})
-    .catch(error=>console.log(error))
+    .catch(error=>console.log(error))*/
   }
   const cargarFacturasXCliente = () => {
     props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas);
@@ -349,7 +382,7 @@ const Recibos = (props) => {
 
   const Finalizar = () => {
     //setModalRecibo(false);
-    cargarClientes();
+    cargarCliente();
     dispatch({type:'delete_pedidoselected'})
     props.history.push(`/recibos`);
 }
@@ -602,6 +635,7 @@ const Recibos = (props) => {
               <DetalleRecibo
                 history={props.history}
                 Cliente={props.clienteSelected}
+                Clientes = {clientes}
                 Cuotas={props.cuotasXCliente}
                 CuotasAPagar={props.cuotasAPagar}
                 CargarImpresion ={CargarImpresion}
@@ -640,9 +674,10 @@ const mapStateToProps = state => {
     cuotasAPagar: state.Recibo.cuotasAPagar,
     facturasXCliente: state.Recibo.facturasXCliente,
     cuotasCuentaCorriente: state.Recibo.cuotasCuentaCorriente,
-
+    monedasGlobal:state.MonedasGlobal,
     loading: state.Recibo.loading,
-    Paises:state.Permisos[0].EmpresasUsuarios
+    Paises:state.Permisos[0].EmpresasUsuarios,
+    UsuarioOficina:state.Permisos[0].UsuarioOficina
   };
 };
 const mapDispatchToProps = dispatch => {

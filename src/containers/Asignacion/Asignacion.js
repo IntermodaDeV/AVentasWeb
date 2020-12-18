@@ -15,17 +15,17 @@ import AsignacionModal from 'components/Agenda/AsignacionModal';
 import CargarAsignaciones from 'components/Agenda/CargarAsignaciones';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import 'sweetalert2/src/sweetalert2.scss'
-
+import { verificarConexion } from 'utils/http';
 import {
     Card,
     CardBody,
     CardHeader
 } from 'reactstrap';
-
+import {connect} from 'react-redux';
 import moment from "moment";
 moment.locale('es');
 
-export default class Asignacion extends Component {
+class Asignacion extends Component {
     urlApi = APIURL;
     state = {
         startDate: new Date(),
@@ -147,8 +147,8 @@ export default class Asignacion extends Component {
     cargarAsignaciones = (FechaInicio, FechaFin) => {
         var inicio = moment(FechaInicio).format();
         var fin = moment(FechaFin).format();
-
-        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}`, {
+        var asesor = null;
+        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}&Asesor=${asesor}`, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token'),
@@ -170,53 +170,16 @@ export default class Asignacion extends Component {
 
             })
     }
+    
     cargarTiposAsignacionCliente = () => {
-        fetch(this.urlApi + "/api/TipoVisitaCliente", {
-            // headers: {
-            //     'Authorization':
-            //         'Bearer ' + localStorage.getItem('token'),
-            // }
-        })
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                this.getTipos(result);
-                                this.setState({
-                                    TiposVisitaCliente: result,
-                                });
-                            },
-                        )
-                }
-
-            })
+        this.setState((prevState)=>({...prevState,TiposVisitaCliente:this.props.TipoVisita}));
+        this.getTipos(this.props.TipoVisita);
     }
 
     cargarTiempoEstimado = () => {
-        fetch(this.urlApi + "/api/Configuraciones", {
-            // headers: {
-            //     'Authorization':
-            //         'Bearer ' + localStorage.getItem('token'),
-            // }
-        })
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                this.setState({
-                                    LoadedTiempoEstimado: true,
-                                    Configuraciones: result
-                                });
-                            },
-                        )
-                }
-
-            })
+        this.setState((prevState)=>({...prevState,LoadedTiempoEstimado:true,Configuraciones:this.props.Configuraciones}))
     }
+
     cargarPrioridadesAsignacion = () => {
         fetch(this.urlApi + "/api/PrioridadAsignacion", {
             // headers: {
@@ -265,8 +228,8 @@ export default class Asignacion extends Component {
 
     getTiempos() {
 
-        if (this.state.Configuraciones) {
-            let { IN, MV } = this.state.Configuraciones;
+        if (this.props.Configuraciones) {
+            let { IN, MV } = this.props.Configuraciones;
 
             let Tiempos = [];
             let Interval = parseInt(IN);
@@ -331,16 +294,29 @@ export default class Asignacion extends Component {
         return label;
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         if(!IsAllow("/asignacion"))
         {
             this.props.history.push('/home');
         }
-        this.cargarClientes();
-        this.cargarAsignaciones(this.state.startDate, this.state.endDate);
-        this.cargarTiposAsignacionCliente();
-        this.cargarPrioridadesAsignacion();
-        this.cargarTiempoEstimado();
+
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            this.setState((prevState) => ({ ...prevState, isLoaded: true }))
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+
+            this.cargarClientes();
+            this.cargarAsignaciones(this.state.startDate, this.state.endDate);
+            this.cargarTiposAsignacionCliente();
+            this.cargarPrioridadesAsignacion();
+            this.cargarTiempoEstimado();
+        }
     }
 
 
@@ -796,8 +772,9 @@ export default class Asignacion extends Component {
         });
     }
 
-    onClick = () => {
-        if (navigator.onLine) {
+    onClick = async () => {
+        let isOnline = await verificarConexion();
+        if (isOnline) {
             this.setState({
                 GuardarAsignacion: true,
             })
@@ -1342,3 +1319,10 @@ const getRadio = (Color, ColorChecked) => {
 
     return <RadioColor />;
 }
+
+const mapStateToProps = state =>({
+    Configuraciones:state.Configuraciones,
+    TipoVisita:state.TipoVisita
+})
+
+export default connect(mapStateToProps)(Asignacion);

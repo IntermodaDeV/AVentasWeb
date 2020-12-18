@@ -9,14 +9,17 @@ import DetallePedido from 'components/ListadoPedidos/DetallePedido';
 import { PrintOutlined } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import ImprimirPedido from 'components/ListadoPedidos/ImprimirPedido';
-import  TableFooter from "@material-ui/core/TableFooter";
-import  TableRow from "@material-ui/core/TableRow";
-import  TablePagination from "@material-ui/core/TablePagination";
+import TableFooter from "@material-ui/core/TableFooter";
+import TableRow from "@material-ui/core/TableRow";
+import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import { IsAllow } from 'components/Seguridad/Permisos';
 import { Dropdown } from "semantic-ui-react";
+import { useSelector } from 'react-redux';
+import { verificarConexion } from 'utils/http';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 moment.locale('es');
 
 const ListaPedidos = (props) => {
@@ -36,14 +39,15 @@ const ListaPedidos = (props) => {
     });
     const [showDialog, setShowDialog] = useState(false);
     const [DialogPedido, setDialogPedido] = useState(null);
-    const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
-    const [fechaFin, setFechaFin] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
+    const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 30));
+    const [fechaFin, setFechaFin] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
     const [AsesorSelected, setAsesorSelected] = useState(null);
+    const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
     useEffect(() => {
-        if(!IsAllow(props.match.url))
-        {
+        if (!IsAllow(props.match.url)) {
             props.history.push('/home');
         }
+        setAsesorSelected(AsesoresUsuario[0].Usuario);
         cargarPedidos("1900-01-01", "1900-01-01");
         //cargarClientes();
         // eslint-disable-next-line
@@ -51,54 +55,62 @@ const ListaPedidos = (props) => {
 
 
     const cargarPedidos = async (FechaInicio, FechaFin) => {
-        var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
-        var Fin = moment(FechaFin).format("YYYY-MM-DD");
-        let Asesor = localStorage.getItem('codigo');
-        fetch(urlApi + "/api/PedidosXCliente/"+ Asesor + "/" + Inicio + "/" + Fin, {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
+        let isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            setState((prevState)=>({...prevState,isLoaded:true}))
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+            var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
+            var Fin = moment(FechaFin).format("YYYY-MM-DD");
+            let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
+            fetch(urlApi + "/api/PedidosXCliente/" + Asesor + "/" + Inicio + "/" + Fin, {
+                headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token')
 
-            }
-        })
-            .then(res => {
-                if (res.status === 401) {
-                    localStorage.setItem('token', '');
-                    window.location.reload();
-                }
-                if (res.status === 200) {
-                    res.json()
-                        .then(
-                            (result) => {
-                                let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
-                                let asesores = [];
-                                Asesor.map((Ase) => {
- 
-                                 let Valores = { key: Ase, value: Ase, text: Ase }
-                                 asesores.push(Valores);
-                                 return true;
-                             })
-                                setState({
-                                    ...state,
-                                    isLoaded: true,
-                                    pedidos: result,
-                                    Asesores: asesores,
-                                });
-                            },
-                            setAsesorSelected(AsesorSelected === null ? Asesor : AsesorSelected),
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                setState({
-                                    ...state,
-                                    isLoaded: true,
-                                    error
-                                });
-                            }
-                        )
                 }
             })
+                .then(res => {
+                    if (res.status === 401) {
+                        localStorage.setItem('token', '');
+                        window.location.reload();
+                    }
+                    if (res.status === 200) {
+                        res.json()
+                            .then(
+                                (result) => {
+                                    let asesores = [];
+                                    AsesoresUsuario.map((Ase) => {
+                                        let Valores = { key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }
+                                        asesores.push(Valores);
+                                        return true;
+                                    })
+                                    setState({
+                                        ...state,
+                                        isLoaded: true,
+                                        pedidos: result,
+                                        Asesores: asesores,
+                                    });
+                                },
+                                // Note: it's important to handle errors here
+                                // instead of a catch() block so that we don't swallow
+                                // exceptions from actual bugs in components.
+                                (error) => {
+                                    setState({
+                                        ...state,
+                                        isLoaded: true,
+                                        error
+                                    });
+                                }
+                            )
+                    }
+                })
+        }
     }
 
     // const cargarClientes = async () => {
@@ -133,7 +145,7 @@ const ListaPedidos = (props) => {
     const handleFechaInicio = (fecha) => {
         setFechaInicio(fecha);
 
-        var fech =  moment(fecha).add(30, 'days')
+        var fech = moment(fecha).add(30, 'days')
         setFechaFin(fech);
     }
 
@@ -189,35 +201,35 @@ const ListaPedidos = (props) => {
     })
     const DataPedidos = () => {
         let DataPedidos = [];
-        state.pedidos.filter(p =>p.Asesor === AsesorSelected).map(pedido => {
+        state.pedidos.filter(p => p.Asesor === AsesorSelected).map(pedido => {
 
             //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
-                let data = [
-                    [pedido.PedidoId,pedido.Sincronizado],
-                    [pedido.Cliente.Codigo,pedido.Sincronizado],
-                    [pedido.Cliente.Nombre,pedido.Sincronizado],
-                    [moment(pedido.FechaActual).format('DD/MM/YYYY'),pedido.Sincronizado],
-                    [pedido.Sincronizado],
-                    [pedido.NumeroPedido,pedido.Sincronizado],
-                    [pedido.Linea.Linea,pedido.Sincronizado],
-                    [pedido.NombreColeccion,pedido.Sincronizado],
-                    [pedido.TotalUnidades,pedido.Sincronizado],
-                    [moment(pedido.FechaEntrega).format('DD/MM/YYYY'),pedido.Sincronizado],
-                    <div>
+            let data = [
+                [pedido.PedidoId, pedido.Sincronizado],
+                [pedido.Cliente.Codigo, pedido.Sincronizado],
+                [pedido.Cliente.Nombre, pedido.Sincronizado],
+                [moment(pedido.FechaActual).format('DD/MM/YYYY'), pedido.Sincronizado],
+                [pedido.Sincronizado],
+                [pedido.NumeroPedido, pedido.Sincronizado],
+                [pedido.Linea.Linea, pedido.Sincronizado],
+                [pedido.NombreColeccion, pedido.Sincronizado],
+                [pedido.TotalUnidades, pedido.Sincronizado],
+                [moment(pedido.FechaEntrega).format('DD/MM/YYYY'), pedido.Sincronizado],
+                <div>
 
-                        <span className="mr-1">
-                            <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, false)} size="small" color={"primary"}>Detalle</Button>
-                        </span>
+                    <span className="mr-1">
+                        <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, false)} size="small" color={"primary"}>Detalle</Button>
+                    </span>
 
-                        <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, true)} size="small" color={"primary"}>
-                                <PrintOutlined />
-                            </Button>
-                        </span >
-                    </div>
-                ]
+                    <span className="ml-1">
+                        <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, true)} size="small" color={"primary"}>
+                            <PrintOutlined />
+                        </Button>
+                    </span >
+                </div>
+            ]
 
-                DataPedidos.push(data);
+            DataPedidos.push(data);
             //}
             return false;
 
@@ -226,22 +238,32 @@ const ListaPedidos = (props) => {
         return DataPedidos;
     }
 
-    const GetPedidoDetalle = (Pedido, EsImpresion) =>{
-        let EnDetalle = EsImpresion ? null : Pedido;
-        fetch(`${APIURL}/api/PedidoDetalle/${Pedido.PedidoId}`)
-        .then(res=>res.json())
-        .then(data=>{
-            setState({
-                ...state,
-                Detalles: data,
-                pedido: EnDetalle,
+    const GetPedidoDetalle = async (Pedido, EsImpresion) => {
+        let isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
             });
-            if(EsImpresion)
-            {
-                setShowDialog(true);
-            }
-        });
-        setDialogPedido(Pedido);
+            setState((prevState) => ({ ...prevState, isLoaded: true }))
+        } else {
+            let EnDetalle = EsImpresion ? null : Pedido;
+            fetch(`${APIURL}/api/PedidoDetalle/${Pedido.PedidoId}`)
+                .then(res => res.json())
+                .then(data => {
+                    setState({
+                        ...state,
+                        Detalles: data,
+                        pedido: EnDetalle,
+                    });
+                    if (EsImpresion) {
+                        setShowDialog(true);
+                    }
+                });
+            setDialogPedido(Pedido);
+        }
     }
 
     const hidePrint = () => {
@@ -256,7 +278,7 @@ const ListaPedidos = (props) => {
 
     const handleOnChangeAsesor = (value) => {
         setAsesorSelected(value);
-     }
+    }
     if (!state.isLoaded) {
         return <Loader interval={1800} />;
     }
@@ -269,13 +291,13 @@ const ListaPedidos = (props) => {
                 clientes={state.clientes}
                 pedido={state.pedido}
                 RegresarListaPedidos={RegresarListaPedidos}
-                gruposXDetPed = {state.Detalles} />
+                gruposXDetPed={state.Detalles} />
         )
     } else {
         return (
             <div className="px-3">
                 <div className="row mb-3">
-                <div className='col-lg-2 col-sm-4 col-12'>
+                    <div className='col-lg-2 col-sm-4 col-12'>
                         <DatePicker
                             disableToolbar
                             autoOk
@@ -292,7 +314,7 @@ const ListaPedidos = (props) => {
                             disableToolbar
                             autoOk
                             minDate={fechaInicio}
-                            maxDate ={moment(fechaInicio).add(365, 'days')}
+                            maxDate={moment(fechaInicio).add(365, 'days')}
                             label={"Fecha Fin"}
                             variant="inline"
                             format={"DD/MM/YYYY"}
@@ -300,23 +322,23 @@ const ListaPedidos = (props) => {
                             onChange={(date) => handleFechaFin(date)}
                         />
                     </div>
-                    <div className='col-lg-3 my-lg-0 col-6 my-1'>
+                    <div className='col-lg-2 col-sm-4 col-6' style={{ paddingTop: 10 }}>
                         <Dropdown
                             placeholder="Asesor"
                             selection
-                            style={{zIndex:999}}
-                            onChange={(e, { value }) =>  handleOnChangeAsesor(value)}
+                            style={{ zIndex: 999 }}
+                            onChange={(e, { value }) => handleOnChangeAsesor(value)}
                             options={state.Asesores}
                             noResultsMessage={"No hay resultados"}
                             closeOnChange={true}
                             value={AsesorSelected}
                         />
                     </div>
-                    <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 15 }}>
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => cargarPedidos(fechaInicio, fechaFin)}>Obtener
+                    <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 10 }}>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => cargarPedidos(fechaInicio, fechaFin)}>Obtener
                     </Button>
                     </div>
                 </div>
@@ -343,7 +365,7 @@ const ListaPedidos = (props) => {
                         <ImprimirPedido
                             hidePrint={hidePrint}
                             Pedido={DialogPedido}
-                            gruposXDetPed = {state.Detalles}
+                            gruposXDetPed={state.Detalles}
                         />
                     }
                 </Dialog >
@@ -359,113 +381,113 @@ const HeadersListaPedidos = [
     {
         name: "No. Pedido",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
         }
-      },
-      {
+    },
+    {
         name: "Codigo Cliente",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
         }
-      },
-      {
+    },
+    {
         name: "Cliente",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
         }
-      },
-      {
+    },
+    {
         name: "Fecha Pedido",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
         }
-      },
-      {
+    },
+    {
         name: "Sincronizado",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[0])?'green':'orange',fontWeight:'bold'}}>{value[0]?"Si":"No"}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[0]) ? 'green' : 'orange', fontWeight: 'bold' }}>{value[0] ? "Si" : "No"}</p>
+                );
+            }
         }
-      },
-      {
+    },
+    {
         name: "Num Pedido Ax",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'green':'orange',fontWeight:'bold'}}>{value[0]===""?"No disponible":value[0]}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'green' : 'orange', fontWeight: 'bold' }}>{value[0] === "" ? "No disponible" : value[0]}</p>
+                );
+            }
         }
-      },
-      {
+    },
+    {
         name: "Linea",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
         }
-      },
-      {
+    },
+    {
         name: "Paquete",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
         }
-      },
-      {
+    },
+    {
         name: "Total unidades",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
         }
-      },
-      {
+    },
+    {
         name: "Fecha Entrega",
         options: {
-          filter: true,
-          customBodyRender: (value, tableMeta, updateValue) => {
-            return (
-                <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-            );
-          }
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
         }
-      },
+    },
     {
         label: "Acciones",
         options: {
@@ -476,7 +498,7 @@ const HeadersListaPedidos = [
 ];
 
 const DatatableOptions = {
-    filter:true,
+    filter: true,
     filterType: "dropdown",
     responsive: "scrollMaxHeight",
     print: false,
@@ -484,20 +506,20 @@ const DatatableOptions = {
     selectableRows: 'none',
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
         <TableFooter>
-              <TableRow>
+            <TableRow>
                 <TablePagination
-                  count={count}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={(_, page) => changePage(page)}
-                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
-                  rowsPerPageOptions={[10, 15, 100]}
-                  ActionsComponent={CustomFooter}
-                  labelRowsPerPage="Filas por página:"
+                    count={count}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onChangePage={(_, page) => changePage(page)}
+                    onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                    rowsPerPageOptions={[10, 15, 100]}
+                    ActionsComponent={CustomFooter}
+                    labelRowsPerPage="Filas por página:"
                 />
-              </TableRow>
-            </TableFooter>
-      ),
+            </TableRow>
+        </TableFooter>
+    ),
     textLabels: {
         body: {
             noMatch: "No se han encontrado pedidos",

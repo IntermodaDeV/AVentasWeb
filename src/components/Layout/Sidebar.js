@@ -40,7 +40,8 @@ import {
     HelpOutline,
     Public,
     Security,
-    AccountBox
+    AccountBox,
+    SyncAlt
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
@@ -86,7 +87,7 @@ const navItems = [
     {
         to: '/pedidos', name: 'Pedidos', dataTut: 'DataTut_Pedidos', Icon: FeaturedPlayListOutlined,
         expanded: [
-            { to: '/lista-pedidos-bandejasalida', name: 'Bandeja Salida', dataTut: 'DataTut_ListadoPedidos', Icon: Input, backgroundColor:'#c41021' },
+            { to: '/lista-pedidos-BandejaSalida', name: 'Bandeja Salida', dataTut: 'DataTut_ListadoPedidos', Icon: Input, backgroundColor:'#c41021' },
             { to: '/lista-pedidos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_ListadoPedidos', Icon: AllInbox, backgroundColor:'#d49008'  },
             { to: '/pedidos', name: 'Nuevo Pedido', dataTut: 'DataTut_NuevoPedido', Icon: PostAdd, backgroundColor:''  },
             { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt, backgroundColor:''  },
@@ -99,6 +100,7 @@ const navItems = [
             { to: '/lista-recibos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_BandejaSalida', Icon: AllInbox, backgroundColor:'#d49008' },
             { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:''  },
+            { to: '/lista-recibos-creditos', name: 'Resincronización recibos', dataTut: 'DataTut_ListadoRecibos', Icon: SyncAlt, backgroundColor:''  }
         ]
     },
     {
@@ -217,8 +219,8 @@ const Sidebar = (props) => {
                                             {
                                                 // eslint-disable-next-line
                                                 menu.expanded.map((submenu, ind) => {
-                                                    
-                                                    if(IsAllow(submenu.to))
+
+                                                    if(IsAllow(submenu.to, true))
                                                     {
                                                           return (
                                                             /*<ListItemLink

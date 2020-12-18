@@ -14,6 +14,8 @@ import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import {IsAllow} from 'components/Seguridad/Permisos';
+import { useSelector } from 'react-redux';
+import { verificarConexion } from 'utils/http';
 moment.locale('es');
 
 const ListaRecibos = (props) => {
@@ -21,8 +23,8 @@ const ListaRecibos = (props) => {
 
     const [error, setError] = useState(false);
     const [isLoaded, setIsLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
-    const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
-    const [endDate, setEndDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1));
+    const [startDate, setStartDate] =  useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
+    const [endDate, setEndDate] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
     const [recibos, setRecibos] = useState([]);
     const [recibo, setRecibo] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
@@ -30,30 +32,51 @@ const ListaRecibos = (props) => {
     const [isLoading,setLoading] = useState(false);
     const [Asesores, setAsesores] = useState([]);
     const [AsesorSelected, setAsesorSelected] = useState(null);
+    const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
     useEffect(() => {
         if(!IsAllow("/lista-recibos"))
         {
             props.history.push('/home');
         }
-        cargarRecibos();
+            cargarRecibos("1900-01-01", "1900-01-01");
+        let Asesores = [];
+            AsesoresUsuario.map((Ase) => {
+            let Valores = { key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }
+            Asesores.push(Valores);
+            return true;
+        })
+        setAsesores(Asesores)
+        setAsesorSelected(AsesoresUsuario[0].Usuario)
         //cargarClientes();
         // eslint-disable-next-line
     }, []);
-
+   
     const cambiarRecibo = (recibo) => {
          setRecibo(recibo);
      }
 
-    const cargarRecibos = async () => {
-        setLoading(true);
-        fetch(urlApi + "/api/Recibo", {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
+    const cargarRecibos = async (FechaInicio, FechaFin) => {
+        const isOnline = await verificarConexion();
+        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar esta pagina.",
+                type: "warning",
+                confirmButtonText: 'Ok',
+            });
+            setLoading(true);
+        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+            setLoading(true);
+            var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
+            var Fin = moment(FechaFin).format("YYYY-MM-DD");
+            let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
+            fetch(urlApi + "/api/Recibo/" + Asesor + "/" + Inicio + "/" + Fin, {
+                headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token')
 
-            }
-        })
-            .then(res => {
+                }
+            }).then(res => {
                 if (res.status === 401) {
                     localStorage.setItem('token', '');
                     window.location.reload();
@@ -62,20 +85,9 @@ const ListaRecibos = (props) => {
                     res.json()
                         .then(
                             (result) => {
-                               let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
-                               let Asesores = [];
-                               Asesor.map((Ase) => {
-
-                                let Valores = { key: Ase, value: Ase, text: Ase }
-                                Asesores.push(Valores);
-                                return true;
-                            })
-
-                                setAsesores(Asesores)
                                 setRecibos(result);
                                 setIsLoaded(true);
                                 setLoading(false);
-                                setAsesorSelected(Asesor[0])
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -87,6 +99,7 @@ const ListaRecibos = (props) => {
                         )
                 }
             })
+        }
     }
 
 
@@ -233,6 +246,7 @@ const ListaRecibos = (props) => {
                 Asesores = {Asesores}
                 AsesorSelected = {AsesorSelected}
                 handleOnChangeAsesor = {handleOnChangeAsesor}
+                cargarRecibos = {cargarRecibos}
             />
             <LoadingModal title={'recibos'} Open={isLoading}/>
             </>
