@@ -31,6 +31,7 @@ import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPend
 import { ListaReciboPendiente } from 'containers/ListaRecibos/ListaReciboPendiente';
 import { ListaReciboCreditos } from 'containers/ListaRecibos/ListaReciboCreditos';
 import { Cartera } from 'containers/Cartera/Cartera';
+import { CoordenadasAsesor } from 'containers/Coordenadas/CoordenadasAsesor';
 import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
 const isLogged = () => {
@@ -68,6 +69,12 @@ const App = props => {
               path='/asignacion'
               layout={MainLayout}
               component={AsignacionPage}
+            />
+            <LayoutRoute
+              exact
+              path='/coordenadas-asesor'
+              layout={MainLayout}
+              component={CoordenadasAsesor}
             />
             <LayoutRoute
               exact

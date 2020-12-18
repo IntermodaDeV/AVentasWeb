@@ -1202,7 +1202,34 @@ class Pedidos extends React.Component {
             }
         }
     }
-    
+
+    reemplazarListaPreciosOriginal = listaPreciosCopia => {
+        let listaPreciosNueva = this.props.ListaPrecios.map(x => listaPreciosCopia.find(y => y.$id === x.$id) || x);
+        this.props.onSaveListaPrecios(listaPreciosNueva);
+    }
+
+    reducirStockOffline = producto => {
+        if (this.props.cliente.FacturacionEntrega === "No" || this.props.cliente.FacturacionEntrega === "Nunca") {
+            let listaPreciosCopia = this.props.ListaPrecios.filter(x => x.CodigoColeccion === producto.CodigoColeccion);
+            listaPreciosCopia.forEach(coleccion => {
+                coleccion.Edades.forEach(edad => {
+                    if (edad.IdEdad === producto.Edad) {
+                        edad.ProductosXEdad.forEach(productoEdad => {
+                            if (productoEdad.ProductoId === producto.CodigoProducto) {
+                                productoEdad.fisicaDisponible.forEach(fisico => {
+                                    if (fisico.IdTalla === producto.Talla && fisico.CodigoColor === producto.CodigoColor) {
+                                        fisico.Cantidad -= parseInt(producto.Cantidad);
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
+            })
+
+            this.reemplazarListaPreciosOriginal(listaPreciosCopia);
+        }
+    }
   
     enviarPeticionPedido = async (location, correlativo) => {
         let isOnline = await verificarConexion();
@@ -1257,9 +1284,13 @@ class Pedidos extends React.Component {
                                             Talla: talla.substring(1),
                                             CodigoColeccion: this.props.coleccion.CodigoColeccion,
                                             PorcentajeDescuento: "",
+                                            Edad:edad.IdEdad
                                         };
                                         if (tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad > 0) {
                                             pedido.DetallePedido.push(detalle);
+                                            if (!isOnline || localStorage.getItem("Conexion") === "offline") {
+                                                this.reducirStockOffline(detalle);
+                                            }
                                         }
                                     });
                                 });

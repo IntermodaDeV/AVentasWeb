@@ -17,27 +17,65 @@ export const Home = (props) => {
     const [activeStep, setActiveStep] = useState(0);
     const [SyncDiaria, setSyncDiaria] = useState(true);  
     const [UsuarioOficina, setUsuarioOficina] = useState(false);  
+    const [displaySincronizacion,setDisplaySincronizacion] = useState(false);
     
     useEffect(() => {
-        let data = getLocalStorage("ListaPrecios");
-        if(data === null)
-        {
-            dispatch({ type: 'SET_PERMISOS', payload: [] });
-            localStorage.setItem("OcurrioError", false)
-            setSyncDiaria(false);
+
+        async function inicioSesion() {
+            const permisos = await verificarUsuario();
+            if (permisos) {
+                if (permisos[0].UsuarioOficina) {
+                    cargarConfiguracionesUsuarioOficina();
+                    dispatch({ type: 'SET_PERMISOS', payload: permisos });
+                } else {
+                    setDisplaySincronizacion(true);
+                    let data = getLocalStorage("ListaPrecios");
+                    if (data === null) {
+                        dispatch({ type: 'SET_PERMISOS', payload: [] });
+                        localStorage.setItem("OcurrioError", false)
+                        setSyncDiaria(false);
+                    }
+                    else {
+                        CargaPermisos();
+                    }
+                }
+            }
         }
-        else
-        {
-            CargaPermisos();
-        }
+
+        inicioSesion();
         // eslint-disable-next-line
-    },[])
+    }, [])
 
     const CargaPermisos  = async () => {
         let isOnline = await verificarConexion();
         if(isOnline){
             ObtenerPermisos();
         }
+    }
+
+    const cargarConfiguracionesUsuarioOficina = ()=>{
+        setloading(true);
+        ////Configuracion General
+        cargarEmpresas();
+        cargarAbreviacionMonedas();
+        cargarClientesContado();
+        cargarComunidadAutonoma();
+        cargarMonedas();
+        cargarConfiguraciones();
+
+        ////Configuracion De Pedido
+        cargarMaestroLinea();
+        cargarTiposColeccion();
+        cargarTiposPedido(); 
+        cargarEmpresasTransporte(); 
+        cargarPrecioCajas(); 
+        cargarImpuestoClientes(); 
+        cargarImpuestoProductos();
+
+        /////Configuracion De Recibos
+        cargarBancos();
+        cargarTipoPago();
+        cargarTipoVisitasOficina();
     }
 
     const CargarModuloConfiguraciones = () => {
@@ -94,6 +132,21 @@ export const Home = (props) => {
                         )
                 }
             })
+    }
+
+    const verificarUsuario = async () => {
+        let onLine = await verificarConexion();
+        if (onLine) {
+            try {
+                const request = await axios.get(`${APIURL}/api/Accesos/${localStorage.getItem('codigo')}`);
+                return request.data;
+            } catch (err) {
+                console.log(err);
+                return null;
+            }
+        }else{
+            return null;
+        }
     }
 
     const cargarComunidadAutonoma = async () => {
@@ -178,6 +231,19 @@ export const Home = (props) => {
             else{
                 ModuloCarteracliente();
             }
+        }
+    }
+
+    const cargarTipoVisitasOficina = async () => {
+        setMensaje('Cargando Tipo Visitas');
+        const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+            setloading(false);
+        } else {
+            dispatch({ type: "SET_TIPOVISITA", payload: data });
+            setloading(false);
         }
     }
 
@@ -384,21 +450,25 @@ export const Home = (props) => {
     return (
         <div style={{ height: '100%' }} className="container-fluid">
             <div class="card-body text-center">
-                <Loading open={loading} title={mensaje}/>
+                <Loading open={loading} title={mensaje} />
                 <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
                 <hr />
-                {
-                    SyncDiaria === false &&
-                    <div style ={{textAlign:'center',fontSize: '26px'}} className="alert alert-danger alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '30px', color: 'red'}} /> ¡Necesita realizar la sincronización diaria obligatoria para acceder al sistema!
+                <div>
+                    {displaySincronizacion && <div>
+                        {
+                            SyncDiaria === false &&
+                            <div style={{ textAlign: 'center', fontSize: '26px' }} className="alert alert-danger alert-dismissible fade show" role="alert">
+                                <FiAlertTriangle style={{ fontSize: '30px', color: 'red' }} /> ¡Necesita realizar la sincronización diaria obligatoria para acceder al sistema!
                     </div>
-                }
-                
-                <SteperSync
-                    CargarModuloConfiguraciones={CargarModuloConfiguraciones}
-                    loading={loading}
-                    activeStep = {activeStep}>
-                </SteperSync>
+                        }
+
+                        <SteperSync
+                            CargarModuloConfiguraciones={CargarModuloConfiguraciones}
+                            loading={loading}
+                            activeStep={activeStep}>
+                        </SteperSync>
+                    </div>}
+                </div>
             </div>
         </div>
     )
