@@ -1209,25 +1209,31 @@ class Pedidos extends React.Component {
     }
 
     reducirStockOffline = producto => {
-        if (this.props.cliente.FacturacionEntrega === "No" || this.props.cliente.FacturacionEntrega === "Nunca") {
-            let listaPreciosCopia = this.props.ListaPrecios.filter(x => x.CodigoColeccion === producto.CodigoColeccion);
-            listaPreciosCopia.forEach(coleccion => {
-                coleccion.Edades.forEach(edad => {
-                    if (edad.IdEdad === producto.Edad) {
-                        edad.ProductosXEdad.forEach(productoEdad => {
-                            if (productoEdad.ProductoId === producto.CodigoProducto) {
-                                productoEdad.fisicaDisponible.forEach(fisico => {
-                                    if (fisico.IdTalla === producto.Talla && fisico.CodigoColor === producto.CodigoColor) {
-                                        fisico.Cantidad -= parseInt(producto.Cantidad);
-                                    }
-                                })
-                            }
-                        })
-                    }
-                })
+        let listaPreciosCopia = this.props.ListaPrecios.filter(x => x.CodigoColeccion === producto.CodigoColeccion);
+        listaPreciosCopia.forEach(coleccion => {
+            coleccion.Edades.forEach(edad => {
+                if (edad.IdEdad === producto.Edad) {
+                    edad.ProductosXEdad.forEach(productoEdad => {
+                        if (productoEdad.ProductoId === producto.CodigoProducto) {
+                            productoEdad.fisicaDisponible.forEach(fisico => {
+                                if (fisico.IdTalla === producto.Talla && fisico.CodigoColor === producto.CodigoColor) {
+                                    fisico.Cantidad -= parseInt(producto.Cantidad);
+                                }
+                            })
+                        }
+                    })
+                }
             })
+        })
 
-            this.reemplazarListaPreciosOriginal(listaPreciosCopia);
+        this.reemplazarListaPreciosOriginal(listaPreciosCopia);
+    }
+
+    reducirStockBackground = (productos) => {
+        if (this.props.cliente.FacturacionEntrega === "No" || this.props.cliente.FacturacionEntrega === "Nunca") {
+            for (let producto of productos) {
+                this.reducirStockOffline(producto);
+            }
         }
     }
   
@@ -1258,6 +1264,7 @@ class Pedidos extends React.Component {
             MonedaCliente : this.props.cliente.Moneda
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
+        let productosReducir = [];
 
         Object.keys(tableValue).forEach(codigoGrupoTalla => {
             if (tableValue[codigoGrupoTalla].Mostrar) {
@@ -1289,7 +1296,7 @@ class Pedidos extends React.Component {
                                         if (tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad > 0) {
                                             pedido.DetallePedido.push(detalle);
                                             if (!isOnline || localStorage.getItem("Conexion") === "offline") {
-                                                this.reducirStockOffline(detalle);
+                                                productosReducir.push(detalle);
                                             }
                                         }
                                     });
@@ -1314,6 +1321,7 @@ class Pedidos extends React.Component {
             let numPedido = data.EncabezadoPedido.PedidoId;
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
+            this.reducirStockBackground(productosReducir);
         }
         else if (pedido.NumeroReferencia === "") {
             const data = postPedidoStorage(pedido);
