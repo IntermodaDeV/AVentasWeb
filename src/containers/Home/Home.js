@@ -205,7 +205,6 @@ export const Home = (props) => {
     }
 
     const cargarTipoVisitas = async () => {
-        console.log("UsuarioOficina",UsuarioOficina)
         setMensaje('Cargando Tipo Visitas');
         const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
         if (error) {
@@ -306,6 +305,13 @@ export const Home = (props) => {
             localStorage.setItem("OcurrioError", true)
             console.log(error);
         } else {
+            let Lineas = data;
+            Lineas.forEach(async function (l) {
+                let Imagen = await convertirBlob(l.Imagen);
+                if (Imagen) {
+                    l.Imagen = URL.createObjectURL(Imagen);
+                }
+            })
             dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: data });
         }
     }
@@ -410,12 +416,7 @@ export const Home = (props) => {
                 }
             })
                 .then(res => {
-                    dispatch({ type: 'SET_LISTAPRECIOS', payload: res.data });
-                    let fecha = moment(new Date()).format("YYYY-MM-DD");
-                    localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
-                    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-                    setSyncDiaria(true);
-                    setloading(false);
+                   CargaImagenes(res.data);
                 })
                 .catch(err => {
                     localStorage.setItem("OcurrioError", true)
@@ -427,6 +428,47 @@ export const Home = (props) => {
         }
     }
 
+    const CargaImagenes = async (data) =>{
+        setMensaje('Cargando imagenes')
+        let listaPrecios = data;
+        listaPrecios.forEach(e => {
+            e.Edades.forEach(edades => {
+                edades.ProductosXEdad.forEach(prod => {
+                     ///Imagenes generales del producto
+                    prod.ListaImagenes.forEach(async function (img){
+                        let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                        if (imagenBlob) {
+                            img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                        }
+                    })
+
+                      ///Imagenes por color del producto
+                      prod.ListaColores.forEach(color => {
+                        color.ListaImagenes.forEach( async function (img) {
+                            let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                            if (imagenColorBlob) {
+                                img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                            }
+                        })
+                    })
+                })
+            })
+        })
+        dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        setSyncDiaria(true);
+        setloading(false);
+    }
+    const convertirBlob = async (url)=>{
+        try{
+            const request = await axios.get(url, { responseType: 'blob' });
+            return request.data;
+        }catch(err){
+            return null;
+        }
+    }
 
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE CARTERA DE CLIENTES--------------------------------------*/
 
