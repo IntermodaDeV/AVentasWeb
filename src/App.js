@@ -73,7 +73,7 @@ const App = props => {
             />
             <LayoutRoute
               exact
-              path='/coordenadas-asesor'
+              path='/ultima-geolocalizacion-monitoreo'
               layout={MainLayout}
               component={CoordenadasAsesor}
             />

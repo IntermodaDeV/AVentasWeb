@@ -41,7 +41,10 @@ import {
     Public,
     Security,
     AccountBox,
-    SyncAlt
+    SyncAlt,
+    ViewCompact,
+    Explore,
+    MyLocation
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
@@ -80,6 +83,12 @@ const useStyles = makeStyles(theme => ({
 const navItems = [
     { to: '/estadistica-visita', name: 'Estadistica Visita', dataTut: 'DataTut_EstadisticaVisista', Icon: AssessmentIcon },
     { to: '/DashBoard-Comercial', name: 'Estadistica Comercial', dataTut: 'DataTut_DashBoardComercial', Icon: Dashboard },
+    {
+        to: '/monitoreo', name: 'Monitoreo', dataTut: 'DataTut_Sinc', Icon: Explore,
+        expanded: [
+            { to: '/ultima-geolocalizacion-monitoreo', name: 'Ultima Geolocalización', dataTut: 'DataTut_SincLista', Icon: MyLocation, backgroundColor:''  },
+        ]
+    },
     { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
     { to: '/cartera', name: 'Cartera Clientes', dataTut: 'DataTut_Agenda', Icon: AccountBox },
@@ -121,8 +130,9 @@ const navItems = [
             { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto, backgroundColor:''  },
             { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr, backgroundColor:''  },
             //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
+            { to: '/sincronizacion-especifica-coleccion', name: 'Colección Específica', dataTut: 'DataTut_SincLista', Icon: ViewCompact, backgroundColor:''  }
         ]
-    },
+    }
 ];
 
 const Sidebar = (props) => {

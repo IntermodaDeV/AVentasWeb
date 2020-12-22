@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Dropdown } from "semantic-ui-react";
 import { MapaAsesor } from 'components/Coordenadas/MapaAsesor';
+import { ListaAsesores } from 'components/Coordenadas/ListaAsesores';
 import { APIURL } from 'utils/Enviroment';
+import { IsAllow } from 'components/Seguridad/Permisos';
 
 export const CoordenadasAsesor = props => {
     const [asesores, setAsesores] = useState([]);
@@ -43,7 +44,13 @@ export const CoordenadasAsesor = props => {
     }
 
     useEffect(() => {
+
+        if (!IsAllow("/ultima-geolocalizacion-monitoreo")) {
+            props.history.push('/home');
+        }
+
         cargarAsesores();
+        // eslint-disable-next-line
     }, []);
 
     useEffect(() => {
@@ -54,28 +61,21 @@ export const CoordenadasAsesor = props => {
         }
     }, [cargarUltimaLocalizacionIntervalo]);
 
+    const seleccionarAsesor = (codigo) => {
+        setAsesor(codigo);
+        cargarUltimaLocalizacion(codigo);
+    }
+
     return (
-        <div>
-            <Dropdown
-                placeholder="Seleccione un asesor"
-                fluid
-                search
-                selection
-                onChange={(e, { value }) => {
-                    setAsesor(value);
-                    cargarUltimaLocalizacion(value);
-                }}
-                options={asesores.map(asesor => {
-                    return { key: asesor.codigo, value: asesor.codigo, text: asesor.nombre }
-                })}
-                noResultsMessage={"No hay resultados"}
-                closeOnChange={true}
-            />
+        <div style={{ height: '100vh' }} className="row">
+            <div className="col-md-3 h-100">
+                <ListaAsesores asesores={asesores} seleccionarAsesor={seleccionarAsesor} asesorSeleccionado={asesor} />
+            </div>
             {validarCoordenadas()
-                ? <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <h1>Coordenadas no disponibles</h1>
                 </div>
-                : <div style={{ height: '100vh', width: '100%' }}>
+                : <div className="col-md-9" style={{ height: '100vh', width: '100%' }}>
                     <MapaAsesor longitude={ubicacion.longitude} latitude={ubicacion.latitude} asesor={asesor} />
                 </div>
             }

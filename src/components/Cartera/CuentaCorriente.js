@@ -68,21 +68,34 @@ export const CuentaCorriente = props => {
                 });
             });
         });
+
+        console.log(agrupacionCuentCorriente);
+
         agrupacionCuentCorriente.sort((a, b) => {
-            if (moment(a.FechaVencimiento, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+            if (moment(a.FechaVencimiento.props.children, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento.props.children, "DD/MM/YYYY"), 'day')) {
                 return 1;
             }
-            if (moment(a.FechaVencimiento, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+            if (moment(a.FechaVencimiento.props.children, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento.props.children, "DD/MM/YYYY"), 'day')) {
                 return -1;
             }
-            if (moment(a.FechaVencimiento, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+            if (moment(a.FechaVencimiento.props.children, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento.props.children, "DD/MM/YYYY"), 'day')) {
                 return -1;
             }
-            if (a.NumeroCuota < b.NumeroCuota) {
+
+            if (a.Factura.props.children < b.Factura.props.children) {
 
                 return -1;
             }
-            if (a.NumeroCuota > b.NumeroCuota) {
+            if (a.Factura.props.children > b.Factura.props.children) {
+
+                return 1;
+            }
+
+            if (a.NumeroCuota.props.children < b.NumeroCuota.props.children) {
+
+                return -1;
+            }
+            if (a.NumeroCuota.props.children > b.NumeroCuota.props.children) {
 
                 return 1;
             }
