@@ -132,8 +132,8 @@ class Pedidos extends React.Component {
             isLoaded: true,
         })
     }
-    cargarColecciones = (grupoPrecio, empresa) => {
-        let colecciones = this.props.ListaPrecios.filter((x)=>x.GrupoPrecio===grupoPrecio && x.EmpresaId===empresa);
+    cargarColecciones = (empresa) => {
+        let colecciones = this.props.ListaPrecios.filter((x)=>x.EmpresaId===empresa);
         this.props.onStoreColecciones(colecciones);
     }
     
@@ -469,7 +469,8 @@ class Pedidos extends React.Component {
                     value[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
                     value[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
                     if (fisicoDisponible ? fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0 : false) {
-                        value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = fisicoDisponible.PreciosEspecificos[0].Precio
+                        var PreciosEspecifico = fisicoDisponible.PreciosEspecificos.find(p => p.GrupoPrecio === this.props.cliente.GrupoPrecio)
+                        value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = PreciosEspecifico.Precio
                     } else {
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = precio.Precio;
                     }
@@ -763,7 +764,7 @@ class Pedidos extends React.Component {
                 confirmButtonText: 'Ok'
               })
         }else{
-            this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
+            this.cargarColecciones(this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
             this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
@@ -946,7 +947,8 @@ class Pedidos extends React.Component {
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
                         if (fisicoDisponible && fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0) {
-                            value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = fisicoDisponible.PreciosEspecificos[0].Precio
+                            var PreciosEspecifico = fisicoDisponible.PreciosEspecificos.find(p => p.GrupoPrecio === this.props.cliente.GrupoPrecio)
+                            value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = PreciosEspecifico.Precio
                         } else {
 
                             let precio = producto.Precio.find(precioxProd => {
