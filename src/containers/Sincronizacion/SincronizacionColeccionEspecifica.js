@@ -17,6 +17,7 @@ export const SincronizacionColeccionEspecifica = props => {
     const [empresa, setEmpresa] = useState('');
     const [coleccion, setColeccion] = useState('');
     const [listaEspecifica, setListaEspecifica] = useState([]);
+    const [checked, setChecked] = useState(false);
     const EMPRESAS_ASIGNADAS = useSelector(e => e.Permisos[0].EmpresasUsuarios);
     const GESTOR_ESPECIFICO = parseInt(useSelector(e => e.Configuraciones.SyncColeccion));
 
@@ -31,13 +32,9 @@ export const SincronizacionColeccionEspecifica = props => {
 
     const enviarSincronizacionEspecifica = async () => {
         try {
-            if (empresa === "" || coleccion === "") {
-                mostrarAdvertencia("Información necesaria", "Seleccione pais o ingrese el codigo de colección.", "warning");
-            } else {
-                const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: empresa, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo') };
-                await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
-                cargarListaEspecifica();
-            }
+            const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: empresa, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo') };
+            await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
+            cargarListaEspecifica();
         } catch (err) {
 
         }
@@ -49,6 +46,45 @@ export const SincronizacionColeccionEspecifica = props => {
             setListaEspecifica(request.data);
         } catch (err) {
 
+        }
+    }
+
+    const enviarSincronizacionEspecificaEmpresas = async () => {
+        for (let pais of EMPRESAS_ASIGNADAS) {
+            try {
+                const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: pais.EmpresaId, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo') };
+                await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
+                cargarListaEspecifica();
+            } catch (err) {
+
+            }
+        }
+    }
+
+    const enviarSincronizacion = () => {
+        if (checked === true && coleccion === "") {
+            mostrarAdvertencia("Información necesaria", "Ingrese el codigo de colección.", "warning");
+        } else if (checked === false && (empresa === "" || coleccion === "")) {
+            mostrarAdvertencia("Información necesaria", "Seleccione pais o ingrese el codigo de colección.", "warning");
+        } else {
+            Swal.fire({
+                title: 'Confirmar',
+                text: `¿Está seguro de sincronizar el paquete ${coleccion}?`,
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#06bf53',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
+            }).then((result) => {
+                if (result.value) {
+                    if (checked) {
+                        enviarSincronizacionEspecificaEmpresas();
+                    } else {
+                        enviarSincronizacionEspecifica();
+                    }
+                }
+            })
         }
     }
 
@@ -73,6 +109,10 @@ export const SincronizacionColeccionEspecifica = props => {
                 </CardHeader>
                 <CardBody>
                     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                        <div class="mt-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1" checked={checked} onClick={() => { setChecked(!checked) }} />
+                            <label class="form-check-label" for="exampleCheck1">Todas las empresas asignadas</label>
+                        </div>
                         <Dropdown
                             style={{ width: '50%' }}
                             placeholder="Seleccione empresa"
@@ -88,7 +128,7 @@ export const SincronizacionColeccionEspecifica = props => {
                             closeOnChange={true}
                         />
                         <input className="form-control form-control-lg" style={{ width: "15%" }} placeholder="Codigo colección" type="text" onChange={(e => { setColeccion(e.target.value.toUpperCase()) })} />
-                        <button type="button" className="btn btn-primary" onClick={enviarSincronizacionEspecifica}>Enviar</button>
+                        <button type="button" className="btn btn-primary" onClick={enviarSincronizacion}>Enviar</button>
                         <button type="button" className="btn btn-primary" onClick={cargarListaEspecifica}><CachedIcon /></button>
                     </div>
                 </CardBody>
