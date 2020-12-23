@@ -454,12 +454,14 @@ export const Home = (props) => {
                 })
             })
         })
-        dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
-        let fecha = moment(new Date()).format("YYYY-MM-DD");
-        localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        setSyncDiaria(true);
-        setloading(false);
+        setTimeout(()=>{
+            dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
+            let fecha = moment(new Date()).format("YYYY-MM-DD");
+            localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            setSyncDiaria(true);
+            setloading(false);
+        },60000)
     }
     const convertirBlob = async (url)=>{
         try{

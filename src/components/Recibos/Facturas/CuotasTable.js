@@ -163,7 +163,7 @@ moment.locale('es')
               <label className="m-auto">Total : </label>
               <label className="m-auto">{selectedRowsIndex.reduce((acc, curr) => {
                 let DiasVencido = moment(data[curr].Cuota.FechaMaxDescuento).diff(moment(new Date()), 'days');
-                return acc + DiasVencido < 0 ? Number(data[curr].Cuota.Saldo) : Number(data[curr].Cuota.Saldo - data[curr].Cuota.Descuento);
+                return acc + (DiasVencido < 0 ? Number(data[curr].Cuota.Saldo) : Number(data[curr].Cuota.Saldo - data[curr].Cuota.Descuento));
               }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
               }</label>
             </div>

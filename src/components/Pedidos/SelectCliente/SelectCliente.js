@@ -136,14 +136,51 @@ const SelectCliente = (props) => {
             }
         })
             .then(data => { 
-                dispatch({type:'SET_LISTAPRECIOS',payload:data.data});
-                setLoading(false);
-                setMensaje("Cargando clientes")
+                setMensaje("Cargando Imagenes")
+                let listaPrecios = data.data;
+                listaPrecios.forEach(e => {
+                    e.Edades.forEach(edades => {
+                        edades.ProductosXEdad.forEach(prod => {
+                             ///Imagenes generales del producto
+                            prod.ListaImagenes.forEach(async function (img){
+                                let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                                if (imagenBlob) {
+                                    img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                                }
+                            })
+        
+                              ///Imagenes por color del producto
+                              prod.ListaColores.forEach(color => {
+                                color.ListaImagenes.forEach( async function (img) {
+                                    let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                                    if (imagenColorBlob) {
+                                        img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                                    }
+                                })
+                            })
+                        })
+                    })
+                })
+                setTimeout(()=>{
+                    dispatch({type:'SET_LISTAPRECIOS',payload:listaPrecios});
+                    setLoading(false);
+                    setMensaje("Cargando clientes")
+                },75000)
+              
             })
             .catch(err => {
                 setLoading(false);
                 console.log(err)
             });
+    }
+
+    const convertirBlob = async (url)=>{
+        try{
+            const request = await axios.get(url, { responseType: 'blob' });
+            return request.data;
+        }catch(err){
+            return null;
+        }
     }
 
     const handleRecarga = ()=>{
