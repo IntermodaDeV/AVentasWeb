@@ -14,7 +14,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import CachedIcon from '@material-ui/icons/Cached';
 
 export const SincronizacionColeccionEspecifica = props => {
-    const [empresa, setEmpresa] = useState('');
+    const [empresa, setEmpresa] = useState("IMHN");
     const [coleccion, setColeccion] = useState('');
     const [listaEspecifica, setListaEspecifica] = useState([]);
     const [checked, setChecked] = useState(false);
@@ -60,7 +60,34 @@ export const SincronizacionColeccionEspecifica = props => {
             }
         }
     }
+    const verificarColeccion = async () => {
+        try{
+            const data = await axios.get(`${APIURL}/api/SincronizacionEspecifico/verificar/${empresa}/${coleccion}`);
+            let EsValida = data.data.CodigoPaquete !== null ? true : false;
+            if(!EsValida){
+                return mostrarAdvertencia("Paquete Incorrecto", "El código del paquete no existe, favor verifique", "warning");
+            }
 
+            if (checked) {
+                enviarSincronizacionEspecificaEmpresas();
+            } else {
+                enviarSincronizacionEspecifica();
+            }
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se pudo verificar el paquete.";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok'
+            });
+        }
+    }
     const enviarSincronizacion = () => {
         if (checked === true && coleccion === "") {
             mostrarAdvertencia("Información necesaria", "Ingrese el codigo de colección.", "warning");
@@ -78,11 +105,7 @@ export const SincronizacionColeccionEspecifica = props => {
                 cancelButtonText: 'No',
             }).then((result) => {
                 if (result.value) {
-                    if (checked) {
-                        enviarSincronizacionEspecificaEmpresas();
-                    } else {
-                        enviarSincronizacionEspecifica();
-                    }
+                    verificarColeccion();
                 }
             })
         }
