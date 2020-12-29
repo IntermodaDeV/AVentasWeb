@@ -2,7 +2,7 @@ import React from 'react';
 import styles from 'containers/Sincronizacion/SincronizacionListaMonitor.module.css'
 
 export const SincronizacionTable = props => {
-    const { listado } = props;
+    const { listado, fecha } = props;
 
     return (
         <table className="table table-striped">
@@ -22,7 +22,7 @@ export const SincronizacionTable = props => {
             </thead>
             <tbody>
                 {
-                    listado.map((item, ind) => (
+                    listado.filter(x => new Date(x.FECHA).setHours(0, 0, 0, 0) === new Date(fecha).setHours(0, 0, 0, 0)).map((item, ind) => (
                         <tr key={ind} style={{ textAlign: "center" }}>
                             <td className="font-weight-bold">{item.ID}</td>
                             <td className="font-weight-bold">{item.ID_GESTOR}</td>
