@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
+import { Dropdown } from "semantic-ui-react";
+import { useSelector } from 'react-redux';
 import { MapaAsesor } from 'components/Coordenadas/MapaAsesor';
 import { ListaAsesores } from 'components/Coordenadas/ListaAsesores';
 import { APIURL } from 'utils/Enviroment';
@@ -8,14 +10,17 @@ import { IsAllow } from 'components/Seguridad/Permisos';
 
 export const CoordenadasAsesor = props => {
     const [asesores, setAsesores] = useState([]);
+    const [asesoresFiltrados, setAsesoresFiltrados] = useState([]);
     const [asesoresSeleccionados, setAsesoresSeleccionados] = useState([]);
     const [ubicaciones, setUbicaciones] = useState([]);
     const [checked, setChecked] = useState(false);
+    const EMPRESAS_ASIGNADAS = useSelector(e => e.Permisos[0].EmpresasUsuarios);
 
     const cargarAsesores = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/Geoposicion/asesores`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
             setAsesores(request.data);
+            setAsesoresFiltrados(request.data);
         } catch (err) {
             console.log(err);
         }
@@ -64,7 +69,7 @@ export const CoordenadasAsesor = props => {
     const seleccionarAsesor = (codigo) => {
         if (asesoresSeleccionados.includes(codigo)) {
             if (asesoresSeleccionados.length === 1) {
-                limpiarMarcadores(); 
+                limpiarMarcadores();
             }
             setAsesoresSeleccionados(asesoresSeleccionados.filter(x => x !== codigo));
         } else {
@@ -81,7 +86,7 @@ export const CoordenadasAsesor = props => {
             setAsesoresSeleccionados([]);
             limpiarMarcadores();
         } else {
-            setAsesoresSeleccionados(asesores.map(x => x.codigo));
+            setAsesoresSeleccionados(asesoresFiltrados.map(x => x.codigo));
         }
         setChecked(!checked);
     }
@@ -89,14 +94,34 @@ export const CoordenadasAsesor = props => {
     return (
         <div style={{ height: '100vh' }} className="row">
             <div className="col-md-3 h-100">
-                <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-                    <Button style={{ height: 35 }} onClick={cargarUltimaLocalizacion} variant="contained" color="primary">Obtener Coordenadas</Button>
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="exampleCheck1" checked={checked} onClick={handleClickTodosAsesores} />
-                        <label class="form-check-label" for="exampleCheck1">Todos los asesores</label>
+                <div style={{ border: '1px solid #ccc', borderRadius: 5, padding: 5, marginBottom: 15 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+                        <Button style={{ height: 35 }} onClick={cargarUltimaLocalizacion} variant="contained" color="primary">Obtener Coordenadas</Button>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1" checked={checked} onClick={handleClickTodosAsesores} />
+                            <label class="form-check-label" for="exampleCheck1">Todos los asesores</label>
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', marginTop: 15 }}>
+                        <label>Filtro Pais:</label>
+                        <Dropdown
+                            style={{ width: '50%' }}
+                            placeholder="Seleccione empresa"
+                            search
+                            selection
+                            onChange={(e, { value }) => {
+                                let filtrados = asesores.filter(x => x.empresa.toUpperCase() === value.toUpperCase());
+                                setAsesoresFiltrados(filtrados);
+                            }}
+                            options={EMPRESAS_ASIGNADAS.map(empresa => {
+                                return { key: empresa.EmpresaId, value: empresa.EmpresaId, text: empresa.EmpresaId }
+                            })}
+                            closeOnChange={true}
+
+                        />
                     </div>
                 </div>
-                <ListaAsesores asesores={asesores} seleccionarAsesor={seleccionarAsesor} asesorSeleccionado={asesoresSeleccionados} />
+                <ListaAsesores asesores={asesoresFiltrados} seleccionarAsesor={seleccionarAsesor} asesorSeleccionado={asesoresSeleccionados} />
             </div>
             {ubicaciones.length === 0
                 ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

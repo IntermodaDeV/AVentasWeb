@@ -31,13 +31,16 @@ export const MapaAsesor = props => {
 
 const Marker = props => {
     const [visible, setVisible] = useState(false);
+    const nombreApellido = props.ubicacion.asesor.split(' ').filter(x => x !== "");
+    const iniciales = nombreApellido[0].charAt(0) + nombreApellido[1].charAt(0);
 
     const handleVisibleClick = () => {
         setVisible(!visible);
     }
 
     return <>
-        <img style={{zIndex:-999}} onClick={handleVisibleClick} alt="marker" src={`https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png`} />
+        {/*<img style={{zIndex:-999}} onClick={handleVisibleClick} alt="marker" src={`https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png`} />*/}
+        <div onClick={handleVisibleClick} style={styles.markerStyle}>{iniciales}</div>
         {visible && <InfoWindow ubicacion={props.ubicacion} closewindow={handleVisibleClick} />}
     </>
 }
@@ -47,7 +50,7 @@ const InfoWindow = props => {
     return (
         <div style={styles.infowindow}>
             <h2 style={styles.infowindowTitle}>Datos</h2>
-            <p style={{ fontSize: 13 }}><b>Asesor:</b> {asesor}</p>
+            <p style={{ fontSize: 13 }}><b>Usuario:</b> {asesor}</p>
             <p style={{ fontSize: 13 }}><b>Ultimo Cliente Visitado:</b> {`${codigocliente}-${nombrecliente}`}</p>
             <p style={{ fontSize: 13 }}><b>Ultima Visita:</b> {moment(fechacheckout).format('DD/MM/YYYY hh:mm a')}</p>
             <p style={{ fontSize: 13 }}><b>Ultima Actualización:</b> {moment(ultimaFecha).format('DD/MM/YYYY hh:mm a')}</p>
@@ -64,7 +67,7 @@ const styles = {
         borderRadius: 10,
         padding: 5,
         boxShadow: '5px 5px #c1c1c1',
-        zIndex:10
+        zIndex: 99
     },
     infowindowTitle: {
         textAlign: 'center'
@@ -81,7 +84,7 @@ const styles = {
     markerStyle: {
         position: 'absolute',
         width: 40,
-        height: 40,
+        height: 35,
         left: -40 / 2,
         top: -40 / 2,
 
@@ -93,6 +96,7 @@ const styles = {
         fontSize: 16,
         fontWeight: 'bold',
         padding: 4,
-        cursor: 'pointer'
+        cursor: 'pointer',
+        zIndex: 9
     }
 }
