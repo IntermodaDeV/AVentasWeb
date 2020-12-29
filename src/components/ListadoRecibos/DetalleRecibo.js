@@ -5,6 +5,7 @@ import GoogleMapReact from "google-map-react";
 import moment from "moment";
 import "moment/locale/es";
 import styles from "components/ListadoRecibos/DetalleRecibo.module.css";
+import { APIKEY } from 'utils/Enviroment';
 
 const DetalleRecibo = (props) => {
   const { recibo } = props;
@@ -80,7 +81,7 @@ const DetalleRecibo = (props) => {
               <div style={{ height: "300px", width: "100%" }}>
                 <GoogleMapReact
                   bootstrapURLKeys={{
-                    key: "AIzaSyBYe6qlu-FWB8cCAMG52pdAPVs5W2cdODU",
+                    key: APIKEY,
                   }}
                   defaultCenter={{
                     lat: recibo.Latitude,

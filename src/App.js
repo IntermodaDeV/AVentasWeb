@@ -31,8 +31,10 @@ import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPend
 import { ListaReciboPendiente } from 'containers/ListaRecibos/ListaReciboPendiente';
 import { ListaReciboCreditos } from 'containers/ListaRecibos/ListaReciboCreditos';
 import { Cartera } from 'containers/Cartera/Cartera';
+import { CoordenadasAsesor } from 'containers/Coordenadas/CoordenadasAsesor';
 import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
+import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/SincronizacionColeccionEspecifica'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -68,6 +70,12 @@ const App = props => {
               path='/asignacion'
               layout={MainLayout}
               component={AsignacionPage}
+            />
+            <LayoutRoute
+              exact
+              path='/ultima-geolocalizacion-monitoreo'
+              layout={MainLayout}
+              component={CoordenadasAsesor}
             />
             <LayoutRoute
               exact
@@ -180,6 +188,12 @@ const App = props => {
               path='/sincronizacionlista'
               layout={MainLayout}
               component={Sincronizacionlista}
+            />
+            <LayoutRoute
+              exact
+              path='/sincronizacion-especifica-coleccion'
+              layout={MainLayout}
+              component={SincronizacionColeccionEspecifica}
             />
             <LayoutRoute
               exact

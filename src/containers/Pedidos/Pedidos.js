@@ -132,8 +132,8 @@ class Pedidos extends React.Component {
             isLoaded: true,
         })
     }
-    cargarColecciones = (grupoPrecio, empresa) => {
-        let colecciones = this.props.ListaPrecios.filter((x)=>x.GrupoPrecio===grupoPrecio && x.EmpresaId===empresa);
+    cargarColecciones = (empresa) => {
+        let colecciones = this.props.ListaPrecios.filter((x)=>x.EmpresaId===empresa);
         this.props.onStoreColecciones(colecciones);
     }
     
@@ -469,7 +469,8 @@ class Pedidos extends React.Component {
                     value[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
                     value[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
                     if (fisicoDisponible ? fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0 : false) {
-                        value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = fisicoDisponible.PreciosEspecificos[0].Precio
+                        var PreciosEspecifico = fisicoDisponible.PreciosEspecificos.find(p => p.GrupoPrecio === this.props.cliente.GrupoPrecio)
+                        value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = PreciosEspecifico.Precio
                     } else {
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = precio.Precio;
                     }
@@ -763,7 +764,7 @@ class Pedidos extends React.Component {
                 confirmButtonText: 'Ok'
               })
         }else{
-            this.cargarColecciones(this.state.autocompleteValue.GrupoPrecio, this.state.autocompleteValue.EmpresaId);
+            this.cargarColecciones(this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
             this.cargarMonedas(this.state.autocompleteValue.EmpresaId);
@@ -946,7 +947,8 @@ class Pedidos extends React.Component {
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
                         if (fisicoDisponible && fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0) {
-                            value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = fisicoDisponible.PreciosEspecificos[0].Precio
+                            var PreciosEspecifico = fisicoDisponible.PreciosEspecificos.find(p => p.GrupoPrecio === this.props.cliente.GrupoPrecio)
+                            value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = PreciosEspecifico.Precio
                         } else {
 
                             let precio = producto.Precio.find(precioxProd => {
@@ -1202,7 +1204,40 @@ class Pedidos extends React.Component {
             }
         }
     }
-    
+
+    reemplazarListaPreciosOriginal = listaPreciosCopia => {
+        let listaPreciosNueva = this.props.ListaPrecios.map(x => listaPreciosCopia.find(y => y.$id === x.$id) || x);
+        this.props.onSaveListaPrecios(listaPreciosNueva);
+    }
+
+    reducirStockOffline = producto => {
+        let listaPreciosCopia = this.props.ListaPrecios.filter(x => x.CodigoColeccion === producto.CodigoColeccion);
+        listaPreciosCopia.forEach(coleccion => {
+            coleccion.Edades.forEach(edad => {
+                if (edad.IdEdad === producto.Edad) {
+                    edad.ProductosXEdad.forEach(productoEdad => {
+                        if (productoEdad.ProductoId === producto.CodigoProducto) {
+                            productoEdad.fisicaDisponible.forEach(fisico => {
+                                if (fisico.IdTalla === producto.Talla && fisico.CodigoColor === producto.CodigoColor) {
+                                    fisico.Cantidad -= parseInt(producto.Cantidad);
+                                }
+                            })
+                        }
+                    })
+                }
+            })
+        })
+
+        this.reemplazarListaPreciosOriginal(listaPreciosCopia);
+    }
+
+    reducirStockBackground = (productos) => {
+        if (this.props.cliente.FacturacionEntrega === "No" || this.props.cliente.FacturacionEntrega === "Nunca") {
+            for (let producto of productos) {
+                this.reducirStockOffline(producto);
+            }
+        }
+    }
   
     enviarPeticionPedido = async (location, correlativo) => {
         let isOnline = await verificarConexion();
@@ -1231,6 +1266,7 @@ class Pedidos extends React.Component {
             MonedaCliente : this.props.cliente.Moneda
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
+        let productosReducir = [];
 
         Object.keys(tableValue).forEach(codigoGrupoTalla => {
             if (tableValue[codigoGrupoTalla].Mostrar) {
@@ -1257,9 +1293,13 @@ class Pedidos extends React.Component {
                                             Talla: talla.substring(1),
                                             CodigoColeccion: this.props.coleccion.CodigoColeccion,
                                             PorcentajeDescuento: "",
+                                            Edad:edad.IdEdad
                                         };
                                         if (tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad > 0) {
                                             pedido.DetallePedido.push(detalle);
+                                            if (!isOnline || localStorage.getItem("Conexion") === "offline") {
+                                                productosReducir.push(detalle);
+                                            }
                                         }
                                     });
                                 });
@@ -1283,6 +1323,7 @@ class Pedidos extends React.Component {
             let numPedido = data.EncabezadoPedido.PedidoId;
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
+            this.reducirStockBackground(productosReducir);
         }
         else if (pedido.NumeroReferencia === "") {
             const data = postPedidoStorage(pedido);

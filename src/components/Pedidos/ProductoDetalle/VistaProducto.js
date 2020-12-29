@@ -30,9 +30,9 @@ const VistaProducto = (props) => {
             return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
         });
         if(!precio && props.producto.fisicaDisponible.length>0){
-            let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis=> fsDis.PreciosEspecificos.find(ps=>ps.Precio>0))
+            let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis=> fsDis.PreciosEspecificos.find(ps=>ps.Precio>0 && ps.GrupoPrecio === props.Cliente.GrupoPrecio))
             if(precioFisicoDisponible){
-              precio={Precio: precioFisicoDisponible.PreciosEspecificos.find(ps=>ps.Precio>0).Precio};
+              precio={Precio: precioFisicoDisponible.PreciosEspecificos.find(ps=>ps.Precio>0 && ps.GrupoPrecio === props.Cliente.GrupoPrecio).Precio};
             }
           }
         if (precio) {
