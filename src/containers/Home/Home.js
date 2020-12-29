@@ -435,13 +435,13 @@ export const Home = (props) => {
         let coleccion = ColeccionOriginal.filter(c => c.CodigoColeccion === e.CodigoColeccion);
             e.Edades.forEach(edades => {
                 let Edades;
-                if(coleccion.length > 0){
+                if(coleccion !== undefined && coleccion.length > 0){
                     let Edad = coleccion[0].Edades;
                     Edades = Edad.filter(e=> e.IdEdad === edades.IdEdad);
                 }
                 edades.ProductosXEdad.forEach(prod => {
                     let ProductosXEdad;
-                    if(Edades.length > 0){
+                    if(Edades !== undefined && Edades.length > 0){
                         ProductosXEdad = Edades[0].ProductosXEdad.filter(p => p.ProductoId === prod.ProductoId)
                     }
                      ///Imagenes generales del producto
