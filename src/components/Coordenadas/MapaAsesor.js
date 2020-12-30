@@ -11,14 +11,14 @@ export const MapaAsesor = props => {
             bootstrapURLKeys={{ key: APIKEY }}
             defaultCenter={
                 {
-                    lat: 15.497377,
-                    lng: -88.036478
+                    lat: props.ubicaciones[0].latitude,
+                    lng: props.ubicaciones[0].longitude
                 }
             }
             center={
                 {
-                    lat: 15.497377,
-                    lng: -88.036478
+                    lat: props.ubicaciones[0].latitude,
+                    lng: props.ubicaciones[0].longitude
                 }
             }
             defaultZoom={10}
