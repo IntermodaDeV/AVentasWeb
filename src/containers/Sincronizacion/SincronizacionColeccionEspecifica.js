@@ -38,7 +38,20 @@ export const SincronizacionColeccionEspecifica = props => {
             await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
             cargarListaEspecifica();
         } catch (err) {
+            console.log(err);
+            let mensaje = "Error al procesar solicitud.";
 
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
         }
     }
 
@@ -172,7 +185,7 @@ export const SincronizacionColeccionEspecifica = props => {
                 </CardBody>
             </Card>
             <div style={{ marginTop: 30 }}>
-                <SincronizacionTable listado={listaEspecifica} fecha={fechaSelected}/>
+                <SincronizacionTable listado={listaEspecifica} fecha={fechaSelected} Recargar={cargarListaEspecifica} />
             </div>
         </div>
     )

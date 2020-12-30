@@ -72,6 +72,7 @@ export const CoordenadasAsesor = props => {
                 limpiarMarcadores();
             }
             setAsesoresSeleccionados(asesoresSeleccionados.filter(x => x !== codigo));
+            setChecked(false);
         } else {
             setAsesoresSeleccionados([...asesoresSeleccionados, codigo]);
         }
