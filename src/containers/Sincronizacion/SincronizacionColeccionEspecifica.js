@@ -12,12 +12,14 @@ import { SincronizacionTable } from 'components/Sincronizacion/SincronizacionTab
 import axios from 'axios';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import CachedIcon from '@material-ui/icons/Cached';
+import { DatePicker } from "@material-ui/pickers";
 
 export const SincronizacionColeccionEspecifica = props => {
-    const [empresa, setEmpresa] = useState('');
+    const [empresa, setEmpresa] = useState("IMHN");
     const [coleccion, setColeccion] = useState('');
     const [listaEspecifica, setListaEspecifica] = useState([]);
     const [checked, setChecked] = useState(false);
+    const [fechaSelected, setFechaSelected] = useState(new Date());
     const EMPRESAS_ASIGNADAS = useSelector(e => e.Permisos[0].EmpresasUsuarios);
     const GESTOR_ESPECIFICO = parseInt(useSelector(e => e.Configuraciones.SyncColeccion));
 
@@ -36,7 +38,20 @@ export const SincronizacionColeccionEspecifica = props => {
             await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
             cargarListaEspecifica();
         } catch (err) {
+            console.log(err);
+            let mensaje = "Error al procesar solicitud.";
 
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
         }
     }
 
@@ -60,7 +75,34 @@ export const SincronizacionColeccionEspecifica = props => {
             }
         }
     }
+    const verificarColeccion = async () => {
+        try {
+            const data = await axios.get(`${APIURL}/api/SincronizacionEspecifico/verificar/${empresa}/${coleccion}`);
+            let EsValida = data.data.CodigoPaquete !== null ? true : false;
+            if (!EsValida) {
+                return mostrarAdvertencia("Paquete Incorrecto", "El código del paquete no existe, favor verifique", "warning");
+            }
 
+            if (checked) {
+                enviarSincronizacionEspecificaEmpresas();
+            } else {
+                enviarSincronizacionEspecifica();
+            }
+        } catch (err) {
+            let mensaje = "Ha ocurrido un error y no se pudo verificar el paquete.";
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok'
+            });
+        }
+    }
     const enviarSincronizacion = () => {
         if (checked === true && coleccion === "") {
             mostrarAdvertencia("Información necesaria", "Ingrese el codigo de colección.", "warning");
@@ -78,11 +120,7 @@ export const SincronizacionColeccionEspecifica = props => {
                 cancelButtonText: 'No',
             }).then((result) => {
                 if (result.value) {
-                    if (checked) {
-                        enviarSincronizacionEspecificaEmpresas();
-                    } else {
-                        enviarSincronizacionEspecifica();
-                    }
+                    verificarColeccion();
                 }
             })
         }
@@ -109,6 +147,18 @@ export const SincronizacionColeccionEspecifica = props => {
                 </CardHeader>
                 <CardBody>
                     <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                        <DatePicker
+                            disableToolbar
+                            autoOk
+                            label={"Fecha"}
+                            variant="inline"
+                            format={"DD/MM/YYYY"}
+                            //disablePast
+                            value={fechaSelected}
+                            maxDate={new Date()}
+                            minDate={new Date().setDate(new Date().getDate() - 14)}
+                            onChange={(date) => setFechaSelected(date)}
+                        />
                         <div class="mt-3 form-check">
                             <input type="checkbox" class="form-check-input" id="exampleCheck1" checked={checked} onClick={() => { setChecked(!checked) }} />
                             <label class="form-check-label" for="exampleCheck1">Todas las empresas asignadas</label>
@@ -126,6 +176,7 @@ export const SincronizacionColeccionEspecifica = props => {
                             })}
                             noResultsMessage={"No hay resultados"}
                             closeOnChange={true}
+                            disabled={checked}
                         />
                         <input className="form-control form-control-lg" style={{ width: "15%" }} placeholder="Codigo colección" type="text" onChange={(e => { setColeccion(e.target.value.toUpperCase()) })} />
                         <button type="button" className="btn btn-primary" onClick={enviarSincronizacion}>Enviar</button>
@@ -134,7 +185,7 @@ export const SincronizacionColeccionEspecifica = props => {
                 </CardBody>
             </Card>
             <div style={{ marginTop: 30 }}>
-                <SincronizacionTable listado={listaEspecifica} />
+                <SincronizacionTable listado={listaEspecifica} fecha={fechaSelected} Recargar={cargarListaEspecifica} />
             </div>
         </div>
     )

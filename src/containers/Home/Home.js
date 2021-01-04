@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { APIURL } from 'utils/Enviroment';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Loading } from 'components/Global/Loading';
 import { get } from 'utils/http';
 import SteperSync from 'containers/Home/SteperSync';
@@ -18,7 +18,7 @@ export const Home = (props) => {
     const [SyncDiaria, setSyncDiaria] = useState(true);  
     const [UsuarioOficina, setUsuarioOficina] = useState(false);  
     const [displaySincronizacion,setDisplaySincronizacion] = useState(false);
-    
+    const Colecciones = useSelector(e=>e.ListaPrecios);
     useEffect(() => {
 
         async function inicioSesion() {
@@ -427,27 +427,76 @@ export const Home = (props) => {
                 });
         }
     }
-
     const CargaImagenes = async (data) =>{
+        let ColeccionOriginal = Colecciones;
         setMensaje('Cargando imagenes')
         let listaPrecios = data;
         listaPrecios.forEach(e => {
+        let coleccion = ColeccionOriginal.filter(c => c.CodigoColeccion === e.CodigoColeccion);
             e.Edades.forEach(edades => {
+                let Edades;
+                if(coleccion !== undefined && coleccion.length > 0){
+                    let Edad = coleccion[0].Edades;
+                    Edades = Edad.filter(e=> e.IdEdad === edades.IdEdad);
+                }
                 edades.ProductosXEdad.forEach(prod => {
+                    let ProductosXEdad;
+                    if(Edades !== undefined && Edades.length > 0){
+                        ProductosXEdad = Edades[0].ProductosXEdad.filter(p => p.ProductoId === prod.ProductoId)
+                    }
                      ///Imagenes generales del producto
-                    prod.ListaImagenes.forEach(async function (img){
-                        let imagenBlob = await convertirBlob(img.FotografiaProducto);
-                        if (imagenBlob) {
-                            img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                    prod.ListaImagenes.forEach(async function (img) {
+                        let imges;
+                        if(ProductosXEdad !== undefined && ProductosXEdad.length>0){
+                            imges = ProductosXEdad[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
                         }
+                        if (imges !== undefined && imges.length > 0) {
+                            if (imges[0].FotografiaProducto.includes("blob")) {
+                                img.FotografiaProducto = imges[0].FotografiaProducto;
+                            }
+                            else {
+                                let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                                if (imagenBlob) {
+                                    img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                                }
+                            }
+                        }
+                        else {
+                            let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                            if (imagenBlob) {
+                                img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                            }
+                        }
+                        
                     })
 
-                      ///Imagenes por color del producto
-                      prod.ListaColores.forEach(color => {
-                        color.ListaImagenes.forEach( async function (img) {
-                            let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
-                            if (imagenColorBlob) {
-                                img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                    ///Imagenes por color del producto
+                    prod.ListaColores.forEach(color => {
+                        let colores;
+                        if(ProductosXEdad !== undefined && ProductosXEdad.length>0){
+                            colores = ProductosXEdad[0].ListaColores.filter(i => i.CodigoColor === color.CodigoColor)
+                        }
+                        color.ListaImagenes.forEach(async function (img) {
+                            let imgColor;
+                            if(colores !== undefined && colores.length>0 ){
+                                imgColor = colores[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
+                            }
+                            if (imgColor !== undefined && imgColor.length > 0) {
+                                if (imgColor[0].FotografiaProducto.includes("blob")) {
+                                    img.FotografiaProducto = imgColor[0].FotografiaProducto;
+                                }
+                                else {
+                                    let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                                    if (imagenColorBlob) {
+                                        img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                                    }
+                                }
+                            }
+                            else {
+                                let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                                if (imagenColorBlob) {
+                                    img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                                }
                             }
                         })
                     })
@@ -475,7 +524,7 @@ export const Home = (props) => {
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE CARTERA DE CLIENTES--------------------------------------*/
 
     const CarteraClientes = async () => {
-        console.log("UsuarioOficina",UsuarioOficina)
+
         if (UsuarioOficina === false) {
             const { data, error } = await get(`${APIURL}/api/cliente/${localStorage.getItem("codigo")}`, "Cartera");
             if (error) {
