@@ -8,7 +8,7 @@ import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { DatePicker } from "@material-ui/pickers";
 import TextField from '@material-ui/core/TextField';
-import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
+//import AddCircleOutlineIcon from '@material-ui/icons/AddCircleOutline';
 import CloseIcon from '@material-ui/icons/Close';
 import CheckIcon from '@material-ui/icons/Check';
 import EditIcon from '@material-ui/icons/Edit';
@@ -566,14 +566,14 @@ const PagoReciboTable = (props) => {
         null, null, null, null, null, null, null,
         (
             <div className="d-flex">
-                { (localStorage.getItem('isAnticipo')==='false' || props.Pedido !== null) &&
-                <Button
+                {/* (localStorage.getItem('isAnticipo')==='false' || props.Pedido !== null) &&
+                {/*<Button
                     className="mr-1"
                     style={{ textAlign: 'center' }}
                     onClick={()=>{props.OnAddPagoXRecibo(); setHabilitado(true);}}
                 >
                     <AddCircleOutlineIcon />
-                </Button>
+                </Button>}*/
                 }
                 <Button
                     className="ml-1"
