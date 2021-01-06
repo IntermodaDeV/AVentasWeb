@@ -35,6 +35,7 @@ import { CoordenadasAsesor } from 'containers/Coordenadas/CoordenadasAsesor';
 import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
 import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/SincronizacionColeccionEspecifica'
+import { ReconstruccionRuta } from 'containers/ReconstruccionRuta/ReconstruccionRuta'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -76,6 +77,12 @@ const App = props => {
               path='/ultima-geolocalizacion-monitoreo'
               layout={MainLayout}
               component={CoordenadasAsesor}
+            />
+            <LayoutRoute
+              exact
+              path='/reconstruccion-ruta'
+              layout={MainLayout}
+              component={ReconstruccionRuta}
             />
             <LayoutRoute
               exact
