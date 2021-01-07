@@ -146,7 +146,7 @@ export const SincronizacionColeccionEspecifica = props => {
                     Sincronización especifica colección
                 </CardHeader>
                 <CardBody>
-                    <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
                         <DatePicker
                             disableToolbar
                             autoOk
@@ -164,7 +164,7 @@ export const SincronizacionColeccionEspecifica = props => {
                             <label class="form-check-label" for="exampleCheck1">Todas las empresas asignadas</label>
                         </div>
                         <Dropdown
-                            style={{ width: '50%' }}
+                            style={{ width: '15%' }}
                             placeholder="Seleccione empresa"
                             search
                             selection

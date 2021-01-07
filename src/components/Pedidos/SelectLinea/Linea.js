@@ -44,7 +44,7 @@ const Linea = (props) => {
     const cargarColecciones = async () => {
         if (usuarioOficina) {
             props.setLinea(props.Linea);
-            fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}`)
+            fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}/${usuarioOficina}`)
                 .then(res => res.json())
                 .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
         } else {
@@ -56,7 +56,7 @@ const Linea = (props) => {
                 setLoading(false);
                 props.setLinea(props.Linea);
                 if (localStorage.getItem("Conexion") === "Online" && isOnline) {
-                    fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}`)
+                    fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('empresa')}/${usuarioOficina}`)
                         .then(res => res.json())
                         .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
                 }

@@ -36,6 +36,7 @@ import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
 import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/SincronizacionColeccionEspecifica'
 import { ReconstruccionRuta } from 'containers/ReconstruccionRuta/ReconstruccionRuta'
+import { TabEncuestas } from 'containers/Encuestas/TabEncuestas'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -217,6 +218,11 @@ const App = props => {
               path='/seguridad-permisos'
               layout={MainLayout}
               component={Relacional}
+            />
+            <LayoutRoute
+              path='/Encuestas'
+              layout={MainLayout}
+              component={TabEncuestas}
             />
              <LayoutRoute
               exact
