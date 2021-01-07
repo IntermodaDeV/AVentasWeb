@@ -17,8 +17,8 @@ export const Encuesta = props => {
     const [encuestas, setEncuestas] = useState([]);
     const [mostrar, setMostrar] = useState(false);
     const [encuesta, setEncuesta] = useState(null);
-    const [fechaInicio, setFechaInicio] = useState(new Date);
-    const [fechaFin, setfechaFin] = useState(new Date);
+    const [fechaInicio, setFechaInicio] = useState(new Date());
+    const [fechaFin, setfechaFin] = useState(new Date());
    
     const context = useRef();
     const validationSchema = yup.object().shape(
@@ -139,8 +139,8 @@ export const Encuesta = props => {
             Nombre: '',
             Descripcion: '',
             Empresa: '',
-            FechaInicio: new Date,
-            FechaFin: new Date,
+            FechaInicio: new Date(),
+            FechaFin: new Date(),
             CreatedBy: localStorage.getItem('codigo')
         }
         edit=false;
@@ -166,7 +166,7 @@ export const Encuesta = props => {
                                             name="Nombre"
                                             error={!!errors.Nombre}
                                             helperText={errors.Nombre}
-                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px' }}
                                             as={TextField}
                                             className="form-control"
                                         />
@@ -177,7 +177,7 @@ export const Encuesta = props => {
                                             name="Descripcion"
                                             error={!!errors.Descripcion}
                                             helperText={errors.Descripcion}
-                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px' }}
                                             as={TextField}
                                             className="form-control"
                                         />
@@ -188,7 +188,7 @@ export const Encuesta = props => {
                                             name="empresa"
                                             error={!!errors.Empresa}
                                             helperText={errors.Empresa}
-                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px' }}
                                             as={TextField}
                                             className="form-control"
                                         />

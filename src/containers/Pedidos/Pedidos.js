@@ -1345,16 +1345,20 @@ class Pedidos extends React.Component {
                     })
                     this.setState({ loadingRecibo: false });
                 } else {
-                    let numPedido = data === undefined || data === null ? "No Disponible" : data;
+                    let numPedido = data === undefined || data === null ? correlativo!==null || correlativo!==undefined || correlativo!==""?correlativo: "No Disponible" : data;
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                     this.props.onSetNumeroOrden(numPedido);
                 }
             } else {
-                let numPedido = data === undefined || data === null ? "No Disponible" : data;
+                let numPedido = data === undefined || data === null ? correlativo!==null || correlativo!==undefined || correlativo!==""?correlativo: "No Disponible" : data;
                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                 this.props.onSetNumeroOrden(numPedido);
             }
         }
+    }
+
+    desactivarLoading = ()=>{
+        this.setState((prevState)=>({...prevState,loadingRecibo:false}));
     }
 
     enviarPedido = async (correlativo)=> {
@@ -1866,6 +1870,7 @@ class Pedidos extends React.Component {
                                         tableValue={this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]}
                                         enviarPedido={this.enviarPedido.bind(this)}
                                         mostrarRecibo={this.state.mostrarRecibo}
+                                        desactivarLoading={this.desactivarLoading}
                                         loadingRecibo={this.state.loadingRecibo}
                                         Cliente={this.props.cliente}
                                         cancelarPedido={this.cancelarPedido}

@@ -1,6 +1,5 @@
 import React from 'react'
 import { FaEdit } from "react-icons/fa";
-import { MdCancel, MdCheckCircle } from "react-icons/md";
 import Button from '@material-ui/core/Button';
 import { Table } from 'reactstrap';
 import { MdPlaylistAdd } from "react-icons/md";

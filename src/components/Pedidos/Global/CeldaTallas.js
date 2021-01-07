@@ -88,7 +88,11 @@ const CeldaTallas = (props) => {
 
         if(props.cantidadMinima>0){
             if(esMultiplo(props.cantidadMinima,cantidad) && cantidad>props.disponible){
-                text.target.value = props.disponible;
+                if(!props.NoEsFuturo){
+                    text.target.value = cantidad;
+                }else{
+                    text.target.value = props.disponible;
+                }
                 props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
                 return;
             }

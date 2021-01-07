@@ -193,6 +193,8 @@ const ResumenPedido = (props) => {
                         title: 'Error',
                         text: mensajeError,
                     })
+
+                    props.desactivarLoading();
                 }
                 else {
                     if (props.NumeroOrden) {

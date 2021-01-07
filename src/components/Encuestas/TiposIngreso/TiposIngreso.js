@@ -185,7 +185,7 @@ export const TiposIngreso = props => {
                                             name="Nombre"
                                             error={!!errors.Nombre}
                                             helperText={errors.Nombre}
-                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px' }}
                                             as={TextField}
                                             className="form-control"
                                         />

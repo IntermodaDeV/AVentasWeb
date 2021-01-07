@@ -51,7 +51,9 @@ const Carousel = (props) => {
     }
 
     useEffect(()=>{
-       mySlider.current.slickGoTo(Number(localStorage.getItem("PosicionProducto")));
+        if(mySlider.current!==undefined){
+            mySlider.current.slickGoTo(Number(localStorage.getItem("PosicionProducto")));
+        }
     },[])
 
     if (props.ListaProductos) {
