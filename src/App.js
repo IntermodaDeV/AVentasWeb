@@ -38,6 +38,7 @@ import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/Sin
 import { ReconstruccionRuta } from 'containers/ReconstruccionRuta/ReconstruccionRuta'
 import { TabEncuestas } from 'containers/Encuestas/TabEncuestas'
 import { getLocalStorage } from 'utils/http';
+import {MantenimientoEncuesta} from 'containers/Encuestas/MantenimientoEncuesta/MantenimientoEncuesta'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -234,6 +235,11 @@ const App = props => {
               path='/Encuestas'
               layout={MainLayout}
               component={TabEncuestas}
+            />
+             <LayoutRoute
+              path='/Mantenimiento/Encuesta'
+              layout={MainLayout}
+              component={MantenimientoEncuesta}
             />
              <LayoutRoute
               exact
