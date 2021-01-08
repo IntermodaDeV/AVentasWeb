@@ -37,6 +37,8 @@ import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
 import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/SincronizacionColeccionEspecifica'
 import { ReconstruccionRuta } from 'containers/ReconstruccionRuta/ReconstruccionRuta'
 import { TabEncuestas } from 'containers/Encuestas/TabEncuestas'
+import { getLocalStorage } from 'utils/http';
+
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -51,6 +53,15 @@ const App = props => {
     window.setInterval(() => {
       getGeopostion()
     }, 60000)
+
+    setInterval(() => {
+      let data = getLocalStorage("AbreviacionMonedas");
+      if (data === null) {
+        if (!window.location.href.includes("home")) {
+          window.location.href = "/home";
+        }
+      }
+    }, (30*60*1000))
 
     return (
       <SnackbarProvider dense maxSnack={3}>
