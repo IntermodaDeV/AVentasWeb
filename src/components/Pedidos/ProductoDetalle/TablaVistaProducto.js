@@ -11,6 +11,7 @@ const TablaVistaProducto = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
     const [imagenes, setImagenes] = useState([]);
     const [IsOpen, setIsOpen] = useState(false);
+    const [colorSeleccionado,setColorSeleccionado] = useState("");
 
     const onFocus = () => {
 
@@ -170,11 +171,14 @@ const TablaVistaProducto = (props) => {
                                     alignItems: 'center',
                                     verticalAlign: 'middle',
                                     fontWeight: 600,
+                                    background:colorSeleccionado===color.NombreColor?"green":"white",
+                                    color:colorSeleccionado===color.NombreColor?"white":"black"
                                 }}
                                     onClick={()=>{
                                         if(hasImages){
                                             props.setListaImagenes(color.NombreColor);
                                         }
+                                        setColorSeleccionado(color.NombreColor);
                                     }}
                                 >
                                     {/* <div style={{
@@ -217,6 +221,7 @@ const TablaVistaProducto = (props) => {
                                                 onChange={props.onchangeText}
                                                 CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
                                                 cantidadMinima={props.producto.CantidadMinima}
+                                                setColor={setColorSeleccionado}
                                             />
                                         )
                                     })

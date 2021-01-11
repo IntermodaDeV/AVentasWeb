@@ -139,6 +139,10 @@ const CeldaTallas = (props) => {
         if(props.setListaImagenesPrincipal!==null && props.color!==null){
             props.setListaImagenesPrincipal(props.color);
         }
+
+       if(props.setColor){
+           props.setColor(props.color);
+       }
     }
 
     return (
@@ -156,7 +160,7 @@ const CeldaTallas = (props) => {
                             </div> */}
                             <div className="row">
                                 {/* <div class={styles.separator}></div> */}
-                                <div className="d-flex m-auto">
+                                <div className="d-flex m-auto" style={{ color: Disponible === 0 ? "red" : "blue", fontWeight: "bold" }}>
                                     Stock: <ReactTextTransition
                                         text={Disponible}
                                         spring={presets.stiff}
