@@ -84,14 +84,17 @@ export const backgroundPostPedidos = async () => {
         }
 
         store.dispatch({ type: "SET_RESETPEDIDOSINCRONIZAR", payload: newPedidoSincronizar });
+        return newPedidoSincronizar;
     }
+
+    return newPedidoSincronizar;
 }
 
 export const backgroundPostRecibos = async () => {
     let isOnline = await verificarConexion();
     const url = APIURL + "/api/Recibo";
     const globalState = store.getState();
-    const reciboSincronizar = globalState["ReciboSincronizar"];
+    const reciboSincronizar = globalState["RecibosEnCache"];
     let newReciboSincronizar = [];
 
     if (isOnline && reciboSincronizar.length > 0) {
@@ -103,8 +106,11 @@ export const backgroundPostRecibos = async () => {
             }
         }
 
-        store.dispatch({ type: "SET_RESETRECIBOSINCRONIZAR", payload: newReciboSincronizar });
+        store.dispatch({ type: "SET_RESETRECIBOSENCACHE", payload: newReciboSincronizar });
+        return newReciboSincronizar;
     }
+
+    return newReciboSincronizar;
 }
 
 export const getLocalStorage = (key, subkey) => {

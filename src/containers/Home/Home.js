@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { APIURL,APP_VERSION } from 'utils/Enviroment';
 import { useSelector, useDispatch } from 'react-redux';
 import { Loading } from 'components/Global/Loading';
-import { get } from 'utils/http';
+import { get,backgroundPostPedidos,backgroundPostRecibos } from 'utils/http';
 import SteperSync from 'containers/Home/SteperSync';
 import { getLocalStorage } from 'utils/http';
 import moment from 'moment';
@@ -30,9 +30,11 @@ export const Home = (props) => {
                 let config = await cargarConfiguraciones();
                 if (config.APP_VERSION === APP_VERSION) {
                     if (permisos[0].UsuarioOficina) {
+                        localStorage.setItem("UsuarioOficina",true);
                         cargarConfiguracionesUsuarioOficina();
                         dispatch({ type: 'SET_PERMISOS', payload: permisos });
                     } else {
+                        localStorage.setItem("UsuarioOficina",false);
                         setDisplaySincronizacion(true);
                         let data = getLocalStorage("ListaPrecios");
                         if (data === null) {
@@ -54,6 +56,19 @@ export const Home = (props) => {
         inicioSesion();
         // eslint-disable-next-line
     }, [])
+
+    const sincronizarDocumentosPendientes = async () => {
+        setMensaje('Sincronizando Pedidos y Recibos');
+        let pendientesPedidos = await backgroundPostPedidos();
+        let pendientesRecibo = await backgroundPostRecibos();
+
+        const tieneDocumentosPendientes = pendientesPedidos.length > 0 || pendientesRecibo.length > 0;
+        if (tieneDocumentosPendientes) {
+            localStorage.setItem("ErrorDocumentos", true);
+        } else {
+            localStorage.setItem("ErrorDocumentos", false);
+        }
+    }
 
     const CargaPermisos = async () => {
         let isOnline = await verificarConexion();
@@ -88,6 +103,9 @@ export const Home = (props) => {
 
     const CargarModuloConfiguraciones = () => {
         setloading(true);
+        ////Documentos Pendientes
+        sincronizarDocumentosPendientes();
+
         ////Configuracion General
         ObtenerPermisos();
         cargarEmpresas();

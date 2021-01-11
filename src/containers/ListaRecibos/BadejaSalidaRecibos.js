@@ -196,7 +196,7 @@ const BadejaSalidaRecibos = (props) => {
                         </DialogContent>
                 </Dialog>
                 <div style ={{textAlign:'center',fontSize: '28px'}} className="alert alert-danger alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '32px', color: 'red'}} /> Los recibos mostrados en esta pantalla están registrados únicamente en su maquina
+                    <FiAlertTriangle style={{ fontSize: '32px', color: 'red'}} /> Los recibos mostrados en esta pantalla están registrados únicamente en su dispositivo.
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>

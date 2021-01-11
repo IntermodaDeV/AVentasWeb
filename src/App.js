@@ -56,13 +56,15 @@ const App = props => {
     }, 60000)
 
     setInterval(() => {
-      let data = getLocalStorage("AbreviacionMonedas");
-      if (data === null) {
-        if (!window.location.href.includes("home")) {
-          window.location.href = "/home";
+      if (localStorage.getItem("UsuarioOficina") === "false") {
+        let data = getLocalStorage("ListaPrecios");
+        if (data === null) {
+          if (!window.location.href.includes("home")) {
+            window.location.href = "/home";
+          }
         }
       }
-    }, (30*60*1000))
+    }, (10*60*1000))
 
     return (
       <SnackbarProvider dense maxSnack={3}>
