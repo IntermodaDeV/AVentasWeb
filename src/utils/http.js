@@ -92,14 +92,14 @@ export const backgroundPostPedidos = async () => {
 
 export const backgroundPostRecibos = async () => {
     let isOnline = await verificarConexion();
-    const url = APIURL + "/api/Recibo";
     const globalState = store.getState();
     const reciboSincronizar = globalState["RecibosEnCache"];
     let newReciboSincronizar = [];
 
     if (isOnline && reciboSincronizar.length > 0) {
         for (let recibo of reciboSincronizar) {
-            const { error } = await backgroundPost(url, recibo);
+            let ruta = recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/Recibo';
+            const { error } = await backgroundPost(APIURL+ruta, recibo);
 
             if (error) {
                 newReciboSincronizar.push(recibo);
