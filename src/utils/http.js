@@ -84,10 +84,10 @@ export const backgroundPostPedidos = async () => {
         }
 
         store.dispatch({ type: "SET_RESETPEDIDOSINCRONIZAR", payload: newPedidoSincronizar });
-        return newPedidoSincronizar;
+        return newPedidoSincronizar.length > 0;
     }
 
-    return newPedidoSincronizar;
+    return pedidoSincronizar.length > 0;
 }
 
 export const backgroundPostRecibos = async () => {
@@ -107,10 +107,10 @@ export const backgroundPostRecibos = async () => {
         }
 
         store.dispatch({ type: "SET_RESETRECIBOSENCACHE", payload: newReciboSincronizar });
-        return newReciboSincronizar;
+        return newReciboSincronizar.length > 0;
     }
 
-    return newReciboSincronizar;
+    return reciboSincronizar.length > 0;
 }
 
 export const getLocalStorage = (key, subkey) => {

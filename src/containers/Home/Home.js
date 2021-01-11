@@ -59,15 +59,11 @@ export const Home = (props) => {
 
     const sincronizarDocumentosPendientes = async () => {
         setMensaje('Sincronizando Pedidos y Recibos');
-        let pendientesPedidos = await backgroundPostPedidos();
-        let pendientesRecibo = await backgroundPostRecibos();
+        let tienePedidosPendientes = await backgroundPostPedidos();
+        let tieneRecibosPendientes = await backgroundPostRecibos();
 
-        const tieneDocumentosPendientes = pendientesPedidos.length > 0 || pendientesRecibo.length > 0;
-        if (tieneDocumentosPendientes) {
-            localStorage.setItem("ErrorDocumentos", true);
-        } else {
-            localStorage.setItem("ErrorDocumentos", false);
-        }
+        localStorage.setItem("PedidosPendientes", tienePedidosPendientes);
+        localStorage.setItem("RecibosPendientes", tieneRecibosPendientes);
     }
 
     const CargaPermisos = async () => {
