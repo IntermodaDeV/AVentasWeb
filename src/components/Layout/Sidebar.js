@@ -44,7 +44,8 @@ import {
     SyncAlt,
     ViewCompact,
     Explore,
-    MyLocation
+    MyLocation,
+    DriveEta
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
@@ -87,6 +88,7 @@ const navItems = [
         to: '/monitoreo', name: 'Monitoreo', dataTut: 'DataTut_Sinc', Icon: Explore,
         expanded: [
             { to: '/ultima-geolocalizacion-monitoreo', name: 'Ultima Geolocalización', dataTut: 'DataTut_SincLista', Icon: MyLocation, backgroundColor:''  },
+            { to: '/recorrido-monitoreo', name: 'Recorrido', dataTut: 'DataTut_SincLista', Icon: DriveEta, backgroundColor:''  }
         ]
     },
     { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },

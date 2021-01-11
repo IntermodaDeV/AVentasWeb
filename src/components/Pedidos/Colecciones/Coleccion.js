@@ -34,7 +34,7 @@ const Coleccion = (props) => {
   const [loading,setLoading] = React.useState(false);
 
   const cargarProductos = () => {
-    fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${localStorage.getItem('empresa')}`)
+    fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${cliente.EmpresaId}`)
       .then(res => res.json())
       .then(data => {
         props.Click();

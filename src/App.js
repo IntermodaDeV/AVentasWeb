@@ -95,7 +95,7 @@ const App = props => {
             />
             <LayoutRoute
               exact
-              path='/reconstruccion-ruta'
+              path='/recorrido-monitoreo'
               layout={MainLayout}
               component={ReconstruccionRuta}
             />

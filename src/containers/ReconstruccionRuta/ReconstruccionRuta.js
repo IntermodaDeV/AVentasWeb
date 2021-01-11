@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { APIKEY, APIURL } from 'utils/Enviroment';
+import {IsAllow} from 'components/Seguridad/Permisos';
 
 //components
 import MapaReconstruccion from './components/MapaReconstruccion';
@@ -37,7 +38,13 @@ export const ReconstruccionRuta = props => {
     }
 
     useEffect(() => {
+        if(!IsAllow("/recorrido-monitoreo"))
+        {
+          props.history.push('/home');
+        }
         cargarAsesores();
+
+        //eslint-disable-next-line
     }, [])
 
     return (
