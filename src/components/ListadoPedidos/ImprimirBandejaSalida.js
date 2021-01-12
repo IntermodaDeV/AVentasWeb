@@ -24,7 +24,7 @@ if(clienteContado!==null && clienteContado!==undefined)
         NombreCliente = 'CONSUMIDOR FINAL';
     }
 }
-
+    let NumeroPedido = props.Pedido.NumeroReferencia !== "" ? props.Pedido.NumeroReferencia : "En Proceso";
     let TotalUnidad = 0;
     let cantidad = 0;
     const componentRef = React.useRef();
@@ -59,7 +59,7 @@ if(clienteContado!==null && clienteContado!==undefined)
                             </div>
                             <div className="col-6">
                                 <div className="info">
-                                <h2>Pedido {"En Proceso"}</h2>
+                                <h2>Pedido {NumeroPedido}</h2>
                                     <p>
                                         Fecha del pedido : {moment(props.Pedido.FechaActual).format('DD/MM/YYYY hh:mm a')}<br />
                                         Entrega Sugerida : {moment(props.Pedido.FechaEntrega).format('DD/MM/YYYY hh:mm a')}<br />

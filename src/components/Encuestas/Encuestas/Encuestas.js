@@ -115,6 +115,11 @@ export const Encuesta = props => {
         setMostrar(true);
     }
 
+    const Modificar = (valores) => {
+        valores.FechaInicio = moment(fechaInicio).toDate();
+        valores.FechaFin = moment(fechaFin).toDate();
+        ModificarEncuestas(valores)
+    }
     const Mostrar = () => {
         setEncuesta(null);
         setMostrar(true);
@@ -214,7 +219,7 @@ export const Encuesta = props => {
                                         <Button onClick={() => { setMostrar(false) }} color="primary">
                                             Cancelar
                                         </Button>
-                                        {edit && <Button type="button" onClick={() => { ModificarEncuestas(values) }} color="sucess"> Guardar</Button>}
+                                        {edit && <Button type="button" onClick={() => { Modificar(values) }} color="sucess"> Guardar</Button>}
                                         {!edit && <Button type="submit" color="sucess">Guardar</Button>}
                                     </DialogActions>
                                 </Form>

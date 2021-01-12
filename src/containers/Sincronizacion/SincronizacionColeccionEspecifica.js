@@ -150,6 +150,28 @@ export const SincronizacionColeccionEspecifica = props => {
         }
     }
 
+    const SincronizacionForzosa = () => {
+        if (!forzar) {
+            Swal.fire({
+                title: 'Confirmar',
+                text: `Al forzar la sincronización  estará deshabilitando los productos actuales, por lo que no se podrá utilizar el paquete para ventas mientras se ejecuta el proceso. ¿Desea continuar?`,
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#06bf53',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
+            }).then((result) => {
+                if (result.value) {
+                    setForzar(!forzar)
+                }
+            })
+        }
+        else {
+            setForzar(!forzar)
+        }
+    }
+
     useEffect(() => {
         if (!IsAllow("/sincronizacion-especifica-coleccion")) {
             props.history.push('/home');
@@ -202,8 +224,8 @@ export const SincronizacionColeccionEspecifica = props => {
                             closeOnChange={true}
                             disabled={checked}
                         />
-                        <div class="mt-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck2" checked={forzar} onClick={() => { setForzar(!forzar) }} />
+                         <div class="mt-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck2" checked={forzar} onClick={() => { SincronizacionForzosa() }} />
                             <label class="form-check-label" for="exampleCheck2">Sincronización forzosa</label>
                         </div>
                         <input className="form-control form-control-lg" style={{ width: "15%" }} placeholder="Codigo colección" type="text" onChange={(e => { setColeccion(e.target.value.toUpperCase()) })} />

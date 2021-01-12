@@ -37,9 +37,10 @@ import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
 import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/SincronizacionColeccionEspecifica'
 import { ReconstruccionRuta } from 'containers/ReconstruccionRuta/ReconstruccionRuta'
 import { TabEncuestas } from 'containers/Encuestas/TabEncuestas'
-import { getLocalStorage } from 'utils/http';
+import { getLocalStorage, verificarConexion } from 'utils/http';
 import {MantenimientoEncuesta} from 'containers/Encuestas/MantenimientoEncuesta/MantenimientoEncuesta'
-
+import axios from 'axios'
+import {APIURL,APP_VERSION} from 'utils/Enviroment'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -55,6 +56,21 @@ const App = props => {
       getGeopostion()
     }, 60000)
 
+    const cargarConfiguraciones = async () => {
+      if (verificarConexion()) {
+        try {
+          const request = await axios.get(`${APIURL}/api/configuraciones`);
+          if(request.data.APP_VERSION!==APP_VERSION){
+            if(!window.location.href.includes("pedidos")){
+              window.location.href = "/home";
+            }
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    }
+
     setInterval(() => {
       if (localStorage.getItem("UsuarioOficina") === "false") {
         let data = getLocalStorage("ListaPrecios");
@@ -66,6 +82,9 @@ const App = props => {
       }
     }, (10*60*1000))
 
+    setInterval(() => {
+      cargarConfiguraciones();
+    }, (10*60*1000))
     return (
       <SnackbarProvider dense maxSnack={3}>
         <Router>
