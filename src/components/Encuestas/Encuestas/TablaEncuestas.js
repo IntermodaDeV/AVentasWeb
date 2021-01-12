@@ -21,7 +21,6 @@ const TablaEncuestas = (props) => {
                                 <tr>
                                     <th style={{ textAlign: 'center' }}>Nombre</th>
                                     <th style={{ textAlign: 'center' }}>Descripción</th>
-                                    <th style={{ textAlign: 'center' }}>Empresa</th>
                                     <th style={{ textAlign: 'center' }}>Acciones</th>
                                 </tr>
                             </thead>
@@ -30,9 +29,10 @@ const TablaEncuestas = (props) => {
                                     <tr key={enc.Id}>
                                         <td style={{ textAlign: 'center' }}>{enc.Nombre}</td>
                                         <td style={{ textAlign: 'center' }}>{enc.Descripcion}</td>
-                                        <td style={{ textAlign: 'center' }}>{enc.Empresa}</td>
                                         <td style={{ textAlign: 'center' }}>
                                             <Button style={{ marginLeft: '10px' }} class="btn btn-warning" onClick={() => { props.openEdit(enc) }} startIcon={<FaEdit />} >Editar</Button>
+                                            <Button style={{ marginLeft: '10px' }} class="btn btn-info" onClick={() => { props.openEdit(enc) }} startIcon={<MdPlaylistAdd />} >Añadir Seccion</Button>
+                                            <Button style={{ marginLeft: '10px' }} class="btn btn-success" onClick={() => { props.openEdit(enc) }} startIcon={<FaEdit />} >Ver Secciones</Button>
                                         </td>
                                     </tr>
                                 ))}

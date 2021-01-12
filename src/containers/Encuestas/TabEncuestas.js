@@ -6,6 +6,7 @@ import Tab from '@material-ui/core/Tab';
 import RecentActorsIcon from '@material-ui/icons/RecentActors';
 import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import {Encuesta} from 'components/Encuestas/Encuestas/Encuestas'
+import {SeccionesEncuesta} from 'components/Encuestas/Secciones/Secciones'
 export const TabEncuestas = props => {
     const [value, setValue] = React.useState(0);
 
@@ -38,7 +39,7 @@ export const TabEncuestas = props => {
             <div className="card" style={{height:'85%'}}>
                 <Switch>
                     <Route exact path={`${props.match.url}`} render={(props)=><Encuesta/>}/>
-                    <Route exact path={`${props.match.url}/secciones`} render={(props)=><h1>seccion</h1>}/>
+                    <Route exact path={`${props.match.url}/secciones`} render={(props)=><SeccionesEncuesta/>}/>
                 </Switch>
             </div>
         </div>

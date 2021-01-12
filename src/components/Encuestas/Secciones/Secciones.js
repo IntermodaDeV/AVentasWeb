@@ -13,10 +13,10 @@ import TablaSecciones from 'components/Encuestas/Secciones/TablaSecciones';
 import { APIURL } from 'utils/Enviroment';
 import CheckBox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { Dropdown } from "semantic-ui-react";
 
 export const SeccionesEncuesta = props => {
     const [Secciones, setSecciones] = useState([]);
+    const [encuestas, setEncuestas] = useState([]);
     const [mostrar, setMostrar] = useState(false);
     const [Seccion, setSeccion] = useState(null);
 
@@ -29,13 +29,12 @@ export const SeccionesEncuesta = props => {
             Obligatorio: yup.boolean(),
         });
 
-    useEffect(() => {
-        cargarSeccionesEncuesta();
-    }, [])
+   
     const cargarSeccionesEncuesta = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/Encuesta/Secciones`);
             setSecciones(request.data);
+            cargarEncuestas();
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se han cargado las secciones de encuestas.";
 
@@ -51,6 +50,30 @@ export const SeccionesEncuesta = props => {
         }
     }
 
+    const cargarEncuestas = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Encuesta`);
+            let Encuestas = [];
+            request.data.map(enc => {
+                let Valores = { key: enc.Nombre, value: enc.Id}
+                Encuestas.push(Valores);
+            })
+            setEncuestas(Encuestas);
+        } catch (err) {
+            let mensaje = "Ha ocurrido un error y no se han cargado las encuestas.";
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
     const registrarSecciones = async (data) => {
         try {
             await axios.post(`${APIURL}/api/Encuesta/Secciones/registrar`, data);
@@ -134,6 +157,11 @@ export const SeccionesEncuesta = props => {
         }
     }
 
+    useEffect(() => {
+        cargarSeccionesEncuesta();
+         // eslint-disable-next-line
+    }, [])
+
     const openEdit = (tip) => {
         setSeccion(tip);
         setMostrar(true);
@@ -148,10 +176,13 @@ export const SeccionesEncuesta = props => {
 
     if (Seccion) {
         initialValues = {
-            Id: Seccion.$id,
+            Id: Seccion.id,
             Nombre: Seccion.Nombre,
+            Titulo: Seccion.Titulo,
+            Descripcion: Seccion.Descripcion,
+            EncuestaId: Seccion.EncuestaId,
             Status: Seccion.Status,
-            RequiereGrupoOpciones: Seccion.RequiereGrupoOpciones,
+            Obligatorio: Seccion.Obligatorio,
             Usuario: localStorage.getItem('codigo')
         }
         edit = true;
@@ -159,8 +190,11 @@ export const SeccionesEncuesta = props => {
     else {
         initialValues = {
             Nombre: '',
+            Titulo: '',
+            Descripcion:'',
+            EncuestaId: '',
             Status: false,
-            RequiereGrupoOpciones: false,
+            Obligatorio: false,
             Usuario: localStorage.getItem('codigo')
         }
         edit = false;
@@ -180,16 +214,19 @@ export const SeccionesEncuesta = props => {
                         {({ errors, resetForm, values, setValues }) => (
                             <div ref={context}>
                                 <Form>
-                                    <div className="form-group">
-                                        <Dropdown
-                                            placeholder="Encuesta"
-                                            selection
-                                            style={{ zIndex: 999 }}
-                                            onChange={(e, { value }) => alert(value)}
-                                            options={values.EncuestaId}
-                                            noResultsMessage={"No hay resultados"}
-                                            closeOnChange={true}
-                                        />
+                                <div className="form-group">
+                                        <label htmlFor="Encuesta">Encuesta</label>
+                                        <Field id="Opcion" name="EncuestaId" as='select' className="form-control" style={{ width: '450px', marginRight: '20px' }}>
+                                            {
+                                                encuestas.map(opcion => {
+                                                    return (
+                                                        <option key={opcion.value} value={opcion.value}>
+                                                            {opcion.key}
+                                                        </option>
+                                                    )
+                                                })
+                                            }
+                                        </Field>
                                     </div>
                                     <div className="form-group">
                                         <Field
@@ -197,7 +234,7 @@ export const SeccionesEncuesta = props => {
                                             name="Nombre"
                                             error={!!errors.Nombre}
                                             helperText={errors.Nombre}
-                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                            style={{ width: '450px', marginRight: '20px', fontSize: '40px' }}
                                             as={TextField}
                                             className="form-control"
                                         />
@@ -208,7 +245,7 @@ export const SeccionesEncuesta = props => {
                                             name="Titulo"
                                             error={!!errors.Titulo}
                                             helperText={errors.Titulo}
-                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                            style={{ width: '450px', marginRight: '20px', fontSize: '40px' }}
                                             as={TextField}
                                             className="form-control"
                                         />
@@ -219,7 +256,7 @@ export const SeccionesEncuesta = props => {
                                             name="Descripcion"
                                             error={!!errors.Titulo}
                                             helperText={errors.Titulo}
-                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                            style={{width: '450px', marginRight: '20px', fontSize: '40px' }}
                                             as={TextField}
                                             className="form-control"
                                         />
@@ -240,7 +277,7 @@ export const SeccionesEncuesta = props => {
                                         control={
                                             <Field
                                                 type="checkbox"
-                                                name="Obligarorio"
+                                                name="Obligatorio"
                                                 checked={values.Obligatorio}
                                                 as={CheckBox}
                                             />

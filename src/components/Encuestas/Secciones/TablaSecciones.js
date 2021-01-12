@@ -30,6 +30,7 @@ const TablaSeccion = (props) => {
                                 {props.Secciones.map(sec => (
                                     <tr key={sec.Id}>
                                         <td style={{ textAlign: 'center' }}>{sec.Nombre}</td>
+                                        <td style={{ textAlign: 'center' }}>{sec.Titulo}</td>
                                         <th style={{ textAlign: 'center', color: sec.Status ? "green" : "red" }}>{sec.Status ? <p>Activo <MdCheckCircle /></p> : <p>Inactivo <MdCancel /></p>}</th>
                                         <td style={{ textAlign: 'center' }}>
                                             <Button style={{ marginLeft: '10px' }} class="btn btn-warning" onClick={() => { props.ModificarFuncion(sec) }} startIcon={<FaEdit />} >Editar</Button>

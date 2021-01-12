@@ -51,7 +51,7 @@ class AuthForm extends React.Component {
             localStorage.setItem("asesor",result.Data.Nombre);
             localStorage.setItem('codigo',this.state.username.toLowerCase());
             localStorage.setItem('token', result.Data.Token);
-            localStorage.setItem('empresa', result.Data.Empresa);
+            localStorage.setItem('empresa', result.Data.Empresa.toUpperCase());
             this.setState({ logged: true });
             window.location.reload();
           } else {

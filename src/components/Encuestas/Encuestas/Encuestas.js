@@ -12,6 +12,9 @@ import * as yup from 'yup';
 import TablaEncuestas from 'components/Encuestas/Encuestas/TablaEncuestas';
 import { APIURL } from 'utils/Enviroment';
 import { DatePicker } from "@material-ui/pickers";
+import CheckBox from '@material-ui/core/Checkbox';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import moment from 'moment';
 
 export const Encuesta = props => {
     const [encuestas, setEncuestas] = useState([]);
@@ -19,7 +22,7 @@ export const Encuesta = props => {
     const [encuesta, setEncuesta] = useState(null);
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setfechaFin] = useState(new Date());
-   
+    const [mostrarSeccion, setmostrarSeccion] = useState(false);
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
@@ -28,10 +31,10 @@ export const Encuesta = props => {
             Empresa: yup.string()
         });
 
-        useEffect(() => {
-            cargarEncuestas();
-        }, [])
-        
+    useEffect(() => {
+        cargarEncuestas();
+    }, [])
+
     const cargarEncuestas = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/Encuesta`);
@@ -52,23 +55,23 @@ export const Encuesta = props => {
         }
     }
 
-    const registrarEncuesta = async (data)=>{
-        try{
-            await axios.post(`${APIURL}/api/Encuesta/registrar`,data);
+    const registrarEncuesta = async (data) => {
+        try {
+            await axios.post(`${APIURL}/api/Encuesta/registrar`, data);
             setMostrar(false)
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha creado la encuesta exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
-            }).then(e=>{
+            }).then(e => {
                 cargarEncuestas();
             });
 
-        }catch(err){
+        } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha registrado la encuesta.";
 
-            if(err.response){
+            if (err.response) {
                 mensaje = err.response.data.Message;
             }
             Swal.fire({
@@ -80,23 +83,23 @@ export const Encuesta = props => {
         }
     }
 
-    const ModificarEncuestas = async (data)=>{
+    const ModificarEncuestas = async (data) => {
         setMostrar(false)
-        try{
-            await axios.post(`${APIURL}/api/Encuesta/modificar`,data);
+        try {
+            await axios.post(`${APIURL}/api/Encuesta/modificar`, data);
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha modificado el tipo de ingreso exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
-            }).then(e=>{
+            }).then(e => {
                 cargarEncuestas();
             });
 
-        }catch(err){
+        } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha modificado la pantalla.";
 
-            if(err.response){
+            if (err.response) {
                 mensaje = err.response.data.Message;
             }
             Swal.fire({
@@ -109,6 +112,8 @@ export const Encuesta = props => {
     }
 
     const openEdit = (encuesta) => {
+        setFechaInicio(encuesta.FechaInicio)
+        setfechaFin(encuesta.FechaFin)
         setEncuesta(encuesta);
         setMostrar(true);
     }
@@ -117,33 +122,31 @@ export const Encuesta = props => {
         setEncuesta(null);
         setMostrar(true);
     }
-   
-    let initialValues,edit;
 
-    if(encuesta)
-    {
-        initialValues={
+    let initialValues, edit;
+
+    if (encuesta) {
+
+        initialValues = {
             Id: encuesta.Id,
             Nombre: encuesta.Nombre,
             Descripcion: encuesta.Descripcion,
-            Empresa: encuesta.Empresa,
             FechaInicio: encuesta.FechaInicio,
             FechaFin: encuesta.FechaFin,
-            CreatedBy: localStorage.getItem('codigo')
+            Usuario: localStorage.getItem('codigo')
         }
-        edit=true;
+
+        edit = true;
     }
-    else
-    {
-        initialValues={
+    else {
+        initialValues = {
             Nombre: '',
             Descripcion: '',
-            Empresa: '',
             FechaInicio: new Date(),
             FechaFin: new Date(),
-            CreatedBy: localStorage.getItem('codigo')
+            Usuario: localStorage.getItem('codigo')
         }
-        edit=false;
+        edit = false;
     }
     return (
         <div>
@@ -151,13 +154,15 @@ export const Encuesta = props => {
                 <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">REGISTRAR NUEVA ENCUESTA</DialogTitle>
                 <DialogContent>
                     <Formik
-                         initialValues={initialValues}
-                         enableReinitialize
-                         validationSchema={validationSchema}
-                         onSubmit={(values)=>{
+                        initialValues={initialValues}
+                        enableReinitialize
+                        validationSchema={validationSchema}
+                        onSubmit={(values) => {
+                            values.FechaInicio = moment(fechaInicio).toDate();
+                            values.FechaFin = moment(fechaFin).toDate();
                             registrarEncuesta(values)
-                         }}>
-                        {({ errors, resetForm, values, setValues }) => (
+                        }}>
+                        {({ errors, resetForm, values, setValues, setFieldValue }) => (
                             <div ref={context}>
                                 <Form>
                                     <div className="form-group">
@@ -173,7 +178,7 @@ export const Encuesta = props => {
                                     </div>
                                     <div className="form-group">
                                         <Field
-                                            label="Descripcion"
+                                            label="Descripción"
                                             name="Descripcion"
                                             error={!!errors.Descripcion}
                                             helperText={errors.Descripcion}
@@ -183,45 +188,36 @@ export const Encuesta = props => {
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <Field
-                                            label="empresa"
-                                            name="empresa"
-                                            error={!!errors.Empresa}
-                                            helperText={errors.Empresa}
-                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px' }}
-                                            as={TextField}
-                                            className="form-control"
-                                        />
-                                    </div>
-                                    <div className="form-group">
                                         <DatePicker
+                                            disableToolbar
                                             autoOk
-                                            label="Fecha Inicio"
-                                            name="FechaInicio"
+                                            label={"Fecha Inicio"}
                                             variant="inline"
                                             format={"DD/MM/YYYY"}
+                                            id="FechaInicio"
                                             style={{ marginRight: '110px', fontSize: '40px' }}
-                                            invalidDateMessage={"Fecha no es válida"}
                                             value={fechaInicio}
                                             onChange={(date) => setFechaInicio(date)}
                                         />
                                         <DatePicker
+                                            disableToolbar
                                             autoOk
-                                            label="Fecha Final"
-                                            name="FechaFin"
+                                            label={"Fecha Final"}
                                             variant="inline"
                                             format={"DD/MM/YYYY"}
+                                            id="FechFin"
+                                            name="FechaFin"
                                             style={{ marginRight: '20px', fontSize: '40px' }}
-                                            invalidDateMessage={"Fecha no es válida"}
                                             value={fechaFin}
+                                            selected = {fechaFin}
                                             onChange={(date) => setfechaFin(date)}
-                                        />
+                                        /> 
                                     </div>
                                     <DialogActions>
-                                        <Button onClick={()=>{setMostrar(false)}} color="primary">
+                                        <Button onClick={() => { setMostrar(false) }} color="primary">
                                             Cancelar
                                         </Button>
-                                        {edit && <Button type="button" onClick={()=>{ModificarEncuestas(values)}} color="sucess"> Guardar</Button>}
+                                        {edit && <Button type="button" onClick={() => { ModificarEncuestas(values) }} color="sucess"> Guardar</Button>}
                                         {!edit && <Button type="submit" color="sucess">Guardar</Button>}
                                     </DialogActions>
                                 </Form>
@@ -230,8 +226,8 @@ export const Encuesta = props => {
                     </Formik>
                 </DialogContent>
             </Dialog>
-         
-            <TablaEncuestas Encuestas={encuestas} setMostrar={Mostrar} openEdit = {openEdit}/>
+
+            <TablaEncuestas Encuestas={encuestas} setMostrar={Mostrar} openEdit={openEdit} />
         </div>
     )
 }

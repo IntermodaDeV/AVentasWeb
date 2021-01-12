@@ -72,7 +72,7 @@ const ResumenPedido = (props) => {
     }
 
     let pais = "HND";
-    if(localStorage.getItem('empresa')==='imgt'){
+    if(localStorage.getItem('empresa')==='IMGT'){
         pais = "GTM"
     }else if (localStorage.getItem('empresa')==='imcr'){
         pais = "CRI";
