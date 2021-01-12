@@ -12,11 +12,11 @@ import { useSelector } from 'react-redux';
 
 const FormularioReconstruccion = props => {
     const { asesoresFiltrados, filtroAsesoresPorPais, cargarRecorrido } = props;
-
+    const fechaFinalInicial = moment(new Date()).format("YYYY-MM-DD");
     const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
     const [asesor, setAsesor] = useState('');
     const [inicio, setInicio] = useState(moment().format("YYYY-MM-DD"));
-    const [final, setFinal] = useState(moment().format("YYYY-MM-DD"));
+    const [final, setFinal] = useState(moment(`${fechaFinalInicial} 23:59:59`));
     const EMPRESAS_ASIGNADAS = useSelector(e => e.Permisos[0].EmpresasUsuarios);
 
     const handleDateChange = (date) => {
@@ -32,8 +32,17 @@ const FormularioReconstruccion = props => {
     }
 
     const handleClickObtenerRecorrido = () => {
-        let fechaInicio = `${selectedDate.format("YYYY-MM-DD")} ${moment(inicio).format("hh:mm a")}`;
-        let fechaFinal = `${selectedDate.format("YYYY-MM-DD")} ${moment(final).format("hh:mm a")}`;
+        let fechaInicio = "";
+        let fechaFinal = "";
+
+        if (typeof selectedDate === "string") {
+            fechaInicio = `${selectedDate} ${moment(inicio).format("hh:mm a")}`;
+            fechaFinal = `${selectedDate} ${moment(final).format("hh:mm a")}`;
+        } else {
+            fechaInicio = `${selectedDate.format("YYYY-MM-DD")} ${moment(inicio).format("hh:mm a")}`;
+            fechaFinal = `${selectedDate.format("YYYY-MM-DD")} ${moment(final).format("hh:mm a")}`;
+        }
+
         cargarRecorrido(asesor, fechaInicio, fechaFinal);
     }
 
@@ -75,19 +84,6 @@ const FormularioReconstruccion = props => {
                 />
             </MuiPickersUtilsProvider>
             <Dropdown
-                style={{ width: '15%', height: '30px', marginTop: 15 }}
-                placeholder="Seleccione asesor"
-                search
-                selection
-                onChange={(e, { value }) => {
-                    setAsesor(value);
-                }}
-                options={asesoresFiltrados.map(asesor => {
-                    return { key: asesor.codigo, value: asesor.codigo, text: asesor.nombre }
-                })}
-                closeOnChange={true}
-            />
-            <Dropdown
                 style={{ width: '10%', height: '15%', marginTop: 15 }}
                 placeholder="Seleccione empresa"
                 search
@@ -100,6 +96,19 @@ const FormularioReconstruccion = props => {
                 })}
                 closeOnChange={true}
 
+            />
+            <Dropdown
+                style={{ width: '15%', height: '30px', marginTop: 15 }}
+                placeholder="Seleccione asesor"
+                search
+                selection
+                onChange={(e, { value }) => {
+                    setAsesor(value);
+                }}
+                options={asesoresFiltrados.map(asesor => {
+                    return { key: asesor.codigo, value: asesor.codigo, text: asesor.nombre }
+                })}
+                closeOnChange={true}
             />
             <button class="btn btn-primary" style={{ width: '10%', height: '30px', marginTop: 15 }} onClick={handleClickObtenerRecorrido}>Obtener Recorrido</button>
         </Grid>

@@ -35,11 +35,10 @@ export const SincronizacionColeccionEspecifica = props => {
 
     const enviarSincronizacionEspecifica = async () => {
         try {
-            const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: empresa, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'),Forzar:forzar?"1":"0" };
+            const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: empresa, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
             await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
             cargarListaEspecifica();
         } catch (err) {
-            console.log(err);
             let mensaje = "Error al procesar solicitud.";
 
 
@@ -61,18 +60,42 @@ export const SincronizacionColeccionEspecifica = props => {
             const request = await axios.get(`${APIURL}/api/SincronizacionEspecifico/${localStorage.getItem('codigo')}`);
             setListaEspecifica(request.data);
         } catch (err) {
+            let mensaje = "Error al procesar solicitud.";
 
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
         }
     }
 
     const enviarSincronizacionEspecificaEmpresas = async () => {
         for (let pais of EMPRESAS_ASIGNADAS) {
             try {
-                const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: pais.EmpresaId, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'),Forzar:forzar?"1":"0" };
+                const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: pais.EmpresaId, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
                 await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
                 cargarListaEspecifica();
             } catch (err) {
+                let mensaje = "Error al procesar solicitud.";
 
+
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+
+                Swal.fire({
+                    title: 'Error',
+                    text: mensaje,
+                    type: 'error',
+                    confirmButtonText: 'OK',
+                });
             }
         }
     }
