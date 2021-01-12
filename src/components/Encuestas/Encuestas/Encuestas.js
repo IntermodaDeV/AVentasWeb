@@ -12,8 +12,6 @@ import * as yup from 'yup';
 import TablaEncuestas from 'components/Encuestas/Encuestas/TablaEncuestas';
 import { APIURL } from 'utils/Enviroment';
 import { DatePicker } from "@material-ui/pickers";
-import CheckBox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import moment from 'moment';
 
 export const Encuesta = props => {
@@ -22,7 +20,6 @@ export const Encuesta = props => {
     const [encuesta, setEncuesta] = useState(null);
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setfechaFin] = useState(new Date());
-    const [mostrarSeccion, setmostrarSeccion] = useState(false);
     const context = useRef();
     const validationSchema = yup.object().shape(
         {

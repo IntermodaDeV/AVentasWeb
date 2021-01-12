@@ -54,7 +54,7 @@ export const SeccionesEncuesta = props => {
         try {
             const request = await axios.get(`${APIURL}/api/Encuesta`);
             let Encuestas = [];
-            request.data.map(enc => {
+            request.data.forEach(enc => {
                 let Valores = { key: enc.Nombre, value: enc.Id}
                 Encuestas.push(Valores);
             })

@@ -11,8 +11,6 @@ import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
 import TablaGrupoOpcionesDetalle from 'components/Encuestas/GrupoOpcionesDetalle/TablaGrupoOpcionesDetalle';
 import { APIURL } from 'utils/Enviroment';
-import CheckBox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 export const GrupoOpcionesDetalle = props => {
     const [GrupoOpcionesDetalle, setGrupoOpcionesDetalle] = useState([]);
@@ -29,6 +27,7 @@ export const GrupoOpcionesDetalle = props => {
 
     useEffect(() => {
         cargarGrupoOpcionesDetalle();
+          // eslint-disable-next-line
     }, [])
 
     const cargarGrupoOpcionesDetalle = async () => {
@@ -56,7 +55,7 @@ export const GrupoOpcionesDetalle = props => {
         try {
             const request = await axios.get(`${APIURL}/api/GrupoOpciones`);
             let GrupoOpciones = [];
-            request.data.filter(g => g.Status === true).map(grupo => {
+            request.data.filter(g => g.Status === true).forEach(grupo => {
                 let Valores = { key: grupo.Nombre, value: grupo.Id}
                 GrupoOpciones.push(Valores);
             })

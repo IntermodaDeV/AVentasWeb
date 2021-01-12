@@ -45,7 +45,8 @@ import {
     ViewCompact,
     Explore,
     MyLocation,
-    DriveEta
+    DriveEta,
+    Home
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
@@ -82,6 +83,7 @@ const useStyles = makeStyles(theme => ({
 
 
 const navItems = [
+    { to: '/home', name: 'Home', dataTut: 'DataTut_home', Icon: Home },
     { to: '/estadistica-visita', name: 'Estadistica Visita', dataTut: 'DataTut_EstadisticaVisista', Icon: AssessmentIcon },
     { to: '/DashBoard-Comercial', name: 'Estadistica Comercial', dataTut: 'DataTut_DashBoardComercial', Icon: Dashboard },
     {
