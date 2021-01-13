@@ -16,7 +16,6 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 
 export const SeccionesEncuesta = props => {
     const [Secciones, setSecciones] = useState([]);
-    const [encuestas, setEncuestas] = useState([]);
     const [mostrar, setMostrar] = useState(false);
     const [Seccion, setSeccion] = useState(null);
 
@@ -28,52 +27,7 @@ export const SeccionesEncuesta = props => {
             Status: yup.boolean(),
             Obligatorio: yup.boolean(),
         });
-
-   
-    const cargarSeccionesEncuesta = async () => {
-        try {
-            const request = await axios.get(`${APIURL}/api/Encuesta/Secciones`);
-            setSecciones(request.data);
-            cargarEncuestas();
-        } catch (err) {
-            let mensaje = "Ha ocurrido un error y no se han cargado las secciones de encuestas.";
-
-            if (err.response) {
-                mensaje = err.response.data.Message;
-            }
-            Swal.fire({
-                title: 'Error',
-                text: mensaje,
-                type: 'error',
-                confirmButtonText: 'Ok',
-            });
-        }
-    }
-
-    const cargarEncuestas = async () => {
-        try {
-            const request = await axios.get(`${APIURL}/api/Encuesta`);
-            let Encuestas = [];
-            request.data.forEach(enc => {
-                let Valores = { key: enc.Nombre, value: enc.Id}
-                Encuestas.push(Valores);
-            })
-            setEncuestas(Encuestas);
-        } catch (err) {
-            let mensaje = "Ha ocurrido un error y no se han cargado las encuestas.";
-
-            if (err.response) {
-                mensaje = err.response.data.Message;
-            }
-
-            Swal.fire({
-                title: 'Error',
-                text: mensaje,
-                type: 'error',
-                confirmButtonText: 'Ok',
-            });
-        }
-    }
+    
     const registrarSecciones = async (data) => {
         try {
             await axios.post(`${APIURL}/api/Encuesta/Secciones/registrar`, data);
@@ -84,7 +38,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                cargarSeccionesEncuesta();
+                props.cargarSeccion(data.EncuestaId);
             });
 
         } catch (err) {
@@ -105,14 +59,14 @@ export const SeccionesEncuesta = props => {
     const modificar = async (data) => {
         setMostrar(false)
         try {
-            await axios.post(`${APIURL}/api/TipoIngreso/modificar`, data);
+            await axios.post(`${APIURL}/api/secciones/modificar`, data);
             Swal.fire({
                 title: 'Confirmado',
-                text: "Se ha modificado el tipo de ingreso exitosamente.",
+                text: "Se ha modificado la seccion de encuesta exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                cargarSeccionesEncuesta();
+                props.cargarSeccion(data.EncuestaId);
             });
 
         } catch (err) {
@@ -132,14 +86,14 @@ export const SeccionesEncuesta = props => {
 
     const modificarEstado = async (id) => {
         try {
-            await axios.post(`${APIURL}/api/tipoIngreso/estado/${id}`);
+            await axios.post(`${APIURL}/api/secciones/estado/${id}`);
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha cambiado el estado exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                cargarSeccionesEncuesta();
+                props.cargarSeccion(props.EncuestaId);
             });
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha modificado el estado.";
@@ -158,12 +112,11 @@ export const SeccionesEncuesta = props => {
     }
 
     useEffect(() => {
-        cargarSeccionesEncuesta();
          // eslint-disable-next-line
     }, [])
 
-    const openEdit = (tip) => {
-        setSeccion(tip);
+    const openEdit = (sec) => {
+        setSeccion(sec);
         setMostrar(true);
     }
 
@@ -176,7 +129,7 @@ export const SeccionesEncuesta = props => {
 
     if (Seccion) {
         initialValues = {
-            Id: Seccion.id,
+            Id: Seccion.Id,
             Nombre: Seccion.Nombre,
             Titulo: Seccion.Titulo,
             Descripcion: Seccion.Descripcion,
@@ -192,7 +145,7 @@ export const SeccionesEncuesta = props => {
             Nombre: '',
             Titulo: '',
             Descripcion:'',
-            EncuestaId: '',
+            EncuestaId: props.EncuestaId,
             Status: false,
             Obligatorio: false,
             Usuario: localStorage.getItem('codigo')
@@ -214,20 +167,6 @@ export const SeccionesEncuesta = props => {
                         {({ errors, resetForm, values, setValues }) => (
                             <div ref={context}>
                                 <Form>
-                                <div className="form-group">
-                                        <label htmlFor="Encuesta">Encuesta</label>
-                                        <Field id="Opcion" name="EncuestaId" as='select' className="form-control" style={{ width: '450px', marginRight: '20px' }}>
-                                            {
-                                                encuestas.map(opcion => {
-                                                    return (
-                                                        <option key={opcion.value} value={opcion.value}>
-                                                            {opcion.key}
-                                                        </option>
-                                                    )
-                                                })
-                                            }
-                                        </Field>
-                                    </div>
                                     <div className="form-group">
                                         <Field
                                             label="Nombre"
@@ -297,7 +236,7 @@ export const SeccionesEncuesta = props => {
                     </Formik>
                 </DialogContent>
             </Dialog>
-            <TablaSecciones Secciones={Secciones} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
+            <TablaSecciones Secciones={props.secciones} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
         </div>
     )
 }

@@ -10,7 +10,6 @@ const TablaEncuestas = (props) => {
             {
                 <div className="col">
                     <div class="card-body text-center">
-                        <h3 class="card-title">Encuestas</h3>
                         <div class="text-right">
                             <button className="btn btn-primary" onClick={() => { props.setMostrar() }}>Registrar Nuevo <MdPlaylistAdd /></button>
                         </div>
@@ -31,8 +30,7 @@ const TablaEncuestas = (props) => {
                                         <td style={{ textAlign: 'center' }}>{enc.Descripcion}</td>
                                         <td style={{ textAlign: 'center' }}>
                                             <Button style={{ marginLeft: '10px' }} class="btn btn-warning" onClick={() => { props.openEdit(enc) }} startIcon={<FaEdit />} >Editar</Button>
-                                            <Button style={{ marginLeft: '10px' }} class="btn btn-info" onClick={() => { props.openEdit(enc) }} startIcon={<MdPlaylistAdd />} >Añadir Seccion</Button>
-                                            <Button style={{ marginLeft: '10px' }} class="btn btn-success" onClick={() => { props.openEdit(enc) }} startIcon={<FaEdit />} >Ver Secciones</Button>
+                                            <Button style={{ marginLeft: '10px' }} class="btn btn-success" onClick={() => { props.cargarSecciones(enc.Id) }} startIcon={<FaEdit />} >Ver Secciones</Button>
                                         </td>
                                     </tr>
                                 ))}

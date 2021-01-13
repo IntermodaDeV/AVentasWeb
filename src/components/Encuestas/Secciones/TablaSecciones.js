@@ -11,7 +11,6 @@ const TablaSeccion = (props) => {
             {
                 <div className="col">
                     <div class="card-body text-center">
-                        <h3 class="card-title">Secciones de Encuestas</h3>
                         <div class="text-right">
                             <button className="btn btn-primary" onClick={() => { props.setMostrar(true) }}>Registrar Nuevo <MdPlaylistAdd /></button>
                         </div>
@@ -33,8 +32,9 @@ const TablaSeccion = (props) => {
                                         <td style={{ textAlign: 'center' }}>{sec.Titulo}</td>
                                         <th style={{ textAlign: 'center', color: sec.Status ? "green" : "red" }}>{sec.Status ? <p>Activo <MdCheckCircle /></p> : <p>Inactivo <MdCancel /></p>}</th>
                                         <td style={{ textAlign: 'center' }}>
-                                            <Button style={{ marginLeft: '10px' }} class="btn btn-warning" onClick={() => { props.ModificarFuncion(sec) }} startIcon={<FaEdit />} >Editar</Button>
+                                            <Button style={{ marginLeft: '10px' }} class="btn btn-warning" onClick={() => { props.openEdit(sec) }} startIcon={<FaEdit />} >Editar</Button>
                                             <Button style={{ marginLeft: '10px' }} class="btn btn-info" onClick={() => { props.ModificarEstado(sec.Id) }} startIcon={<MdCancel />}>{sec.Status ? "Inactivar" : "Activar"}</Button>
+                                            <Button style={{ marginLeft: '10px' }} class="btn btn-success" onClick={() => { alert(sec.Id) }} startIcon={<FaEdit />} >Ver Preguntas</Button>
                                         </td>
                                     </tr>
                                 ))}

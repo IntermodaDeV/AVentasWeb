@@ -88,6 +88,7 @@ const BadejaSalidaRecibos = (props) => {
                     });
 
                     if (request.data) {
+                        setLoading(false);
                         const nuevosRecibos = RecibosCache.filter(x => x.ReciboId !== reciboId);
                         dispatch({ type: "SET_RESETRECIBOSENCACHE", payload: nuevosRecibos });
                         setRecibos(nuevosRecibos);

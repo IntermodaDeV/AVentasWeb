@@ -157,7 +157,7 @@ export const GrupoOpcionesDetalle = props => {
     else {
         initialValues = {
             Nombre: '',
-            GrupoOpcionesId: '',
+            GrupoOpcionesId: GrupoOpciones.length > 0 ? GrupoOpciones[0].value : '',
             Usuario: localStorage.getItem('codigo')
         }
         edit = false;

@@ -36,9 +36,9 @@ import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
 import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/SincronizacionColeccionEspecifica'
 import { ReconstruccionRuta } from 'containers/ReconstruccionRuta/ReconstruccionRuta'
-import { TabEncuestas } from 'containers/Encuestas/TabEncuestas'
 import { getLocalStorage, verificarConexion } from 'utils/http';
 import {MantenimientoEncuesta} from 'containers/Encuestas/MantenimientoEncuesta/MantenimientoEncuesta'
+import Encuestas from 'containers/Encuestas/Encuestas'
 import axios from 'axios'
 import {APIURL,APP_VERSION} from 'utils/Enviroment'
 const isLogged = () => {
@@ -252,11 +252,6 @@ const App = props => {
               layout={MainLayout}
               component={Relacional}
             />
-            <LayoutRoute
-              path='/Encuestas'
-              layout={MainLayout}
-              component={TabEncuestas}
-            />
              <LayoutRoute
               path='/Mantenimiento/Encuesta'
               layout={MainLayout}
@@ -267,6 +262,11 @@ const App = props => {
               path='/home'
               layout={MainLayout}
               component={Home}
+            />
+            <LayoutRoute
+              path='/encuesta'
+              layout={MainLayout}
+              component={Encuestas}
             />
             <Redirect to='/home' />
           </Switch>

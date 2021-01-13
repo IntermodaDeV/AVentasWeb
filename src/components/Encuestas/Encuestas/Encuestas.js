@@ -14,7 +14,7 @@ import { APIURL } from 'utils/Enviroment';
 import { DatePicker } from "@material-ui/pickers";
 import moment from 'moment';
 
-export const Encuesta = props => {
+export const Encuesta = (props) => {
     const [encuestas, setEncuestas] = useState([]);
     const [mostrar, setMostrar] = useState(false);
     const [encuesta, setEncuesta] = useState(null);
@@ -31,7 +31,6 @@ export const Encuesta = props => {
     useEffect(() => {
         cargarEncuestas();
     }, [])
-
     const cargarEncuestas = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/Encuesta`);
@@ -229,7 +228,7 @@ export const Encuesta = props => {
                 </DialogContent>
             </Dialog>
 
-            <TablaEncuestas Encuestas={encuestas} setMostrar={Mostrar} openEdit={openEdit} />
+            <TablaEncuestas Encuestas={encuestas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones = {props.cargarSeccion} />
         </div>
     )
 }
