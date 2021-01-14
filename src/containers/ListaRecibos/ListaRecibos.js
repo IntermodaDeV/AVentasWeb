@@ -271,19 +271,6 @@ const HeadersListaRecibos = [
         }
     },
     {
-        name: "Fecha",
-        label: "Fecha",
-        options: {
-            filter: true,
-            sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
-                return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
-                );
-              }
-        }
-    },
-    {
         name: "CodigoCliente",
         label: "Codigo Cliente",
         options: {
@@ -299,6 +286,19 @@ const HeadersListaRecibos = [
     {
         name: "NombreCliente",
         label: "Nombre Cliente",
+        options: {
+            filter: true,
+            sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                );
+              }
+        }
+    },
+    {
+        name: "Fecha",
+        label: "Fecha",
         options: {
             filter: true,
             sort: true,

@@ -44,7 +44,9 @@ import {
     SyncAlt,
     ViewCompact,
     Explore,
-    MyLocation
+    MyLocation,
+    DriveEta,
+    Home
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
@@ -81,12 +83,14 @@ const useStyles = makeStyles(theme => ({
 
 
 const navItems = [
+    { to: '/home', name: 'Inicio', dataTut: 'DataTut_home', Icon: Home },
     { to: '/estadistica-visita', name: 'Estadistica Visita', dataTut: 'DataTut_EstadisticaVisista', Icon: AssessmentIcon },
     { to: '/DashBoard-Comercial', name: 'Estadistica Comercial', dataTut: 'DataTut_DashBoardComercial', Icon: Dashboard },
     {
         to: '/monitoreo', name: 'Monitoreo', dataTut: 'DataTut_Sinc', Icon: Explore,
         expanded: [
             { to: '/ultima-geolocalizacion-monitoreo', name: 'Ultima Geolocalización', dataTut: 'DataTut_SincLista', Icon: MyLocation, backgroundColor:''  },
+            { to: '/recorrido-monitoreo', name: 'Recorrido', dataTut: 'DataTut_SincLista', Icon: DriveEta, backgroundColor:''  }
         ]
     },
     { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },

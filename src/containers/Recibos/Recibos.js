@@ -103,7 +103,7 @@ const Recibos = (props) => {
             totalSaldo += cuot.Saldo;
             totalAPagar += aPagar;
             let colorFuente = diasVencimiento < 0 ? "text-danger font-weight-bold" : diasVencimiento < 15 ? "font-weight-bold " + styles.WarnRecibo : "";
-            if(localStorage.getItem('empresa')==='imgt')
+            if(localStorage.getItem('empresa')==='IMGT')
             {
                 agrupacionCuentCorriente.push({
                 Tipo: <span className={colorFuente}>{cuot.TipoDocumento}</span>, // Tipo

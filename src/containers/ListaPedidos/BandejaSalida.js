@@ -120,7 +120,7 @@ const BandejaSalida = (props) => {
         let DataPedidos = [];
         state.pedidos.map(pedido => {
                 let data = [
-                    "En Proceso",
+                    pedido.NumeroReferencia !== "" ? pedido.NumeroReferencia : "En Proceso",
                     pedido.CodigoCliente,
                     moment(pedido.FechaActual).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaActual).format('DD/MM/YYYY') : "",
                     "No",
@@ -252,7 +252,7 @@ const BandejaSalida = (props) => {
                         </DialogContent>
                 </Dialog>
                 <div style ={{textAlign:'center',fontSize: '28px'}} className="alert alert-danger alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '32px', color: 'red'}} /> Los pedidos mostrados en esta pantalla están registrados únicamente en su maquina
+                    <FiAlertTriangle style={{ fontSize: '32px', color: 'red'}} /> Los pedidos mostrados en esta pantalla están registrados únicamente en su dispositivo.
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>

@@ -1,5 +1,6 @@
 import React from 'react';
 import Media from 'react-media';
+import {APP_VERSION} from 'utils/Enviroment';
 
 
 const Footer = () => {
@@ -17,13 +18,13 @@ const Footer = () => {
                 {
                   matches.mobile &&
                   <a className="text-decoration-none" href="https://www.intermoda.hn/">
-                    © {year} INTERMODA SA DE CV
+                    © {year} INTERMODA SA DE CV - Version {APP_VERSION}
                     </a>
                 }
                 {
                   matches.desktop &&
                   <a className="text-decoration-none" href="https://www.intermoda.hn/">
-                    © {year} INTERMODA SA DE CV
+                    © {year} INTERMODA SA DE CV - Version {APP_VERSION}
                     </a>
                 }
               </>

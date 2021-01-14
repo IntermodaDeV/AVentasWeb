@@ -30,7 +30,7 @@ const FacturasModal = (props) => {
             options: {
                 filter: true,
                 sort: true,
-                display: localStorage.getItem('empresa')==='imgt'
+                display: localStorage.getItem('empresa')==='IMGT'
             }
         },
         {

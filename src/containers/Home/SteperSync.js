@@ -108,7 +108,9 @@ const VerticalLinearStepper = (props) => {
       </Stepper>
       {props.activeStep === steps.length && (
         <Paper square elevation={0} className={classes.resetContainer}>
-          <Typography><h3 style={{ color: localStorage.getItem("OcurrioError") === "false" ? 'green' :'red' }}>{localStorage.getItem("OcurrioError") === "false" ?"Proceso de sincronizacion ejecutado correctamente" : "Proceso de sincronizacion ejecutado con errores"}<MdCheckCircle /></h3></Typography>     
+          <Typography><h3 style={{ color: localStorage.getItem("OcurrioError") === "false" ? 'green' :'red' }}>{localStorage.getItem("OcurrioError") === "false" ?"Proceso de sincronizacion ejecutado correctamente" : "Proceso de sincronizacion ejecutado con errores"}<MdCheckCircle /></h3></Typography> 
+          <Typography><h3 style={{ color: localStorage.getItem("PedidosPendientes") === "false" ? 'green' :'red' }}>{localStorage.getItem("PedidosPendientes") === "false" ?"Sincronización de pedidos ejecutado correctamente." : "Sincronización de pedidos ejecutado con errores."}<MdCheckCircle /></h3></Typography>
+          <Typography><h3 style={{ color: localStorage.getItem("RecibosPendientes") === "false" ? 'green' :'red' }}>{localStorage.getItem("RecibosPendientes") === "false" ?"Sincronización de recibos ejecutado correctamente." : "Sincronización de recibos ejecutado con errores."}<MdCheckCircle /></h3></Typography>        
         </Paper>
       )}
     </div>

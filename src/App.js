@@ -35,6 +35,12 @@ import { CoordenadasAsesor } from 'containers/Coordenadas/CoordenadasAsesor';
 import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
 import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/SincronizacionColeccionEspecifica'
+import { ReconstruccionRuta } from 'containers/ReconstruccionRuta/ReconstruccionRuta'
+import { getLocalStorage, verificarConexion } from 'utils/http';
+import {MantenimientoEncuesta} from 'containers/Encuestas/MantenimientoEncuesta/MantenimientoEncuesta'
+import Encuestas from 'containers/Encuestas/Encuestas'
+import axios from 'axios'
+import {APIURL,APP_VERSION} from 'utils/Enviroment'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -50,6 +56,35 @@ const App = props => {
       getGeopostion()
     }, 60000)
 
+    const cargarConfiguraciones = async () => {
+      if (verificarConexion()) {
+        try {
+          const request = await axios.get(`${APIURL}/api/configuraciones`);
+          if(request.data.APP_VERSION!==APP_VERSION){
+            if(!window.location.href.includes("pedidos")){
+              window.location.href = "/home";
+            }
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    }
+
+    setInterval(() => {
+      if (localStorage.getItem("UsuarioOficina") === "false") {
+        let data = getLocalStorage("ListaPrecios");
+        if (data === null) {
+          if (!window.location.href.includes("home")) {
+            window.location.href = "/home";
+          }
+        }
+      }
+    }, (10*60*1000))
+
+    setInterval(() => {
+      cargarConfiguraciones();
+    }, (10*60*1000))
     return (
       <SnackbarProvider dense maxSnack={3}>
         <Router>
@@ -76,6 +111,12 @@ const App = props => {
               path='/ultima-geolocalizacion-monitoreo'
               layout={MainLayout}
               component={CoordenadasAsesor}
+            />
+            <LayoutRoute
+              exact
+              path='/recorrido-monitoreo'
+              layout={MainLayout}
+              component={ReconstruccionRuta}
             />
             <LayoutRoute
               exact
@@ -212,10 +253,20 @@ const App = props => {
               component={Relacional}
             />
              <LayoutRoute
+              path='/Mantenimiento/Encuesta'
+              layout={MainLayout}
+              component={MantenimientoEncuesta}
+            />
+             <LayoutRoute
               exact
               path='/home'
               layout={MainLayout}
               component={Home}
+            />
+            <LayoutRoute
+              path='/encuesta'
+              layout={MainLayout}
+              component={Encuestas}
             />
             <Redirect to='/home' />
           </Switch>

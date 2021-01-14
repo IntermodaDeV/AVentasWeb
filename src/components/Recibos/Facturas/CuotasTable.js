@@ -28,7 +28,7 @@ moment.locale('es')
     {
       name: 'NumeroFEL',
       label: 'Numero FEL',
-      options:{display: localStorage.getItem('empresa')==='imgt'},
+      options:{display: localStorage.getItem('empresa')==='IMGT'},
   
     },
     {

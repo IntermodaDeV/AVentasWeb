@@ -1,43 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { APIURL } from 'utils/Enviroment';
+import { APIURL,APP_VERSION } from 'utils/Enviroment';
 import { useSelector, useDispatch } from 'react-redux';
 import { Loading } from 'components/Global/Loading';
-import { get } from 'utils/http';
+import { get,backgroundPostPedidos,backgroundPostRecibos } from 'utils/http';
 import SteperSync from 'containers/Home/SteperSync';
 import { getLocalStorage } from 'utils/http';
 import moment from 'moment';
 import axios from 'axios';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { verificarConexion } from 'utils/http';
+import update1 from 'assets/update1.jpeg';
+import update2 from 'assets/update2.jpeg';
 
 export const Home = (props) => {
     const dispatch = useDispatch();
-    const [loading, setloading] = useState(false);  
-    const [mensaje,setMensaje] = useState('');
+    const [loading, setloading] = useState(false);
+    const [mensaje, setMensaje] = useState('');
     const [activeStep, setActiveStep] = useState(0);
-    const [SyncDiaria, setSyncDiaria] = useState(true);  
-    const [UsuarioOficina, setUsuarioOficina] = useState(false);  
-    const [displaySincronizacion,setDisplaySincronizacion] = useState(false);
-    const Colecciones = useSelector(e=>e.ListaPrecios);
+    const [SyncDiaria, setSyncDiaria] = useState(true);
+    const [UsuarioOficina, setUsuarioOficina] = useState(false);
+    const [displaySincronizacion, setDisplaySincronizacion] = useState(false);
+    const [update,setUpdate] = useState(false);
+    const Colecciones = useSelector(e => e.ListaPrecios);
     useEffect(() => {
 
         async function inicioSesion() {
             const permisos = await verificarUsuario();
             if (permisos) {
-                if (permisos[0].UsuarioOficina) {
-                    cargarConfiguracionesUsuarioOficina();
-                    dispatch({ type: 'SET_PERMISOS', payload: permisos });
+                let config = await cargarConfiguraciones();
+                if (config.APP_VERSION === APP_VERSION) {
+                    if (permisos[0].UsuarioOficina) {
+                        localStorage.setItem("UsuarioOficina",true);
+                        cargarConfiguracionesUsuarioOficina();
+                        dispatch({ type: 'SET_PERMISOS', payload: permisos });
+                    } else {
+                        localStorage.setItem("UsuarioOficina",false);
+                        setDisplaySincronizacion(true);
+                        let data = getLocalStorage("ListaPrecios");
+                        if (data === null) {
+                            dispatch({ type: 'SET_PERMISOS', payload: [] });
+                            localStorage.setItem("OcurrioError", false)
+                            setSyncDiaria(false);
+                        }
+                        else {
+                            CargaPermisos();
+                        }
+                    }
                 } else {
-                    setDisplaySincronizacion(true);
-                    let data = getLocalStorage("ListaPrecios");
-                    if (data === null) {
-                        dispatch({ type: 'SET_PERMISOS', payload: [] });
-                        localStorage.setItem("OcurrioError", false)
-                        setSyncDiaria(false);
-                    }
-                    else {
-                        CargaPermisos();
-                    }
+                    setUpdate(true);
+                    dispatch({ type: 'SET_PERMISOS', payload: [] });
                 }
             }
         }
@@ -46,14 +57,23 @@ export const Home = (props) => {
         // eslint-disable-next-line
     }, [])
 
-    const CargaPermisos  = async () => {
+    const sincronizarDocumentosPendientes = async () => {
+        setMensaje('Sincronizando Pedidos y Recibos');
+        let tienePedidosPendientes = await backgroundPostPedidos();
+        let tieneRecibosPendientes = await backgroundPostRecibos();
+
+        localStorage.setItem("PedidosPendientes", tienePedidosPendientes);
+        localStorage.setItem("RecibosPendientes", tieneRecibosPendientes);
+    }
+
+    const CargaPermisos = async () => {
         let isOnline = await verificarConexion();
-        if(isOnline){
+        if (isOnline) {
             ObtenerPermisos();
         }
     }
 
-    const cargarConfiguracionesUsuarioOficina = ()=>{
+    const cargarConfiguracionesUsuarioOficina = () => {
         setloading(true);
         ////Configuracion General
         cargarEmpresas();
@@ -61,15 +81,14 @@ export const Home = (props) => {
         cargarClientesContado();
         cargarComunidadAutonoma();
         cargarMonedas();
-        cargarConfiguraciones();
 
         ////Configuracion De Pedido
         cargarMaestroLinea();
         cargarTiposColeccion();
-        cargarTiposPedido(); 
-        cargarEmpresasTransporte(); 
-        cargarPrecioCajas(); 
-        cargarImpuestoClientes(); 
+        cargarTiposPedido();
+        cargarEmpresasTransporte();
+        cargarPrecioCajas();
+        cargarImpuestoClientes();
         cargarImpuestoProductos();
 
         /////Configuracion De Recibos
@@ -80,6 +99,9 @@ export const Home = (props) => {
 
     const CargarModuloConfiguraciones = () => {
         setloading(true);
+        ////Documentos Pendientes
+        sincronizarDocumentosPendientes();
+
         ////Configuracion General
         ObtenerPermisos();
         cargarEmpresas();
@@ -87,16 +109,15 @@ export const Home = (props) => {
         cargarClientesContado();
         cargarComunidadAutonoma();
         cargarMonedas();
-        cargarConfiguraciones();
 
-         ////Configuracion De Pedido
-         cargarMaestroLinea();
-         cargarTiposColeccion();
-         cargarTiposPedido(); 
-         cargarEmpresasTransporte(); 
-         cargarPrecioCajas(); 
-         cargarImpuestoClientes(); 
-         cargarImpuestoProductos();
+        ////Configuracion De Pedido
+        cargarMaestroLinea();
+        cargarTiposColeccion();
+        cargarTiposPedido();
+        cargarEmpresasTransporte();
+        cargarPrecioCajas();
+        cargarImpuestoClientes();
+        cargarImpuestoProductos();
         /////Configuracion De Recibos
         cargarBancos();
         cargarTipoPago();
@@ -111,9 +132,9 @@ export const Home = (props) => {
 
     const CargaModuloPedidos = () => {
         cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
-        
+
     }
-   
+
     const ObtenerPermisos = async () => {
         fetch(`${APIURL}/api/Accesos/${localStorage.getItem('codigo')}`)
             .then(res => {
@@ -144,7 +165,7 @@ export const Home = (props) => {
                 console.log(err);
                 return null;
             }
-        }else{
+        } else {
             return null;
         }
     }
@@ -159,7 +180,7 @@ export const Home = (props) => {
             dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data });
         }
     }
-   
+
     const cargarEmpresas = async () => {
         setMensaje('Cargando Empresas');
         const { data, error } = await get(`${APIURL}/api/empresa/empresas`, "Empresas");
@@ -194,13 +215,12 @@ export const Home = (props) => {
     }
 
     const cargarConfiguraciones = async () => {
-        setMensaje('Cargando Configuraciones');
-        const { data, error } = await get(`${APIURL}/api/configuraciones`, "Configuraciones");
-        if (error) {
-            localStorage.setItem("OcurrioError", true)
-            console.log(error);
-        } else {
-            dispatch({ type: "SET_CONFIGURACIONES", payload: data });
+        try {
+            const request = await axios.get(`${APIURL}/api/configuraciones`);
+            dispatch({ type: "SET_CONFIGURACIONES", payload: request.data });
+            return request.data;
+        } catch (err) {
+            console.log(err);
         }
     }
 
@@ -211,23 +231,23 @@ export const Home = (props) => {
             localStorage.setItem("OcurrioError", true)
             console.log(error);
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
-           
-            if(UsuarioOficina){
+
+            if (UsuarioOficina) {
                 setSyncDiaria(true);
                 setloading(false);
             }
-            else{
+            else {
                 ModuloCarteracliente();
             }
         } else {
             dispatch({ type: "SET_TIPOVISITA", payload: data });
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            if(UsuarioOficina){
+            if (UsuarioOficina) {
                 setSyncDiaria(true);
                 setloading(false);
                 setActiveStep((prevActiveStep) => prevActiveStep + 3);
             }
-            else{
+            else {
                 ModuloCarteracliente();
             }
         }
@@ -336,7 +356,7 @@ export const Home = (props) => {
             dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: data });
         }
     }
-   
+
     const cargarEmpresasTransporte = async () => {
         setMensaje('Cargando Empresas Transporte');
         const { data, error } = await get(`${APIURL}/api/transporte/empresas`, "EmpresaTransporteGlobal");
@@ -412,11 +432,12 @@ export const Home = (props) => {
                 },
                 params: {
                     ListaPrecios: listaPrecios,
-                    Paises: paises
+                    Paises: paises,
+                    UsuarioOficina: localStorage.getItem("UsuarioOficina")
                 }
             })
                 .then(res => {
-                   CargaImagenes(res.data);
+                    CargaImagenes(res.data);
                 })
                 .catch(err => {
                     localStorage.setItem("OcurrioError", true)
@@ -427,27 +448,27 @@ export const Home = (props) => {
                 });
         }
     }
-    const CargaImagenes = async (data) =>{
+    const CargaImagenes = async (data) => {
         let ColeccionOriginal = Colecciones;
         setMensaje('Cargando imagenes')
         let listaPrecios = data;
         listaPrecios.forEach(e => {
-        let coleccion = ColeccionOriginal.filter(c => c.CodigoColeccion === e.CodigoColeccion);
+            let coleccion = ColeccionOriginal.filter(c => c.CodigoColeccion === e.CodigoColeccion);
             e.Edades.forEach(edades => {
                 let Edades;
-                if(coleccion !== undefined && coleccion.length > 0){
+                if (coleccion !== undefined && coleccion.length > 0) {
                     let Edad = coleccion[0].Edades;
-                    Edades = Edad.filter(e=> e.IdEdad === edades.IdEdad);
+                    Edades = Edad.filter(e => e.IdEdad === edades.IdEdad);
                 }
                 edades.ProductosXEdad.forEach(prod => {
                     let ProductosXEdad;
-                    if(Edades !== undefined && Edades.length > 0){
+                    if (Edades !== undefined && Edades.length > 0) {
                         ProductosXEdad = Edades[0].ProductosXEdad.filter(p => p.ProductoId === prod.ProductoId)
                     }
-                     ///Imagenes generales del producto
+                    ///Imagenes generales del producto
                     prod.ListaImagenes.forEach(async function (img) {
                         let imges;
-                        if(ProductosXEdad !== undefined && ProductosXEdad.length>0){
+                        if (ProductosXEdad !== undefined && ProductosXEdad.length > 0) {
                             imges = ProductosXEdad[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
                         }
                         if (imges !== undefined && imges.length > 0) {
@@ -467,18 +488,18 @@ export const Home = (props) => {
                                 img.FotografiaProducto = URL.createObjectURL(imagenBlob);
                             }
                         }
-                        
+
                     })
 
                     ///Imagenes por color del producto
                     prod.ListaColores.forEach(color => {
                         let colores;
-                        if(ProductosXEdad !== undefined && ProductosXEdad.length>0){
+                        if (ProductosXEdad !== undefined && ProductosXEdad.length > 0) {
                             colores = ProductosXEdad[0].ListaColores.filter(i => i.CodigoColor === color.CodigoColor)
                         }
                         color.ListaImagenes.forEach(async function (img) {
                             let imgColor;
-                            if(colores !== undefined && colores.length>0 ){
+                            if (colores !== undefined && colores.length > 0) {
                                 imgColor = colores[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
                             }
                             if (imgColor !== undefined && imgColor.length > 0) {
@@ -503,20 +524,20 @@ export const Home = (props) => {
                 })
             })
         })
-        setTimeout(()=>{
+        setTimeout(() => {
             dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
             let fecha = moment(new Date()).format("YYYY-MM-DD");
             localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             setSyncDiaria(true);
             setloading(false);
-        },60000)
+        }, 60000)
     }
-    const convertirBlob = async (url)=>{
-        try{
+    const convertirBlob = async (url) => {
+        try {
             const request = await axios.get(url, { responseType: 'blob' });
             return request.data;
-        }catch(err){
+        } catch (err) {
             return null;
         }
     }
@@ -547,6 +568,15 @@ export const Home = (props) => {
                 <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
                 <hr />
                 <div>
+                    {update && (
+                        <div>
+                            <h3>Nueva versión disponible. Presione shift+f5 para actualizar la aplicación.</h3>
+                            <h5>Opción 1</h5>
+                            <img alt="update1" src={update1} />
+                            <h5>Opción 2</h5>
+                            <img alt="update2" src={update2} />
+                        </div>
+                    )}
                     {displaySincronizacion && <div>
                         {
                             SyncDiaria === false &&

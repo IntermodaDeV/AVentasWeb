@@ -37,7 +37,7 @@ const columns = [
     { name: 'Moneda', label: 'Moneda', options: { customHeadRender: columnRender } },
 ]
 
-if(localStorage.getItem('empresa')==='imgt')
+if(localStorage.getItem('empresa')==='IMGT')
 {
     columns.splice(3,0,{ name: 'Numero FEL', label: 'Numero FEL', options: { customHeadRender: columnRender } })
 }

@@ -39,17 +39,19 @@ const MainLayout = (props) => {
 
   const Online = () => {
     if (!online) {
-      if (snack === null) {
-        const key = enqueueSnackbar('Sin conexión!', {
-          variant: 'error',
-          anchorOrigin: {
-            vertical: "bottom",
-            horizontal: "right"
-          },
-          persist: true,
-        });
+      if (localStorage.getItem("Conexion") !== "Online") {
+        if (snack === null) {
+          const key = enqueueSnackbar('Sin conexión!', {
+            variant: 'error',
+            anchorOrigin: {
+              vertical: "bottom",
+              horizontal: "right"
+            },
+            persist: true,
+          });
 
-        setSnack(key);
+          setSnack(key);
+        }
       }
     }
     else {

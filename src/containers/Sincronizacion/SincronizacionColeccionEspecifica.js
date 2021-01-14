@@ -19,6 +19,7 @@ export const SincronizacionColeccionEspecifica = props => {
     const [coleccion, setColeccion] = useState('');
     const [listaEspecifica, setListaEspecifica] = useState([]);
     const [checked, setChecked] = useState(false);
+    const [forzar, setForzar] = useState(false);
     const [fechaSelected, setFechaSelected] = useState(new Date());
     const EMPRESAS_ASIGNADAS = useSelector(e => e.Permisos[0].EmpresasUsuarios);
     const GESTOR_ESPECIFICO = parseInt(useSelector(e => e.Configuraciones.SyncColeccion));
@@ -34,11 +35,10 @@ export const SincronizacionColeccionEspecifica = props => {
 
     const enviarSincronizacionEspecifica = async () => {
         try {
-            const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: empresa, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo') };
+            const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: empresa, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
             await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
             cargarListaEspecifica();
         } catch (err) {
-            console.log(err);
             let mensaje = "Error al procesar solicitud.";
 
 
@@ -60,18 +60,42 @@ export const SincronizacionColeccionEspecifica = props => {
             const request = await axios.get(`${APIURL}/api/SincronizacionEspecifico/${localStorage.getItem('codigo')}`);
             setListaEspecifica(request.data);
         } catch (err) {
+            let mensaje = "Error al procesar solicitud.";
 
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
         }
     }
 
     const enviarSincronizacionEspecificaEmpresas = async () => {
         for (let pais of EMPRESAS_ASIGNADAS) {
             try {
-                const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: pais.EmpresaId, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo') };
+                const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: pais.EmpresaId, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
                 await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
                 cargarListaEspecifica();
             } catch (err) {
+                let mensaje = "Error al procesar solicitud.";
 
+
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+
+                Swal.fire({
+                    title: 'Error',
+                    text: mensaje,
+                    type: 'error',
+                    confirmButtonText: 'OK',
+                });
             }
         }
     }
@@ -126,6 +150,28 @@ export const SincronizacionColeccionEspecifica = props => {
         }
     }
 
+    const SincronizacionForzosa = () => {
+        if (!forzar) {
+            Swal.fire({
+                title: 'Confirmar',
+                text: `Al forzar la sincronización  estará deshabilitando los productos actuales, por lo que no se podrá utilizar el paquete para ventas mientras se ejecuta el proceso. ¿Desea continuar?`,
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#06bf53',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
+            }).then((result) => {
+                if (result.value) {
+                    setForzar(!forzar)
+                }
+            })
+        }
+        else {
+            setForzar(!forzar)
+        }
+    }
+
     useEffect(() => {
         if (!IsAllow("/sincronizacion-especifica-coleccion")) {
             props.history.push('/home');
@@ -146,7 +192,7 @@ export const SincronizacionColeccionEspecifica = props => {
                     Sincronización especifica colección
                 </CardHeader>
                 <CardBody>
-                    <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
                         <DatePicker
                             disableToolbar
                             autoOk
@@ -164,7 +210,7 @@ export const SincronizacionColeccionEspecifica = props => {
                             <label class="form-check-label" for="exampleCheck1">Todas las empresas asignadas</label>
                         </div>
                         <Dropdown
-                            style={{ width: '50%' }}
+                            style={{ width: '15%' }}
                             placeholder="Seleccione empresa"
                             search
                             selection
@@ -178,6 +224,10 @@ export const SincronizacionColeccionEspecifica = props => {
                             closeOnChange={true}
                             disabled={checked}
                         />
+                         <div class="mt-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck2" checked={forzar} onClick={() => { SincronizacionForzosa() }} />
+                            <label class="form-check-label" for="exampleCheck2">Sincronización forzosa</label>
+                        </div>
                         <input className="form-control form-control-lg" style={{ width: "15%" }} placeholder="Codigo colección" type="text" onChange={(e => { setColeccion(e.target.value.toUpperCase()) })} />
                         <button type="button" className="btn btn-primary" onClick={enviarSincronizacion}>Enviar</button>
                         <button type="button" className="btn btn-primary" onClick={cargarListaEspecifica}><CachedIcon /></button>

@@ -19,6 +19,7 @@ import Snackbar from '@material-ui/core/Snackbar';
 import {useSelector, useDispatch} from 'react-redux';
 import { verificarConexion } from 'utils/http';
 import { Loading } from 'components/Global/Loading';
+import axios from 'axios';
 moment.locale('es');
 
 const urlApi = APIURL
@@ -27,6 +28,7 @@ const urlApi = APIURL
 
 const DetalleRecibo = (props) => {
     // const [totalAPagar, setTotalAPagar] = useState(0.00);
+    const clientes = useSelector(e=>e.Recibo.clientes);
     const Monedas = useSelector(e=>e.Monedas);
     const BancosGlobal = useSelector(e=>e.BancosGlobal);
     const TipoPagoGlobal = useSelector(e=>e.TipoPagoGlobal);
@@ -558,6 +560,23 @@ const DetalleRecibo = (props) => {
         });
     }
 
+    const cargarCliente = async () => {
+        if (localStorage.getItem("Conexion") === "Online") {
+          let isOnline = await verificarConexion();
+          if (isOnline) {
+            try {
+              let request = await axios.get(`${urlApi}/api/cliente/cuenta/${props.Cliente.Codigo}`, { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } });
+              let clientesStorage = clientes;
+              let index = clientesStorage.map(e => e.Codigo).indexOf(props.Cliente.Codigo);
+              clientesStorage[index] = request.data;
+              dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: clientesStorage });
+            } catch (err) {
+              console.log(err);
+            }
+          }
+        }
+      }
+
     const EnviarReciboApi = async (location) => {
         setLoading(true);
         const saldoAFavor = parseFloat(localStorage.getItem('saldoFavor'));
@@ -710,7 +729,7 @@ const DetalleRecibo = (props) => {
                                 setRecibosAplicados(result);
                                 setModalRecibo(true);
                                 setLoading(false);
-
+                                cargarCliente();
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow

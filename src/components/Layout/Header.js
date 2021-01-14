@@ -111,7 +111,6 @@ const Header = (props) => {
       };
 
     const contieneRuta = ruta => {
-        console.log(ruta);
         return ruta.toLowerCase().includes("/pedidos") || ruta.includes("/recibos") || ruta.includes("/Recibos")|| ruta.includes("/cartera");
     }
 
@@ -133,7 +132,6 @@ const Header = (props) => {
 
     const LogOut = () => {
         localStorage.clear();
-        indexedDB.deleteDatabase('localforage')
         window.location.reload();
     }
 
