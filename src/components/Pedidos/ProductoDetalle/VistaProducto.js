@@ -9,7 +9,7 @@ import Slider from "components/Pedidos/ProductoDetalle/Slider";
 import RelatedContainer from "components/Pedidos/ProductoDetalle/RelatedContainer";
 import Expandable from "components/Pedidos/ProductoDetalle/Expandable";
 import styles from 'components/Pedidos/ProductoDetalle/VistaProducto.module.css';
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 
 const VistaProducto = (props) => {
     const [precioProducto, setPrecio] = useState(undefined);
@@ -20,6 +20,9 @@ const VistaProducto = (props) => {
     const [imagenes] = useState(props.producto.ListaImagenes);
     const [IsOpen, setIsOpen] = useState(false);
     const Configuraciones = useSelector(e=>e.Configuraciones);
+    const productoSeleccionado = useSelector(e=>e.producto);
+    const listaProductosAgregados = useSelector(e=>e.listaProductosAgregados);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         // Update the document title using the browser API
@@ -91,6 +94,25 @@ const VistaProducto = (props) => {
     const setListaImagenesPrincipal = (color) => {
         const imagenesColor = props.producto.ListaColores.filter(e => e.NombreColor === color);
         setListaImagenes(imagenesColor[0].ListaImagenes);
+    }
+
+    const agregarProducto = () => {
+        let found = false;
+
+        for (let producto of listaProductosAgregados) {
+            if (producto.ProductoId === productoSeleccionado.ProductoId) {
+                if (producto.Selected) {
+                    found = true;
+                }
+                break;
+            }
+        }
+
+        if (!found) {
+            let newProduct = { ...productoSeleccionado, Selected: true };
+            dispatch({ type: 'SET_PRODUCTOAGREGADO', payload: newProduct });
+            toggleSelect();
+        }
     }
 
     let isEmptyImages = (listaImagenes.length === 0);
@@ -180,6 +202,7 @@ const VistaProducto = (props) => {
                         <div className={"w-100 mw-100 overflow-auto " + styles.ContainerTablaTallas}>
                             <form>
                                 <TablaVistaProducto
+                                    agregarProducto={agregarProducto}
                                     hasBackOrder={hasBackOrder}
                                     TableValue={props.TableValue}
                                     futuro={props.futuro}

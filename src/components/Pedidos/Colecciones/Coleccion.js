@@ -45,6 +45,7 @@ const Coleccion = (props) => {
   }
   
   const selectColeccion = async () => {
+    dispatch({type:"RESET_PRODUCTOAGREGADO"});
     let HoraIngreso = localStorage.getItem('HoraIngreso');
     let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
 

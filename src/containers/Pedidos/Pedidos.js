@@ -986,9 +986,10 @@ class Pedidos extends React.Component {
             }
         }
         let totalAcumulado = this.props.TotalPedido;
-        
         if (isSelected) {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito + 1))
+            let newProduct = {...producto,Selected:true};
+            this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
 
@@ -999,6 +1000,8 @@ class Pedidos extends React.Component {
             });
         } else {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito - 1))
+            let newProduct = {...producto,Selected:false};
+            this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
 
@@ -2540,6 +2543,7 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = dispatch => {
     return {
+        onSetProductoLista:(producto) =>dispatch({type:'SET_PRODUCTOAGREGADO',payload:producto}),
         onSetBloqueo:(valor)=>dispatch({ type: 'SET_BLOQUEO', payload: valor }),
         onStoreColecciones: (colecciones) => dispatch({ type: 'STORE_COLECCIONES', colecciones: colecciones }),
         onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),

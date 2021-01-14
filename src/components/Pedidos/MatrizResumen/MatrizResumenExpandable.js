@@ -140,16 +140,14 @@ const MatrizResumen = (props) => {
                 <CardHeader
                     title={
                         <Typography gutterBottom variant="h5" component="h2">
-                            {"Matriz"}
+                            {mostrarVacios?<div style={{display:'flex'}}><h3>Matriz</h3><span style={{color:"orange",fontWeight:'bold',textAlign:'center',width:'100%'}}>Productos en carrito sin unidades.</span></div>:<h3>Matriz</h3>}
                         </Typography>}
                     style={{ borderBottom: '1px solid #ddd', padding: '10px 16px' }}
                 />
                 <CardContent>
                     <form>
                         {gruposTalla.map((grupoTalla, index) => {
-
                             let productos = Object.keys(props.tableValue[grupoTalla].Productos);
-                            
                             if (props.tableValue[grupoTalla].Mostrar) {
                                 return (
                                     productos.map((codigoProducto, index1) => {
@@ -182,16 +180,19 @@ const MatrizResumen = (props) => {
                                             let expandido = expanded === producto.NombreProducto + index1;
 
                                             let classes = "w-100 my-2 rounded ";
+                                            let sinProductos = { background: 'orange', color: 'black' };
                                             if (mostrarVacios) {
                                                 if (!productoConCantindad) {
                                                     classes += styles.BorderExpansionWarning;
                                                 }
                                                 else {
                                                     classes += styles.BorderExpansion;
+                                                    sinProductos = { background: "#fff" };
                                                 }
                                             }
                                             else {
                                                 classes += styles.BorderExpansion;
+                                                sinProductos = { background: "#fff" };
                                             }
 
                                             var Totales = getTotales(producto, props.Cliente);
@@ -203,6 +204,7 @@ const MatrizResumen = (props) => {
                                                             expandIcon={<ExpandMoreIcon />}
                                                             aria-controls="panel1a-content"
                                                             id="panel1a-header"
+                                                            style={sinProductos}
                                                         >
                                                             <div className="row w-100">
                                                                 <div className="col-xl-3 pb-xl-0 pb-2 col-6 pl-0">
@@ -380,7 +382,6 @@ const getTotales = (producto, Cliente) => {
         Totales.totalPrecio += totalPrecioXColor;
         return false;
     })
-
     return Totales;
 }
 

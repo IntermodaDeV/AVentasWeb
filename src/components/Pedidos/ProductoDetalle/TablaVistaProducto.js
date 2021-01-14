@@ -12,6 +12,8 @@ const TablaVistaProducto = (props) => {
     const [imagenes, setImagenes] = useState([]);
     const [IsOpen, setIsOpen] = useState(false);
     const [colorSeleccionado,setColorSeleccionado] = useState("");
+    const [colorFiltrado,setColorFiltrado] = useState([]);
+    const [showFiltro,setShowFiltro] = useState(false);
 
     const onFocus = () => {
 
@@ -96,8 +98,34 @@ const TablaVistaProducto = (props) => {
         setIsOpen(true);
     }
 
+    const handleClickColorFiltrado = (color) => {
+        if (colorFiltrado.includes(color)) {
+            debugger;
+            let colorFiltradoCopia = colorFiltrado;
+            let index = colorFiltradoCopia.indexOf(color);
+            colorFiltradoCopia.splice(index, 1);
+            setColorFiltrado(colorFiltradoCopia);
+        } else {
+            setColorFiltrado([...colorFiltrado, color]);
+        }
+    }
+
+    const handleClickShowFiltro = ()=>{
+        setShowFiltro(!showFiltro)
+    }
+
+    const filtradoColor = (color) => {
+        if (colorFiltrado.length === 0) {
+            return true;
+        }
+        
+        return colorFiltrado.includes(color);
+    }
+
     return (
         <div>
+            <p className="btn btn-primary" onClick={handleClickShowFiltro}>{showFiltro ? "Ocultar Filtro -" : "Filtrar colores +"}</p>
+            {showFiltro && <ListaColores colores={props.producto.ListaColores} handleColorFiltrado={handleClickColorFiltrado} colorFiltrado={colorFiltrado}/>}
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
                 <thead>
                     <tr className={styles.TrTest}>
@@ -159,7 +187,7 @@ const TablaVistaProducto = (props) => {
                     </tr>
                 </thead>
                 <tbody >
-                    {props.producto.ListaColores.map((color, index1) => {
+                    {props.producto.ListaColores.filter(x=>filtradoColor(x.NombreColor)).map((color, index1) => {
                         const hasImages = color.ListaImagenes.length > 0;                      
                         let totalXColor = 0;
                         let cantidadTotalXColor = 0;
@@ -203,6 +231,7 @@ const TablaVistaProducto = (props) => {
 
                                             <CeldaTallas
                                                 key={index2}
+                                                agregarProducto={props.agregarProducto}
                                                 disponible={valorTalla.Disponible}
                                                 backorder={backOrder}
                                                 hasBackOrder={props.hasBackOrder}
@@ -267,6 +296,27 @@ const numberWithCommas = (x) => {
     var parts = x.toString().split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join(".");
+}
+
+const ListaColores = props => {
+    const { colores, handleColorFiltrado, colorFiltrado } = props;
+
+    return (
+        <ul style={{ position: 'absolute', zIndex: 999 }} className="list-group">
+            {colores.map(x => (
+                <ListItem key={x.NombreColor} color={x.NombreColor} activo={(colorFiltrado.includes(x.NombreColor)) ? "active" : ""} handleColorFiltrado={handleColorFiltrado} />
+            ))}
+        </ul>
+    )
+}
+
+const ListItem = props => {
+
+    const handleClick = ()=>{
+        props.handleColorFiltrado(props.color)
+    }
+
+    return <li onClick={handleClick} className={`list-group-item ${props.activo}`}>{props.color}</li>
 }
 
 // const numberWithCommasNoDec = (x) => {
