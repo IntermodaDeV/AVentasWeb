@@ -10,11 +10,16 @@ import axios from 'axios';
 //import { verificarConexion } from 'utils/http';
 import {Encuesta} from 'components/Encuestas/Encuestas/Encuestas'
 import {SeccionesEncuesta} from 'components/Encuestas/Secciones/Secciones'
+import {Preguntas} from 'components/Encuestas/Preguntas/Preguntas'
 moment.locale('es');
 const Encuestas = (props) => {
   const [loading, setLoading] = useState(false);
   const [secciones, setSecciones] = useState([]);
+  const [data, setData] = useState([]);
+  const [tipoIngreso, setTipoIngreso] = useState([]);
+  const [grupoOpciones, setGrupoOpciones] = useState([]);
   const [encuestaSelected, setEncuestaSelected] = useState("");
+  const [nombreEncuesta, setNombreEncuesta] = useState("");
   //const [DataModal, setDataModal] = useState([]);
   //const [openModal, setOpenModal] = useState(false);
 
@@ -33,8 +38,8 @@ const Encuestas = (props) => {
   const NavHome = () => {
     props.history.push(`/Encuesta`);
   }
-
-  const cargarSeccion = async (encuestaId) => {
+  const cargarSeccion = async (encuestaId,nombreEncuesta) => {
+    setNombreEncuesta(nombreEncuesta);
     setEncuestaSelected(encuestaId);
     try {
         const request = await axios.get(`${APIURL}/api/Encuesta/Seccion/${encuestaId}`);
@@ -54,6 +59,57 @@ const Encuestas = (props) => {
         });
     }
 }
+
+const cargarPreguntas = async (seccionId, NombreSeccion) => {
+  try {
+      const request = await axios.get(`${APIURL}/api/preguntas/${seccionId}`);
+      let valores = {Preguntas: request.data, SeccionId: seccionId, NombreSeccion: NombreSeccion}
+      setData(valores);
+      cargarTipoIngreso();
+      cargarGrupoOpciones();
+      props.history.push("/Encuesta/Seccion/preguntas");
+  } catch (err) {
+      let mensaje = "Ha ocurrido un error y no se han cargado las preguntas de encuestas.";
+
+      if (err.response) {
+          mensaje = err.response.data.Message;
+      }
+      Swal.fire({
+          title: 'Error',
+          text: mensaje,
+          type: 'error',
+          confirmButtonText: 'Ok',
+      });
+  }
+}
+
+const cargarTipoIngreso = async () => {
+  try {
+      const request = await axios.get(`${APIURL}/api/TipoIngreso`);
+      let TipoIngreso = [];
+      request.data.filter(g => g.Status === true).forEach(tipo => {
+        let Valores = { key: tipo.Nombre, value: tipo.Id, RequiereGrupoOpciones: tipo.RequiereGrupoOpciones}
+        TipoIngreso.push(Valores);
+      })
+      setTipoIngreso(TipoIngreso);
+  } catch (err) {
+    console.log("Ha ocurrido un error",err.response)
+  }
+}
+
+  const cargarGrupoOpciones = async () => {
+    try {
+      const request = await axios.get(`${APIURL}/api/GrupoOpciones`);
+      let GrupoOpciones = [];
+      request.data.filter(g => g.Status === true).forEach(grupo => {
+        let Valores = { key: grupo.Nombre, value: grupo.Id}
+        GrupoOpciones.push(Valores);
+      })
+      setGrupoOpciones(GrupoOpciones);
+    } catch (err) {
+      console.log("Ha ocurrido un error", err.response)
+    }
+  }
   const BreadCrumb = () => {
     return (
       <EncuestaBreadCrumb
@@ -89,41 +145,57 @@ const Encuestas = (props) => {
       </div>
     );
   }
+
   return (
     <>
     <Switch>
+   
       <Route path={props.match.url} exact render={() => (
+         <>
+        <div className="text-center">
+        <h4>{"Encuestas"}</h4>
+        <hr />
+      </div>
         <div className="row">
           <div className="col-12">
             <Encuesta
              cargarSeccion= {cargarSeccion} />
           </div>
         </div>
+          </>
       )} />
       <Route path={props.match.url + '/Seccion'} exact render={() => (
         <>
           {BreadCrumb()}
-          {Cliente}
+          <div className="text-center">
+            <h4>{"Sección de Encuesta: " + nombreEncuesta}</h4>
+            <hr />
+          </div>
           <div className="row">
             <div className="col-12">
               <SeccionesEncuesta
                secciones = {secciones}
                cargarSeccion = {cargarSeccion}
-               EncuestaId ={encuestaSelected}/>
+               EncuestaId ={encuestaSelected}
+               cargarPreguntas = {cargarPreguntas}/>
             </div>
           </div>
         </>
       )} />
-      <Route path={props.match.url + '/Preguntas'} exact render={() => (
+      <Route path={props.match.url + '/Seccion/preguntas'} exact render={() => (
         <>
           {BreadCrumb()}
-          {Cliente}
+          <div className="text-center">
+            <h4>{"Preguntas de la Sección: " + data.NombreSeccion}</h4>
+            <hr />
+          </div>
           <div className="row">
             <div className="col-12">
-              <SeccionesEncuesta
-               secciones = {secciones}
-               cargarSeccion = {cargarSeccion}
-               EncuestaId ={encuestaSelected}/>
+              <Preguntas
+               Data = {data}
+               cargarPreguntas = {cargarPreguntas}
+               tipoIngreso = {tipoIngreso}
+               grupoOpciones = {grupoOpciones}/>
             </div>
           </div>
         </>

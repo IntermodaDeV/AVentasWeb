@@ -9,40 +9,40 @@ import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
-import TablaSecciones from 'components/Encuestas/Secciones/TablaSecciones';
 import { APIURL } from 'utils/Enviroment';
 import CheckBox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import TablaPreguntas from 'components/Encuestas/Preguntas/TablaPreguntas'
+import { Hidden } from '@material-ui/core';
 
-export const SeccionesEncuesta = props => {
+export const Preguntas = props => {
     const [mostrar, setMostrar] = useState(false);
-    const [Seccion, setSeccion] = useState(null);
+    const [respuesta, setRespuesta] = useState(null);
 
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
             Nombre: yup.string().required('El nombre es obligatorio'),
-            Titulo: yup.string().required('El Titulo es obligatorio'),
-            Descripcion: yup.string().required('La descripción es obligatoria'),
-            Status: yup.boolean(),
             Obligatorio: yup.boolean(),
+            RespuestaObligatorio: yup.boolean(),
+            Status: yup.boolean(),
         });
     
-    const registrarSecciones = async (data) => {
+    const registrarPreguntas = async (data) => {
         try {
-            await axios.post(`${APIURL}/api/Encuesta/Secciones/registrar`, data);
+            await axios.post(`${APIURL}/api/preguntas/registrar`, data);
             setMostrar(false)
             Swal.fire({
                 title: 'Confirmado',
-                text: "Se ha creado la sección exitosamente.",
+                text: "Se ha creado la pregunta exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(data.EncuestaId);
+                props.cargarPreguntas(data.SeccionEncuestaId);
             });
 
         } catch (err) {
-            let mensaje = "Ha ocurrido un error y no se ha registrado el tipo ingreso.";
+            let mensaje = "Ha ocurrido un error y no se ha registrado la pregunta.";
 
             if (err.response) {
                 mensaje = err.response.data.Message;
@@ -59,14 +59,14 @@ export const SeccionesEncuesta = props => {
     const modificar = async (data) => {
         setMostrar(false)
         try {
-            await axios.post(`${APIURL}/api/secciones/modificar`, data);
+            await axios.post(`${APIURL}/api/preguntas/modificar`, data);
             Swal.fire({
                 title: 'Confirmado',
-                text: "Se ha modificado la seccion de encuesta exitosamente.",
+                text: "Se ha modificado la pregunta exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(data.EncuestaId);
+                props.cargarPreguntas(data.SeccionEncuestaId);
             });
 
         } catch (err) {
@@ -86,14 +86,14 @@ export const SeccionesEncuesta = props => {
 
     const modificarEstado = async (id) => {
         try {
-            await axios.post(`${APIURL}/api/secciones/estado/${id}`);
+            await axios.post(`${APIURL}/api/preguntas/estado/${id}`);
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha cambiado el estado exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(props.EncuestaId);
+                props.cargarPreguntas(props.Data.SeccionId);
             });
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha modificado el estado.";
@@ -115,39 +115,44 @@ export const SeccionesEncuesta = props => {
          // eslint-disable-next-line
     }, [])
 
-    const openEdit = (sec) => {
-        setSeccion(sec);
+    const openEdit = (resp) => {
+        setRespuesta(resp);
         setMostrar(true);
     }
 
     const Mostrar = () => {
-        setSeccion(null);
+        setRespuesta(null);
         setMostrar(true);
     }
 
     let initialValues, edit;
 
-    if (Seccion) {
+    if (respuesta) {
         initialValues = {
-            Id: Seccion.Id,
-            Nombre: Seccion.Nombre,
-            Titulo: Seccion.Titulo,
-            Descripcion: Seccion.Descripcion,
-            EncuestaId: Seccion.EncuestaId,
-            Status: Seccion.Status,
-            Obligatorio: Seccion.Obligatorio,
+            Id: respuesta.Id,
+            SeccionEncuestaId: respuesta.SeccionEncuestaId,
+            TipoIngresoId: respuesta.TipoIngresoId,
+            GrupoOpcionesId: respuesta.GrupoOpcionesId,
+            Nombre: respuesta.Nombre,
+            Descripcion: respuesta.Descripcion,
+            Status: respuesta.Status,
+            Obligatorio: respuesta.Obligatorio,
+            RespuestaObligatorio: respuesta.RespuestaObligatorio,
             Usuario: localStorage.getItem('codigo')
         }
         edit = true;
     }
     else {
         initialValues = {
+            Id: '',
+            SeccionEncuestaId: props.Data.SeccionId,
+            TipoIngresoId: props.tipoIngreso.length > 0 ? props.tipoIngreso[0].value : '',
+            GrupoOpcionesId: props.grupoOpciones.length > 0 ? props.grupoOpciones[0].value : '',
             Nombre: '',
-            Titulo: '',
-            Descripcion:'',
-            EncuestaId: props.EncuestaId,
+            Descripcion: '',
             Status: false,
             Obligatorio: false,
+            RespuestaObligatorio: false,
             Usuario: localStorage.getItem('codigo')
         }
         edit = false;
@@ -155,14 +160,14 @@ export const SeccionesEncuesta = props => {
     return (
         <div>
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
-                <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">REGISTRAR SECCIONES DE ENCUESTAS</DialogTitle>
+                <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">REGISTRAR PREGUNTAS</DialogTitle>
                 <DialogContent>
                     <Formik
                         initialValues={initialValues}
                         enableReinitialize
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
-                            registrarSecciones(values)
+                            registrarPreguntas(values)
                         }}>
                         {({ errors, resetForm, values, setValues }) => (
                             <div ref={context}>
@@ -180,25 +185,43 @@ export const SeccionesEncuesta = props => {
                                     </div>
                                     <div className="form-group">
                                         <Field
-                                            label="Titulo"
-                                            name="Titulo"
-                                            error={!!errors.Titulo}
-                                            helperText={errors.Titulo}
+                                            label="Descripcion"
+                                            name="Descripcion"
+                                            error={!!errors.Descripcion}
+                                            helperText={errors.Descripcion}
                                             style={{ width: '450px', marginRight: '20px', fontSize: '40px' }}
                                             as={TextField}
                                             className="form-control"
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <Field
-                                            label="Descripción"
-                                            name="Descripcion"
-                                            error={!!errors.Descripcion}
-                                            helperText={errors.Descripcion}
-                                            style={{width: '450px', marginRight: '20px', fontSize: '40px' }}
-                                            as={TextField}
-                                            className="form-control"
-                                        />
+                                        <label htmlFor="TipoIngreso">Tipo Ingreso</label>
+                                        <Field id="Opcion" name="TipoIngresoId" as='select' className="form-control" style={{ width: '450px', marginRight: '20px' }}>
+                                            {
+                                                props.tipoIngreso.map(tig => {
+                                                    return (
+                                                        <option key={tig.value} value={tig.value}>
+                                                            {tig.key}
+                                                        </option>
+                                                    )
+                                                })
+                                            }
+                                        </Field>
+                                    </div>
+
+                                    <div className="form-group" style={{ visibility: "collapse" }}>
+                                        <label style={{ visibility: "collapse" }} htmlFor="GrupoOpciones">Grup de Opciones</label>
+                                        <Field id="Opcion" name="GrupoOpcionesId" as='select' className="form-control" style={{ width: '450px', marginRight: '20px' }}>
+                                            {
+                                                props.grupoOpciones.map(grupo => {
+                                                    return (
+                                                        <option key={grupo.value} value={grupo.value}>
+                                                            {grupo.key}
+                                                        </option>
+                                                    )
+                                                })
+                                            }
+                                        </Field>
                                     </div>
 
                                     <FormControlLabel
@@ -223,6 +246,17 @@ export const SeccionesEncuesta = props => {
                                         }
                                         label={"Obligatorio"}
                                     />
+                                    <FormControlLabel
+                                        control={
+                                            <Field
+                                                type="checkbox"
+                                                name="RespuestaObligatorio"
+                                                checked={values.RespuestaObligatorio}
+                                                as={CheckBox}
+                                            />
+                                        }
+                                        label={"Respuesta Obligatoria"}
+                                    />
                                     <DialogActions>
                                         <Button onClick={() => { setMostrar(false) }} color="primary">
                                             Cancelar
@@ -236,7 +270,7 @@ export const SeccionesEncuesta = props => {
                     </Formik>
                 </DialogContent>
             </Dialog>
-            <TablaSecciones Secciones={props.secciones} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={props.cargarPreguntas}/>
+            <TablaPreguntas Preguntas={props.Data.Preguntas} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
         </div>
     )
 }

@@ -9,13 +9,15 @@ import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
-import TablaEncuestas from 'components/Encuestas/Encuestas/TablaEncuestas';
+import {TablaEncuesta} from 'components/Encuestas/Encuestas/TablaEncuesta';
 import { APIURL } from 'utils/Enviroment';
 import { DatePicker } from "@material-ui/pickers";
 import moment from 'moment';
+import { MdPlaylistAdd,MdLoupe } from "react-icons/md";
 
 export const Encuesta = (props) => {
     const [encuestas, setEncuestas] = useState([]);
+    const [encuestasInactivas, setEncuestasInactivas] = useState([]);
     const [mostrar, setMostrar] = useState(false);
     const [encuesta, setEncuesta] = useState(null);
     const [fechaInicio, setFechaInicio] = useState(new Date());
@@ -34,7 +36,11 @@ export const Encuesta = (props) => {
     const cargarEncuestas = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/Encuesta`);
-            setEncuestas(request.data);
+            let fecha =  moment().format('YYYY-MM-DDTHH:mm');
+            let EncuestasActivas = request.data.filter(e =>e.FechaFin >= fecha);
+            let EncuestasInactivas = request.data.filter(e =>e.FechaFin < fecha);
+            setEncuestasInactivas(EncuestasInactivas);
+            setEncuestas(EncuestasActivas);
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se han cargado las encuestas.";
 
@@ -85,7 +91,7 @@ export const Encuesta = (props) => {
             await axios.post(`${APIURL}/api/Encuesta/modificar`, data);
             Swal.fire({
                 title: 'Confirmado',
-                text: "Se ha modificado el tipo de ingreso exitosamente.",
+                text: "Se ha modificado la encuesta exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
@@ -227,8 +233,23 @@ export const Encuesta = (props) => {
                     </Formik>
                 </DialogContent>
             </Dialog>
-
-            <TablaEncuestas Encuestas={encuestas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones = {props.cargarSeccion} />
+            <div className="col">
+                <div class="card-body text-center">
+                    <div class="text-right">
+                        <button className="btn btn-primary" onClick={() => { Mostrar() }}>Registrar Nuevo <MdPlaylistAdd /></button>
+                    </div>
+                </div>
+                <div style={{ marginTop: '20px' }} className="container-fluid">
+                    <div className="row">
+                        <div className="col">
+                            <TablaEncuesta titulo="Encuestas Activas" cabeceras={["Nombre", "Descripción", "",""]} valores={encuestas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} />
+                        </div>
+                        <div className="col">
+                            <TablaEncuesta titulo="Encuestas Inactivas" cabeceras={["Nombre", "Descripción", "",""]} valores={encuestasInactivas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

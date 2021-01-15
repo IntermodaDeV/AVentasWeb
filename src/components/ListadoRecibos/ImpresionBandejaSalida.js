@@ -33,13 +33,12 @@ const ImpresionBandejaSalida = (props) => {
                     <div id="top">
                         <div className="row">
                             <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
-
                             <div className="col text-left m-auto">
                                 <h2 className={"m-0 " + styles.Title}>
-                                    {'Intermoda, S.A. de C.V.'}
+                                    {empresa.NAME}
                                 </h2>
                                 <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF} 
+                                    {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                                 </h3>
                             </div>
                         </div>

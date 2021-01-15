@@ -64,21 +64,21 @@ const Recibo = (props) => {
                             <hr />
                         </div>
                 
-                        <div id={"invoice-POS"} ref={componentRef} style={{ boxShadow: 'unset' }}>
-                            <div id="top">
-                                <div className="row">
-                                    <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
+                   <div id={"invoice-POS"} ref={componentRef} style={{ boxShadow: 'unset' }}>
+                       <div id="top">
+                           <div className="row">
+                               <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
 
-                                    <div className="col text-left m-auto">
-                                        <h2 className={"m-0 " + styles.Title}>
-                                            {'Intermoda, S.A. de C.V.'}
-                                        </h2>
-                                        <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                        {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div className="row">
+                               <div className="col text-left m-auto">
+                                   <h2 className={"m-0 " + styles.Title}>
+                                       {empresa.NAME}
+                                   </h2>
+                                   <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
+                                       {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
+                                   </h3>
+                               </div>
+                           </div>
+                           <div className="row">
                                     <div className="col p-0 text-left">
                                         <h3 className={"font-weight-normal  m-auto " + styles.LineHeight_Normal}>
                                             {props.Cliente.Codigo}
