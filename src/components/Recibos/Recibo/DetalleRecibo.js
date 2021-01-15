@@ -232,9 +232,14 @@ const DetalleRecibo = (props) => {
             }
         });
         const cuotas = cuotasAProcesar.map(cuotAgru => {
+            let NumeroFel = "";
+            cuotAgru.Cuotas.forEach(cuo =>{
+                NumeroFel = cuo.NumeroFEL;
+            })
             return [
                 cuotAgru.NumeroCuota, //Cuota:
                 cuotAgru.NumeroFactura, //Factura:
+                NumeroFel, //NumeroFel
                 moment(cuotAgru.FechaVencimiento).format("DD/MM/YYYY"), //Fecha:
                 moment(cuotAgru.FechaDescuento).format("DD/MM/YYYY"), //FechaDescuento:
                 cuotAgru.Moneda, //DiasDescuento  

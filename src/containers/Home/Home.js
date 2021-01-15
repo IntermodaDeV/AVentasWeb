@@ -432,8 +432,7 @@ export const Home = (props) => {
                 },
                 params: {
                     ListaPrecios: listaPrecios,
-                    Paises: paises,
-                    UsuarioOficina: localStorage.getItem("UsuarioOficina")
+                    Paises: paises
                 }
             })
                 .then(res => {

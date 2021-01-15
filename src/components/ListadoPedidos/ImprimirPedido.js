@@ -15,7 +15,7 @@ const ImprimirPedido = (props) => {
     let NombreCliente = props.Pedido.Cliente.Nombre;
     let DireccionCliente = props.Pedido.Cliente.Direccion;
     const clienteContado = clientesContado.find(x => x.id === props.Pedido.ClienteContadoId);
-    const empresa = empresas.find(x => x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    const empresa = empresas.find(x => x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
     const moneda = Monedas.find(e => e.IdMoneda === props.Pedido.Cliente.Moneda).Abreviacion;
 
     if (clienteContado !== null && clienteContado !== undefined) {

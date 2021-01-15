@@ -14,7 +14,7 @@ const empresas = useSelector(e=>e.Empresas);
 let NombreCliente= props.Pedido.Nombre; //props.Pedido.Cliente.Nombre;
 let DireccionCliente= props.Pedido.Direccion;
 const clienteContado = clientesContado.find(x=>x.id===props.Pedido.ClienteContadoId);
-const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
 const moneda = Monedas.find(e=>e.IdMoneda === props.Pedido.MonedaCliente).Abreviacion;
 
 if(clienteContado!==null && clienteContado!==undefined)

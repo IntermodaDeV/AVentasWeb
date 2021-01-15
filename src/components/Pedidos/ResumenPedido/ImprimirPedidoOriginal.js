@@ -17,7 +17,7 @@ const ImprimirPedidoOriginal = (props) => {
     const empresas = useSelector(e=>e.Empresas);
     const TipoCredito = useSelector(e => e.TipoPedido);
     const modoVenta = TipoCredito.TipoPedido === 'Contado' ? 'Contado' : 'Credito';
-    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
     const clienteContado = pedidoSelected !== null && pedidoSelected !== undefined ? clientesContado.find(x=>x.id=== pedidoSelected.ClienteContado) : null;
     const moneda = Monedas.find(e=>e.IdMoneda===props.Cliente.Moneda).Abreviacion;
     const impuesto = Number(localStorage.getItem('Impuesto'));

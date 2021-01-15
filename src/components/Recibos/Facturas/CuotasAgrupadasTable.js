@@ -260,6 +260,7 @@ const CuotasAgrupadasTable = props => {
       }
       DataModal.push({
         NumeroFactura: cuot.Factura.Factura,
+        NumeroFEL: cuot.NumeroFEL,
         Dias: dias,
         DiasDescuento: diasDescuento,
         Tipo: cuot.TipoDocumento,

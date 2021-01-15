@@ -173,7 +173,7 @@ const CeldaTallas = (props) => {
                             </div> */}
                             <div className="row">
                                 {/* <div class={styles.separator}></div> */}
-                                <div className="d-flex m-auto" style={{ color: Disponible === 0 ? "red" : "blue", fontWeight: "bold" }}>
+                                <div className="d-flex m-auto" style={{ color: Disponible === 0 ? "red" : "seagreen", fontWeight: "bold" }}>
                                     Stock: <ReactTextTransition
                                         text={Disponible}
                                         spring={presets.stiff}

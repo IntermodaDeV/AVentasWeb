@@ -24,6 +24,14 @@ const FacturasModalPrecompra = (props) => {
             }
         },
         {
+            name: 'NumeroFEL',
+            label: 'Numero FEL',
+            options: {
+                filter: true,
+                sort: true
+            }
+        },
+        {
             name: 'Fecha',
             label: 'Fecha',
             options: {

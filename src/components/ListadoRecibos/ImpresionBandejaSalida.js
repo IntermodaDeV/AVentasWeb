@@ -13,7 +13,7 @@ const ImpresionBandejaSalida = (props) => {
     let DireccionCliente=props.recibo.Direccion; 
     const clienteContado = "";//props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
     let valor = props.recibo.Total;
-    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
     const moneda = "";//Monedas.find(e=>e.IdMoneda === props.recibo.Moneda).Abreviacion;
     if(clienteContado!==null && clienteContado!==undefined)
     {

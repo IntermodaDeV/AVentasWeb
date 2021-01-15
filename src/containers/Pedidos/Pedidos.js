@@ -774,6 +774,7 @@ class Pedidos extends React.Component {
             this.props.onSetCliente(this.state.autocompleteValue);
             this.props.history.push("/Pedidos/Linea");
         }
+        localStorage.setItem('EmpresaCliente', this.state.autocompleteValue.EmpresaId);
     }
     seleccionarTipoPedido = (tipoPedido, acuerdoVenta) => {
         this.props.history.push("/Pedidos/Colecciones");
