@@ -79,7 +79,6 @@ const Productos = (props) => {
 
         let AltClass = (itemsPerRow > ListProducts.length || itemsPerRow === ListProducts.length);
 
-
         for (let i = fromIndex; i < toIndex; i++) {
             items.push(
                 <Producto
@@ -165,7 +164,11 @@ const Productos = (props) => {
         });
     
         productosList.sort((a,b)=>((a.stockDisponible>b.stockDisponible)?-1:1));
-    };
+    }
+
+    if(props.coleccion.ColeccionTipo === "F" || props.coleccion.ColeccionTipo === 'f'){
+        productosList.sort((a,b)=>a.ProductoId.localeCompare(b.ProductoId));
+    }
 
     let productos = (
         <div style={{ height: "80vh" }}>

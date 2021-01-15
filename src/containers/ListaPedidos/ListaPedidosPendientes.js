@@ -169,6 +169,7 @@ export const ListaPedidosPendientes = (props) => {
                     pedido.NombreColeccion,
                     pedido.TotalUnidades,
                     moment(pedido.FechaEntrega).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaEntrega).format('DD/MM/YYYY') : "",
+                    pedido.Procesando?"Procesando":"No Procesando",
                     pedido.ErrorAx,
                     <div>
 
@@ -296,6 +297,7 @@ const HeadersListaPedidos = [
     "Paquete",
     "Total Unidades",
     "Fecha Entrega",
+    "Procesando",
     "Ultimo mensaje de error",
     {
         label: "Acciones",

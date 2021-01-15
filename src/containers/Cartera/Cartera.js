@@ -23,6 +23,8 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import axios from 'axios';
 import { Dropdown } from "semantic-ui-react";
 import { verificarConexion } from 'utils/http';
+import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
+import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
@@ -33,6 +35,7 @@ export const Cartera = props => {
     const [filtrados, setFiltrados] = useState([]);
     const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
     const [asesor,setAsesor] = useState(AsesoresUsuario[0]);
+    const [showClientes,setShowClientes] = useState(true);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -144,11 +147,16 @@ export const Cartera = props => {
         setFiltrados(filtradosNuevos);
     }
 
-    return (
+    const handleClickShowClientes = ()=>{
+        setShowClientes(!showClientes);
+    }
+
+    return (<>
+        <button className="btn btn-success" style={{width:'5%',marginLeft:'15px'}} onClick={handleClickShowClientes} >{showClientes?<ArrowForwardIosIcon/>:<ArrowBackIosIcon/>}</button>
         <div style={{ height: '100vh' }} className="row">
             {loading
                 ? <Loading open={loading} title="Cargando cartera de clientes" />
-                : (<><div className="col-md-3 h-100">
+                : (<>{showClientes && <div className="col-md-3 h-100">
                     <div style={{display:'flex',justifyContent:'space-between'}}>
                     <TextField
                         onChange={(e) => { handleChangeBusqueda(e.target.value) }}
@@ -167,8 +175,8 @@ export const Cartera = props => {
                     <Button style={{height:45}} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon/></Button>
                     </div>
                     <ListaClientes clientes={filtrados} seleccionarCliente={seleccionarCliente} seleccionado={cliente} />
-                </div>
-                    <div className="col-md-9">
+                </div>}
+                    <div className={`col-md-${showClientes?"9":"12"}`}>
                         {AsesoresUsuario.length>1 && <Dropdown
                             placeholder="Seleccione cliente contado"
                             fluid
@@ -207,5 +215,5 @@ export const Cartera = props => {
                     </div></>)
             }
         </div>
-    )
+    </>)
 }

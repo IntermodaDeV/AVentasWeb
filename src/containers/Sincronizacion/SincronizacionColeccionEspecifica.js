@@ -15,7 +15,7 @@ import CachedIcon from '@material-ui/icons/Cached';
 import { DatePicker } from "@material-ui/pickers";
 
 export const SincronizacionColeccionEspecifica = props => {
-    const [empresa, setEmpresa] = useState("IMHN");
+    const [empresa, setEmpresa] = useState("");
     const [coleccion, setColeccion] = useState('');
     const [listaEspecifica, setListaEspecifica] = useState([]);
     const [checked, setChecked] = useState(false);
@@ -33,10 +33,17 @@ export const SincronizacionColeccionEspecifica = props => {
         })
     }
 
+    const limpiar = ()=>{
+        setChecked(false);
+        setForzar(false);
+        setEmpresa("");
+    }
+
     const enviarSincronizacionEspecifica = async () => {
         try {
             const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: empresa, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
             await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
+            limpiar();
             cargarListaEspecifica();
         } catch (err) {
             let mensaje = "Error al procesar solicitud.";
@@ -81,6 +88,7 @@ export const SincronizacionColeccionEspecifica = props => {
             try {
                 const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: pais.EmpresaId, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
                 await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
+                limpiar();
                 cargarListaEspecifica();
             } catch (err) {
                 let mensaje = "Error al procesar solicitud.";

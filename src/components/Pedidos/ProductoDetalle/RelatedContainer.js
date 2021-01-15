@@ -122,6 +122,11 @@ const Productos = (props) => {
 
 
     if (props.coleccion) {
+
+        if (props.coleccion.ColeccionTipo === "F" || props.coleccion.ColeccionTipo === 'f') {
+            productosList.sort((a,b)=>a.ProductoId.localeCompare(b.ProductoId));
+        };
+
         return (
             <div>
                 <div className="row">
