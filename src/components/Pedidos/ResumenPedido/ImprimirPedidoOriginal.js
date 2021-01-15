@@ -1,13 +1,14 @@
 import React from 'react';
 import {Button } from '@material-ui/core';
 import ReactToPrint from 'react-to-print';
-import Logo from 'assets/img/logo/Logoinv.png';
+import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import moment from "moment";
 import 'moment/locale/es';
 import {useSelector} from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {FiArrowRightCircle,FiPlusCircle } from "react-icons/fi";
 import { FaPrint } from "react-icons/fa";
+import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
 
 const ImprimirPedidoOriginal = (props) => {
     const clientesContado = useSelector(e=>e.clientesContado);
@@ -269,14 +270,21 @@ const ImprimirPedidoOriginal = (props) => {
                     </div>
                 <hr />
             </div>
-        <div id={"invoice-POS"}  ref={componentRef}  dividers={true}  style={{ boxShadow: 'unset' }}>
+           <div id={"invoice-POS"} ref={componentRef} dividers={true} style={{ boxShadow: 'unset' }}>
+               <div id="top">
+                   <div className="row">
+                       <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
 
-            <div id="top">
-                <img alt={"Logo"} width={420} style={{ objectFit: 'contain' }} src={Logo} ></img>
-                <div className="info">
-                    <p>{empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}</p>
-                </div>
-            </div>
+                       <div className="col text-left m-auto">
+                           <h2 className={"m-0 " + styles.Title}>
+                               {empresa.NAME}
+                           </h2>
+                           <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
+                               {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
+                           </h3>
+                       </div>
+                   </div>
+               </div>
 
             <div id="mid">
                 <div className="row">

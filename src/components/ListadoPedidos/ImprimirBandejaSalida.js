@@ -1,6 +1,6 @@
 import React from 'react';
 import { DialogTitle, DialogContent, DialogActions, Button } from "@material-ui/core";
-import Logo from 'assets/img/logo/Logoinv.png';
+import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import ReactToPrint from 'react-to-print';
 import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
 import moment from "moment";
@@ -35,13 +35,19 @@ if(clienteContado!==null && clienteContado!==undefined)
                 <div id={"invoice-POS"} style={{ boxShadow: 'unset' }}>
 
                     <div id="top">
-                        <img alt={"Logo"} width={420} style={{ objectFit: 'contain' }} src={Logo} ></img>
                         <div className="row">
-                            <div className={"col p-0 text-left font-weight-bold " + styles.Rtn}>
-                                {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF} 
+                            <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
+
+                            <div className="col text-left m-auto">
+                                <h2 className={"m-0 " + styles.Title}>
+                                    {empresa.NAME}
+                                </h2>
+                                <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
+                                    {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
+                                </h3>
                             </div>
-                            <div className={"col p-0 text-right font-weight-bold " + styles.Rtn}>
-                                Copia
+                            <div className={"col p-0 text-right m-auto font-weight-bold " + styles.Rtn}>
+                                    Copia
                             </div>
                         </div>
                     </div>
