@@ -2,12 +2,15 @@ import React, { useState, useEffect } from 'react';
 import CuentaCorrienteTable from 'containers/CuentaCorriente/CuentaCorienteTable';
 import styles from "components/Recibos/Facturas/CuotasTable.module.css";
 import moment from 'moment';
+import { useDispatch } from 'react-redux';
 
 export const CuentaCorriente = props => {
     const [cuotas, setCuotas] = useState([]);
+    const dispatch = useDispatch();
 
     const calcularCuotasCuentaCorriente = () => {
         let agrupacionCuentCorriente = [];
+        let agrupacionCuentaCorriente = [];
         let totalSaldo = 0;
         let totalAPagar = 0;
         props.cliente.AcuerdosXTipoPedido.forEach(acuXTip => {
@@ -43,6 +46,25 @@ export const CuentaCorriente = props => {
                                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
                             });
 
+                            agrupacionCuentaCorriente.push({
+                                Tipo: cuot.TipoDocumento, // Tipo
+                                TipoPedido: acuXTip.TipoPedido,// TipoPedido
+                                Factura: fact.Factura,// Factura
+                                NumeroFEL: fact.NumeroFEL,
+                                IdAcuerdoxCliente: cuot.IdAcuerdoxCliente,// IdAcuerdoxCliente
+                                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
+                                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+                                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+                                Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
+                                Valor: cuot.ValorCuota,// Valor
+                                Saldo: cuot.Saldo,// Saldo
+                                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                                DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV
+                                Descuento: cuot.Descuento,// Descuento
+                                APagar: aPagar,// APagar
+                                idmoneda: cuot.IdMoneda,// idmoneda
+                            });
+
                         }
                         else {
                             agrupacionCuentCorriente.push({
@@ -61,6 +83,25 @@ export const CuentaCorriente = props => {
                                 Descuento: <span className={colorFuente}>{cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
+                            });
+
+                            agrupacionCuentaCorriente.push({
+                                Tipo: cuot.TipoDocumento, // Tipo
+                                TipoPedido: acuXTip.TipoPedido,// TipoPedido
+                                Factura: fact.Factura,// Factura
+                                NumeroFEL: fact.NumeroFEL,
+                                IdAcuerdoxCliente: cuot.IdAcuerdoxCliente,// IdAcuerdoxCliente
+                                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
+                                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+                                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+                                Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
+                                Valor: cuot.ValorCuota,// Valor
+                                Saldo: cuot.Saldo,// Saldo
+                                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                                DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV
+                                Descuento: cuot.Descuento,// Descuento
+                                APagar: aPagar,// APagar
+                                idmoneda: cuot.IdMoneda,// idmoneda
                             });
 
                         }
@@ -103,6 +144,14 @@ export const CuentaCorriente = props => {
 
         });
 
+        agrupacionCuentaCorriente.sort((a, b) => {
+            return moment(a.FechaVencimiento).diff(b.FechaVencimiento);
+        });
+
+        agrupacionCuentaCorriente.sort((a, b) => {
+            return a.Factura < b.Factura ? -1 : 1;
+        });
+
         agrupacionCuentCorriente.push({
             Tipo: <h6 className="font-weight-bolder text-dark">Totales</h6>,// Tipo
             TipoPedido: null,// TipoPedido
@@ -126,6 +175,7 @@ export const CuentaCorriente = props => {
         });
 
         setCuotas(agrupacionCuentCorriente);
+        dispatch({ type: 'SET_CUENTAIMPRIMIR', payload: agrupacionCuentaCorriente });
     }
 
     useEffect(() => {

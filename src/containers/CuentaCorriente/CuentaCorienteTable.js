@@ -9,8 +9,7 @@ import Logo from './LogoSinLetrasInv.png';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import "jspdf-autotable";
 import 'moment/locale/es';
-
-
+import {DescargarCuentaExcel} from 'components/Cartera/DescargarCuentaExcel';
 moment.locale('es')
 
 const columnRender = (columnMeta, updateDirection) => {
@@ -165,7 +164,7 @@ const CuentaCorrienteTable = props => {
 
     return (
         <MuiThemeProvider theme={getMuiTheme()}>
-            {(cuentaCorriente.length>0)&&<Button onClick={generatePDF} style={{marginBottom:'10px'}} variant="contained" color="primary">Generar Reporte</Button>}
+            {(cuentaCorriente.length>0)&&<div><Button onClick={generatePDF} style={{marginBottom:'10px'}} variant="contained" color="primary">Generar Reporte</Button><DescargarCuentaExcel cliente={props.clienteSelected.Codigo}/></div>}
             <MUIDataTable
                 title={''}
                 data={data}
