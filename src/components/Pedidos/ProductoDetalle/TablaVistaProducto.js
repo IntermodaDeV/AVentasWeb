@@ -14,6 +14,7 @@ const TablaVistaProducto = (props) => {
     const [colorSeleccionado,setColorSeleccionado] = useState("");
     const [colorFiltrado,setColorFiltrado] = useState([]);
     const [showFiltro,setShowFiltro] = useState(false);
+    const [listaColoresCopia,setListaColoresCopia] = useState(props.producto.ListaColores);
 
     const onFocus = () => {
 
@@ -100,26 +101,26 @@ const TablaVistaProducto = (props) => {
 
     const handleClickColorFiltrado = (color) => {
         if (colorFiltrado.includes(color)) {
-            debugger;
             let colorFiltradoCopia = colorFiltrado;
             let index = colorFiltradoCopia.indexOf(color);
             colorFiltradoCopia.splice(index, 1);
             setColorFiltrado(colorFiltradoCopia);
+
+            if (colorFiltradoCopia.length === 0) {
+                setListaColoresCopia(props.producto.ListaColores);
+            } else {
+                setListaColoresCopia(props.producto.ListaColores.filter(x => colorFiltradoCopia.includes(x.NombreColor)));
+            }
+
         } else {
-            setColorFiltrado([...colorFiltrado, color]);
+            const nuevosColoresFiltrados = [...colorFiltrado, color];
+            setColorFiltrado(nuevosColoresFiltrados);
+            setListaColoresCopia(props.producto.ListaColores.filter(x => nuevosColoresFiltrados.includes(x.NombreColor)));
         }
     }
 
     const handleClickShowFiltro = ()=>{
         setShowFiltro(!showFiltro)
-    }
-
-    const filtradoColor = (color) => {
-        if (colorFiltrado.length === 0) {
-            return true;
-        }
-        
-        return colorFiltrado.includes(color);
     }
 
     return (
@@ -187,7 +188,7 @@ const TablaVistaProducto = (props) => {
                     </tr>
                 </thead>
                 <tbody >
-                    {props.producto.ListaColores.filter(x=>filtradoColor(x.NombreColor)).map((color, index1) => {
+                    {listaColoresCopia.map((color, index1) => {
                         const hasImages = color.ListaImagenes.length > 0;                      
                         let totalXColor = 0;
                         let cantidadTotalXColor = 0;
@@ -230,7 +231,7 @@ const TablaVistaProducto = (props) => {
                                         return (
 
                                             <CeldaTallas
-                                                key={index2}
+                                                key={`${color.NombreColor}-${talla}-${props.codigoProducto}`}
                                                 agregarProducto={props.agregarProducto}
                                                 disponible={valorTalla.Disponible}
                                                 backorder={backOrder}
