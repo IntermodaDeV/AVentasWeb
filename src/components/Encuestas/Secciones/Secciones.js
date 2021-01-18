@@ -13,10 +13,12 @@ import TablaSecciones from 'components/Encuestas/Secciones/TablaSecciones';
 import { APIURL } from 'utils/Enviroment';
 import CheckBox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import { useSelector } from 'react-redux';
 
 export const SeccionesEncuesta = props => {
     const [mostrar, setMostrar] = useState(false);
     const [Seccion, setSeccion] = useState(null);
+    const Secciones = useSelector(e => e.SeccionEncuesta);
 
     const context = useRef();
     const validationSchema = yup.object().shape(
@@ -93,7 +95,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(props.EncuestaId);
+                props.cargarSeccion(Secciones[0].EncuestaId);
             });
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha modificado el estado.";
@@ -145,7 +147,7 @@ export const SeccionesEncuesta = props => {
             Nombre: '',
             Titulo: '',
             Descripcion:'',
-            EncuestaId: props.EncuestaId,
+            EncuestaId: Secciones[0].EncuestaId,
             Status: false,
             Obligatorio: false,
             Usuario: localStorage.getItem('codigo')
@@ -236,7 +238,7 @@ export const SeccionesEncuesta = props => {
                     </Formik>
                 </DialogContent>
             </Dialog>
-            <TablaSecciones Secciones={props.secciones} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={props.cargarPreguntas}/>
+            <TablaSecciones Secciones={Secciones[0].Secciones} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={props.cargarPreguntas}/>
         </div>
     )
 }

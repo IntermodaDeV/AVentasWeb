@@ -88,7 +88,6 @@ const Coleccion = (props) => {
     }
   }
 
-  let EstaDisponible = props.coleccion.Estatus === 1 ? true : false; 
   return (
     <div className="col-lg-4 col-md-6 col-12 mb-3 mt-1">
       <Loading open={loading} title={"Verificando conexión"}/>

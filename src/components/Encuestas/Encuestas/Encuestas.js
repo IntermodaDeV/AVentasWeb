@@ -13,7 +13,7 @@ import {TablaEncuesta} from 'components/Encuestas/Encuestas/TablaEncuesta';
 import { APIURL } from 'utils/Enviroment';
 import { DatePicker } from "@material-ui/pickers";
 import moment from 'moment';
-import { MdPlaylistAdd,MdLoupe } from "react-icons/md";
+import { MdPlaylistAdd } from "react-icons/md";
 
 export const Encuesta = (props) => {
     const [encuestas, setEncuestas] = useState([]);
@@ -26,8 +26,7 @@ export const Encuesta = (props) => {
     const validationSchema = yup.object().shape(
         {
             Nombre: yup.string().required('El nombre es obligatorio'),
-            Descripcion: yup.string().required('La descripción es obligatoria'),
-            Empresa: yup.string()
+            Descripcion: yup.string().required('La descripción es obligatoria'),       
         });
 
     useEffect(() => {
@@ -196,7 +195,6 @@ export const Encuesta = (props) => {
                                     </div>
                                     <div className="form-group">
                                         <DatePicker
-                                            disableToolbar
                                             autoOk
                                             label={"Fecha Inicio"}
                                             variant="inline"
@@ -207,16 +205,13 @@ export const Encuesta = (props) => {
                                             onChange={(date) => setFechaInicio(date)}
                                         />
                                         <DatePicker
-                                            disableToolbar
                                             autoOk
                                             label={"Fecha Final"}
                                             variant="inline"
                                             format={"DD/MM/YYYY"}
                                             id="FechFin"
-                                            name="FechaFin"
                                             style={{ marginRight: '20px', fontSize: '40px' }}
                                             value={fechaFin}
-                                            selected = {fechaFin}
                                             onChange={(date) => setfechaFin(date)}
                                         /> 
                                     </div>

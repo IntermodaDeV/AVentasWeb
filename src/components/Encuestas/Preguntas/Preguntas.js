@@ -13,11 +13,15 @@ import { APIURL } from 'utils/Enviroment';
 import CheckBox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import TablaPreguntas from 'components/Encuestas/Preguntas/TablaPreguntas'
-import { Hidden } from '@material-ui/core';
+import { useSelector } from 'react-redux';
 
 export const Preguntas = props => {
+    const Preguntas = useSelector(e => e.PreguntasEncuesta);
+    const TipoIngreso = useSelector(e => e.TipoIngreso);
+    const GrupoOpciones = useSelector(g => g.GrupoOpciones);
     const [mostrar, setMostrar] = useState(false);
     const [respuesta, setRespuesta] = useState(null);
+    const [requiereGrupoOpciones, setRequiereGrupoOpciones] = useState("visible");
 
     const context = useRef();
     const validationSchema = yup.object().shape(
@@ -93,7 +97,7 @@ export const Preguntas = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarPreguntas(props.Data.SeccionId);
+                props.cargarPreguntas(Preguntas[0].SeccionId);
             });
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha modificado el estado.";
@@ -116,6 +120,8 @@ export const Preguntas = props => {
     }, [])
 
     const openEdit = (resp) => {
+        let requiereGrupoOpciones =TipoIngreso.length > 0 ? TipoIngreso.find(t => t.value === resp.TipoIngresoId).RequiereGrupoOpciones : "collapse";
+        setRequiereGrupoOpciones(requiereGrupoOpciones);
         setRespuesta(resp);
         setMostrar(true);
     }
@@ -125,9 +131,17 @@ export const Preguntas = props => {
         setMostrar(true);
     }
 
-    let initialValues, edit;
+    const handleOnChange = (Id) => {
+        //console.log("Id",Id)
+       // console.log("props.tipoIngreso",props.tipoIngreso)
+        ///console.log("grupo",props.tipoIngreso.find(t => t.value ===Id))
+        //let requiereGrupoOpciones =props.tipoIngreso.length > 0 ? props.tipoIngreso.find(t => t.value === Id).RequiereGrupoOpciones : "collapse";
+        //setRequiereGrupoOpciones(requiereGrupoOpciones);
+    }
 
+    let initialValues, edit;
     if (respuesta) {
+       
         initialValues = {
             Id: respuesta.Id,
             SeccionEncuestaId: respuesta.SeccionEncuestaId,
@@ -138,6 +152,7 @@ export const Preguntas = props => {
             Status: respuesta.Status,
             Obligatorio: respuesta.Obligatorio,
             RespuestaObligatorio: respuesta.RespuestaObligatorio,
+            RequiereGrupoOpciones: respuesta,
             Usuario: localStorage.getItem('codigo')
         }
         edit = true;
@@ -145,9 +160,10 @@ export const Preguntas = props => {
     else {
         initialValues = {
             Id: '',
-            SeccionEncuestaId: props.Data.SeccionId,
-            TipoIngresoId: props.tipoIngreso.length > 0 ? props.tipoIngreso[0].value : '',
-            GrupoOpcionesId: props.grupoOpciones.length > 0 ? props.grupoOpciones[0].value : '',
+            SeccionEncuestaId: Preguntas[0].SeccionId,
+            TipoIngresoId: TipoIngreso.length > 0 ? TipoIngreso[0].value : '',
+            GrupoOpcionesId: GrupoOpciones.length > 0 ? GrupoOpciones[0].value : '',
+            RequiereGrupoOpciones: GrupoOpciones.length > 0 ? GrupoOpciones[0].RequiereGrupoOpciones : '',
             Nombre: '',
             Descripcion: '',
             Status: false,
@@ -157,6 +173,7 @@ export const Preguntas = props => {
         }
         edit = false;
     }
+    console.log("Preguntas",Preguntas)
     return (
         <div>
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
@@ -167,6 +184,7 @@ export const Preguntas = props => {
                         enableReinitialize
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
+
                             registrarPreguntas(values)
                         }}>
                         {({ errors, resetForm, values, setValues }) => (
@@ -196,11 +214,11 @@ export const Preguntas = props => {
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="TipoIngreso">Tipo Ingreso</label>
-                                        <Field id="Opcion" name="TipoIngresoId" as='select' className="form-control" style={{ width: '450px', marginRight: '20px' }}>
+                                        <Field id="Opcion" name="TipoIngresoId" as='select' /*onChange={(e)=> {handleOnChange(e.target.value)}}*/ className="form-control" style={{ width: '450px', marginRight: '20px' }}>
                                             {
-                                                props.tipoIngreso.map(tig => {
+                                                TipoIngreso.map(tig => {
                                                     return (
-                                                        <option key={tig.value} value={tig.value}>
+                                                        <option key={tig.value} value={tig.value} grupoopciones = {tig.RequiereGrupoOpciones}>
                                                             {tig.key}
                                                         </option>
                                                     )
@@ -209,11 +227,11 @@ export const Preguntas = props => {
                                         </Field>
                                     </div>
 
-                                    <div className="form-group" style={{ visibility: "collapse" }}>
-                                        <label style={{ visibility: "collapse" }} htmlFor="GrupoOpciones">Grup de Opciones</label>
+                                    <div className="form-group" /*style={{ visibility: requiereGrupoOpciones }}*/>
+                                        <label htmlFor="GrupoOpciones">Grup de Opciones</label>
                                         <Field id="Opcion" name="GrupoOpcionesId" as='select' className="form-control" style={{ width: '450px', marginRight: '20px' }}>
                                             {
-                                                props.grupoOpciones.map(grupo => {
+                                                GrupoOpciones.map(grupo => {
                                                     return (
                                                         <option key={grupo.value} value={grupo.value}>
                                                             {grupo.key}
@@ -270,7 +288,7 @@ export const Preguntas = props => {
                     </Formik>
                 </DialogContent>
             </Dialog>
-            <TablaPreguntas Preguntas={props.Data.Preguntas} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
+            <TablaPreguntas Preguntas={Preguntas[0].Preguntas} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
         </div>
     )
 }

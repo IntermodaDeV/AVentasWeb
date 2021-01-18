@@ -7,19 +7,19 @@ import { Route, Switch, matchPath } from 'react-router-dom';
 import moment from 'moment';
 import 'moment/locale/es';
 import axios from 'axios';
+import { useDispatch,useSelector } from 'react-redux';
 //import { verificarConexion } from 'utils/http';
 import {Encuesta} from 'components/Encuestas/Encuestas/Encuestas'
 import {SeccionesEncuesta} from 'components/Encuestas/Secciones/Secciones'
 import {Preguntas} from 'components/Encuestas/Preguntas/Preguntas'
 moment.locale('es');
 const Encuestas = (props) => {
+  const dispatch = useDispatch();
+  const Secciones = useSelector(e => e.SeccionEncuesta);
+  const Pregunta = useSelector(e => e.PreguntasEncuesta);
   const [loading, setLoading] = useState(false);
-  const [secciones, setSecciones] = useState([]);
-  const [data, setData] = useState([]);
   const [tipoIngreso, setTipoIngreso] = useState([]);
   const [grupoOpciones, setGrupoOpciones] = useState([]);
-  const [encuestaSelected, setEncuestaSelected] = useState("");
-  const [nombreEncuesta, setNombreEncuesta] = useState("");
   //const [DataModal, setDataModal] = useState([]);
   //const [openModal, setOpenModal] = useState(false);
 
@@ -39,11 +39,12 @@ const Encuestas = (props) => {
     props.history.push(`/Encuesta`);
   }
   const cargarSeccion = async (encuestaId,nombreEncuesta) => {
-    setNombreEncuesta(nombreEncuesta);
-    setEncuestaSelected(encuestaId);
     try {
         const request = await axios.get(`${APIURL}/api/Encuesta/Seccion/${encuestaId}`);
-        setSecciones(request.data);
+        let Seccion = []
+        let valores = {Secciones: request.data, EncuestaId: encuestaId, NombreEncuesta: nombreEncuesta}
+        Seccion.push(valores);
+        dispatch({ type: 'SET_SECCIONESENCUESTA',payload: Seccion });
         props.history.push("/Encuesta/Seccion");
     } catch (err) {
         let mensaje = "Ha ocurrido un error y no se han cargado las secciones de encuestas.";
@@ -62,12 +63,15 @@ const Encuestas = (props) => {
 
 const cargarPreguntas = async (seccionId, NombreSeccion) => {
   try {
+    debugger;
       const request = await axios.get(`${APIURL}/api/preguntas/${seccionId}`);
+      let preguntas = [];
       let valores = {Preguntas: request.data, SeccionId: seccionId, NombreSeccion: NombreSeccion}
-      setData(valores);
+      preguntas.push(valores);
       cargarTipoIngreso();
       cargarGrupoOpciones();
-      props.history.push("/Encuesta/Seccion/preguntas");
+      dispatch({ type: 'SET_PREGUNTASENCUESTA',payload: preguntas });
+      props.history.push("/Encuesta/Seccion/preguntas")
   } catch (err) {
       let mensaje = "Ha ocurrido un error y no se han cargado las preguntas de encuestas.";
 
@@ -88,9 +92,10 @@ const cargarTipoIngreso = async () => {
       const request = await axios.get(`${APIURL}/api/TipoIngreso`);
       let TipoIngreso = [];
       request.data.filter(g => g.Status === true).forEach(tipo => {
-        let Valores = { key: tipo.Nombre, value: tipo.Id, RequiereGrupoOpciones: tipo.RequiereGrupoOpciones}
+        let Valores = { key: tipo.Nombre, value: tipo.Id, RequiereGrupoOpciones: tipo.RequiereGrupoOpciones ? "visible": "collapse"}
         TipoIngreso.push(Valores);
       })
+      dispatch({type: 'SET_TIPOINGRESO', payload:TipoIngreso})
       setTipoIngreso(TipoIngreso);
   } catch (err) {
     console.log("Ha ocurrido un error",err.response)
@@ -105,6 +110,7 @@ const cargarTipoIngreso = async () => {
         let Valores = { key: grupo.Nombre, value: grupo.Id}
         GrupoOpciones.push(Valores);
       })
+      dispatch({type: 'SET_GRUPOOPCIONES', payload:GrupoOpciones})
       setGrupoOpciones(GrupoOpciones);
     } catch (err) {
       console.log("Ha ocurrido un error", err.response)
@@ -128,12 +134,6 @@ const cargarTipoIngreso = async () => {
     NavHome();
   }
 
-  let Cliente = (
-    <div className="text-center">
-      <h4>{"Encuesta"}</h4>
-      <hr />
-    </div>
-  );
 
   if (loading) {
     return (
@@ -145,7 +145,6 @@ const cargarTipoIngreso = async () => {
       </div>
     );
   }
-
   return (
     <>
     <Switch>
@@ -159,6 +158,7 @@ const cargarTipoIngreso = async () => {
         <div className="row">
           <div className="col-12">
             <Encuesta
+             setLoading = {setLoading}
              cargarSeccion= {cargarSeccion} />
           </div>
         </div>
@@ -168,38 +168,35 @@ const cargarTipoIngreso = async () => {
         <>
           {BreadCrumb()}
           <div className="text-center">
-            <h4>{"Sección de Encuesta: " + nombreEncuesta}</h4>
+            <h4>{"Sección de Encuesta: " + Secciones[0].NombreEncuesta}</h4>
             <hr />
           </div>
           <div className="row">
             <div className="col-12">
               <SeccionesEncuesta
-               secciones = {secciones}
                cargarSeccion = {cargarSeccion}
-               EncuestaId ={encuestaSelected}
                cargarPreguntas = {cargarPreguntas}/>
             </div>
           </div>
         </>
       )} />
-      <Route path={props.match.url + '/Seccion/preguntas'} exact render={() => (
-        <>
-          {BreadCrumb()}
-          <div className="text-center">
-            <h4>{"Preguntas de la Sección: " + data.NombreSeccion}</h4>
-            <hr />
-          </div>
-          <div className="row">
-            <div className="col-12">
-              <Preguntas
-               Data = {data}
-               cargarPreguntas = {cargarPreguntas}
-               tipoIngreso = {tipoIngreso}
-               grupoOpciones = {grupoOpciones}/>
+        <Route path={props.match.url + '/Seccion/preguntas'} exact render={() => (
+          <>
+            {BreadCrumb()}
+            <div className="text-center">
+              <h4>{"Preguntas de la Sección: " + Pregunta[0].NombreSeccion}</h4>
+              <hr />
             </div>
-          </div>
-        </>
-      )} />
+            <div className="row">
+              <div className="col-12">
+                <Preguntas
+                  cargarPreguntas={cargarPreguntas}
+                  tipoIngreso={tipoIngreso}
+                  grupoOpciones={grupoOpciones} />
+              </div>
+            </div>
+          </>
+        )} />
     </Switch>
     </>
   )
