@@ -7,6 +7,9 @@ import { InfoOutlined } from "@material-ui/icons";
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 import { FaEye } from "react-icons/fa";
+import { FiTrash2 } from 'react-icons/fi';
+import { Chip } from '@material-ui/core';
+
 const TablaVistaProducto = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
     const [imagenes, setImagenes] = useState([]);
@@ -123,10 +126,22 @@ const TablaVistaProducto = (props) => {
         setShowFiltro(!showFiltro)
     }
 
+    const handleClickDeleteFiltro = ()=>{
+        setColorFiltrado([]);
+        setListaColoresCopia(props.producto.ListaColores);
+    }
+
     return (
         <div>
-            <p className="btn btn-primary" onClick={handleClickShowFiltro}>{showFiltro ? "Ocultar Filtro -" : "Filtrar colores +"}</p>
-            {showFiltro && <ListaColores colores={props.producto.ListaColores} handleColorFiltrado={handleClickColorFiltrado} colorFiltrado={colorFiltrado}/>}
+            {props.producto.ListaColores.length > 1 && <p className="btn btn-primary" onClick={handleClickShowFiltro}>{showFiltro ? "Ocultar Filtro -" : "Filtrar colores +"}</p>}
+            {colorFiltrado.length > 0 && <Chip
+                style={{ marginBottom: 10,marginLeft:10 }}
+                variant="outlined" color="secondary" size="small"
+                label={"Todos"}
+                onDelete={handleClickDeleteFiltro}
+                icon={<FiTrash2 />}
+            />}
+            {showFiltro && <ListaColores colores={props.producto.ListaColores} handleColorFiltrado={handleClickColorFiltrado} colorFiltrado={colorFiltrado} />}
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
                 <thead>
                     <tr className={styles.TrTest}>
