@@ -8,7 +8,6 @@ import moment from 'moment';
 import 'moment/locale/es';
 import axios from 'axios';
 import { useDispatch,useSelector } from 'react-redux';
-//import { verificarConexion } from 'utils/http';
 import {Encuesta} from 'components/Encuestas/Encuestas/Encuestas'
 import {SeccionesEncuesta} from 'components/Encuestas/Secciones/Secciones'
 import {Preguntas} from 'components/Encuestas/Preguntas/Preguntas'
@@ -20,8 +19,6 @@ const Encuestas = (props) => {
   const [loading, setLoading] = useState(false);
   const [tipoIngreso, setTipoIngreso] = useState([]);
   const [grupoOpciones, setGrupoOpciones] = useState([]);
-  //const [DataModal, setDataModal] = useState([]);
-  //const [openModal, setOpenModal] = useState(false);
 
   useEffect(() => {
     if (matchPath(props.match.url,
@@ -63,7 +60,6 @@ const Encuestas = (props) => {
 
 const cargarPreguntas = async (seccionId, NombreSeccion) => {
   try {
-    debugger;
       const request = await axios.get(`${APIURL}/api/preguntas/${seccionId}`);
       let preguntas = [];
       let valores = {Preguntas: request.data, SeccionId: seccionId, NombreSeccion: NombreSeccion}
@@ -92,7 +88,7 @@ const cargarTipoIngreso = async () => {
       const request = await axios.get(`${APIURL}/api/TipoIngreso`);
       let TipoIngreso = [];
       request.data.filter(g => g.Status === true).forEach(tipo => {
-        let Valores = { key: tipo.Nombre, value: tipo.Id, RequiereGrupoOpciones: tipo.RequiereGrupoOpciones ? "visible": "collapse"}
+        let Valores = { key: tipo.Nombre, value: tipo.Id, RequiereGrupoOpciones: tipo.RequiereGrupoOpciones}
         TipoIngreso.push(Valores);
       })
       dispatch({type: 'SET_TIPOINGRESO', payload:TipoIngreso})

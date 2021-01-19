@@ -21,7 +21,7 @@ export const Preguntas = props => {
     const GrupoOpciones = useSelector(g => g.GrupoOpciones);
     const [mostrar, setMostrar] = useState(false);
     const [respuesta, setRespuesta] = useState(null);
-    const [requiereGrupoOpciones, setRequiereGrupoOpciones] = useState("visible");
+    const [requiereGrupoOpciones, setRequiereGrupoOpciones] = useState(false);
 
     const context = useRef();
     const validationSchema = yup.object().shape(
@@ -120,7 +120,7 @@ export const Preguntas = props => {
     }, [])
 
     const openEdit = (resp) => {
-        let requiereGrupoOpciones =TipoIngreso.length > 0 ? TipoIngreso.find(t => t.value === resp.TipoIngresoId).RequiereGrupoOpciones : "collapse";
+        let requiereGrupoOpciones =TipoIngreso.length > 0 ? TipoIngreso.find(t => t.value === resp.TipoIngresoId).RequiereGrupoOpciones: false;
         setRequiereGrupoOpciones(requiereGrupoOpciones);
         setRespuesta(resp);
         setMostrar(true);
@@ -132,11 +132,10 @@ export const Preguntas = props => {
     }
 
     const handleOnChange = (Id) => {
-        //console.log("Id",Id)
-       // console.log("props.tipoIngreso",props.tipoIngreso)
-        ///console.log("grupo",props.tipoIngreso.find(t => t.value ===Id))
-        //let requiereGrupoOpciones =props.tipoIngreso.length > 0 ? props.tipoIngreso.find(t => t.value === Id).RequiereGrupoOpciones : "collapse";
-        //setRequiereGrupoOpciones(requiereGrupoOpciones);
+        // eslint-disable-next-line
+        let requiereOpciones = TipoIngreso.find(t => t.value == Id).RequiereGrupoOpciones;
+        setRequiereGrupoOpciones(requiereOpciones);
+        
     }
 
     let initialValues, edit;
@@ -173,7 +172,6 @@ export const Preguntas = props => {
         }
         edit = false;
     }
-    console.log("Preguntas",Preguntas)
     return (
         <div>
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
@@ -214,11 +212,11 @@ export const Preguntas = props => {
                                     </div>
                                     <div className="form-group">
                                         <label htmlFor="TipoIngreso">Tipo Ingreso</label>
-                                        <Field id="Opcion" name="TipoIngresoId" as='select' /*onChange={(e)=> {handleOnChange(e.target.value)}}*/ className="form-control" style={{ width: '450px', marginRight: '20px' }}>
+                                        <Field id="Ingreso" name="TipoIngresoId" as='select' onChange={(e)=> {handleOnChange(e.target.value)}} className="form-control" style={{ width: '450px', marginRight: '20px' }}>
                                             {
                                                 TipoIngreso.map(tig => {
                                                     return (
-                                                        <option key={tig.value} value={tig.value} grupoopciones = {tig.RequiereGrupoOpciones}>
+                                                        <option key={tig.value} value={tig.value}>
                                                             {tig.key}
                                                         </option>
                                                     )
@@ -226,9 +224,9 @@ export const Preguntas = props => {
                                             }
                                         </Field>
                                     </div>
-
-                                    <div className="form-group" /*style={{ visibility: requiereGrupoOpciones }}*/>
-                                        <label htmlFor="GrupoOpciones">Grup de Opciones</label>
+                                    { requiereGrupoOpciones &&
+                                        <div className="form-group">
+                                        <label htmlFor="GrupoOpciones">Grupo de Opciones</label>
                                         <Field id="Opcion" name="GrupoOpcionesId" as='select' className="form-control" style={{ width: '450px', marginRight: '20px' }}>
                                             {
                                                 GrupoOpciones.map(grupo => {
@@ -241,6 +239,8 @@ export const Preguntas = props => {
                                             }
                                         </Field>
                                     </div>
+                                    }
+                                    
 
                                     <FormControlLabel
                                         control={

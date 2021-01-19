@@ -14,14 +14,19 @@ import { APIURL } from 'utils/Enviroment';
 import { DatePicker } from "@material-ui/pickers";
 import moment from 'moment';
 import { MdPlaylistAdd } from "react-icons/md";
+import { TablaRelacion } from 'components/Seguridad/Relacional/TablaRelacion';
 
 export const Encuesta = (props) => {
     const [encuestas, setEncuestas] = useState([]);
     const [encuestasInactivas, setEncuestasInactivas] = useState([]);
+    const [EncuestaSelected,setEncuestaSelected] = useState(null);
     const [mostrar, setMostrar] = useState(false);
+    const [mostrarEmpresas, setMostrarEmpresas] = useState(false);
     const [encuesta, setEncuesta] = useState(null);
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setfechaFin] = useState(new Date());
+    const [EmpresasAsignadas,setEmpresasAsignadas] = useState([]);
+    const [EmpresasNoAsignadas,setEmpresasNoAsignadas] = useState([]);
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
@@ -31,6 +36,7 @@ export const Encuesta = (props) => {
 
     useEffect(() => {
         cargarEncuestas();
+        // eslint-disable-next-line
     }, [])
     const cargarEncuestas = async () => {
         try {
@@ -129,6 +135,70 @@ export const Encuesta = (props) => {
         setMostrar(true);
     }
 
+    const CargarEmpresasUsuario = (EncuestaId) => {
+        cargarEmpresasPermitidas(EncuestaId);
+        cargarEmpresasNoPermitidas(EncuestaId);
+        setEncuestaSelected(EncuestaId)
+        setMostrarEmpresas(true);
+    }
+
+    const asignarEmpresa = async (EmpresaId) => {
+        try{
+            await axios.post(`${APIURL}/api/Encuesta/AsignarEmpresa/${EmpresaId}/${EncuestaSelected}/${localStorage.getItem('codigo')}`);
+            CargarEmpresasUsuario(EncuestaSelected);
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
+    const removerEmpresa = async (EmpresaId) => {
+        try{
+            await axios.post(`${APIURL}/api/Encuesta/RemoverEmpresa/${EmpresaId}/${EncuestaSelected}/${localStorage.getItem('codigo')}`);
+            CargarEmpresasUsuario(EncuestaSelected);
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
+    const cargarEmpresasPermitidas = async (EncuestaId) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Encuesta/EmpresaPermitidas/${EncuestaId}`);
+            setEmpresasAsignadas(request.data);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
+
+    const cargarEmpresasNoPermitidas = async (EncuestaId) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Encuesta/EmpresasNoPermitidas/${EncuestaId}`);
+            setEmpresasNoAsignadas(request.data);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
     let initialValues, edit;
 
     if (encuesta) {
@@ -228,6 +298,27 @@ export const Encuesta = (props) => {
                     </Formik>
                 </DialogContent>
             </Dialog>
+
+            <Dialog open={mostrarEmpresas} aria-labelledby="form-dialog-title">
+                <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">ACCESO DE EMPRESAS A ENCUESTA</DialogTitle>
+                <DialogContent>
+                    <div className="row">
+                        <div className="col">
+                            <TablaRelacion funcion={asignarEmpresa} accion="agregar" titulo="Empresas no permitidas" cabeceras={["Empresas", "Accion"]} valores={EmpresasNoAsignadas} />
+                        </div>
+                        <div className="col">
+                            <TablaRelacion funcion={removerEmpresa} accion="remover" titulo="Empresas permitidas" cabeceras={["Empresas", "Accion"]} valores={EmpresasAsignadas} />
+                        </div>
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => { setMostrarEmpresas(false) }} color="primary">
+                        Cancelar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+
             <div className="col">
                 <div class="card-body text-center">
                     <div class="text-right">
@@ -237,10 +328,10 @@ export const Encuesta = (props) => {
                 <div style={{ marginTop: '20px' }} className="container-fluid">
                     <div className="row">
                         <div className="col">
-                            <TablaEncuesta titulo="Encuestas Activas" cabeceras={["Nombre", "Descripción", "",""]} valores={encuestas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} />
+                            <TablaEncuesta titulo="Encuestas Activas" cabeceras={["Nombre", "Descripción", "","",""]} valores={encuestas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} CargarEmpresasUsuario = {CargarEmpresasUsuario}/>
                         </div>
                         <div className="col">
-                            <TablaEncuesta titulo="Encuestas Inactivas" cabeceras={["Nombre", "Descripción", "",""]} valores={encuestasInactivas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} />
+                            <TablaEncuesta titulo="Encuestas Inactivas" cabeceras={["Nombre", "Descripción", "","",""]} valores={encuestasInactivas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} CargarEmpresasUsuario ={CargarEmpresasUsuario}/>
                         </div>
                     </div>
                 </div>

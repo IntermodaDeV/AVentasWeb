@@ -14,10 +14,15 @@ import { APIURL } from 'utils/Enviroment';
 import CheckBox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSelector } from 'react-redux';
+import { TablaRelacion } from 'components/Seguridad/Relacional/TablaRelacion';
 
 export const SeccionesEncuesta = props => {
     const [mostrar, setMostrar] = useState(false);
+    const [mostrarUsuario, setMostrarUsuario] = useState(false);
     const [Seccion, setSeccion] = useState(null);
+    const [UsuariosConAcceso,setUsuariosConAcceso] = useState([]);
+    const [UsuariosSinAcceso,setUsuariosSinAcceso] = useState([]);
+    const [seccionSelected, setSeccionSelected] = useState(null);
     const Secciones = useSelector(e => e.SeccionEncuesta);
 
     const context = useRef();
@@ -113,6 +118,73 @@ export const SeccionesEncuesta = props => {
         }
     }
 
+    const cargarUsuarios = (seccionId) => {
+        cargarUsuariosConAcceso(seccionId);
+        cargarUsuariosSinAcceso(seccionId);
+        setSeccionSelected(seccionId);
+        setMostrarUsuario(true);
+    }
+    const cargarUsuariosConAcceso = async (seccionId) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/secciones/usuarios/${seccionId}`);
+            setUsuariosConAcceso(request.data);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
+
+    const cargarUsuariosSinAcceso = async (seccionId) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/secciones/usuariosSinAcceso/${seccionId}`);
+            setUsuariosSinAcceso(request.data);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
+
+    const asignarUsuario = async (usuarioId) => {
+        try{
+            await axios.post(`${APIURL}/api/secciones/AsignarAccesoUsuario/${seccionSelected}/${usuarioId}/${localStorage.getItem('codigo')}`);
+            cargarUsuarios(seccionSelected);
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
+
+
+    const removerUsuario = async (usuarioId) => {
+        try{
+            await axios.post(`${APIURL}/api/secciones/RemoverUsuario/${usuarioId}/${seccionSelected}/${localStorage.getItem('codigo')}`)
+            cargarUsuarios(seccionSelected);
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
+    
     useEffect(() => {
          // eslint-disable-next-line
     }, [])
@@ -238,7 +310,29 @@ export const SeccionesEncuesta = props => {
                     </Formik>
                 </DialogContent>
             </Dialog>
-            <TablaSecciones Secciones={Secciones[0].Secciones} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={props.cargarPreguntas}/>
+            
+            
+            <Dialog open={mostrarUsuario} aria-labelledby="form-dialog-title">
+                <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">ACCESO DE USUARIOS</DialogTitle>
+                <DialogContent>
+                    <div className="row">
+                        <div className="col">
+                            <TablaRelacion funcion={asignarUsuario} accion="agregar" titulo="Usuarios Sin Acceso" cabeceras={["Usuarios", "Accion"]} valores={UsuariosSinAcceso} />
+                        </div>
+                        <div className="col">
+                            <TablaRelacion funcion={removerUsuario} accion="remover" titulo="Usuarios con acceso" cabeceras={["Usuarios", "Accion"]} valores={UsuariosConAcceso} />
+                        </div>
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => { setMostrarUsuario(false) }} color="primary">
+                        Cancelar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+
+            <TablaSecciones Secciones={Secciones[0].Secciones} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={props.cargarPreguntas} cargarUsuarios ={cargarUsuarios}/>
         </div>
     )
 }

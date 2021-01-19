@@ -6,8 +6,8 @@ import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import Button from '@material-ui/core/Button';
 import { FaEdit } from "react-icons/fa";
-import { MdLoupe } from "react-icons/md";
-
+import BusinessIcon from '@material-ui/icons/Business';
+import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 export const TablaEncuesta = props =>{
     const {titulo,cabeceras,valores} = props;
 
@@ -16,7 +16,8 @@ export const TablaEncuesta = props =>{
         [valor.Nombre,
          valor.Descripcion,
         <Button class="btn btn-warning" onClick={() => { props.openEdit(valor) }} startIcon={<FaEdit />} >Editar</Button>,
-        <Button class="btn btn-info" onClick={() => { props.cargarSecciones(valor.Id, valor.Nombre) }} startIcon={<MdLoupe />} >Ver Secciones</Button>]);
+        <Button class="btn btn-info" onClick={() => { props.cargarSecciones(valor.Id, valor.Nombre) }} startIcon={<QueuePlayNextIcon />} >Secciones</Button>,
+        <Button class="btn btn-primary" onClick={() => { props.CargarEmpresasUsuario(valor.Id) }} startIcon={<BusinessIcon />}>Empresas</Button>]);
     }
 
     return (
