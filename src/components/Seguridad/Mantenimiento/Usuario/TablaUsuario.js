@@ -4,7 +4,7 @@ import { MdCheckCircle,MdCancel } from "react-icons/md";
 import { MdPlaylistAdd } from "react-icons/md";
 
 export const TablaUsuario = props => {
-    const {roles,modificarEstado,modificarBloqueoCredito,modificarTodosAsesores,UpdateUsuarioOficina} = props;
+    const {roles,modificarEstado,modificarBloqueoCredito,modificarTodosAsesores,UpdateUsuarioOficina,modificarAdministradorProducto} = props;
 
     return (
         <div>
@@ -32,6 +32,7 @@ export const TablaUsuario = props => {
                                 <th style={{textAlign:'center'}}>Bloqueo información sensible</th>
                                 <th style={{textAlign:'center'}}>Maneja todos los asesores</th>
                                 <th style={{textAlign:'center'}}>Usuario Oficina</th>
+                                <th style={{textAlign:'center'}}>Administrador Productos</th>
                                 <th style={{textAlign:'center'}}>Acciones</th>
                             </tr>
                         </thead>
@@ -43,6 +44,7 @@ export const TablaUsuario = props => {
                                     <th style={{textAlign:'center'}}><input type="checkbox" checked={rol.BloqueoCredito} onChange={(e)=>modificarBloqueoCredito(rol.Id)} style={{ height: 20, width: 20}}/></th>
                                     <th style={{textAlign:'center'}}><input type="checkbox" checked={rol.BloqueoAsesores} onChange={(e)=>modificarTodosAsesores(rol.Id)} style={{ height: 20, width: 20}}/></th>
                                     <th style={{textAlign:'center'}}><input type="checkbox" checked={rol.UsuarioOficina} onChange={(e)=>UpdateUsuarioOficina(rol.Id, e.target.checked)} style={{ height: 20, width: 20}}/></th>
+                                    <th style={{textAlign:'center'}}><input type="checkbox" checked={rol.AdministradorProductos} onChange={(e)=>modificarAdministradorProducto(rol.Id)} style={{ height: 20, width: 20}}/></th>
                                     <th style={{textAlign:'center'}}>
                                         <button style={{marginLeft:'10px'}} 
                                                 className="btn btn-info" 
