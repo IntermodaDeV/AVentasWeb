@@ -114,6 +114,10 @@ const VistaProducto = (props) => {
             }
         }
 
+        if(found && !selected){
+            toggleSelect();
+        }
+
         if (!found) {
             let newProduct = { ...productoSeleccionado, Selected: true };
             dispatch({ type: 'SET_PRODUCTOAGREGADO', payload: newProduct });

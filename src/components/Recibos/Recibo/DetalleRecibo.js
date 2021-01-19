@@ -606,7 +606,7 @@ const DetalleRecibo = (props) => {
                         "TipoPago" : tiposPago[pagXRecib.indexTiposPago].Descripcion,
                         "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
                         "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,
-                        "Banco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].NombreBanco : "",
+                        "Banco": pagXRecib.indexBanco!==null ? bancos[pagXRecib.indexBanco].NombreBanco : "",
                         "Orden": 1,
                         "Valor":localStorage.getItem('isAnticipo') === 'true' ? Number(pagXRecib.valor) : Number(pagXRecib.valor-saldoAFavor),
                         "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,
@@ -662,7 +662,7 @@ const DetalleRecibo = (props) => {
                 return {
                     "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,
                     "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
-                    "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,
+                    "IdBanco": pagXRecib.indexBanco!==null ? bancos[pagXRecib.indexBanco].IdBanco : null,
                     "Orden": 1,
                     "Valor": pagXRecib.valor-saldoAFavor,
                     "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,
@@ -690,7 +690,7 @@ const DetalleRecibo = (props) => {
                         return {
                             "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
                             "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
-                            "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
+                            "IdBanco": pagXRecib.indexBanco!=null ? bancos[pagXRecib.indexBanco].IdBanco : null,//"",
                             "Orden": 1,
                             "Valor": pagXRecib.valor,//104613.1000,
                             "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,//"HNL",
