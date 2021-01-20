@@ -110,7 +110,6 @@ export const CuentaCorriente = props => {
             });
         });
 
-        console.log(agrupacionCuentCorriente);
 
         agrupacionCuentCorriente.sort((a, b) => {
             if (moment(a.FechaVencimiento.props.children, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento.props.children, "DD/MM/YYYY"), 'day')) {
@@ -145,12 +144,44 @@ export const CuentaCorriente = props => {
         });
 
         agrupacionCuentaCorriente.sort((a, b) => {
+            if (moment(a.FechaVencimiento, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+                return 1;
+            }
+            if (moment(a.FechaVencimiento, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+                return -1;
+            }
+            if (moment(a.FechaVencimiento, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
+                return -1;
+            }
+
+            if (a.Factura < b.Factura) {
+
+                return -1;
+            }
+            if (a.Factura > b.Factura) {
+
+                return 1;
+            }
+
+            if (a.NumeroCuota < b.NumeroCuota) {
+
+                return -1;
+            }
+            if (a.NumeroCuota > b.NumeroCuota) {
+
+                return 1;
+            }
+            return 0;
+
+        });
+
+        /*agrupacionCuentaCorriente.sort((a, b) => {
             return moment(a.FechaVencimiento).diff(b.FechaVencimiento);
         });
 
         agrupacionCuentaCorriente.sort((a, b) => {
             return a.Factura < b.Factura ? -1 : 1;
-        });
+        });*/
 
         agrupacionCuentCorriente.push({
             Tipo: <h6 className="font-weight-bolder text-dark">Totales</h6>,// Tipo
