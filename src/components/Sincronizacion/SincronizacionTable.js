@@ -72,6 +72,7 @@ export const SincronizacionTable = props => {
                     <th className={styles.StickyHeader}>Módulo</th>
                     <th className={styles.StickyHeader}>Paquete</th>
                     <th className={styles.StickyHeader}>Empresa</th>
+                    <th className={styles.StickyHeader}>Forzosa</th>
                     <th className={styles.StickyHeader}>Fecha</th>
                     <th className={styles.StickyHeader}>En Espera</th>
                     <th className={styles.StickyHeader}>En Ejecución</th>
@@ -89,6 +90,7 @@ export const SincronizacionTable = props => {
                             <td className="font-weight-bold">{item.MODULO}</td>
                             <td className="font-weight-bold">{item.PAQUETE}</td>
                             <td className="font-weight-bold">{item.EMPRESA}</td>
+                            <td className="font-weight-bold">{item.FORZOSA==="0"?"No":"Si"}</td>
                             <td className="font-weight-bold">{item.FECHASTR}</td>
                             <td className="font-weight-bold">
                                 <input

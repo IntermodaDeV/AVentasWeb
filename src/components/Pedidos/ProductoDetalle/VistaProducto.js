@@ -135,6 +135,10 @@ const VistaProducto = (props) => {
                 text: "Producto deshabilitado con exito.",
                 type: 'success',
                 confirmButtonText: 'Ok'
+            }).then(() => {
+                localStorage.removeItem("ColeccionSeleccionada");
+                localStorage.removeItem("HoraIngreso");
+                props.navegar.history.push("/Pedidos/Colecciones")
             });
             console.log(request.data);
         } catch (err) {

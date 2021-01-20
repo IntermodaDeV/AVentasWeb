@@ -1987,6 +1987,7 @@ class Pedidos extends React.Component {
                                 <Container fluid={true} key={routeProps.match.params.CodigoProducto}>
                                     <VistaProducto
                                         // filtroEdad={this.state.filtroEdad}
+                                        navegar={routeProps}
                                         Click={this.getProducto}
                                         coleccion={this.props.coleccion}
                                         Linea={this.props.LineaSeleccionada}

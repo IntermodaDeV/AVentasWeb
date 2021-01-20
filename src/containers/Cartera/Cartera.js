@@ -152,7 +152,7 @@ export const Cartera = props => {
     }
 
     return (<>
-        <button className="btn btn-success" style={{width:'5%',marginLeft:'15px'}} onClick={handleClickShowClientes} >{showClientes?<ArrowForwardIosIcon/>:<ArrowBackIosIcon/>}</button>
+        {!loading && <button className="btn btn-success" style={{width:'10%',marginLeft:'15px'}} onClick={handleClickShowClientes} >{showClientes?<>Ocultar Clientes <ArrowBackIosIcon/></>:<>Mostrar Clientes <ArrowForwardIosIcon/></>}</button>}
         <div style={{ height: '100vh' }} className="row">
             {loading
                 ? <Loading open={loading} title="Cargando cartera de clientes" />
