@@ -17,8 +17,7 @@ const Encuestas = (props) => {
   const Secciones = useSelector(e => e.SeccionEncuesta);
   const Pregunta = useSelector(e => e.PreguntasEncuesta);
   const [loading, setLoading] = useState(false);
-  const [tipoIngreso, setTipoIngreso] = useState([]);
-  const [grupoOpciones, setGrupoOpciones] = useState([]);
+  const [grupoOpcionesDetalle, setGrupoOpcionesDetalle] = useState([]);
 
   useEffect(() => {
     if (matchPath(props.match.url,
@@ -66,6 +65,7 @@ const cargarPreguntas = async (seccionId, NombreSeccion) => {
       preguntas.push(valores);
       cargarTipoIngreso();
       cargarGrupoOpciones();
+      setGrupoOpcionesDetalle([]);
       dispatch({ type: 'SET_PREGUNTASENCUESTA',payload: preguntas });
       props.history.push("/Encuesta/Seccion/preguntas")
   } catch (err) {
@@ -92,7 +92,6 @@ const cargarTipoIngreso = async () => {
         TipoIngreso.push(Valores);
       })
       dispatch({type: 'SET_TIPOINGRESO', payload:TipoIngreso})
-      setTipoIngreso(TipoIngreso);
   } catch (err) {
     console.log("Ha ocurrido un error",err.response)
   }
@@ -101,13 +100,26 @@ const cargarTipoIngreso = async () => {
   const cargarGrupoOpciones = async () => {
     try {
       const request = await axios.get(`${APIURL}/api/GrupoOpciones`);
-      let GrupoOpciones = [];
+      let GrupoOpciones = [{key: "Seleccione..." , value: ''}];
       request.data.filter(g => g.Status === true).forEach(grupo => {
         let Valores = { key: grupo.Nombre, value: grupo.Id}
         GrupoOpciones.push(Valores);
       })
       dispatch({type: 'SET_GRUPOOPCIONES', payload:GrupoOpciones})
-      setGrupoOpciones(GrupoOpciones);
+    } catch (err) {
+      console.log("Ha ocurrido un error", err.response)
+    }
+  }
+
+  const cargarGrupoOpcionesDetalle = async (GrupoOpcionId) => {
+    try {
+      const request = await axios.get(`${APIURL}/api/GrupoOpcionesDetalle/${GrupoOpcionId}`);
+      let GrupoOpcionesDetalle = [];
+      request.data.forEach(grupo => {
+        let Valores = { key: grupo.Nombre, value: grupo.Id}
+        GrupoOpcionesDetalle.push(Valores);
+      })
+      setGrupoOpcionesDetalle(GrupoOpcionesDetalle);
     } catch (err) {
       console.log("Ha ocurrido un error", err.response)
     }
@@ -187,8 +199,8 @@ const cargarTipoIngreso = async () => {
               <div className="col-12">
                 <Preguntas
                   cargarPreguntas={cargarPreguntas}
-                  tipoIngreso={tipoIngreso}
-                  grupoOpciones={grupoOpciones} />
+                  grupoOpcionesDetalle = {grupoOpcionesDetalle}
+                  cargarGrupoOpcionesDetalle = {cargarGrupoOpcionesDetalle}/>
               </div>
             </div>
           </>
