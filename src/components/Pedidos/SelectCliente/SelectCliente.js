@@ -200,30 +200,37 @@ const SelectCliente = (props) => {
         })
     }
 
-   const continuarPedido = ()=>{
-    if(props.autocompleteValue.Credito[0].Disponible<=1){
-        Swal.fire({
-            title: 'Aviso',
-            text: 'El cliente no tiene credito disponible, el pedido no sera autorizado automaticamente.',
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Continuar',
-            cancelButtonText: 'Cancelar'
-          }).then((result) => {
-            if (result.value) {
-                props.setCliente();
-            }
-          })
-    }else{
-        props.setCliente();
+    const continuarPedido = () => {
+        if (props.autocompleteValue.FacturacionEntrega === "Todo") {
+            Swal.fire({
+                title: 'Bloqueado',
+                text: 'El cliente actualmente se encuentra bloqueado. Por favor contactar al departamento de credito.',
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
+        } else if (props.autocompleteValue.Credito[0].Disponible <= 1) {
+            Swal.fire({
+                title: 'Aviso',
+                text: 'El cliente no tiene credito disponible, el pedido no sera autorizado automaticamente.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.value) {
+                    props.setCliente();
+                }
+            })
+        } else {
+            props.setCliente();
+        }
+        props.onSetTableValue({});
+        props.onSetTotalPedido(0);
+        props.onSetNumeroOrden(null);
+        localStorage.removeItem("ColeccionSeleccionada");
     }
-    props.onSetTableValue({});
-    props.onSetTotalPedido(0);
-    props.onSetNumeroOrden(null);
-    localStorage.removeItem("ColeccionSeleccionada");
-   }
 
     const handleClose = () => {
         setOpen(false);

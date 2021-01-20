@@ -27,6 +27,7 @@ import guatemala from 'utils/img/guatemala.png';
 import { get } from 'utils/http';
 import axios from 'axios';
 import { verificarConexion } from 'utils/http';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 moment.locale('es');
 const Recibos = (props) => {
@@ -361,9 +362,18 @@ const Recibos = (props) => {
     .catch(error=>console.log(error))*/
   }
   const cargarFacturasXCliente = () => {
-    props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas);
-    cargarMonedas();
-    props.history.push(`/Recibos/TipoCredito`);
+    if (props.clienteSelected.FacturacionEntrega === "Todo") {
+      Swal.fire({
+        title: 'Bloqueado',
+        text: 'El cliente actualmente se encuentra bloqueado. Por favor contactar al departamento de credito.',
+        type: 'error',
+        confirmButtonText: 'OK',
+    });
+    } else {
+      props.onStoreReciboFacturasXCliente(props.clienteSelected.Facturas);
+      cargarMonedas();
+      props.history.push(`/Recibos/TipoCredito`);
+    }
   }
 
   const cargarCuotasXCliente = (cuotas) => {
