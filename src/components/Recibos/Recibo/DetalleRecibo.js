@@ -240,7 +240,7 @@ const DetalleRecibo = (props) => {
                 cuotAgru.NumeroCuota, //Cuota:
                 cuotAgru.NumeroFactura, //Factura:
                 NumeroFel, //NumeroFel
-                moment(cuotAgru.FechaVencimiento).format("DD/MM/YYYY"), //Fecha:
+                moment(cuotAgru.FechaFactura).format("DD/MM/YYYY"), //Fecha:
                 moment(cuotAgru.FechaDescuento).format("DD/MM/YYYY"), //FechaDescuento:
                 cuotAgru.Moneda, //DiasDescuento  
                 Number(cuotAgru.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor:
@@ -308,7 +308,7 @@ const DetalleRecibo = (props) => {
                 cuotProc.Tipo, //Tipo  
                 cuotProc.NumeroFactura, //Numero Factura  
                 cuotProc.NumeroFEL, //Numero Factura  
-                moment(cuotProc.Fecha).format("DD/MM/YYYY"), //Fecha  
+                cuotProc.Fecha, //Fecha  
                 moment(cuotProc.FechaVencimiento).format("DD/MM/YYYY"), //FechaVencimiento  
                 cuotProc.Dias, //Dias  
                 moment(cuotProc.FechaDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuotProc.FechaDescuento).format("DD/MM/YYYY") : "", //FechaDescuento  
@@ -620,23 +620,23 @@ const DetalleRecibo = (props) => {
                 SubFacturas: props.CuotasAPagar,
                 NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
                 EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
-                CodigoUltimoRecibo : " Disponible",
+                CodigoUltimoRecibo : "No Disponible",
                 Total :  ValorPago,
-                Facturas : cuotasYDescuentoAplicado.Cuotas.map(fact => {
+                Facturas : cuotasYDescuentoAplicado.Cuotas.map(fact => {              
                     let NumeroCuota = cuotasYDescuentoAplicado.agrupadas ? fact[0] : 0;
-                    let descuento = cuotasYDescuentoAplicado.agrupadas ? fact[8].replace(',', '') :  fact[11].replace(',', '');
-                    let Aplicado = localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ?  Number(fact[10].replace(',', '')) : Number(fact[13].replace(',', ''));
+                    let descuento = cuotasYDescuentoAplicado.agrupadas ? fact[9].replace(',', '') :  fact[11].replace(',', '');
+                    let Aplicado = localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ?  Number(fact[11].replace(',', '')) : Number(fact[13].replace(',', ''));
                     rebajarSaldoFactura(fact[1], NumeroCuota,Aplicado,descuento);
                     return {
                         "Aplicado" : Aplicado,
                         "Dias" :cuotasYDescuentoAplicado.agrupadas ? "" : fact[5],
-                        "EsAbono" :cuotasYDescuentoAplicado.agrupadas ? fact[10] !== fact[9] ? true : false : fact[12] !== fact[13] ? true : false,
-                        "Fecha" :cuotasYDescuentoAplicado.agrupadas ? Date(fact[12]) : Date(fact[4]),
+                        "EsAbono" :cuotasYDescuentoAplicado.agrupadas ? fact[11] !== fact[10] ? true : false : fact[12] !== fact[13] ? true : false,
+                        "Fecha" :cuotasYDescuentoAplicado.agrupadas ?  fact[13] : fact[3],
                         "IdFactura" : fact[1],
                         "NumeroFEL" : "",
-                        "Parcial" :localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ? fact[7].replace(',', '') : fact[12].replace(',', ''),
+                        "Parcial" :localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ? fact[8].replace(',', '') : fact[12].replace(',', ''),
                         "Parcial2" : descuento,
-                        "TipoDocumento" : cuotasYDescuentoAplicado.agrupadas ? fact[13] : fact[0]
+                        "TipoDocumento" : cuotasYDescuentoAplicado.agrupadas ? fact[14] : fact[0]
                     }
                 }),
             }

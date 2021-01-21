@@ -50,7 +50,7 @@ const ImpresionBandejaSalida = (props) => {
                             </div>
                             <div className="col p-0 text-center">
                                 <h2 className={"font-weight-bold " + styles.Title + styles.LineHeight_1_5}>
-                                    {'No Disponible'}
+                                    {'No. No Disponible'}
                                 </h2>
                             </div>
                         </div>

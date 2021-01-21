@@ -140,7 +140,7 @@ const MatrizResumen = (props) => {
                 <CardHeader
                     title={
                         <Typography gutterBottom variant="h5" component="h2">
-                            {mostrarVacios?<div style={{display:'flex'}}><h3>Matriz</h3><span style={{color:"orange",fontWeight:'bold',textAlign:'center',width:'100%'}}>Productos en carrito sin unidades.</span></div>:<h3>Matriz</h3>}
+                            <h3>Matriz</h3>
                         </Typography>}
                     style={{ borderBottom: '1px solid #ddd', padding: '10px 16px' }}
                 />
