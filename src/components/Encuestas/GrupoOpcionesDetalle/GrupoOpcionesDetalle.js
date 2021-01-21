@@ -83,7 +83,7 @@ export const GrupoOpcionesDetalle = props => {
            
             Swal.fire({
                 title: 'Confirmado',
-                text: "Se ha creado el tipo ingreso exitosamente.",
+                text: "Se ha creado el grupo de opciones exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {

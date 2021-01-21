@@ -48,20 +48,20 @@ export const Relacional = props => {
                     onChange={handleChange}
                     aria-label="disabled tabs example"
                 >
+                     <Tab onClick={redirectUsuarioEmpresa} icon={<BusinessIcon/>} label="Usuario-Empresa" />
+                    <Tab onClick={redirectUsuarioAsesor} icon={<SupervisorAccountIcon/>} label="Usuario-Asesor" />
                     <Tab onClick={redirectUsuarioRoles} icon={<SupervisorAccountIcon/>} label="Usuario-Roles" />
                     <Tab onClick={redirectRolesFunciones} icon={<RecentActorsIcon/>} label="Roles-Funciones" />
                     <Tab onClick={redirectFuncionPantalla} icon={<DvrIcon/>} label="Pantallas-Funciones" />
-                    <Tab onClick={redirectUsuarioEmpresa} icon={<BusinessIcon/>} label="Usuario-Empresa" />
-                    <Tab onClick={redirectUsuarioAsesor} icon={<SupervisorAccountIcon/>} label="Usuario-Asesor" />
                 </Tabs>
             </Paper>
             <div className="card" style={{height:'85%'}}>
                 <Switch>
+                    <Route exact path={`${props.match.url}/Usuario-Empresa`} render={(props)=><UsuariosEmpresas/>}/>
+                    <Route exact path={`${props.match.url}/Usuario-Asesor`} render={(props)=><UsuarioAsesor/>}/>
                     <Route exact path={`${props.match.url}`} render={(props)=><UsuarioRoles/>}/>
                     <Route exact path={`${props.match.url}/roles-funciones`} render={(props)=><RolesFunciones/>}/>
                     <Route exact path={`${props.match.url}/Funciones-Pantallas`} render={(props)=><PantallasFunciones/>}/>
-                    <Route exact path={`${props.match.url}/Usuario-Empresa`} render={(props)=><UsuariosEmpresas/>}/>
-                    <Route exact path={`${props.match.url}/Usuario-Asesor`} render={(props)=><UsuarioAsesor/>}/>
                 </Switch>
             </div>
         </div>

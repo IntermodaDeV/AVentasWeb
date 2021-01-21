@@ -274,6 +274,7 @@ const SelectCliente = (props) => {
         let DisponibleTotal = 0;
         let ValorCreditoTotal = 0;
         let CXCTotal = 0;
+        let Depto = props.autocompleteValue.ComunidadAutonoma? Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma) ? Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma).NAME : '' : '';
         infoCliente = (
             <Card>
                 <CardContent>
@@ -319,7 +320,7 @@ const SelectCliente = (props) => {
                                             {'Departamento: '}
                                         </td>
                                         <td className={styles.InfoLabelDetail}>
-                                            {props.autocompleteValue.ComunidadAutonoma?Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma).NAME:''}
+                                            {Depto}
                                         </td>
                                     </tr>                                                                      
                                     <tr>

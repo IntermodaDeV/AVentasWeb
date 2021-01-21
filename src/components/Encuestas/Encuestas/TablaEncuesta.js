@@ -16,8 +16,8 @@ export const TablaEncuesta = props =>{
         [valor.Nombre,
          valor.Descripcion,
         <Button class="btn btn-warning" onClick={() => { props.openEdit(valor) }} startIcon={<FaEdit />} >Editar</Button>,
-        <Button class="btn btn-info" onClick={() => { props.cargarSecciones(valor.Id, valor.Nombre) }} startIcon={<QueuePlayNextIcon />} >Secciones</Button>,
-        <Button class="btn btn-primary" onClick={() => { props.CargarEmpresasUsuario(valor.Id) }} startIcon={<BusinessIcon />}>Empresas</Button>]);
+        <Button class="btn btn-primary" onClick={() => { props.CargarEmpresasUsuario(valor.Id) }} startIcon={<BusinessIcon />}>Empresas</Button>,
+        <Button class="btn btn-info" onClick={() => { props.cargarSecciones(valor.Id, valor.Nombre) }} startIcon={<QueuePlayNextIcon />} >Secciones</Button>]);
     }
 
     return (

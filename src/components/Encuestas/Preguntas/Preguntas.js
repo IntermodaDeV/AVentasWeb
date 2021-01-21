@@ -200,7 +200,7 @@ export const Preguntas = props => {
             GrupoOpciones : [],
             Nombre:'',
             Descripcion: '',
-            Status: false,
+            Status: true,
             Obligatorio: false,
             RespuestaObligatorio: false,
             Usuario: localStorage.getItem('codigo')

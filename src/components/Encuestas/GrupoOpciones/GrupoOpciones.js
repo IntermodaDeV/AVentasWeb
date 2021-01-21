@@ -157,7 +157,7 @@ export const GrupoOpciones = props => {
     else {
         initialValues = {
             Nombre: '',
-            Status: false,
+            Status: true,
             Usuario: localStorage.getItem('codigo')
         }
         edit = false;

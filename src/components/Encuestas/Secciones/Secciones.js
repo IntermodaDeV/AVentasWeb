@@ -220,7 +220,7 @@ export const SeccionesEncuesta = props => {
             Titulo: '',
             Descripcion:'',
             EncuestaId: Secciones[0].EncuestaId,
-            Status: false,
+            Status: true,
             Obligatorio: false,
             Usuario: localStorage.getItem('codigo')
         }
