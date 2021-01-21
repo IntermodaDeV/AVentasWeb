@@ -41,9 +41,9 @@ export const Encuesta = (props) => {
     const cargarEncuestas = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/Encuesta`);
-            let fecha =  moment().format('YYYY-MM-DDTHH:mm');
-            let EncuestasActivas = request.data.filter(e =>e.FechaFin >= fecha);
-            let EncuestasInactivas = request.data.filter(e =>e.FechaFin < fecha);
+            let fecha =  moment().format('YYYY-MM-DD');
+            let EncuestasActivas = request.data.filter(e => moment(e.FechaInicio).format("YYYY-MM-DD") <= fecha && moment(e.FechaFin).format("YYYY-MM-DD") >= fecha);
+            let EncuestasInactivas = request.data.filter(e => moment(e.FechaInicio).format("YYYY-MM-DD") > fecha || moment(e.FechaFin).format("YYYY-MM-DD") < fecha);
             setEncuestasInactivas(EncuestasInactivas);
             setEncuestas(EncuestasActivas);
         } catch (err) {
@@ -231,7 +231,7 @@ export const Encuesta = (props) => {
                 <DialogContent>
                     <Formik
                         initialValues={initialValues}
-                        enableReinitialize
+                        enableReinitialize = {false}
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
                             values.FechaInicio = moment(fechaInicio).toDate();

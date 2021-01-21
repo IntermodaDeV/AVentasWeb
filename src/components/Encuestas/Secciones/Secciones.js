@@ -45,7 +45,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(data.EncuestaId);
+                props.cargarSeccion(data.EncuestaId, props.EncuestaNombre);
             });
 
         } catch (err) {
@@ -73,7 +73,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(data.EncuestaId);
+                props.cargarSeccion(data.EncuestaId, props.EncuestaNombre);
             });
 
         } catch (err) {
@@ -100,7 +100,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(Secciones[0].EncuestaId);
+                props.cargarSeccion(Secciones[0].EncuestaId, props.EncuestaNombre);
             });
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha modificado el estado.";

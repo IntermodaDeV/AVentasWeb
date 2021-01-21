@@ -61,7 +61,7 @@ const App = props => {
         try {
           const request = await axios.get(`${APIURL}/api/configuraciones`);
           if(request.data.APP_VERSION!==APP_VERSION){
-            if(!window.location.href.includes("pedidos")){
+            if(!window.location.href.includes("Pedidos")){
               window.location.href = "/home";
             }
           }
@@ -80,11 +80,11 @@ const App = props => {
           }
         }
       }
-    }, (10*60*1000))
+    }, (2*60*1000))
 
     setInterval(() => {
       cargarConfiguraciones();
-    }, (10*60*1000))
+    }, (5*60*1000))
     return (
       <SnackbarProvider dense maxSnack={3}>
         <Router>

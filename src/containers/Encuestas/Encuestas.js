@@ -183,7 +183,8 @@ const cargarTipoIngreso = async () => {
             <div className="col-12">
               <SeccionesEncuesta
                cargarSeccion = {cargarSeccion}
-               cargarPreguntas = {cargarPreguntas}/>
+               cargarPreguntas = {cargarPreguntas}
+               EncuestaNombre = {Secciones[0].NombreEncuesta}/>
             </div>
           </div>
         </>
@@ -200,7 +201,8 @@ const cargarTipoIngreso = async () => {
                 <Preguntas
                   cargarPreguntas={cargarPreguntas}
                   grupoOpcionesDetalle = {grupoOpcionesDetalle}
-                  cargarGrupoOpcionesDetalle = {cargarGrupoOpcionesDetalle}/>
+                  cargarGrupoOpcionesDetalle = {cargarGrupoOpcionesDetalle}
+                  NombreSeccion = {Pregunta[0].NombreSeccion}/>
               </div>
             </div>
           </>
