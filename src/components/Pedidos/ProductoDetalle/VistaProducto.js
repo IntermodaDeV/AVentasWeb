@@ -128,7 +128,7 @@ const VistaProducto = (props) => {
     const deshabilitarProducto = async () => {
         try {
             const data = { Coleccion: props.coleccion.IdColeccion, Pais: props.coleccion.EmpresaId, Producto: props.producto.ProductoId };
-            const request = axios.post(`${APIURL}/api/colecciones/deshabilitarproducto`, data);
+            const request = await axios.post(`${APIURL}/api/ColeccionesXLinea/deshabilitarproducto`, data);
             setOpenDeshabilitar(false);
             Swal.fire({
                 title: 'Confirmado',
@@ -142,6 +142,7 @@ const VistaProducto = (props) => {
             });
             console.log(request.data);
         } catch (err) {
+            setOpenDeshabilitar(false);
             let mensaje = "Ha ocurrido un error y no se pudo deshabilitar el producto.";
 
             if (err.response) {
