@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons'
 import { Button, Form, FormGroup, Input, Label } from 'reactstrap';
 import { ScaleLoader } from 'react-spinners';
-import {APIURL} from 'utils/Enviroment';
+import {APIURL ,APP_VERSION} from 'utils/Enviroment';
 
 class AuthForm extends React.Component {
   urlApi = APIURL;
@@ -48,6 +48,7 @@ class AuthForm extends React.Component {
       .then(
         (result) => {
           if (result.Message === 'Ok') {
+            this.logSesion(this.state.username.toLowerCase());
             localStorage.setItem("asesor",result.Data.Nombre);
             localStorage.setItem('codigo',this.state.username.toLowerCase());
             localStorage.setItem('token', result.Data.Token);
@@ -70,6 +71,44 @@ class AuthForm extends React.Component {
       )
 
   };
+
+  logSesion = (usuario) => {
+    fetch(`http://ip-api.com/json`)
+    .then(res=>res.json())
+    .then(data=>{
+      let logSession = {
+        Usuario: usuario,
+        version_navegador: '',
+        IP_Publica: data.query,
+        Latitud: data.lat,
+        Longitud: data.lon,
+        Version_App: APP_VERSION
+      }
+      this.registrarLogSesion(logSession);
+    })
+    .catch(error=>console.log(error))
+  }
+
+  registrarLogSesion = (data) => {
+    fetch(this.urlApi + "/api/logsesion", {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+      .then(res => res.json())
+      .then(
+        (result) => {
+          if (result.Message === 'Ok') {
+            
+          } else {
+            this.setState({ error: true, loading: false, message: result.Message });
+
+          }
+        },
+      )
+  }
   usernameChange = (event) => {
     if (this.state.error) {
       this.setState({ username: event.target.value, error: false });
