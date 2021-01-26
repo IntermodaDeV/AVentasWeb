@@ -127,8 +127,7 @@ const CuotasAgrupadasACancelarTable = props => {
   let faltante = props.DescuentoAplicado === 0 ? Number(ValorPagos) - (Number(acumulado) + Number(props.DescuentoAplicado)): Number(ValorPagos) - Number(acumulado);
   
   localStorage.setItem('Faltante', faltante);
-
-  localStorage.setItem('TotalRecibo', saldoTotal);
+  localStorage.setItem('TotalRecibo', ValorPagos);
   data.push([(<h6 className="font-weight-bolder text-dark">Valor en Facturas</h6>), numberWithCommas(Number(saldoTotal))]);
   data.push([(<h6 className="font-weight-bolder text-dark">Descuento en Facturas</h6>), numberWithCommas(Number("-" + props.Descuento))]);
   data.push([(<h6 className="font-weight-bolder text-dark">Valor a pagar</h6>), numberWithCommas(Number(ValorPagos))]);
