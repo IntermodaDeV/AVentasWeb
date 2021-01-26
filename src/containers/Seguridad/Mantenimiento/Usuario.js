@@ -140,6 +140,33 @@ export const Usuario = props => {
         }
     }
 
+    const modificarAdministradorProducto = async (id)=>{
+        try{
+            await axios.post(`${APIURL}/api/usuario/desactivar/administradorproductos/${id}/${localStorage.getItem('codigo')}`);
+            Swal.fire({
+                title: 'Confirmado',
+                text: "Se ha cambiado el estado exitosamente.",
+                type: 'success',
+                confirmButtonText: 'Ok',
+            }).then(e=>{
+                cargarUsuarios();
+            });
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha modificado el usuario.";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
     const modificarTodosAsesores = async (id)=>{
         try{
             await axios.post(`${APIURL}/api/usuario/desactivar/asesores/${id}/${localStorage.getItem('codigo')}`);
@@ -259,7 +286,7 @@ export const Usuario = props => {
                 </DialogContent>
             </Dialog>
             
-            <TablaUsuario roles={usuarios} modificarEstado={modificarEstado} modificarBloqueoCredito={modificarBloqueoCredito} modificarTodosAsesores={modificarTodosAsesores} UpdateUsuarioOficina ={UpdateUsuarioOficina} setMostar= {setMostar}/>
+            <TablaUsuario roles={usuarios} modificarAdministradorProducto={modificarAdministradorProducto} modificarEstado={modificarEstado} modificarBloqueoCredito={modificarBloqueoCredito} modificarTodosAsesores={modificarTodosAsesores} UpdateUsuarioOficina ={UpdateUsuarioOficina} setMostar= {setMostar}/>
         </div>
     )
 }

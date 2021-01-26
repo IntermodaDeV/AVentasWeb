@@ -223,6 +223,7 @@ const FacturaTable = props => {
        
         let facturatmp={
           NumeroFactura: factura.Factura,
+          NumeroFEL: factura.NumeroFEL,
           Dias: dias,
           DiasDescuento: diasDescuento,
           Tipo: factura.Tipo,

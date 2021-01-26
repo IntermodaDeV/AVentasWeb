@@ -9,17 +9,26 @@ import Slider from "components/Pedidos/ProductoDetalle/Slider";
 import RelatedContainer from "components/Pedidos/ProductoDetalle/RelatedContainer";
 import Expandable from "components/Pedidos/ProductoDetalle/Expandable";
 import styles from 'components/Pedidos/ProductoDetalle/VistaProducto.module.css';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
+import axios from 'axios';
+import { APIURL } from 'utils/Enviroment';
+import { DeshabilitarModal } from 'components/Pedidos/ProductoDetalle/DeshabilitarModal';
 
 const VistaProducto = (props) => {
     const [precioProducto, setPrecio] = useState(undefined);
     const [selected, setselected] = useState(false);
     const [hasBackOrder, setHasBackOrder] = useState("N");
-    const [listaImagenes,setListaImagenes] = useState(props.producto.ListaImagenes);
+    const [listaImagenes, setListaImagenes] = useState(props.producto.ListaImagenes);
     const [SelectedImage, setSelectedImage] = useState(0);
     const [imagenes] = useState(props.producto.ListaImagenes);
     const [IsOpen, setIsOpen] = useState(false);
-    const Configuraciones = useSelector(e=>e.Configuraciones);
+    const [openDeshabilitar, setOpenDeshabilitar] = useState(false);
+    const Configuraciones = useSelector(e => e.Configuraciones);
+    const productoSeleccionado = useSelector(e => e.producto);
+    const listaProductosAgregados = useSelector(e => e.listaProductosAgregados);
+    const permisos = useSelector(e => e.Permisos[0]);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         // Update the document title using the browser API
@@ -29,12 +38,12 @@ const VistaProducto = (props) => {
         let precio = props.producto.Precio.find(precioxProd => {
             return precioxProd.GrupoPrecio === props.Cliente.GrupoPrecio;
         });
-        if(!precio && props.producto.fisicaDisponible.length>0){
-            let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis=> fsDis.PreciosEspecificos.find(ps=>ps.Precio>0 && ps.GrupoPrecio === props.Cliente.GrupoPrecio))
-            if(precioFisicoDisponible){
-              precio={Precio: precioFisicoDisponible.PreciosEspecificos.find(ps=>ps.Precio>0 && ps.GrupoPrecio === props.Cliente.GrupoPrecio).Precio};
+        if (!precio && props.producto.fisicaDisponible.length > 0) {
+            let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis => fsDis.PreciosEspecificos.find(ps => ps.Precio > 0 && ps.GrupoPrecio === props.Cliente.GrupoPrecio))
+            if (precioFisicoDisponible) {
+                precio = { Precio: precioFisicoDisponible.PreciosEspecificos.find(ps => ps.Precio > 0 && ps.GrupoPrecio === props.Cliente.GrupoPrecio).Precio };
             }
-          }
+        }
         if (precio) {
             setPrecio(precio);
         }
@@ -48,7 +57,7 @@ const VistaProducto = (props) => {
         let selected = false;
         try {
             selected = props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Selected;
-        } catch{ }
+        } catch { }
         setselected(selected);
         // eslint-disable-next-line
     }, [props.producto]);
@@ -67,7 +76,7 @@ const VistaProducto = (props) => {
         element[0].style.backgroundColor = '';
     }
     const toggleSelect = () => {
-        if (precioProducto !== undefined) {            
+        if (precioProducto !== undefined) {
             if (props.futuro === false || props.producto.fisicaDisponible.reduce((acc, curr) => { return acc + curr.Cantidad }, 0) > 0) {
                 props.toggleSelectProducto({ ...props.producto });
                 setselected(!selected);
@@ -93,10 +102,75 @@ const VistaProducto = (props) => {
         setListaImagenes(imagenesColor[0].ListaImagenes);
     }
 
+    const agregarProducto = () => {
+        let found = false;
+
+        for (let producto of listaProductosAgregados) {
+            if (producto.ProductoId === productoSeleccionado.ProductoId) {
+                if (producto.Selected) {
+                    found = true;
+                }
+                break;
+            }
+        }
+
+        if(found && !selected){
+            toggleSelect();
+        }
+
+        if (!found) {
+            let newProduct = { ...productoSeleccionado, Selected: true };
+            dispatch({ type: 'SET_PRODUCTOAGREGADO', payload: newProduct });
+            toggleSelect();
+        }
+    }
+
+    const deshabilitarProducto = async () => {
+        try {
+            const data = { Coleccion: props.coleccion.IdColeccion, Pais: props.coleccion.EmpresaId, Producto: props.producto.ProductoId };
+            const request = await axios.post(`${APIURL}/api/ColeccionesXLinea/deshabilitarproducto`, data);
+            setOpenDeshabilitar(false);
+            Swal.fire({
+                title: 'Confirmado',
+                text: "Producto deshabilitado con exito.",
+                type: 'success',
+                confirmButtonText: 'Ok'
+            }).then(() => {
+                localStorage.removeItem("ColeccionSeleccionada");
+                localStorage.removeItem("HoraIngreso");
+                props.navegar.history.push("/Pedidos/Colecciones")
+            });
+            console.log(request.data);
+        } catch (err) {
+            setOpenDeshabilitar(false);
+            let mensaje = "Ha ocurrido un error y no se pudo deshabilitar el producto.";
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok'
+            });
+        }
+    }
+
+    const displayDeshabilitarProducto = () => {
+        setOpenDeshabilitar(true);
+    }
+
+    const hideDeshabilitarProducto = () => {
+        setOpenDeshabilitar(false);
+    }
+
     let isEmptyImages = (listaImagenes.length === 0);
 
     return (
         <div className="row">
+            <DeshabilitarModal hideDeshabilitar={hideDeshabilitarProducto} open={openDeshabilitar} deshabilitar={deshabilitarProducto} coleccion={props.coleccion.CodigoColeccion} empresa={props.coleccion.EmpresaId} producto={props.producto.ProductoId} />
             <div className="col-md-5">
                 {
                     isEmptyImages ?
@@ -109,7 +183,8 @@ const VistaProducto = (props) => {
             </div>
             <div className="col-md-7 mt-md-0 mt-3">
                 <h2 className={styles.Title}>
-                    {props.producto.NombreProducto} {(props.producto.ListaImagenes.length>0) && <FaEye onClick={()=>setIsOpen(true)} size={"30px"} />}
+                    {props.producto.NombreProducto} {(props.producto.ListaImagenes.length > 0) && <FaEye onClick={() => setIsOpen(true)} size={"30px"} />}
+                    {permisos.AdministradorProductos && <button className="btn btn-danger" style={{ marginLeft: 10 }} onClick={displayDeshabilitarProducto}>Deshabilitar Producto</button>}
                 </h2>
                 <h5 className={styles.Subtitle}>
                     {'Código: '}{props.producto.ProductoId}
@@ -173,13 +248,14 @@ const VistaProducto = (props) => {
                     <div className="col-12 mt-2">
                         <div className="my-2">
                             <Button color="primary" variant="outlined" onClickCapture={toggleSelect}>{selected ? "Quitar" : "Agregar"}</Button>
-                            {props.producto.CantidadMinima>0 && <div style={{color:"red",display:"inline",marginLeft:15,fontSize:20}}><FiAlertTriangle style={{color:'red'}}/> Este producto se vende en múltiplos de {props.producto.CantidadMinima}</div>}
+                            {props.producto.CantidadMinima > 0 && <div style={{ color: "red", display: "inline", marginLeft: 15, fontSize: 20 }}><FiAlertTriangle style={{ color: 'red' }} /> Este producto se vende en múltiplos de {props.producto.CantidadMinima}</div>}
                         </div>
                     </div>
                     <div className="col-12 p-0 mt-3">
                         <div className={"w-100 mw-100 overflow-auto " + styles.ContainerTablaTallas}>
                             <form>
                                 <TablaVistaProducto
+                                    agregarProducto={agregarProducto}
                                     hasBackOrder={hasBackOrder}
                                     TableValue={props.TableValue}
                                     futuro={props.futuro}

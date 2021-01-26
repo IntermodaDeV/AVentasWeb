@@ -15,6 +15,7 @@ import {useSelector,useDispatch} from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
 import { Loading } from 'components/Global/Loading';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'moment/locale/es'
 moment.locale('es');
 
@@ -44,7 +45,22 @@ const Coleccion = (props) => {
       });
   }
   
+  const verficarPaquete = () => {
+    if (props.coleccion.Estatus !== 1) {
+      Swal.fire({
+        title: 'Sin Acceso',
+        text: '¡Este paquete no esta disponible para la venta!',
+        type: 'error',
+        confirmButtonText: 'Ok',
+      });
+    }
+    else {
+      selectColeccion();
+    }
+  }
+
   const selectColeccion = async () => {
+    dispatch({type:"RESET_PRODUCTOAGREGADO"});
     let HoraIngreso = localStorage.getItem('HoraIngreso');
     let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
 
@@ -79,7 +95,7 @@ const Coleccion = (props) => {
         onMouseEnter={() => setRaised(true)}
         onMouseLeave={() => setRaised(false)}>
         <CardActionArea
-          onClickCapture={selectColeccion}>
+          onClickCapture={verficarPaquete}>
           <CardHeader
             titleTypographyProps={{ fontWeight: 'bold' }}
             title={props.coleccion.Nombre}
@@ -108,6 +124,7 @@ const Coleccion = (props) => {
           <CardContent>
             <hr className={"mt-0 " + styles.BorderTop}></hr>
             <h4 style={{textAlign:'center'}}>{props.coleccion.CodigoColeccion}</h4>
+            <h5 className={styles.TitleColeccion} style={{textAlign:'center', color: props.coleccion.Estatus === 1 ? 'green' : 'red'}}>Status AX: { props.coleccion.Estatus === 1 ? "Disponible para la venta" : "En Proceso"}</h5>
             <div className="row">
               <div className="col px-1">
                 <div className="row mb-2 text-center">

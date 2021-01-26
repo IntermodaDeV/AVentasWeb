@@ -58,7 +58,11 @@ const initialState = {
     ClienteImpuestosGlobal:[],
     ProductoImpuestosGlobal:[],
     TipoVisita:[],
-    ListaPrecios:[]
+    ListaPrecios:[],
+    SeccionEncuesta: [],
+    PreguntasEncuesta: [],
+    TipoIngreso: [],
+    GrupoOpciones: [],
 }
 
 const calcularLimite = (state) => {
@@ -658,6 +662,62 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if (action.type === "SET_PRODUCTOAGREGADO") {
+        let productos = [];
+
+        if (state.listaProductosAgregados.length > 0) {
+            let codigosProductos = state.listaProductosAgregados.map(x => x.ProductoId);
+
+            if (!codigosProductos.includes(action.payload.ProductoId)) {
+                productos = [...state.listaProductosAgregados, action.payload];
+            } else {
+                let productosEstado = state.listaProductosAgregados;
+                let index = codigosProductos.indexOf(action.payload.ProductoId);
+                productosEstado[index] = action.payload;
+                productos = productosEstado;
+            }
+        } else {
+            productos.push(action.payload);
+        }
+
+        return {
+            ...state,
+            listaProductosAgregados: productos
+        };
+    }
+
+    if(action.type==="RESET_PRODUCTOAGREGADO"){
+        return {...state,listaProductosAgregados:[]}
+    }
+
+    
+    if(action.type === 'SET_SECCIONESENCUESTA'){
+        return {
+            ...state,
+            SeccionEncuesta:action.payload
+        }
+    }
+
+    if(action.type === 'SET_PREGUNTASENCUESTA'){
+        return {
+            ...state,
+            PreguntasEncuesta: action.payload
+        }
+    }
+
+    if(action.type === 'SET_TIPOINGRESO'){
+        return {
+            ...state,
+            TipoIngreso: action.payload
+        }
+    }
+
+    if(action.type === 'SET_GRUPOOPCIONES'){
+        return {
+            ...state,
+            GrupoOpciones: action.payload
+        }
+    }
     return state;
 };
 

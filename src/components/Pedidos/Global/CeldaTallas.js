@@ -101,12 +101,25 @@ const CeldaTallas = (props) => {
         props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);   
     }
 
-    const handleMultiplo = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio)=>{
-        if(props.cantidadMinima>0){
-            const cantidad = isNaN(parseInt(text.target.value))?0:parseInt(text.target.value);
-            if(!esMultiplo(props.cantidadMinima,cantidad)){
+    const agregarAlCarrito = () => {
+        if (props.agregarProducto) {
+            props.agregarProducto();
+        }
+    }
 
-                if(cantidad===props.disponible){
+    const handleMultiplo = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio) => {
+        const cantidad = isNaN(parseInt(text.target.value)) ? 0 : parseInt(text.target.value);
+
+        if (props.cantidadMinima === 0 && cantidad > 0) {
+            agregarAlCarrito();
+        }
+
+        if (props.cantidadMinima > 0 && cantidad > 0) {
+            if (esMultiplo(props.cantidadMinima, cantidad)) {
+                agregarAlCarrito();
+            } else {
+                if (cantidad === props.disponible) {
+                    agregarAlCarrito();
                     return;
                 }
 
@@ -160,7 +173,7 @@ const CeldaTallas = (props) => {
                             </div> */}
                             <div className="row">
                                 {/* <div class={styles.separator}></div> */}
-                                <div className="d-flex m-auto" style={{ color: Disponible === 0 ? "red" : "blue", fontWeight: "bold" }}>
+                                <div className="d-flex m-auto" style={{ color: Disponible === 0 ? "red" : "seagreen", fontWeight: "bold" }}>
                                     Stock: <ReactTextTransition
                                         text={Disponible}
                                         spring={presets.stiff}

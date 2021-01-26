@@ -432,8 +432,7 @@ export const Home = (props) => {
                 },
                 params: {
                     ListaPrecios: listaPrecios,
-                    Paises: paises,
-                    UsuarioOficina: localStorage.getItem("UsuarioOficina")
+                    Paises: paises
                 }
             })
                 .then(res => {
@@ -572,9 +571,9 @@ export const Home = (props) => {
                         <div>
                             <h3>Nueva versión disponible. Presione shift+f5 para actualizar la aplicación.</h3>
                             <h5>Opción 1</h5>
-                            <img alt="update1" src={update1} />
+                            <img alt="update1" style={{width:'100%'}} src={update1} />
                             <h5>Opción 2</h5>
-                            <img alt="update2" src={update2} />
+                            <img alt="update2" style={{width:'100%'}} src={update2} />
                         </div>
                     )}
                     {displaySincronizacion && <div>

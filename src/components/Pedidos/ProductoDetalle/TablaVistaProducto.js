@@ -7,11 +7,17 @@ import { InfoOutlined } from "@material-ui/icons";
 import Lightbox from 'react-image-lightbox';
 import 'react-image-lightbox/style.css';
 import { FaEye } from "react-icons/fa";
+import { FiTrash2 } from 'react-icons/fi';
+import { Chip } from '@material-ui/core';
+
 const TablaVistaProducto = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
     const [imagenes, setImagenes] = useState([]);
     const [IsOpen, setIsOpen] = useState(false);
     const [colorSeleccionado,setColorSeleccionado] = useState("");
+    const [colorFiltrado,setColorFiltrado] = useState([]);
+    const [showFiltro,setShowFiltro] = useState(false);
+    const [listaColoresCopia,setListaColoresCopia] = useState(props.producto.ListaColores);
 
     const onFocus = () => {
 
@@ -96,8 +102,46 @@ const TablaVistaProducto = (props) => {
         setIsOpen(true);
     }
 
+    const handleClickColorFiltrado = (color) => {
+        if (colorFiltrado.includes(color)) {
+            let colorFiltradoCopia = colorFiltrado;
+            let index = colorFiltradoCopia.indexOf(color);
+            colorFiltradoCopia.splice(index, 1);
+            setColorFiltrado(colorFiltradoCopia);
+
+            if (colorFiltradoCopia.length === 0) {
+                setListaColoresCopia(props.producto.ListaColores);
+            } else {
+                setListaColoresCopia(props.producto.ListaColores.filter(x => colorFiltradoCopia.includes(x.NombreColor)));
+            }
+
+        } else {
+            const nuevosColoresFiltrados = [...colorFiltrado, color];
+            setColorFiltrado(nuevosColoresFiltrados);
+            setListaColoresCopia(props.producto.ListaColores.filter(x => nuevosColoresFiltrados.includes(x.NombreColor)));
+        }
+    }
+
+    const handleClickShowFiltro = ()=>{
+        setShowFiltro(!showFiltro)
+    }
+
+    const handleClickDeleteFiltro = ()=>{
+        setColorFiltrado([]);
+        setListaColoresCopia(props.producto.ListaColores);
+    }
+
     return (
         <div>
+            {props.producto.ListaColores.length > 1 && <p className="btn btn-primary" onClick={handleClickShowFiltro}>{showFiltro ? "Ocultar Filtro -" : "Filtrar colores +"}</p>}
+            {colorFiltrado.length > 0 && <Chip
+                style={{ marginBottom: 10,marginLeft:10 }}
+                variant="outlined" color="secondary" size="small"
+                label={"Todos"}
+                onDelete={handleClickDeleteFiltro}
+                icon={<FiTrash2 />}
+            />}
+            {showFiltro && <ListaColores colores={props.producto.ListaColores} handleColorFiltrado={handleClickColorFiltrado} colorFiltrado={colorFiltrado} />}
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
                 <thead>
                     <tr className={styles.TrTest}>
@@ -159,7 +203,7 @@ const TablaVistaProducto = (props) => {
                     </tr>
                 </thead>
                 <tbody >
-                    {props.producto.ListaColores.map((color, index1) => {
+                    {listaColoresCopia.map((color, index1) => {
                         const hasImages = color.ListaImagenes.length > 0;                      
                         let totalXColor = 0;
                         let cantidadTotalXColor = 0;
@@ -202,7 +246,8 @@ const TablaVistaProducto = (props) => {
                                         return (
 
                                             <CeldaTallas
-                                                key={index2}
+                                                key={`${color.NombreColor}-${talla}-${props.codigoProducto}`}
+                                                agregarProducto={props.agregarProducto}
                                                 disponible={valorTalla.Disponible}
                                                 backorder={backOrder}
                                                 hasBackOrder={props.hasBackOrder}
@@ -267,6 +312,27 @@ const numberWithCommas = (x) => {
     var parts = x.toString().split(".");
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     return parts.join(".");
+}
+
+const ListaColores = props => {
+    const { colores, handleColorFiltrado, colorFiltrado } = props;
+
+    return (
+        <ul style={{ position: 'absolute', zIndex: 999 }} className="list-group">
+            {colores.map(x => (
+                <ListItem key={x.NombreColor} color={x.NombreColor} activo={(colorFiltrado.includes(x.NombreColor)) ? "active" : ""} handleColorFiltrado={handleColorFiltrado} />
+            ))}
+        </ul>
+    )
+}
+
+const ListItem = props => {
+
+    const handleClick = ()=>{
+        props.handleColorFiltrado(props.color)
+    }
+
+    return <li onClick={handleClick} className={`list-group-item ${props.activo}`}>{props.color}</li>
 }
 
 // const numberWithCommasNoDec = (x) => {

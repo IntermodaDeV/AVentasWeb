@@ -13,7 +13,7 @@ const ImpresionBandejaSalida = (props) => {
     let DireccionCliente=props.recibo.Direccion; 
     const clienteContado = "";//props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
     let valor = props.recibo.Total;
-    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
     const moneda = "";//Monedas.find(e=>e.IdMoneda === props.recibo.Moneda).Abreviacion;
     if(clienteContado!==null && clienteContado!==undefined)
     {
@@ -33,13 +33,12 @@ const ImpresionBandejaSalida = (props) => {
                     <div id="top">
                         <div className="row">
                             <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
-
                             <div className="col text-left m-auto">
                                 <h2 className={"m-0 " + styles.Title}>
-                                    {'Intermoda, S.A. de C.V.'}
+                                    {empresa.NAME}
                                 </h2>
                                 <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF} 
+                                    {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                                 </h3>
                             </div>
                         </div>
@@ -51,7 +50,7 @@ const ImpresionBandejaSalida = (props) => {
                             </div>
                             <div className="col p-0 text-center">
                                 <h2 className={"font-weight-bold " + styles.Title + styles.LineHeight_1_5}>
-                                    {'No Disponible'}
+                                    {'No. No Disponible'}
                                 </h2>
                             </div>
                         </div>

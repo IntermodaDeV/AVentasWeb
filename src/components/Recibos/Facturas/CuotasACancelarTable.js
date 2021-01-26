@@ -31,6 +31,13 @@ const columns = [
   {
     name: 'Fecha',
     label: 'Fecha',
+    options:{
+      customBodyRender: (value, tableMeta, updateValue) => {
+        return (
+            moment(value).format("DD/MM/YYYY")
+        );
+    }
+    }
   },
   {
     name: 'FechaVencimiento',

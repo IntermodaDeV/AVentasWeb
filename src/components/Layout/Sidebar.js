@@ -48,6 +48,9 @@ import {
     DriveEta,
     Home
 } from '@material-ui/icons';
+import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
+import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
+import DescriptionIcon from '@material-ui/icons/Description';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 
 //components
@@ -97,6 +100,13 @@ const navItems = [
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
     { to: '/cartera', name: 'Cartera Clientes', dataTut: 'DataTut_Agenda', Icon: AccountBox },
     //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
+    {
+        to: '/encuesta', name: 'Encuesta', dataTut: 'DataTut_EncuetasGeneral', Icon: LibraryBooksIcon,
+        expanded: [
+            { to: '/Mantenimiento/Encuesta', name: 'Mantemiento Encuesta', dataTut: 'DataTut_MantenimientoEncuestas', Icon: LocalLibraryIcon, backgroundColor:'' },
+            { to: '/Encuesta', name: 'Encuesta', dataTut: 'DataTut_Encuestas', Icon: DescriptionIcon, backgroundColor:''  },
+           ]
+    },
     {
         to: '/pedidos', name: 'Pedidos', dataTut: 'DataTut_Pedidos', Icon: FeaturedPlayListOutlined,
         expanded: [

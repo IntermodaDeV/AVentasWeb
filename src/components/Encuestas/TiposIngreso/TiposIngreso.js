@@ -158,7 +158,7 @@ export const TiposIngreso = props => {
     else {
         initialValues = {
             Nombre: '',
-            Status: false,
+            Status: true,
             RequiereGrupoOpciones: false,
             Usuario: localStorage.getItem('codigo')
         }

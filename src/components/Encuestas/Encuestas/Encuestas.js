@@ -9,32 +9,43 @@ import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
-import TablaEncuestas from 'components/Encuestas/Encuestas/TablaEncuestas';
+import {TablaEncuesta} from 'components/Encuestas/Encuestas/TablaEncuesta';
 import { APIURL } from 'utils/Enviroment';
 import { DatePicker } from "@material-ui/pickers";
 import moment from 'moment';
+import { MdPlaylistAdd } from "react-icons/md";
+import { TablaRelacion } from 'components/Seguridad/Relacional/TablaRelacion';
 
 export const Encuesta = (props) => {
     const [encuestas, setEncuestas] = useState([]);
+    const [encuestasInactivas, setEncuestasInactivas] = useState([]);
+    const [EncuestaSelected,setEncuestaSelected] = useState(null);
     const [mostrar, setMostrar] = useState(false);
+    const [mostrarEmpresas, setMostrarEmpresas] = useState(false);
     const [encuesta, setEncuesta] = useState(null);
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setfechaFin] = useState(new Date());
+    const [EmpresasAsignadas,setEmpresasAsignadas] = useState([]);
+    const [EmpresasNoAsignadas,setEmpresasNoAsignadas] = useState([]);
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
             Nombre: yup.string().required('El nombre es obligatorio'),
-            Descripcion: yup.string().required('La descripción es obligatoria'),
-            Empresa: yup.string()
+            Descripcion: yup.string().required('La descripción es obligatoria'),       
         });
 
     useEffect(() => {
         cargarEncuestas();
+        // eslint-disable-next-line
     }, [])
     const cargarEncuestas = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/Encuesta`);
-            setEncuestas(request.data);
+            let fecha =  moment().format('YYYY-MM-DD');
+            let EncuestasActivas = request.data.filter(e => moment(e.FechaInicio).format("YYYY-MM-DD") <= fecha && moment(e.FechaFin).format("YYYY-MM-DD") >= fecha);
+            let EncuestasInactivas = request.data.filter(e => moment(e.FechaInicio).format("YYYY-MM-DD") > fecha || moment(e.FechaFin).format("YYYY-MM-DD") < fecha);
+            setEncuestasInactivas(EncuestasInactivas);
+            setEncuestas(EncuestasActivas);
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se han cargado las encuestas.";
 
@@ -85,7 +96,7 @@ export const Encuesta = (props) => {
             await axios.post(`${APIURL}/api/Encuesta/modificar`, data);
             Swal.fire({
                 title: 'Confirmado',
-                text: "Se ha modificado el tipo de ingreso exitosamente.",
+                text: "Se ha modificado la encuesta exitosamente.",
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
@@ -124,6 +135,70 @@ export const Encuesta = (props) => {
         setMostrar(true);
     }
 
+    const CargarEmpresasUsuario = (EncuestaId) => {
+        cargarEmpresasPermitidas(EncuestaId);
+        cargarEmpresasNoPermitidas(EncuestaId);
+        setEncuestaSelected(EncuestaId)
+        setMostrarEmpresas(true);
+    }
+
+    const asignarEmpresa = async (EmpresaId) => {
+        try{
+            await axios.post(`${APIURL}/api/Encuesta/AsignarEmpresa/${EmpresaId}/${EncuestaSelected}/${localStorage.getItem('codigo')}`);
+            CargarEmpresasUsuario(EncuestaSelected);
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
+    const removerEmpresa = async (EmpresaId) => {
+        try{
+            await axios.post(`${APIURL}/api/Encuesta/RemoverEmpresa/${EmpresaId}/${EncuestaSelected}/${localStorage.getItem('codigo')}`);
+            CargarEmpresasUsuario(EncuestaSelected);
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
+    const cargarEmpresasPermitidas = async (EncuestaId) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Encuesta/EmpresaPermitidas/${EncuestaId}`);
+            setEmpresasAsignadas(request.data);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
+
+    const cargarEmpresasNoPermitidas = async (EncuestaId) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Encuesta/EmpresasNoPermitidas/${EncuestaId}`);
+            setEmpresasNoAsignadas(request.data);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
     let initialValues, edit;
 
     if (encuesta) {
@@ -156,7 +231,7 @@ export const Encuesta = (props) => {
                 <DialogContent>
                     <Formik
                         initialValues={initialValues}
-                        enableReinitialize
+                        enableReinitialize = {false}
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
                             values.FechaInicio = moment(fechaInicio).toDate();
@@ -190,7 +265,6 @@ export const Encuesta = (props) => {
                                     </div>
                                     <div className="form-group">
                                         <DatePicker
-                                            disableToolbar
                                             autoOk
                                             label={"Fecha Inicio"}
                                             variant="inline"
@@ -201,16 +275,13 @@ export const Encuesta = (props) => {
                                             onChange={(date) => setFechaInicio(date)}
                                         />
                                         <DatePicker
-                                            disableToolbar
                                             autoOk
                                             label={"Fecha Final"}
                                             variant="inline"
                                             format={"DD/MM/YYYY"}
                                             id="FechFin"
-                                            name="FechaFin"
                                             style={{ marginRight: '20px', fontSize: '40px' }}
                                             value={fechaFin}
-                                            selected = {fechaFin}
                                             onChange={(date) => setfechaFin(date)}
                                         /> 
                                     </div>
@@ -228,7 +299,43 @@ export const Encuesta = (props) => {
                 </DialogContent>
             </Dialog>
 
-            <TablaEncuestas Encuestas={encuestas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones = {props.cargarSeccion} />
+            <Dialog open={mostrarEmpresas} aria-labelledby="form-dialog-title">
+                <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">ACCESO DE EMPRESAS A ENCUESTA</DialogTitle>
+                <DialogContent>
+                    <div className="row">
+                        <div className="col">
+                            <TablaRelacion funcion={asignarEmpresa} accion="agregar" titulo="Empresas no permitidas" cabeceras={["Empresas", "Accion"]} valores={EmpresasNoAsignadas} />
+                        </div>
+                        <div className="col">
+                            <TablaRelacion funcion={removerEmpresa} accion="remover" titulo="Empresas permitidas" cabeceras={["Empresas", "Accion"]} valores={EmpresasAsignadas} />
+                        </div>
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => { setMostrarEmpresas(false) }} color="primary">
+                        Cancelar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+
+            <div className="col">
+                <div class="card-body text-center">
+                    <div class="text-right">
+                        <button className="btn btn-primary" onClick={() => { Mostrar() }}>Registrar Nuevo <MdPlaylistAdd /></button>
+                    </div>
+                </div>
+                <div style={{ marginTop: '20px' }} className="container-fluid">
+                    <div className="row">
+                        <div className="col">
+                            <TablaEncuesta titulo="Encuestas Activas" cabeceras={["Nombre", "Descripción", "","",""]} valores={encuestas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} CargarEmpresasUsuario = {CargarEmpresasUsuario}/>
+                        </div>
+                        <div className="col">
+                            <TablaEncuesta titulo="Encuestas Inactivas" cabeceras={["Nombre", "Descripción", "","",""]} valores={encuestasInactivas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} CargarEmpresasUsuario ={CargarEmpresasUsuario}/>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     )
 }

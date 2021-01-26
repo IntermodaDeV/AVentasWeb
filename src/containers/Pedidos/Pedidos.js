@@ -774,6 +774,7 @@ class Pedidos extends React.Component {
             this.props.onSetCliente(this.state.autocompleteValue);
             this.props.history.push("/Pedidos/Linea");
         }
+        localStorage.setItem('EmpresaCliente', this.state.autocompleteValue.EmpresaId);
     }
     seleccionarTipoPedido = (tipoPedido, acuerdoVenta) => {
         this.props.history.push("/Pedidos/Colecciones");
@@ -986,9 +987,10 @@ class Pedidos extends React.Component {
             }
         }
         let totalAcumulado = this.props.TotalPedido;
-        
         if (isSelected) {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito + 1))
+            let newProduct = {...producto,Selected:true};
+            this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
 
@@ -999,6 +1001,8 @@ class Pedidos extends React.Component {
             });
         } else {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito - 1))
+            let newProduct = {...producto,Selected:false};
+            this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
 
@@ -1983,6 +1987,7 @@ class Pedidos extends React.Component {
                                 <Container fluid={true} key={routeProps.match.params.CodigoProducto}>
                                     <VistaProducto
                                         // filtroEdad={this.state.filtroEdad}
+                                        navegar={routeProps}
                                         Click={this.getProducto}
                                         coleccion={this.props.coleccion}
                                         Linea={this.props.LineaSeleccionada}
@@ -2540,6 +2545,7 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = dispatch => {
     return {
+        onSetProductoLista:(producto) =>dispatch({type:'SET_PRODUCTOAGREGADO',payload:producto}),
         onSetBloqueo:(valor)=>dispatch({ type: 'SET_BLOQUEO', payload: valor }),
         onStoreColecciones: (colecciones) => dispatch({ type: 'STORE_COLECCIONES', colecciones: colecciones }),
         onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),
