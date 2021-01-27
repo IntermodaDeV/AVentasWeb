@@ -15,19 +15,25 @@ const CargarAsignaciones = (props)=>{
     const context = useRef();
 
     const convertirFecha = readedData => {
-        let data = readedData;
-        let ocurrioError = false;
 
-        const filtro = Object.keys(data.Sheets.Hoja1).filter((x) => (x.includes("C") && x !== "C1"));
-        filtro.forEach(x => {
-            if (typeof data.Sheets.Hoja1[x].v !== "number") {
-                ocurrioError = true;
-            } else {
-                data.Sheets.Hoja1[x].v = moment(new Date((data.Sheets.Hoja1[x].v - (25567 + 1)) * 86400 * 1000)).format("DD/MM/YYYY");
+        if (Object.keys(readedData.Sheets).length > 0) {
+            let data = readedData;
+            let ocurrioError = false;
+            let pagina = Object.keys(readedData.Sheets)[0];
+
+            const filtro = Object.keys(data.Sheets[pagina]).filter((x) => (x.includes("C") && x !== "C1"));
+            
+            for(let key of filtro){
+                if (typeof data.Sheets[pagina][key].v !== "number") {
+                    ocurrioError = true;
+                    break;
+                } else {
+                    data.Sheets[pagina][key].v = moment(new Date((data.Sheets[pagina][key].v - (25567 + 1)) * 86400 * 1000)).format("DD/MM/YYYY");
+                }
             }
-        });
 
-        return ocurrioError;
+            return ocurrioError;
+        }
     }
 
     const handleUpload = (event) => {
