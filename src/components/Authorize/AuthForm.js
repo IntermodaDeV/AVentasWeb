@@ -77,7 +77,7 @@ class AuthForm extends React.Component {
     .then(data=>{
       let logSession = {
         Usuario: usuario,
-        version_navegador: '',
+        version_navegador: window.navigator.appVersion,
         IP_Publica: data.ip,
         Latitud: data.latitude,
         Longitud: data.longitude,

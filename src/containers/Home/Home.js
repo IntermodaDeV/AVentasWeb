@@ -62,7 +62,7 @@ export const Home = (props) => {
             const request = await axios.get(`https://ipapi.co/json`);
             let logSession = {
                 Usuario: localStorage.getItem('codigo'),
-                version_navegador: '',
+                version_navegador: window.navigator.appVersion,
                 IP_Publica: request.data.ip,
                 Latitud: request.data.latitude,
                 Longitud: request.data.longitude,
@@ -78,7 +78,7 @@ export const Home = (props) => {
 
 
     const registrarLogSesion = (data) => {
-        fetch(this.urlApi + "/api/logsesion", {
+        fetch(APIURL + "/api/logsesion", {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -88,8 +88,6 @@ export const Home = (props) => {
           .then(res => res.json())
           .then(
             (result) => {
-              this.setState({ logged: true });
-              window.location.reload();
               console.log(result.Message)
             },
           )
