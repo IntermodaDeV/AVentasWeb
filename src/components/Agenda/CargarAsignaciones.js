@@ -16,11 +16,18 @@ const CargarAsignaciones = (props)=>{
 
     const convertirFecha = readedData => {
         let data = readedData;
-        Object.keys(data.Sheets.Hoja1).forEach((key)=>{
-            if(key.includes("C") && key!=="C1"){
-                data.Sheets.Hoja1[key].v = moment(new Date((data.Sheets.Hoja1[key].v - (25567 + 1)) * 86400 * 1000)).format("DD/MM/YYYY");
+        let ocurrioError = false;
+
+        const filtro = Object.keys(data.Sheets.Hoja1).filter((x) => (x.includes("C") && x !== "C1"));
+        filtro.forEach(x => {
+            if (typeof data.Sheets.Hoja1[x].v !== "number") {
+                ocurrioError = true;
+            } else {
+                data.Sheets.Hoja1[x].v = moment(new Date((data.Sheets.Hoja1[x].v - (25567 + 1)) * 86400 * 1000)).format("DD/MM/YYYY");
             }
         });
+
+        return ocurrioError;
     }
 
     const handleUpload = (event) => {
@@ -44,8 +51,12 @@ const CargarAsignaciones = (props)=>{
 
             readFile(file)
               .then((readedData) => {
-                  convertirFecha(readedData);
-                  setInitialData(readedData)
+                  let ocurrioError = convertirFecha(readedData);
+                  if(ocurrioError){
+                    alert("Formato de fecha no soportado.");
+                  }else{
+                    setInitialData(readedData);
+                  }
                 })
               .catch((error) => console.error(error));
         }
