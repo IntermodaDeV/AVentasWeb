@@ -9,7 +9,7 @@ export const PedidoMarker = props => {
         <Marker onClick={() => { setOpen(true) }} clickable position={{ lat: datos.lat, lng: datos.lng }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_green.png" }} >
             {open && <InfoWindow onCloseClick={() => { setOpen(false) }}>
                 <div>
-                    <h4 style={{ textAlign: 'center' }}>Pedido</h4>
+                    <h4 style={{ textAlign: 'center',color:'green' }}>Pedido</h4>
                     <p>Codigo Cliente: {datos.cliente}</p>
                     <p>Nombre Cliente: {datos.nombreCliente}</p>
                     <p>Correlativo: {datos.pedidoId}</p>

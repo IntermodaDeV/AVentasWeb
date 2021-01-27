@@ -3,6 +3,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { EliminarModal } from './EliminarModal';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 export const EliminarImagenModal = props => {
     const { open, hideEliminar, listaImagenes, listaColores, codigoProducto, navegar } = props;
@@ -68,7 +69,7 @@ export const EliminarImagenModal = props => {
                     <div style={{ display: 'inline-block' }}>
                         {imagenesProducto.length > 0 && <><h2>Imagenes en producto</h2>
                             <ListaImagenes codigoImagen={codigoImagen} listaImagenes={imagenesProducto} seleccionarImagen={seleccionarImagen} eliminarImagen={eliminarImagen} /></>}
-                        {imagenesColor.length > 0 && <><h2>Imagenes en colores</h2>
+                        {imagenesColor.length > 0 && <><h2 style={{marginTop:20}}>Imagenes en colores</h2>
                             <ListaImagenes codigoImagen={codigoImagen} listaImagenes={imagenesColor} seleccionarImagen={seleccionarImagen} eliminarImagen={eliminarImagen} /></>}
                     </div>
                     <div style={{ width: '600px', height: '800px', float: 'right', position: 'sticky', top: 5 }}>
@@ -88,9 +89,10 @@ const ListaImagenes = props => {
         {listaImagenes.map(x => (<li style={{ cursor: 'pointer' }} onClick={() => { seleccionarImagen(x.Fotografia, x.IdFotografia) }} className={`list-group-item d-flex justify-content-between align-items-center ${(codigoImagen === x.IdFotografia ? 'active' : '')}`} key={x.IdFotografia}>
             <div>
                 <p>Imagen: {x.Nombre}</p>
+                <p>Codigo Imagen: {x.IdFotografia}</p>
                 <p>Codigo Color: {x.CodigoColor}</p>
             </div>
-            <button onClick={() => { eliminarImagen(x.IdFotografia) }} className="btn btn-danger">Eliminar</button>
+            <button onClick={() => { eliminarImagen(x.IdFotografia) }} className="btn btn-danger"><DeleteIcon /></button>
         </li>))}
     </ul>
 }

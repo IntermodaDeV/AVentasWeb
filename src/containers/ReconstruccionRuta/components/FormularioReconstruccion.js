@@ -9,6 +9,7 @@ import Grid from '@material-ui/core/Grid';
 import MomentUtils from '@date-io/moment';
 import { Dropdown } from "semantic-ui-react";
 import { useSelector } from 'react-redux';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 const FormularioReconstruccion = props => {
     const { asesoresFiltrados, filtroAsesoresPorPais, cargarRecorrido } = props;
@@ -48,6 +49,7 @@ const FormularioReconstruccion = props => {
 
     return (
         <Grid container justify="space-around">
+            <button class="btn btn-primary" style={{ width: '8%', height: '30px', marginTop: 15 }} onClick={props.handleMostrarDescripcion}>Convenciones <ArrowDropDownIcon /></button>
             <MuiPickersUtilsProvider libInstance={moment} utils={MomentUtils}>
                 <KeyboardDatePicker
                     disableToolbar

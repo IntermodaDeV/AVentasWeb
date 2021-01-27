@@ -7,7 +7,7 @@ import { APIURL } from 'utils/Enviroment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 export const EliminarModal = props => {
-    const { open, hideEliminar, codigoImagen, codigoProducto } = props;
+    const { open, hideEliminar, codigoImagen } = props;
 
     const [codigo, setCodigo] = useState("");
 
@@ -48,7 +48,7 @@ export const EliminarModal = props => {
     }
 
     const handleEliminar = () => {
-        if (codigo === codigoProducto) {
+        if (codigo === codigoImagen.toString()) {
             eliminarImagen();
         } else {
             alert("Codigo de producto no coincide");
@@ -72,7 +72,7 @@ export const EliminarModal = props => {
                     <div className="row">
                         <div className="col-12 text-center">
                             <p>¿Esta seguro en eliminar la imagen?</p>
-                            <p>Escriba el codigo del producto para confirmar.</p>
+                            <p>Escriba el codigo de la imagen para confirmar.</p>
                             <input type="text" className="form-control" onChange={(e) => { handleChangeCodigo(e.target.value) }} />
                             <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-evenly' }}>
                                 <button className="btn btn-success" onClick={handleEliminar}>Aceptar</button>

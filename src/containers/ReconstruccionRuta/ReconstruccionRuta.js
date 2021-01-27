@@ -1,16 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { APIKEY, APIURL } from 'utils/Enviroment';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import { IsAllow } from 'components/Seguridad/Permisos';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 //components
 import MapaReconstruccion from './components/MapaReconstruccion';
 import FormularioReconstruccion from './components/FormularioReconstruccion';
+import inicio from 'assets/georecorrido/Inicia_dia.png';
+import final from 'assets/georecorrido/Finaliza_dia.png';
 
 export const ReconstruccionRuta = props => {
     const [asesores, setAsesores] = useState([]);
     const [asesoresFiltrados, setAsesoresFiltrados] = useState([]);
     const [recorrido, setRecorrido] = useState({});
+    const [mostrarDescripcion, setMostrarDescripcion] = useState(false);
 
     const cargarAsesores = async () => {
         try {
@@ -50,29 +53,59 @@ export const ReconstruccionRuta = props => {
     }
 
     useEffect(() => {
-        if(!IsAllow("/recorrido-monitoreo"))
-        {
-          props.history.push('/home');
+        if (!IsAllow("/recorrido-monitoreo")) {
+            props.history.push('/home');
         }
         cargarAsesores();
 
         //eslint-disable-next-line
     }, [])
 
+    const handleMostrarDescripcion = () => {
+        setMostrarDescripcion(!mostrarDescripcion);
+    }
+
     return (
         <div>
-            <FormularioReconstruccion asesoresFiltrados={asesoresFiltrados} filtroAsesoresPorPais={filtroAsesoresPorPais} cargarRecorrido={cargarRecorrido} />
-            {validarCoordenadas()?
+            <FormularioReconstruccion handleMostrarDescripcion={handleMostrarDescripcion} asesoresFiltrados={asesoresFiltrados} filtroAsesoresPorPais={filtroAsesoresPorPais} cargarRecorrido={cargarRecorrido} />
+            {mostrarDescripcion && <Simbologia />}
+            {validarCoordenadas() ?
                 <MapaReconstruccion
-                recorrido={recorrido}
-                loadingElement={<div style={{ height: `100%` }} />}
-                containerElement={<div style={{ height: `100vh` }} />}
-                mapElement={<div style={{ height: `100%` }} />}
-                googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${APIKEY}&v=weekly.exp&libraries=geometry,drawing,places`}
-            />
-            :
-                <h1 style={{textAlign:'center'}}>No hay coordenadas disponibles.</h1>
+                    recorrido={recorrido}
+                    loadingElement={<div style={{ height: `100%` }} />}
+                    containerElement={<div style={{ height: `100vh` }} />}
+                    mapElement={<div style={{ height: `100%` }} />}
+                    googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${APIKEY}&v=weekly.exp&libraries=geometry,drawing,places`}
+                />
+                :
+                <h1 style={{ textAlign: 'center' }}>No hay coordenadas disponibles.</h1>
             }
         </div>
     )
+}
+
+const Simbologia = () => {
+    return <div style={{ position: 'absolute', zIndex: 999, width: 300, height: 300 }} className="card">
+        <h3 style={{ textAlign: 'center', marginBottom: 10 }}>Simbologia</h3>
+        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+            <img style={{ width: 20, height: 30 }} src="https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" alt="recibomarker" />
+            <h5>Recibo</h5>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
+            <img style={{ width: 20, height: 30 }} src="https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_green.png" alt="recibomarker" />
+            <h5>Pedido</h5>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
+            <img src={inicio} alt="recibomarker" />
+            <h5>Inicio Ruta</h5>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
+            <img src={final} alt="recibomarker" />
+            <h5>Final Ruta</h5>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
+            <div style={{ borderBottom: '2px solid red', width: 100 }}></div>
+            <h5>Recorrido</h5>
+        </div>
+    </div>
 }
