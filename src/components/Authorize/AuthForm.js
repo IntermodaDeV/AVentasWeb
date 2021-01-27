@@ -48,13 +48,12 @@ class AuthForm extends React.Component {
       .then(
         (result) => {
           if (result.Message === 'Ok') {
-            this.logSesion(this.state.username.toLowerCase());
             localStorage.setItem("asesor",result.Data.Nombre);
             localStorage.setItem('codigo',this.state.username.toLowerCase());
             localStorage.setItem('token', result.Data.Token);
             localStorage.setItem('empresa', result.Data.Empresa.toUpperCase());
-            this.setState({ logged: true });
-            window.location.reload();
+            localStorage.setItem("SesionObligatorio",1);
+            this.logSesion(this.state.username.toLowerCase());
           } else {
             this.setState({ error: true, loading: false,message:result.Message });
 
@@ -73,15 +72,15 @@ class AuthForm extends React.Component {
   };
 
   logSesion = (usuario) => {
-    fetch(`http://ip-api.com/json`)
+    fetch('https://ipapi.co/json')
     .then(res=>res.json())
     .then(data=>{
       let logSession = {
         Usuario: usuario,
         version_navegador: '',
-        IP_Publica: data.query,
-        Latitud: data.lat,
-        Longitud: data.lon,
+        IP_Publica: data.ip,
+        Latitud: data.latitude,
+        Longitud: data.longitude,
         Version_App: APP_VERSION
       }
       this.registrarLogSesion(logSession);
@@ -100,12 +99,9 @@ class AuthForm extends React.Component {
       .then(res => res.json())
       .then(
         (result) => {
-          if (result.Message === 'Ok') {
-            
-          } else {
-            this.setState({ error: true, loading: false, message: result.Message });
-
-          }
+          this.setState({ logged: true });
+          window.location.reload();
+          console.log(result.Message)
         },
       )
   }

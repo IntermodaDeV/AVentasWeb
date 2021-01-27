@@ -57,6 +57,43 @@ export const Home = (props) => {
         // eslint-disable-next-line
     }, [])
 
+    const logSession = async () => {
+        try {
+            const request = await axios.get(`https://ipapi.co/json`);
+            let logSession = {
+                Usuario: localStorage.getItem('codigo'),
+                version_navegador: '',
+                IP_Publica: request.data.ip,
+                Latitud: request.data.latitude,
+                Longitud: request.data.longitude,
+                Version_App: APP_VERSION
+              }
+
+            registrarLogSesion(logSession);
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
+    }
+
+
+    const registrarLogSesion = (data) => {
+        fetch(this.urlApi + "/api/logsesion", {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify(data)
+        })
+          .then(res => res.json())
+          .then(
+            (result) => {
+              this.setState({ logged: true });
+              window.location.reload();
+              console.log(result.Message)
+            },
+          )
+      }
     const sincronizarDocumentosPendientes = async () => {
         setMensaje('Sincronizando Pedidos y Recibos');
         let tienePedidosPendientes = await backgroundPostPedidos();
@@ -524,6 +561,7 @@ export const Home = (props) => {
             })
         })
         setTimeout(() => {
+            logSession();
             dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
             let fecha = moment(new Date()).format("YYYY-MM-DD");
             localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));

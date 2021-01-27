@@ -59,6 +59,11 @@ const App = props => {
     const cargarConfiguraciones = async () => {
       if (verificarConexion()) {
         try {
+          if(localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined){
+            localStorage.setItem("SesionObligatorio",1);
+            localStorage.removeItem("token")
+            window.location.reload();
+          }
           const request = await axios.get(`${APIURL}/api/configuraciones`);
           if(request.data.APP_VERSION!==APP_VERSION){
             if(!window.location.href.includes("Pedidos")){
