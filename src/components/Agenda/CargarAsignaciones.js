@@ -6,12 +6,22 @@ import Button from '@material-ui/core/Button';
 import { ReactExcel, readFile, generateObjects } from '@ramonak/react-excel';
 import {APIURL} from 'utils/Enviroment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import moment from "moment";
 
 const CargarAsignaciones = (props)=>{
     const {showDialog,setDialog} = props;
     const [initialData, setInitialData] = useState(undefined);
     const [currentSheet, setCurrentSheet] = useState({});
     const context = useRef();
+
+    const convertirFecha = readedData => {
+        let data = readedData;
+        Object.keys(data.Sheets.Hoja1).forEach((key)=>{
+            if(key.includes("C") && key!=="C1"){
+                data.Sheets.Hoja1[key].v = moment(new Date((data.Sheets.Hoja1[key].v - (25567 + 1)) * 86400 * 1000)).format("DD/MM/YYYY");
+            }
+        });
+    }
 
     const handleUpload = (event) => {
         let file = event.target.files[0];
@@ -33,7 +43,10 @@ const CargarAsignaciones = (props)=>{
             }
 
             readFile(file)
-              .then((readedData) => setInitialData(readedData))
+              .then((readedData) => {
+                  convertirFecha(readedData);
+                  setInitialData(readedData)
+                })
               .catch((error) => console.error(error));
         }
       };
