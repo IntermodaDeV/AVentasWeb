@@ -139,6 +139,14 @@ const SelectCliente = (props) => {
         EsVisible = true;
     }
 
+    const mensajeError = () => {
+        if (props.clienteSelected !== null) {
+            if (props.clienteSelected.FacturacionEntrega === "Todo") return "El cliente actualmente se encuentra bloqueado.";
+            if (props.clienteSelected.FacturacionEntrega === "Factura" && props.clienteSelected.CreditoDisponible < 0) return "El cliente actualmente se encuentra deshabilitado por mora.";
+            if (props.clienteSelected.FacturacionEntrega === "Factura" && props.clienteSelected.CreditoDisponible > 1) return "El cliente actualmente se encuentra deshabilitado por mora.";
+        }
+    }
+
     
     return (
         <Card className="my-2" style={{ overflow: 'unset' }}>
@@ -194,7 +202,7 @@ const SelectCliente = (props) => {
                     <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={alerta} TransitionComponent={TransitionGrow}>
                         <MySnackbarContentWrapper
                             variant="error"
-                            message="El cliente actualmente se encuentra con bloqueo ó  en mora."
+                            message={mensajeError()}
                         />
                     </Snackbar>
 

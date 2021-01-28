@@ -10,11 +10,11 @@ export const PedidoMarker = props => {
             {open && <InfoWindow onCloseClick={() => { setOpen(false) }}>
                 <div>
                     <h4 style={{ textAlign: 'center',color:'green' }}>Pedido</h4>
-                    <p>Codigo Cliente: {datos.cliente}</p>
-                    <p>Nombre Cliente: {datos.nombreCliente}</p>
-                    <p>Correlativo: {datos.pedidoId}</p>
-                    <p>Pedido AX: {datos.numeroPedido}</p>
-                    <p>Total Pedido: {datos.totalPedido}</p>
+                    <p style={{color:'green'}}>Codigo Cliente: {datos.cliente}</p>
+                    <p style={{color:'green'}}>Nombre Cliente: {datos.nombreCliente}</p>
+                    <p style={{color:'green'}}>Correlativo: {datos.pedidoId}</p>
+                    <p style={{color:'green'}}>Pedido AX: {datos.numeroPedido}</p>
+                    <p style={{color:'green'}}>Total Pedido: {datos.totalPedido}</p>
                 </div>
             </InfoWindow>}
         </Marker>
