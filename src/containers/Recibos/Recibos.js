@@ -365,7 +365,7 @@ const Recibos = (props) => {
     if (props.clienteSelected.FacturacionEntrega === "Todo") {
       Swal.fire({
         title: 'Bloqueado',
-        text: 'El cliente actualmente se encuentra bloqueado. Por favor contactar al departamento de credito.',
+        text: 'Actualmente no se tiene relación comercial con el cliente. Su cuenta ha sido bloqueada para todo tipo de transacción.',
         type: 'error',
         confirmButtonText: 'OK',
     });

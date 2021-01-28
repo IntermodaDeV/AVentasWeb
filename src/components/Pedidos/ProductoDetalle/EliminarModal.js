@@ -51,7 +51,7 @@ export const EliminarModal = props => {
         if (codigo === codigoImagen.toString()) {
             eliminarImagen();
         } else {
-            alert("Codigo de producto no coincide");
+            alert("Codigo de imagen no coincide");
         }
     }
 

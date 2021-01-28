@@ -204,14 +204,44 @@ const SelectCliente = (props) => {
         if (props.autocompleteValue.FacturacionEntrega === "Todo") {
             Swal.fire({
                 title: 'Bloqueado',
-                text: 'El cliente actualmente se encuentra bloqueado. Por favor contactar al departamento de credito.',
+                text: 'Actualmente no se tiene relación comercial con el cliente. Su cuenta ha sido bloqueada para todo tipo de transacción.',
                 type: 'error',
                 confirmButtonText: 'OK',
             });
-        } else if (props.autocompleteValue.Credito[0].Disponible <= 1) {
+        } else if (props.autocompleteValue.FacturacionEntrega === "No" && props.autocompleteValue.Credito[0].Disponible === 1) {
             Swal.fire({
                 title: 'Aviso',
-                text: 'El cliente no tiene credito disponible, el pedido no sera autorizado automaticamente.',
+                text: 'El cliente no tiene credito disponible, el pedido no sera autorizado automaticamente. Comunicarse con el departamento de créditos.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.value) {
+                    props.setCliente();
+                }
+            })
+        } else if (props.autocompleteValue.Credito[0].Disponible <0  && props.autocompleteValue.FacturacionEntrega === "Factura") {
+            Swal.fire({
+                title: 'Aviso',
+                text: 'El cliente actualmente se encuentra deshabilitado y sin credito disponible, su cuenta esta en mora. El pedido no sera autorizado automticamente.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.value) {
+                    props.setCliente();
+                }
+            })
+        } else if (props.autocompleteValue.Credito[0].Disponible > 1  && props.autocompleteValue.FacturacionEntrega === "Factura") {
+            Swal.fire({
+                title: 'Aviso',
+                text: 'El cliente actualmente se encuentra deshabilitado, su cuenta esta en mora. El pedido no sera autorizado automáticamente.',
                 type: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
@@ -252,19 +282,50 @@ const SelectCliente = (props) => {
         options.push(cliente);
     })
 
-    if (!(props.autocompleteValue != null && (props.autocompleteValue.FacturacionEntrega === "No" || props.autocompleteValue.FacturacionEntrega === "Nunca"))) {
+    if(props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Todo"){
         FacturacionEntrega = (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con bloqueo ó en mora.
+                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra bloqueado.
             </div>
         )
-
 
         if (props.autocompleteValue !== null && props.autocompleteValue !== false) {
             alerta = true;
         }
+    }
 
-    };
+    if(props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Factura" && props.autocompleteValue.Credito[0].Disponible < 0){
+        FacturacionEntrega = (
+            <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra deshabilitado por mora.
+            </div>
+        )
+
+        if (props.autocompleteValue !== null && props.autocompleteValue !== false) {
+            alerta = true;
+        }
+    }
+
+    if(props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Factura" && props.autocompleteValue.Credito[0].Disponible > 1){
+        FacturacionEntrega = (
+            <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra deshabilitado por mora.
+            </div>
+        )
+
+        if (props.autocompleteValue !== null && props.autocompleteValue !== false) {
+            alerta = true;
+        }
+    }
+
+    const mensajeError = () => {
+        if (props.autocompleteValue !== null) {
+            if (props.autocompleteValue.FacturacionEntrega === "Todo") return "El cliente actualmente se encuentra bloqueado.";
+            if (props.autocompleteValue.FacturacionEntrega === "Factura" && props.autocompleteValue.Credito[0].Disponible < 0) return "El cliente actualmente se encuentra deshabilitado por mora.";
+            if (props.autocompleteValue.FacturacionEntrega === "Factura" && props.autocompleteValue.Credito[0].Disponible > 1) return "El cliente actualmente se encuentra deshabilitado por mora.";
+        }
+    }
+
 
     if (props.autocompleteValue != null && props.autocompleteValue.EmpresaId.toUpperCase() !== empresa.toUpperCase() && props.autocompleteValue !== false) {
         EsVisible = true;
@@ -490,9 +551,9 @@ const SelectCliente = (props) => {
             <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={alerta} TransitionComponent={TransitionGrow}>
                 <MySnackbarContentWrapper
                     variant="error"
-                    message="El cliente actualmente se encuentra con bloqueo ó  en mora."
+                    message={mensajeError()}
                 />
-            </Snackbar>
+                </Snackbar>
 
             <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} style={{ zIndex: 10 }} open={EsVisible} TransitionComponent={TransitionGrow}>
                         <MySnackbarContentWrapper
