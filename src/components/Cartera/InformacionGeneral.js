@@ -18,16 +18,20 @@ export const InformacionGeneral = props => {
         return <h3>Seleccione un cliente</h3>
     }
 
-    if ((props.cliente.FacturacionEntrega === "No" || props.cliente.FacturacionEntrega === "Nunca")) {
-        FacturacionEntrega = null;
-    }else{
-        FacturacionEntrega = (
-            <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con bloqueo ó en mora.
-            </div>
-        )
+    const mensajeError = () => {
+        if (props.cliente !== null) {
+            if (props.cliente.FacturacionEntrega === "Factura") return "El cliente actualmente se encuentra deshabilitado por mora.";
+            if (props.cliente.FacturacionEntrega === "Todo") return "El cliente actualmente se encuentra bloqueado.";
+        }
     }
 
+    if ((props.cliente.FacturacionEntrega !== "No" && props.cliente.FacturacionEntrega !== "Nunca")) {
+        FacturacionEntrega = (
+            <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} /> {mensajeError()}
+            </div>
+        )           
+    }
     return (
         <Card>
             <CardContent>

@@ -15,7 +15,7 @@ import CachedIcon from '@material-ui/icons/Cached';
 import { DatePicker } from "@material-ui/pickers";
 
 export const SincronizacionColeccionEspecifica = props => {
-    const [empresa, setEmpresa] = useState("");
+    const [empresa, setEmpresa] = useState("IMHN");
     const [coleccion, setColeccion] = useState('');
     const [listaEspecifica, setListaEspecifica] = useState([]);
     const [checked, setChecked] = useState(false);
@@ -36,7 +36,7 @@ export const SincronizacionColeccionEspecifica = props => {
     const limpiar = ()=>{
         setChecked(false);
         setForzar(false);
-        setEmpresa("");
+        setEmpresa("IMHN");
     }
 
     const enviarSincronizacionEspecifica = async () => {

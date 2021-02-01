@@ -142,8 +142,7 @@ const SelectCliente = (props) => {
     const mensajeError = () => {
         if (props.clienteSelected !== null) {
             if (props.clienteSelected.FacturacionEntrega === "Todo") return "El cliente actualmente se encuentra bloqueado.";
-            if (props.clienteSelected.FacturacionEntrega === "Factura" && props.clienteSelected.CreditoDisponible < 0) return "El cliente actualmente se encuentra deshabilitado por mora.";
-            if (props.clienteSelected.FacturacionEntrega === "Factura" && props.clienteSelected.CreditoDisponible > 1) return "El cliente actualmente se encuentra deshabilitado por mora.";
+            if (props.clienteSelected.FacturacionEntrega === "Factura") return "El cliente actualmente se encuentra deshabilitado por mora.";
         }
     }
 

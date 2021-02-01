@@ -223,7 +223,7 @@ const SelectCliente = (props) => {
                     props.setCliente();
                 }
             })
-        } else if (props.autocompleteValue.Credito[0].Disponible <0  && props.autocompleteValue.FacturacionEntrega === "Factura") {
+        } else if (props.autocompleteValue.Credito[0].Disponible <= 1  && props.autocompleteValue.FacturacionEntrega === "Factura") {
             Swal.fire({
                 title: 'Aviso',
                 text: 'El cliente actualmente se encuentra deshabilitado y sin credito disponible, su cuenta esta en mora. El pedido no sera autorizado automticamente.',
@@ -294,19 +294,7 @@ const SelectCliente = (props) => {
         }
     }
 
-    if(props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Factura" && props.autocompleteValue.Credito[0].Disponible < 0){
-        FacturacionEntrega = (
-            <div className="alert alert-danger alert-dismissible fade show" role="alert">
-                <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra deshabilitado por mora.
-            </div>
-        )
-
-        if (props.autocompleteValue !== null && props.autocompleteValue !== false) {
-            alerta = true;
-        }
-    }
-
-    if(props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Factura" && props.autocompleteValue.Credito[0].Disponible > 1){
+    if(props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Factura"){
         FacturacionEntrega = (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
                 <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra deshabilitado por mora.
@@ -321,8 +309,7 @@ const SelectCliente = (props) => {
     const mensajeError = () => {
         if (props.autocompleteValue !== null) {
             if (props.autocompleteValue.FacturacionEntrega === "Todo") return "El cliente actualmente se encuentra bloqueado.";
-            if (props.autocompleteValue.FacturacionEntrega === "Factura" && props.autocompleteValue.Credito[0].Disponible < 0) return "El cliente actualmente se encuentra deshabilitado por mora.";
-            if (props.autocompleteValue.FacturacionEntrega === "Factura" && props.autocompleteValue.Credito[0].Disponible > 1) return "El cliente actualmente se encuentra deshabilitado por mora.";
+            if (props.autocompleteValue.FacturacionEntrega === "Factura") return "El cliente actualmente se encuentra deshabilitado por mora.";
         }
     }
 
