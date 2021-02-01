@@ -342,8 +342,12 @@ const Recibos = (props) => {
         try {
           let request = await axios.get(`${urlApi}/api/cliente/cuenta/${props.clienteSelected.Codigo}`, { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } });
           let clientesStorage = props.clientes;
+          let clientesStorageCartera = props.cartera;
+          let indexCartera = clientesStorageCartera.map(e => e.Codigo).indexOf(props.clienteSelected.Codigo);
           let index = clientesStorage.map(e => e.Codigo).indexOf(props.clienteSelected.Codigo);
           clientesStorage[index] = request.data;
+          clientesStorageCartera[indexCartera].AcuerdosXTipoPedido = request.data.AcuerdosXTipoPedido;
+          props.onStoreClientesCartera(clientesStorageCartera);
           props.onStoreReciboClientes(clientesStorage);
         } catch (err) {
           console.log(err);
@@ -677,7 +681,7 @@ const Recibos = (props) => {
 const mapStateToProps = state => {
 
   return {
-
+    cartera:state.Cartera,
     clientes: state.Recibo.clientes,
     clienteSelected: state.Recibo.clienteSelected,
     cuotasXCliente: state.Recibo.cuotasXCliente,
@@ -701,7 +705,7 @@ const mapDispatchToProps = dispatch => {
     onStoreCuotasImprimir: (cuotasCuentaCorriente) => dispatch({ type: 'SET_CUENTAIMPRIMIR', payload: cuotasCuentaCorriente }),
     onSaveMonedas:(monedas)=> dispatch({type:'SET_MONEDAS',payload:monedas}),
     onStoreReciboLoading: (loading) => dispatch({ type: 'STORE_RECIBO_LOADING', loading: loading }),
-
+    onStoreClientesCartera:(clientes)=>dispatch({type:'SET_CARTERA',payload:clientes}),
     onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),
     onStoreTipoPedido: (TipoPedido) => dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: TipoPedido }),
     onSetProducto: (producto) => dispatch({ type: 'SET_PRODUCTO', producto: producto }),

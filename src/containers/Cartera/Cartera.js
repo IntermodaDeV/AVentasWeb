@@ -33,16 +33,16 @@ export const Cartera = props => {
     const [cliente, setCliente] = useState(undefined);
     const [loading, setLoading] = useState(true);
     const [filtrados, setFiltrados] = useState([]);
-    const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
-    const [asesor,setAsesor] = useState(AsesoresUsuario[0]);
-    const [showClientes,setShowClientes] = useState(true);
+    const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
+    const [asesor, setAsesor] = useState(AsesoresUsuario[0]);
+    const [showClientes, setShowClientes] = useState(true);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
     const cargarCartera = async (codigo) => {
-        if(AsesoresUsuario.length === 1){
+        if (AsesoresUsuario.length === 1) {
             const { data, error } = await get(`${APIURL}/api/cliente/${asesor.Usuario}`, "Cartera");
             if (error) {
                 console.log(error);
@@ -54,25 +54,25 @@ export const Cartera = props => {
             }
         }
 
-        if(AsesoresUsuario.length > 1){
-            try{
+        if (AsesoresUsuario.length > 1) {
+            try {
                 let seleccionado = asesor.Usuario;
-                if(codigo){
+                if (codigo) {
                     seleccionado = codigo
                 }
                 setCliente(undefined);
                 setLoading(true);
-                const request = await axios.get(`${APIURL}/api/cliente/${seleccionado}`,{headers:{Authorization:`Bearer ${localStorage.getItem('token')}`}});
+                const request = await axios.get(`${APIURL}/api/cliente/${seleccionado}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
                 dispatch({ type: "SET_CARTERA", payload: request.data });
                 setFiltrados(request.data);
                 setLoading(false);
-            }catch(err){
+            } catch (err) {
                 console.log(err);
             }
         }
     }
 
-    const recargarClientes = async () =>{
+    const recargarClientes = async () => {
         if (localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
                 title: "Modo Offline",
@@ -115,17 +115,54 @@ export const Cartera = props => {
         })
     }
 
+    const moverClientesConFlecha = (e) => {
+        e.preventDefault();
+        if (e.which === 38) {
+            if (localStorage.getItem("indice") !== "null" && localStorage.getItem("indice") !== "0") {
+                let index = Number(localStorage.getItem("indice"));
+                setCliente(clientes[index - 1]);
+                localStorage.setItem("indice", (index - 1));
+                return;
+            }
+        } else if (e.which === 40) {
+            if (localStorage.getItem("indice") === "null") {
+                setCliente(clientes[0]);
+                localStorage.setItem("indice", 0);
+                return;
+            } else {
+                let index = Number(localStorage.getItem("indice"));
+                if ((index + 1) === clientes.length) {
+                    return;
+                }
+                if ((index + 1) <= clientes.length) {
+                    setCliente(clientes[index + 1]);
+                    localStorage.setItem("indice", (index + 1));
+                    return;
+                }
+            }
+        }
+    }
+
     useEffect(() => {
         if (!IsAllow("/cartera")) {
             props.history.push('/home');
         }
         cargarCartera();
         dispatch({ type: 'SET_CUENTAIMPRIMIR', payload: [] });
+        localStorage.setItem("indice", null);
+
+        window.addEventListener('keydown', moverClientesConFlecha);
+        return () => {
+            window.removeEventListener('keydown', moverClientesConFlecha)
+            localStorage.removeItem("indice");
+        }
         // eslint-disable-next-line
     }, []);
 
     const seleccionarCliente = id => {
+        let index = clientes.map(x => x.Codigo).indexOf(id);
         const clienteSeleccionado = clientes.find(x => x.Codigo === id);
+        localStorage.setItem("indice", index);
         setCliente(clienteSeleccionado);
     }
 
@@ -147,48 +184,48 @@ export const Cartera = props => {
         setFiltrados(filtradosNuevos);
     }
 
-    const handleClickShowClientes = ()=>{
+    const handleClickShowClientes = () => {
         setShowClientes(!showClientes);
     }
 
     return (<>
-        {!loading && <button className="btn btn-success" style={{width:'10%',marginLeft:'15px'}} onClick={handleClickShowClientes} >{showClientes?<>Ocultar Clientes <ArrowBackIosIcon/></>:<>Mostrar Clientes <ArrowForwardIosIcon/></>}</button>}
+        {!loading && <button className="btn btn-success" style={{ width: '10%', marginLeft: '15px' }} onClick={handleClickShowClientes} >{showClientes ? <>Ocultar Clientes <ArrowBackIosIcon /></> : <>Mostrar Clientes <ArrowForwardIosIcon /></>}</button>}
         <div style={{ height: '100vh' }} className="row">
             {loading
                 ? <Loading open={loading} title="Cargando cartera de clientes" />
                 : (<>{showClientes && <div className="col-md-3 h-100">
-                    <div style={{display:'flex',justifyContent:'space-between'}}>
-                    <TextField
-                        onChange={(e) => { handleChangeBusqueda(e.target.value) }}
-                        style={{ width: '90%', marginBottom: '15px' }}
-                        label="Buscar"
-                        InputProps={{
-                            endAdornment: (
-                                <InputAdornment>
-                                    <IconButton>
-                                        <SearchIcon />
-                                    </IconButton>
-                                </InputAdornment>
-                            )
-                        }}
-                    />
-                    <Button style={{height:45}} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon/></Button>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <TextField
+                            onChange={(e) => { handleChangeBusqueda(e.target.value) }}
+                            style={{ width: '90%', marginBottom: '15px' }}
+                            label="Buscar"
+                            InputProps={{
+                                endAdornment: (
+                                    <InputAdornment>
+                                        <IconButton>
+                                            <SearchIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }}
+                        />
+                        <Button style={{ height: 45 }} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon /></Button>
                     </div>
                     <ListaClientes clientes={filtrados} seleccionarCliente={seleccionarCliente} seleccionado={cliente} />
                 </div>}
-                    <div className={`col-md-${showClientes?"9":"12"}`}>
-                        {AsesoresUsuario.length>1 && <Dropdown
+                    <div className={`col-md-${showClientes ? "9" : "12"}`}>
+                        {AsesoresUsuario.length > 1 && <Dropdown
                             placeholder="Seleccione cliente contado"
                             fluid
                             search
                             selection
-                            onChange={(e, { value }) =>{
-                                const seleccionado = AsesoresUsuario.find(x=>x.Usuario===value);
+                            onChange={(e, { value }) => {
+                                const seleccionado = AsesoresUsuario.find(x => x.Usuario === value);
                                 setAsesor(seleccionado);
                                 cargarCartera(value);
                             }}
                             options={AsesoresUsuario.map(asesor => {
-                                return {key:asesor.Usuario, value:asesor.Usuario,text:asesor.Usuario}
+                                return { key: asesor.Usuario, value: asesor.Usuario, text: asesor.Usuario }
                             })}
                             noResultsMessage={"No hay resultados"}
                             closeOnChange={true}

@@ -28,6 +28,7 @@ const urlApi = APIURL
 
 const DetalleRecibo = (props) => {
     // const [totalAPagar, setTotalAPagar] = useState(0.00);
+    const clientesCartera = useSelector(e=>e.Cartera);
     const clientes = useSelector(e=>e.Recibo.clientes);
     const Monedas = useSelector(e=>e.Monedas);
     const BancosGlobal = useSelector(e=>e.BancosGlobal);
@@ -129,6 +130,28 @@ const DetalleRecibo = (props) => {
         });
         arreglocopia = arregloModificado;
         dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: arreglocopia });
+    }
+
+    const rebajarSaldoFacturaCartera = (numFactura, numCuota, valorPago, Descuento) => {
+        let clientesCarteraCopia = clientesCartera;
+        
+        clientesCarteraCopia.filter(a => a.Codigo === props.Cliente.Codigo).forEach(function (entry) {
+
+            entry.AcuerdosXTipoPedido.forEach(function (AcuerdosXTipoPedido) {
+
+                AcuerdosXTipoPedido.Acuerdos.forEach(function (Acuerdos) {
+
+                    Acuerdos.Facturas.filter(f => f.Factura === numFactura).forEach(function (Facturas) {
+                        Facturas.Cuotas.filter(c => c.NumeroCuota === numCuota).forEach(function (Cuotas) {
+                            Facturas.Saldo = Facturas.Saldo - valorPago - Descuento;
+                            Cuotas.Saldo = Cuotas.Saldo - valorPago - Descuento;
+                        })
+                    });
+                });
+            });
+        });
+
+        dispatch({ type: 'SET_CARTERA', payload: clientesCarteraCopia })
     }
 
     const CuotasAgrupadas = () => {
@@ -627,6 +650,7 @@ const DetalleRecibo = (props) => {
                     let descuento = cuotasYDescuentoAplicado.agrupadas ? fact[9].replace(',', '') :  fact[11].replace(',', '');
                     let Aplicado = localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ?  Number(fact[11].replace(',', '')) : Number(fact[13].replace(',', ''));
                     rebajarSaldoFactura(fact[1], NumeroCuota,Aplicado,descuento);
+                    rebajarSaldoFacturaCartera(fact[1], NumeroCuota,Aplicado,descuento);
                     return {
                         "Aplicado" : Aplicado,
                         "Dias" :cuotasYDescuentoAplicado.agrupadas ? "" : fact[5],

@@ -10,6 +10,7 @@ import { Button } from '@material-ui/core';
 import CustomFooter from "components/Recibos/Facturas/CustomFooter";
 import styles from "components/Recibos/Facturas/CuotasTable.module.css";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import {useSelector} from 'react-redux';
 import 'sweetalert2/src/sweetalert2.scss';
 
 moment.locale('es')
@@ -90,6 +91,7 @@ moment.locale('es')
 
   const CuotasTable = props => {
   const [selectedRowsIndex, setSelectedRowsIndex] = useState([])
+  const clienteSeleccionado = useSelector(e=>e.Recibo.clienteSelected);
   const data = [];
   let foundExpired = false;
   let Expired = [];
@@ -179,6 +181,10 @@ moment.locale('es')
       setSelectedRowsIndex(allRowsSelected.map(row => row.dataIndex))
     }
   }
+
+    if (clienteSeleccionado.IgnorarSecuenciaFactura) {
+      delete options.isRowSelectable;
+    }
 
   let saldoTotal = 0;
 
@@ -285,8 +291,9 @@ moment.locale('es')
       cuotasAPagar.push(data[selRowsIndex].IdSubFactura)
     })
 
-    if (foundExpired) {
-
+    if (clienteSeleccionado.IgnorarSecuenciaFactura) {
+      props.SetCuotasAPagar(cuotasAPagar);
+    } else if (foundExpired) {
       if (selectedExpired.length === 0) {
         Swal.fire({
           title: 'Error',
