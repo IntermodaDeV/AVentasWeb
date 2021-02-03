@@ -116,7 +116,7 @@ const Colecciones = (props) => {
               let encontrado = coleccion.Nombre.toLowerCase().includes(TextboxValue.toLowerCase().trim());
               if (encontrado) {
                 return (
-                  <Coleccion coleccion={coleccion} key={index} Click={props.Click.bind(this, coleccion)} />
+                  <Coleccion coleccion={coleccion} reiniciarPedido = {props.reiniciarPedido} key={index} Click={props.Click.bind(this, coleccion)} />
                 )
               }
               return false;

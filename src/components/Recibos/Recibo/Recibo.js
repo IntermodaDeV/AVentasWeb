@@ -119,6 +119,9 @@ const Recibo = (props) => {
                                                         Tipo Pago
                                                     </th>
                                                     <th>
+                                                        Especificación Pago
+                                                    </th>
+                                                    <th>
                                                         Fecha
                                                     </th>
                                                     <th>
@@ -140,7 +143,9 @@ const Recibo = (props) => {
                                                             {pag.TipoPago}
                                                         </td>
                                                         <td>
-
+                                                            {pag.EspecificacionPago}
+                                                        </td>
+                                                        <td>
                                                             {moment(pag.Fecha).format("DD/MM/YYYY")}
                                                         </td>
                                                         <td>

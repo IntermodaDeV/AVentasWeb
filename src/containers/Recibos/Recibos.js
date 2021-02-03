@@ -443,6 +443,28 @@ const Recibos = (props) => {
 
   }
 
+  const obtenerCorrelativo = async () => {
+    var correlativo = "";
+    if (localStorage.getItem("Conexion") === "Online") {
+      let isOnline = await verificarConexion();
+      if (isOnline) {
+        try {
+          const request = await axios.get(`${urlApi}/api/recibos/correlativo`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+          });
+          return { correlativo: request.data };
+        }
+        catch (err) {
+          return { correlativo };
+        }
+      }
+    }
+    return { correlativo }
+  }
+
   let Cliente = (
     <div className="text-center">
       <h4>{props.clienteSelected ? props.clienteSelected.Codigo + ' ' + props.clienteSelected.Nombre : ''}</h4>
@@ -647,6 +669,7 @@ const Recibos = (props) => {
           <div className="row">
             <div className="col-12">
               <DetalleRecibo
+                obtenerCorrelativo = {obtenerCorrelativo}
                 history={props.history}
                 Cliente={props.clienteSelected}
                 Clientes = {clientes}

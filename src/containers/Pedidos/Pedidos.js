@@ -2335,6 +2335,7 @@ class Pedidos extends React.Component {
                                     <Colecciones
                                         {...routeProps}
                                         Click={this.getColeccion}
+                                        reiniciarPedido = {this.reiniciarPedido}
                                         colecciones={this.props.colecciones}
                                         TiposColeccion={this.props.TiposColeccion}
                                         LineaSeleccionada={this.props.LineaSeleccionada}
