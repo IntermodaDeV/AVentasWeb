@@ -116,8 +116,8 @@ export const Cartera = props => {
     }
 
     const moverClientesConFlecha = (e) => {
-        e.preventDefault();
         if (e.which === 38) {
+            e.preventDefault();
             if (localStorage.getItem("indice") !== "null" && localStorage.getItem("indice") !== "0") {
                 let index = Number(localStorage.getItem("indice"));
                 setCliente(clientes[index - 1]);
@@ -125,6 +125,7 @@ export const Cartera = props => {
                 return;
             }
         } else if (e.which === 40) {
+            e.preventDefault();
             if (localStorage.getItem("indice") === "null") {
                 setCliente(clientes[0]);
                 localStorage.setItem("indice", 0);
