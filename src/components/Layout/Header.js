@@ -33,7 +33,7 @@ import {useSelector} from 'react-redux';
 import { FaWifi } from "react-icons/fa";
 import { verificarConexion } from 'utils/http';
 import { Loading } from 'components/Global/Loading';
-
+import {APIURL} from 'utils/Enviroment';
 const Header = (props) => {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -131,6 +131,20 @@ const Header = (props) => {
       };
 
     const LogOut = () => {
+
+        fetch(APIURL + "/api/cerrarSesion", {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify(localStorage.getItem("codigo"))
+          })
+         .then(res => res.json())
+         .then(
+            (result) => {
+              console.log(result.Message)
+            },
+          ) 
         localStorage.clear();
         window.location.reload();
     }

@@ -46,7 +46,7 @@ const Coleccion = (props) => {
   }
   
   const verficarPaquete = () => {
-    if (props.coleccion.Estatus !== 1) {
+    if (usuarioOficina === false && props.coleccion.Estatus !== 1) {
       Swal.fire({
         title: 'Sin Acceso',
         text: '¡Este paquete no esta disponible para la venta!',

@@ -107,7 +107,7 @@ const Recibo = (props) => {
                                     <div className="col-12 py-2 p-0">
                                         <p>
 
-                                            Fecha: {moment(props.RecibosAplicados.Pagos[0].Fecha).format('DD/MM/YYYY hh:mm a')}
+                                            Fecha: {moment().format('DD/MM/YYYY hh:mm a')}
                                         </p>
                                     </div>
                                     <div className="col-12 p-0">

@@ -195,8 +195,7 @@ const ListaRecibos = (props) => {
 
         });
         
-        DataRecibos.sort((a,b) => (a.NumeroRecibo > b.NumeroRecibo) ? -1 : ((b.NumeroRecibo > a.NumeroRecibo) ? 1 : 0));
-
+        DataRecibos.sort((a,b) => (a[0][0] > b[0][0]) ? -1 : ((b[0][0] > a[0][0]) ? 1 : 0));
         return DataRecibos;
        
     }

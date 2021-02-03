@@ -9,11 +9,11 @@ export const ReciboMarker = props => {
         <Marker onClick={() => { setOpen(true) }} clickable position={{ lat: datos.lat, lng: datos.lng }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" }} >
             {open && <InfoWindow onCloseClick={() => { setOpen(false) }}>
                 <div>
-                    <h4 style={{ textAlign: 'center' }}>Recibo</h4>
-                    <p>Recibo: {datos.numeroRecibo}</p>
-                    <p>Codigo Cliente: {datos.cliente}</p>
-                    <p>Nombre Cliente: {datos.nombreCliente}</p>
-                    <p>Total Recibo: {`${datos.totalRecibo} ${datos.moneda}`}</p>
+                    <h4 style={{ textAlign: 'center',color:'blue' }}>Recibo</h4>
+                    <p style={{color:'blue'}}>Recibo: {datos.numeroRecibo}</p>
+                    <p style={{color:'blue'}}>Codigo Cliente: {datos.cliente}</p>
+                    <p style={{color:'blue'}}>Nombre Cliente: {datos.nombreCliente}</p>
+                    <p style={{color:'blue'}}>Total Recibo: {`${datos.totalRecibo} ${datos.moneda}`}</p>
                 </div>
             </InfoWindow>}
         </Marker>

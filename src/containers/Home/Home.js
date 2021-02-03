@@ -23,7 +23,11 @@ export const Home = (props) => {
     const [update,setUpdate] = useState(false);
     const Colecciones = useSelector(e => e.ListaPrecios);
     useEffect(() => {
-
+        if(localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined){
+            localStorage.setItem("SesionObligatorio",1);
+            localStorage.removeItem("token")
+            window.location.reload();
+          }
         async function inicioSesion() {
             const permisos = await verificarUsuario();
             if (permisos) {
@@ -57,6 +61,41 @@ export const Home = (props) => {
         // eslint-disable-next-line
     }, [])
 
+    const logSession = async () => {
+        try {
+            const request = await axios.get(`https://ipapi.co/json`);
+            let logSession = {
+                Usuario: localStorage.getItem('codigo'),
+                version_navegador: window.navigator.appVersion,
+                IP_Publica: request.data.ip,
+                Latitud: request.data.latitude,
+                Longitud: request.data.longitude,
+                Version_App: APP_VERSION
+              }
+
+            registrarLogSesion(logSession);
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
+    }
+
+
+    const registrarLogSesion = (data) => {
+        fetch(APIURL + "/api/logsesion", {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          method: 'POST',
+          body: JSON.stringify(data)
+        })
+          .then(res => res.json())
+          .then(
+            (result) => {
+              console.log(result.Message)
+            },
+          )
+      }
     const sincronizarDocumentosPendientes = async () => {
         setMensaje('Sincronizando Pedidos y Recibos');
         let tienePedidosPendientes = await backgroundPostPedidos();
@@ -329,7 +368,7 @@ export const Home = (props) => {
             Lineas.forEach(async function (l) {
                 let Imagen = await convertirBlob(l.Imagen);
                 if (Imagen) {
-                    l.Imagen = URL.createObjectURL(Imagen);
+                    l.Imagen = Imagen;
                 }
             })
             dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: data });
@@ -508,7 +547,7 @@ export const Home = (props) => {
                                 else {
                                     let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
                                     if (imagenColorBlob) {
-                                        img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                                        img.FotografiaProducto =  URL.createObjectURL(imagenColorBlob);
                                     }
                                 }
                             }
@@ -524,6 +563,7 @@ export const Home = (props) => {
             })
         })
         setTimeout(() => {
+            logSession();
             dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
             let fecha = moment(new Date()).format("YYYY-MM-DD");
             localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
@@ -540,6 +580,16 @@ export const Home = (props) => {
             return null;
         }
     }
+
+    /*const convertToBase64 = async (url)=>{
+        try{
+            const request = await axios.get(url, { responseType: 'arraybuffer' });
+            const nuevoString = Buffer.from(request.data, 'binary').toString('base64');
+            return `data:image/jpg;base64,${nuevoString}`;
+        }catch(err){
+            return null;
+        }
+    }*/
 
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE CARTERA DE CLIENTES--------------------------------------*/
 

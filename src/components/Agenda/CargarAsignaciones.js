@@ -6,12 +6,35 @@ import Button from '@material-ui/core/Button';
 import { ReactExcel, readFile, generateObjects } from '@ramonak/react-excel';
 import {APIURL} from 'utils/Enviroment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import moment from "moment";
 
 const CargarAsignaciones = (props)=>{
     const {showDialog,setDialog} = props;
     const [initialData, setInitialData] = useState(undefined);
     const [currentSheet, setCurrentSheet] = useState({});
     const context = useRef();
+
+    const convertirFecha = readedData => {
+
+        if (Object.keys(readedData.Sheets).length > 0) {
+            let data = readedData;
+            let ocurrioError = false;
+            let pagina = Object.keys(readedData.Sheets)[0];
+
+            const filtro = Object.keys(data.Sheets[pagina]).filter((x) => (x.includes("C") && x !== "C1"));
+            
+            for(let key of filtro){
+                if (typeof data.Sheets[pagina][key].v !== "number") {
+                    ocurrioError = true;
+                    break;
+                } else {
+                    data.Sheets[pagina][key].v = moment(new Date((data.Sheets[pagina][key].v - (25567 + 1)) * 86400 * 1000)).format("DD/MM/YYYY");
+                }
+            }
+
+            return ocurrioError;
+        }
+    }
 
     const handleUpload = (event) => {
         let file = event.target.files[0];
@@ -33,7 +56,14 @@ const CargarAsignaciones = (props)=>{
             }
 
             readFile(file)
-              .then((readedData) => setInitialData(readedData))
+              .then((readedData) => {
+                  let ocurrioError = convertirFecha(readedData);
+                  if(ocurrioError){
+                    alert("Formato de fecha no soportado.");
+                  }else{
+                    setInitialData(readedData);
+                  }
+                })
               .catch((error) => console.error(error));
         }
       };

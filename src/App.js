@@ -72,6 +72,11 @@ const App = props => {
     }
 
     setInterval(() => {
+      if(localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined){
+        localStorage.setItem("SesionObligatorio",1);
+        localStorage.removeItem("token")
+        window.location.reload();
+      }
       if (localStorage.getItem("UsuarioOficina") === "false") {
         let data = getLocalStorage("ListaPrecios");
         if (data === null) {

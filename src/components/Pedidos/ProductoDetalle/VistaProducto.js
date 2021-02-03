@@ -14,6 +14,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { DeshabilitarModal } from 'components/Pedidos/ProductoDetalle/DeshabilitarModal';
+import { EliminarImagenModal } from 'components/Pedidos/ProductoDetalle/EliminarImagenModal';
 
 const VistaProducto = (props) => {
     const [precioProducto, setPrecio] = useState(undefined);
@@ -24,6 +25,7 @@ const VistaProducto = (props) => {
     const [imagenes] = useState(props.producto.ListaImagenes);
     const [IsOpen, setIsOpen] = useState(false);
     const [openDeshabilitar, setOpenDeshabilitar] = useState(false);
+    const [openEliminar, setOpenEliminar] = useState(false);
     const Configuraciones = useSelector(e => e.Configuraciones);
     const productoSeleccionado = useSelector(e => e.producto);
     const listaProductosAgregados = useSelector(e => e.listaProductosAgregados);
@@ -162,8 +164,15 @@ const VistaProducto = (props) => {
         setOpenDeshabilitar(true);
     }
 
+    const displayEliminarImagen = () => {
+        setOpenEliminar(true);
+    }
+
     const hideDeshabilitarProducto = () => {
         setOpenDeshabilitar(false);
+    }
+    const hideEliminarImagen = () => {
+        setOpenEliminar(false);
     }
 
     let isEmptyImages = (listaImagenes.length === 0);
@@ -171,8 +180,9 @@ const VistaProducto = (props) => {
     return (
         <div className="row">
             <DeshabilitarModal hideDeshabilitar={hideDeshabilitarProducto} open={openDeshabilitar} deshabilitar={deshabilitarProducto} coleccion={props.coleccion.CodigoColeccion} empresa={props.coleccion.EmpresaId} producto={props.producto.ProductoId} />
+            <EliminarImagenModal navegar={props.navegar} codigoProducto={props.producto.ProductoId} open={openEliminar} hideEliminar={hideEliminarImagen} listaImagenes={props.producto.ListaImagenes} listaColores={props.producto.ListaColores} />
             <div className="col-md-5">
-                {
+                { 
                     isEmptyImages ?
                         <div className="text-center">
                             <img alt={"ImagenProducto"} src={notFound}></img>
@@ -184,7 +194,12 @@ const VistaProducto = (props) => {
             <div className="col-md-7 mt-md-0 mt-3">
                 <h2 className={styles.Title}>
                     {props.producto.NombreProducto} {(props.producto.ListaImagenes.length > 0) && <FaEye onClick={() => setIsOpen(true)} size={"30px"} />}
-                    {permisos.AdministradorProductos && <button className="btn btn-danger" style={{ marginLeft: 10 }} onClick={displayDeshabilitarProducto}>Deshabilitar Producto</button>}
+                    {permisos.AdministradorProductos &&
+                        <div style={{display:'inline'}}>
+                            <button className="btn btn-danger" style={{ marginLeft: 10 }} onClick={displayDeshabilitarProducto}>Deshabilitar Producto</button>
+                            <button className="btn btn-danger" style={{ marginLeft: 10 }} onClick={displayEliminarImagen}>Eliminar imagenes</button>
+                        </div>
+                    }
                 </h2>
                 <h5 className={styles.Subtitle}>
                     {'Código: '}{props.producto.ProductoId}

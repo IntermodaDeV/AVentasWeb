@@ -608,11 +608,11 @@ const DetalleRecibo = (props) => {
                         "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,
                         "Banco": pagXRecib.indexBanco!==null ? bancos[pagXRecib.indexBanco].NombreBanco : "",
                         "Orden": 1,
-                        "Valor":localStorage.getItem('isAnticipo') === 'true' ? Number(pagXRecib.valor) : Number(pagXRecib.valor-saldoAFavor),
+                        "Valor":Number(pagXRecib.valor),
                         "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,
                         "Referencia": pagXRecib.referencia,
                         "ReferenciaTransaccionAbierta": "",
-                        "Monto": localStorage.getItem('isAnticipo') === 'true' ? Number(pagXRecib.valor) : Number(pagXRecib.valor-saldoAFavor),
+                        "Monto": Number(pagXRecib.valor),
                     }
                 }),
                 Descripcion: '',
@@ -664,7 +664,7 @@ const DetalleRecibo = (props) => {
                     "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
                     "IdBanco": pagXRecib.indexBanco!==null ? bancos[pagXRecib.indexBanco].IdBanco : null,
                     "Orden": 1,
-                    "Valor": pagXRecib.valor-saldoAFavor,
+                    "Valor": pagXRecib.valor,
                     "IdMoneda": monedas[pagXRecib.indexMoneda].IdMoneda,
                     "Referencia": pagXRecib.referencia,
                     "ReferenciaTransaccionAbierta": ""

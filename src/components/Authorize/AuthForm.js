@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons'
 import { Button, Form, FormGroup, Input, Label } from 'reactstrap';
 import { ScaleLoader } from 'react-spinners';
-import {APIURL} from 'utils/Enviroment';
+import {APIURL ,APP_VERSION} from 'utils/Enviroment';
 
 class AuthForm extends React.Component {
   urlApi = APIURL;
@@ -52,8 +52,8 @@ class AuthForm extends React.Component {
             localStorage.setItem('codigo',this.state.username.toLowerCase());
             localStorage.setItem('token', result.Data.Token);
             localStorage.setItem('empresa', result.Data.Empresa.toUpperCase());
-            this.setState({ logged: true });
-            window.location.reload();
+            localStorage.setItem("SesionObligatorio",1);
+            this.logSesion(this.state.username.toLowerCase());
           } else {
             this.setState({ error: true, loading: false,message:result.Message });
 
@@ -70,6 +70,41 @@ class AuthForm extends React.Component {
       )
 
   };
+
+  logSesion = (usuario) => {
+    fetch('https://ipapi.co/json')
+    .then(res=>res.json())
+    .then(data=>{
+      let logSession = {
+        Usuario: usuario,
+        version_navegador: window.navigator.appVersion,
+        IP_Publica: data.ip,
+        Latitud: data.latitude,
+        Longitud: data.longitude,
+        Version_App: APP_VERSION
+      }
+      this.registrarLogSesion(logSession);
+    })
+    .catch(error=>console.log(error))
+  }
+
+  registrarLogSesion = (data) => {
+    fetch(this.urlApi + "/api/logsesion", {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+      .then(res => res.json())
+      .then(
+        (result) => {
+          this.setState({ logged: true });
+          window.location.reload();
+          console.log(result.Message)
+        },
+      )
+  }
   usernameChange = (event) => {
     if (this.state.error) {
       this.setState({ username: event.target.value, error: false });
