@@ -57,7 +57,7 @@ const Coleccion = (props) => {
     }
     else
     {
-      if (Permisos.usuarioOficina === false && props.coleccion.Estatus !== 1) {
+      if (Permisos.UsuarioOficina === false && props.coleccion.Estatus !== 1) {
         Swal.fire({
           title: 'Sin Acceso',
           text: '¡Este paquete no esta disponible para la venta!',
@@ -76,7 +76,7 @@ const Coleccion = (props) => {
     let HoraIngreso = localStorage.getItem('HoraIngreso');
     let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
 
-    if (Permisos.usuarioOficina) {
+    if (Permisos.UsuarioOficina) {
       cargarProductos();
     } else {
       if (localStorage.getItem("Conexion") === "Online") {
@@ -135,7 +135,7 @@ const Coleccion = (props) => {
 
           <CardContent>
             {
-              Permisos.usuarioOficina && Permisos.AdministradorProductos &&
+              Permisos.UsuarioOficina && Permisos.AdministradorProductos &&
               <>
               <hr className={"mt-0 " + styles.BorderTop}></hr>
               <div className="text-center">

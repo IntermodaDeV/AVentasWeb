@@ -577,12 +577,18 @@ const DetalleRecibo = (props) => {
     const EnviarRecibo = async () =>{
             const { correlativo } = await props.obtenerCorrelativo();
             if (correlativo === "") {
-                let CorrelativoActual = localStorage.getItem("CorrelativoRecibo");
-                let Iniciales = CorrelativoActual.substring(0, CorrelativoActual.lastIndexOf('-') + 1);
-                let NumeroActual = CorrelativoActual.substring(CorrelativoActual.lastIndexOf('-') + 1);
-                let NumeroSiguiente = Number(NumeroActual) + 1;
-                localStorage.setItem("CorrelativoCache", true);
-                localStorage.setItem("CorrelativoRecibo", Iniciales + NumeroSiguiente);
+                if(localStorage.getItem("CorrelativoRecibo") === undefined || localStorage.getItem("CorrelativoRecibo") === null){
+                    localStorage.setItem("CorrelativoCache", true);
+                    localStorage.setItem("CorrelativoRecibo", "No Disponible");
+                }
+                else{
+                    let CorrelativoActual = localStorage.getItem("CorrelativoRecibo");
+                    let Iniciales = CorrelativoActual.substring(0, CorrelativoActual.lastIndexOf('-') + 1);
+                    let NumeroActual = CorrelativoActual.substring(CorrelativoActual.lastIndexOf('-') + 1);
+                    let NumeroSiguiente = Number(NumeroActual) + 1;
+                    localStorage.setItem("CorrelativoCache", true);
+                    localStorage.setItem("CorrelativoRecibo", Iniciales + NumeroSiguiente);
+                }
             }
             else {
                 localStorage.setItem("CorrelativoCache", false);

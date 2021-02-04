@@ -187,16 +187,22 @@ const ImprimirPedidoOriginal = (props) => {
                                             PrecioDistribucion = valorTalla.Precio / CantDist
                                         }
                                         else {
-                                            if (Count === 1) {
+                                            if(arreglo.length > 0){
+                                                const listaTallas = arreglo.filter(x => x.NombreTalla === dist.NombreTalla);
+                                                if(listaTallas.length > 0){
+                                                    cant = dist.Cantidad * valorTalla.Cantidad
+                                                    totalcantidad = listaTallas[0].cant + cant;
+                                                }
+                                                else{
+                                                    arreglo.push({ NombreTalla: dist.NombreTalla, cant: dist.Cantidad * valorTalla.Cantidad });
+                                                    PrecioDistribucion = PrecioDistribucion === 0 ? valorTalla.Precio / CantDist : valorTalla.Precio / CantDist;
+                                                    return false;
+                                                }
+                                            }
+                                            else{
                                                 arreglo.push({ NombreTalla: dist.NombreTalla, cant: dist.Cantidad * valorTalla.Cantidad });
                                                 PrecioDistribucion = PrecioDistribucion === 0 ? valorTalla.Precio / CantDist : valorTalla.Precio / CantDist;
-
                                                 return false;
-                                            }
-                                            else {
-                                                const listaTallas = arreglo.filter(x => x.NombreTalla === dist.NombreTalla);
-                                                cant = dist.Cantidad * valorTalla.Cantidad
-                                                totalcantidad = listaTallas[0].cant + cant;
                                             }
                                         }
 
