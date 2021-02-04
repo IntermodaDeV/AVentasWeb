@@ -119,9 +119,13 @@ export const CuentaCorriente = props => {
                 return -1;
             }
             if (moment(a.FechaVencimiento.props.children, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento.props.children, "DD/MM/YYYY"), 'day')) {
-                return -1;
+                return 0;
             }
 
+            return 0;
+        });
+
+        agrupacionCuentCorriente.sort((a, b) => {
             if (a.Factura.props.children < b.Factura.props.children) {
 
                 return -1;
@@ -131,6 +135,10 @@ export const CuentaCorriente = props => {
                 return 1;
             }
 
+            return 0;
+        });
+
+        agrupacionCuentCorriente.sort((a, b) => {
             if (a.NumeroCuota.props.children < b.NumeroCuota.props.children) {
 
                 return -1;
@@ -139,8 +147,8 @@ export const CuentaCorriente = props => {
 
                 return 1;
             }
-            return 0;
 
+            return 0;
         });
 
         agrupacionCuentaCorriente.sort((a, b) => {
@@ -151,9 +159,14 @@ export const CuentaCorriente = props => {
                 return -1;
             }
             if (moment(a.FechaVencimiento, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-                return -1;
+                return 0;
             }
 
+            return 0;
+
+        });
+
+        agrupacionCuentaCorriente.sort((a, b) => {
             if (a.Factura < b.Factura) {
 
                 return -1;
@@ -163,6 +176,11 @@ export const CuentaCorriente = props => {
                 return 1;
             }
 
+            return 0;
+
+        });
+
+        agrupacionCuentaCorriente.sort((a, b) => {
             if (a.NumeroCuota < b.NumeroCuota) {
 
                 return -1;
@@ -171,17 +189,9 @@ export const CuentaCorriente = props => {
 
                 return 1;
             }
+            
             return 0;
-
         });
-
-        /*agrupacionCuentaCorriente.sort((a, b) => {
-            return moment(a.FechaVencimiento).diff(b.FechaVencimiento);
-        });
-
-        agrupacionCuentaCorriente.sort((a, b) => {
-            return a.Factura < b.Factura ? -1 : 1;
-        });*/
 
         agrupacionCuentCorriente.push({
             Tipo: <h6 className="font-weight-bolder text-dark">Totales</h6>,// Tipo

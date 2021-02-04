@@ -103,5 +103,9 @@ const Simbologia = () => {
             <div style={{ borderBottom: '2px solid red', width: 100 }}></div>
             <h5>Recorrido</h5>
         </div>
+        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
+            <h4 style={{ color: 'green', fontWeight: 'bold' }}>O</h4>
+            <h5>Asesor</h5>
+        </div>
     </div>
 }

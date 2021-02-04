@@ -126,7 +126,7 @@ export const Cartera = props => {
             }
         } else if (e.which === 40) {
             e.preventDefault();
-            if (localStorage.getItem("indice") === "null") {
+            if (localStorage.getItem("indice") === "null" && clientes.length > 0) {
                 setCliente(clientes[0]);
                 localStorage.setItem("indice", 0);
                 return;
