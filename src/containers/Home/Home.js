@@ -492,9 +492,13 @@ export const Home = (props) => {
         let listaPrecios = data;
         listaPrecios.forEach(e => {
             let coleccion = ColeccionOriginal.filter(c => c.CodigoColeccion === e.CodigoColeccion);
-            e.Edades.forEach(edades => {
+            e.Edades.forEach(async function(edades) {
                 let Edades;
                 if (coleccion !== undefined && coleccion.length > 0) {
+                    let imagenBlob = await convertirBlob(coleccion[0].FotoPortada);
+                    if (imagenBlob) {
+                        coleccion[0].FotoPortada = URL.createObjectURL(imagenBlob);
+                    }
                     let Edad = coleccion[0].Edades;
                     Edades = Edad.filter(e => e.IdEdad === edades.IdEdad);
                 }
