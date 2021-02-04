@@ -10,13 +10,15 @@ import {
   CardContent,
   CardMedia,
 } from '@material-ui/core';
+import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
 import styles from "components/Pedidos/Colecciones/Coleccion.module.css";
 import {useSelector,useDispatch} from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
 import { Loading } from 'components/Global/Loading';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import 'moment/locale/es'
+import 'moment/locale/es';
+import Button from '@material-ui/core/Button';
 moment.locale('es');
 
 const CardHeader = withStyles({
@@ -29,11 +31,10 @@ const CardHeader = withStyles({
 const Coleccion = (props) => {
   const [Raised, setRaised] = React.useState(false);
   const cliente = useSelector(e=>e.cliente);
-  const usuarioOficina = useSelector(e=>e.Permisos[0].UsuarioOficina);
+  const Permisos = useSelector(e=>e.Permisos[0]);
   const dispatch = useDispatch();
   const coleccion = useSelector(e=>e.coleccion);
   const [loading,setLoading] = React.useState(false);
-
   const cargarProductos = () => {
     fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${cliente.EmpresaId}`)
       .then(res => res.json())
@@ -45,17 +46,28 @@ const Coleccion = (props) => {
       });
   }
   
-  const verficarPaquete = () => {
-    if (usuarioOficina === false && props.coleccion.Estatus !== 1) {
-      Swal.fire({
-        title: 'Sin Acceso',
-        text: '¡Este paquete no esta disponible para la venta!',
-        type: 'error',
-        confirmButtonText: 'Ok',
+  const verficarPaquete = (e) => {
+    if(e.target.classList.contains("MuiButton-label"))
+    {
+      fetch(`${APIURL}/api/colecciones/${props.coleccion.CodigoColeccion}/${localStorage.getItem("empresa")}/imagenesColeccion`)
+      .then(res => res.json())
+      .then(data => {
+        props.reiniciarPedido();
       });
     }
-    else {
-      selectColeccion();
+    else
+    {
+      if (Permisos.usuarioOficina === false && props.coleccion.Estatus !== 1) {
+        Swal.fire({
+          title: 'Sin Acceso',
+          text: '¡Este paquete no esta disponible para la venta!',
+          type: 'error',
+          confirmButtonText: 'Ok',
+        });
+      }
+      else {
+        selectColeccion();
+      }
     }
   }
 
@@ -64,7 +76,7 @@ const Coleccion = (props) => {
     let HoraIngreso = localStorage.getItem('HoraIngreso');
     let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
 
-    if (usuarioOficina) {
+    if (Permisos.usuarioOficina) {
       cargarProductos();
     } else {
       if (localStorage.getItem("Conexion") === "Online") {
@@ -122,6 +134,17 @@ const Coleccion = (props) => {
           />
 
           <CardContent>
+            {
+              Permisos.usuarioOficina && Permisos.AdministradorProductos &&
+              <>
+              <hr className={"mt-0 " + styles.BorderTop}></hr>
+              <div className="text-center">
+                <Button  variant="outlined" size="medium" color="primary" style={{ textAlign:'center', marginBottom:'10px'}} startIcon ={<PhotoLibraryIcon/>}>
+                  Cargar Imagen
+                </Button>
+              </div>
+              </>
+            }
             <hr className={"mt-0 " + styles.BorderTop}></hr>
             <h4 style={{textAlign:'center'}}>{props.coleccion.CodigoColeccion}</h4>
             <h5 className={styles.TitleColeccion} style={{textAlign:'center', color: props.coleccion.Estatus === 1 ? 'green' : 'red'}}>Status AX: { props.coleccion.Estatus === 1 ? "Disponible para la venta" : "En Proceso"}</h5>

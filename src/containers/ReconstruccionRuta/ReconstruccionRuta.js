@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { APIKEY, APIURL } from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import { IsAllow } from 'components/Seguridad/Permisos';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 //components
@@ -72,10 +72,6 @@ export const ReconstruccionRuta = props => {
             {validarCoordenadas() ?
                 <MapaReconstruccion
                     recorrido={recorrido}
-                    loadingElement={<div style={{ height: `100%` }} />}
-                    containerElement={<div style={{ height: `100vh` }} />}
-                    mapElement={<div style={{ height: `100%` }} />}
-                    googleMapURL={`https://maps.googleapis.com/maps/api/js?key=${APIKEY}&v=weekly.exp&libraries=geometry,drawing,places`}
                 />
                 :
                 <h1 style={{ textAlign: 'center' }}>No hay coordenadas disponibles.</h1>

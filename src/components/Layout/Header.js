@@ -131,22 +131,20 @@ const Header = (props) => {
       };
 
     const LogOut = () => {
-
         fetch(APIURL + "/api/cerrarSesion", {
             headers: {
-              'Content-Type': 'application/json',
+                'Content-Type': 'application/json',
             },
             method: 'POST',
             body: JSON.stringify(localStorage.getItem("codigo"))
-          })
-         .then(res => res.json())
-         .then(
-            (result) => {
-              console.log(result.Message)
+        })
+            .then(res => res.json())
+            .then((result) => {
+                console.log(result.Message);
+                localStorage.clear();
+                window.location.reload();
             },
-          ) 
-        localStorage.clear();
-        window.location.reload();
+            )
     }
 
     const menuId = 'account-menu';

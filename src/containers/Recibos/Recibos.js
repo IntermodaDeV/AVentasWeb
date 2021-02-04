@@ -342,8 +342,12 @@ const Recibos = (props) => {
         try {
           let request = await axios.get(`${urlApi}/api/cliente/cuenta/${props.clienteSelected.Codigo}`, { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } });
           let clientesStorage = props.clientes;
+          let clientesStorageCartera = props.cartera;
+          let indexCartera = clientesStorageCartera.map(e => e.Codigo).indexOf(props.clienteSelected.Codigo);
           let index = clientesStorage.map(e => e.Codigo).indexOf(props.clienteSelected.Codigo);
           clientesStorage[index] = request.data;
+          clientesStorageCartera[indexCartera].AcuerdosXTipoPedido = request.data.AcuerdosXTipoPedido;
+          props.onStoreClientesCartera(clientesStorageCartera);
           props.onStoreReciboClientes(clientesStorage);
         } catch (err) {
           console.log(err);
@@ -365,7 +369,7 @@ const Recibos = (props) => {
     if (props.clienteSelected.FacturacionEntrega === "Todo") {
       Swal.fire({
         title: 'Bloqueado',
-        text: 'El cliente actualmente se encuentra bloqueado. Por favor contactar al departamento de credito.',
+        text: 'Actualmente no se tiene relación comercial con el cliente. Su cuenta ha sido bloqueada para todo tipo de transacción.',
         type: 'error',
         confirmButtonText: 'OK',
     });
@@ -437,6 +441,28 @@ const Recibos = (props) => {
     props.onStoreReciboCuotasAPagar(null);
     props.onStoreReciboFacturasXCliente(null);
 
+  }
+
+  const obtenerCorrelativo = async () => {
+    var correlativo = "";
+    if (localStorage.getItem("Conexion") === "Online") {
+      let isOnline = await verificarConexion();
+      if (isOnline) {
+        try {
+          const request = await axios.get(`${urlApi}/api/recibos/correlativo`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+            }
+          });
+          return { correlativo: request.data };
+        }
+        catch (err) {
+          return { correlativo };
+        }
+      }
+    }
+    return { correlativo }
   }
 
   let Cliente = (
@@ -643,6 +669,7 @@ const Recibos = (props) => {
           <div className="row">
             <div className="col-12">
               <DetalleRecibo
+                obtenerCorrelativo = {obtenerCorrelativo}
                 history={props.history}
                 Cliente={props.clienteSelected}
                 Clientes = {clientes}
@@ -677,7 +704,7 @@ const Recibos = (props) => {
 const mapStateToProps = state => {
 
   return {
-
+    cartera:state.Cartera,
     clientes: state.Recibo.clientes,
     clienteSelected: state.Recibo.clienteSelected,
     cuotasXCliente: state.Recibo.cuotasXCliente,
@@ -701,7 +728,7 @@ const mapDispatchToProps = dispatch => {
     onStoreCuotasImprimir: (cuotasCuentaCorriente) => dispatch({ type: 'SET_CUENTAIMPRIMIR', payload: cuotasCuentaCorriente }),
     onSaveMonedas:(monedas)=> dispatch({type:'SET_MONEDAS',payload:monedas}),
     onStoreReciboLoading: (loading) => dispatch({ type: 'STORE_RECIBO_LOADING', loading: loading }),
-
+    onStoreClientesCartera:(clientes)=>dispatch({type:'SET_CARTERA',payload:clientes}),
     onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),
     onStoreTipoPedido: (TipoPedido) => dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: TipoPedido }),
     onSetProducto: (producto) => dispatch({ type: 'SET_PRODUCTO', producto: producto }),

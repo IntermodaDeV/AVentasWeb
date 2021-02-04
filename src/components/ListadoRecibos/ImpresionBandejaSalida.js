@@ -83,6 +83,9 @@ const ImpresionBandejaSalida = (props) => {
                                                 Tipo Pago
                                                     </th>
                                             <th>
+                                                Especificación Pago
+                                                    </th>
+                                            <th>
                                                 Fecha
                                                     </th>
                                             <th>
@@ -101,6 +104,9 @@ const ImpresionBandejaSalida = (props) => {
                                         <tr className={styles.TableRow}>
                                             <td>
                                                 {pag.TipoPago}
+                                            </td>
+                                            <td>
+                                                {pag.EspecificacionPago}
                                             </td>
                                             <td>
                                                 {moment(props.recibo.Fecha).format("DD/MM/YYYY")}

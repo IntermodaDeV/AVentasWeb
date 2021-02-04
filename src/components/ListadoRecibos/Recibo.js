@@ -91,6 +91,9 @@ const Recibo = (props) => {
                                                 Tipo Pago
                                                     </th>
                                             <th>
+                                                Especificación Pago
+                                                    </th>
+                                            <th>
                                                 Fecha
                                                     </th>
                                             <th>
@@ -108,6 +111,9 @@ const Recibo = (props) => {
                                         <tr className={styles.TableRow}>
                                             <td>
                                                 {props.recibo.TipoPago.Descripcion}
+                                            </td>
+                                            <td>
+                                                {props.recibo.TipoPago.TiposdePagoDetalle[0].Descripcion}
                                             </td>
                                             <td>
                                                 {moment(props.recibo.FechaPago).format("DD/MM/YYYY")}

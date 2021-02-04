@@ -23,7 +23,11 @@ export const Home = (props) => {
     const [update,setUpdate] = useState(false);
     const Colecciones = useSelector(e => e.ListaPrecios);
     useEffect(() => {
-
+        if(localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined){
+            localStorage.setItem("SesionObligatorio",1);
+            localStorage.removeItem("token")
+            window.location.reload();
+          }
         async function inicioSesion() {
             const permisos = await verificarUsuario();
             if (permisos) {
@@ -362,7 +366,7 @@ export const Home = (props) => {
         } else {
             let Lineas = data;
             Lineas.forEach(async function (l) {
-                let Imagen = await convertToBase64(l.Imagen);
+                let Imagen = await convertirBlob(l.Imagen);
                 if (Imagen) {
                     l.Imagen = Imagen;
                 }
@@ -506,20 +510,20 @@ export const Home = (props) => {
                             imges = ProductosXEdad[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
                         }
                         if (imges !== undefined && imges.length > 0) {
-                            if (imges[0].FotografiaProducto.includes("base64")) {
+                            if (imges[0].FotografiaProducto.includes("blob")) {
                                 img.FotografiaProducto = imges[0].FotografiaProducto;
                             }
                             else {
-                                let imagenBlob = await convertToBase64(img.FotografiaProducto);
+                                let imagenBlob = await convertirBlob(img.FotografiaProducto);
                                 if (imagenBlob) {
-                                    img.FotografiaProducto = imagenBlob;
+                                    img.FotografiaProducto = URL.createObjectURL(imagenBlob);
                                 }
                             }
                         }
                         else {
-                            let imagenBlob = await convertToBase64(img.FotografiaProducto);
+                            let imagenBlob = await convertirBlob(img.FotografiaProducto);
                             if (imagenBlob) {
-                                img.FotografiaProducto = imagenBlob;
+                                img.FotografiaProducto = URL.createObjectURL(imagenBlob);
                             }
                         }
 
@@ -537,20 +541,20 @@ export const Home = (props) => {
                                 imgColor = colores[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
                             }
                             if (imgColor !== undefined && imgColor.length > 0) {
-                                if (imgColor[0].FotografiaProducto.includes("base64")) {
+                                if (imgColor[0].FotografiaProducto.includes("blob")) {
                                     img.FotografiaProducto = imgColor[0].FotografiaProducto;
                                 }
                                 else {
-                                    let imagenColorBlob = await convertToBase64(img.FotografiaProducto);
+                                    let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
                                     if (imagenColorBlob) {
-                                        img.FotografiaProducto = imagenColorBlob;
+                                        img.FotografiaProducto =  URL.createObjectURL(imagenColorBlob);
                                     }
                                 }
                             }
                             else {
-                                let imagenColorBlob = await convertToBase64(img.FotografiaProducto);
+                                let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
                                 if (imagenColorBlob) {
-                                    img.FotografiaProducto = imagenColorBlob;
+                                    img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
                                 }
                             }
                         })
@@ -568,16 +572,16 @@ export const Home = (props) => {
             setloading(false);
         }, 60000)
     }
-    /*const convertirBlob = async (url) => {
+    const convertirBlob = async (url) => {
         try {
             const request = await axios.get(url, { responseType: 'blob' });
             return request.data;
         } catch (err) {
             return null;
         }
-    }*/
+    }
 
-    const convertToBase64 = async (url)=>{
+    /*const convertToBase64 = async (url)=>{
         try{
             const request = await axios.get(url, { responseType: 'arraybuffer' });
             const nuevoString = Buffer.from(request.data, 'binary').toString('base64');
@@ -585,7 +589,7 @@ export const Home = (props) => {
         }catch(err){
             return null;
         }
-    }
+    }*/
 
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE CARTERA DE CLIENTES--------------------------------------*/
 

@@ -28,6 +28,7 @@ const urlApi = APIURL
 
 const DetalleRecibo = (props) => {
     // const [totalAPagar, setTotalAPagar] = useState(0.00);
+    const clientesCartera = useSelector(e=>e.Cartera);
     const clientes = useSelector(e=>e.Recibo.clientes);
     const Monedas = useSelector(e=>e.Monedas);
     const BancosGlobal = useSelector(e=>e.BancosGlobal);
@@ -129,6 +130,28 @@ const DetalleRecibo = (props) => {
         });
         arreglocopia = arregloModificado;
         dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: arreglocopia });
+    }
+
+    const rebajarSaldoFacturaCartera = (numFactura, numCuota, valorPago, Descuento) => {
+        let clientesCarteraCopia = clientesCartera;
+        
+        clientesCarteraCopia.filter(a => a.Codigo === props.Cliente.Codigo).forEach(function (entry) {
+
+            entry.AcuerdosXTipoPedido.forEach(function (AcuerdosXTipoPedido) {
+
+                AcuerdosXTipoPedido.Acuerdos.forEach(function (Acuerdos) {
+
+                    Acuerdos.Facturas.filter(f => f.Factura === numFactura).forEach(function (Facturas) {
+                        Facturas.Cuotas.filter(c => c.NumeroCuota === numCuota).forEach(function (Cuotas) {
+                            Facturas.Saldo = Facturas.Saldo - valorPago - Descuento;
+                            Cuotas.Saldo = Cuotas.Saldo - valorPago - Descuento;
+                        })
+                    });
+                });
+            });
+        });
+
+        dispatch({ type: 'SET_CARTERA', payload: clientesCarteraCopia })
     }
 
     const CuotasAgrupadas = () => {
@@ -551,10 +574,20 @@ const DetalleRecibo = (props) => {
         setMonedaSeleccionada(moneda);
     }
 
-
-
-
-    const EnviarRecibo = () =>{
+    const EnviarRecibo = async () =>{
+            const { correlativo } = await props.obtenerCorrelativo();
+            if (correlativo === "") {
+                let CorrelativoActual = localStorage.getItem("CorrelativoRecibo");
+                let Iniciales = CorrelativoActual.substring(0, CorrelativoActual.lastIndexOf('-') + 1);
+                let NumeroActual = CorrelativoActual.substring(CorrelativoActual.lastIndexOf('-') + 1);
+                let NumeroSiguiente = Number(NumeroActual) + 1;
+                localStorage.setItem("CorrelativoCache", true);
+                localStorage.setItem("CorrelativoRecibo", Iniciales + NumeroSiguiente);
+            }
+            else {
+                localStorage.setItem("CorrelativoCache", false);
+                localStorage.setItem("CorrelativoRecibo", correlativo)
+            }
         ObtenerCoordenadas((position) => {
             EnviarReciboApi({
                 longitude: position.coords.longitude,
@@ -591,6 +624,8 @@ const DetalleRecibo = (props) => {
             let ValorPago = Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0));
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
+                NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
+                ReciboCache : localStorage.getItem("CorrelativoCache"),
                 Fecha: pagosXRecibo[0].fecha,
                 FechaPago: pagosXRecibo[0].fecha,
                 SaldoFavor:saldoAFavor,
@@ -604,6 +639,7 @@ const DetalleRecibo = (props) => {
                     return {
                         "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,
                         "TipoPago" : tiposPago[pagXRecib.indexTiposPago].Descripcion,
+                        "EspecificacionPago" : tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].Descripcion,
                         "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
                         "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,
                         "Banco": pagXRecib.indexBanco!==null ? bancos[pagXRecib.indexBanco].NombreBanco : "",
@@ -620,13 +656,14 @@ const DetalleRecibo = (props) => {
                 SubFacturas: props.CuotasAPagar,
                 NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
                 EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
-                CodigoUltimoRecibo : "No Disponible",
+                CodigoUltimoRecibo : localStorage.getItem("CorrelativoRecibo"),
                 Total :  ValorPago,
                 Facturas : cuotasYDescuentoAplicado.Cuotas.map(fact => {              
                     let NumeroCuota = cuotasYDescuentoAplicado.agrupadas ? fact[0] : 0;
                     let descuento = cuotasYDescuentoAplicado.agrupadas ? fact[9].replace(',', '') :  fact[11].replace(',', '');
                     let Aplicado = localStorage.getItem('isAnticipo') === 'true' ? ValorPago : cuotasYDescuentoAplicado.agrupadas ?  Number(fact[11].replace(',', '')) : Number(fact[13].replace(',', ''));
                     rebajarSaldoFactura(fact[1], NumeroCuota,Aplicado,descuento);
+                    rebajarSaldoFacturaCartera(fact[1], NumeroCuota,Aplicado,descuento);
                     return {
                         "Aplicado" : Aplicado,
                         "Dias" :cuotasYDescuentoAplicado.agrupadas ? "" : fact[5],
@@ -655,6 +692,7 @@ const DetalleRecibo = (props) => {
     
         let apiURL     = urlApi + "/api/Recibo";
         let parametros = {
+            ReciboCache : localStorage.getItem("CorrelativoCache"),
             Fecha: pagosXRecibo[0].fecha,
             FechaPago: pagosXRecibo[0].fecha,
             SaldoFavor:saldoAFavor,
@@ -671,6 +709,7 @@ const DetalleRecibo = (props) => {
                 }
             })
             ,
+            NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
             Descripcion: '',
             location:location,
             SubFacturas: props.CuotasAPagar,
@@ -682,6 +721,7 @@ const DetalleRecibo = (props) => {
                 apiURL = urlApi + "/api/Recibo/Anticipo";
     
                 parametros = {
+                    ReciboCache : localStorage.getItem("CorrelativoCache"),
                     Fecha: pagosXRecibo[0].fecha,
                     CodigoCliente:props.Cliente.Codigo,
                     Tipo:(pedidoSelected!==null) ? "Anticipo [B-C]" : "Anticipo [T-O]",

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Marker, InfoWindow } from 'react-google-maps';
+import { Marker, InfoWindow } from '@react-google-maps/api';
 
 export const ReciboMarker = props => {
     const { datos } = props;
@@ -10,10 +10,10 @@ export const ReciboMarker = props => {
             {open && <InfoWindow onCloseClick={() => { setOpen(false) }}>
                 <div>
                     <h4 style={{ textAlign: 'center',color:'blue' }}>Recibo</h4>
-                    <p>Recibo: {datos.numeroRecibo}</p>
-                    <p>Codigo Cliente: {datos.cliente}</p>
-                    <p>Nombre Cliente: {datos.nombreCliente}</p>
-                    <p>Total Recibo: {`${datos.totalRecibo} ${datos.moneda}`}</p>
+                    <p style={{color:'blue'}}>Recibo: {datos.numeroRecibo}</p>
+                    <p style={{color:'blue'}}>Codigo Cliente: {datos.cliente}</p>
+                    <p style={{color:'blue'}}>Nombre Cliente: {datos.nombreCliente}</p>
+                    <p style={{color:'blue'}}>Total Recibo: {`${datos.totalRecibo} ${datos.moneda}`}</p>
                 </div>
             </InfoWindow>}
         </Marker>
