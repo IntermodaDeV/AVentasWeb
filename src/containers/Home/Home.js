@@ -171,6 +171,7 @@ export const Home = (props) => {
     }
 
     const CargaModuloPedidos = () => {
+        cargarCorrelativoPedido();
         cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
 
     }
@@ -358,13 +359,13 @@ export const Home = (props) => {
 
     const cargarCorrelativoRecibo = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/recibos/correlativo`, {
+            const request = await axios.get(`${APIURL}/api/recibos/correlativo/0`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 }
             });
-            localStorage.setItem("CorrelativoRecibo", request.data)
+            localStorage.setItem("CorrelativoReciboDiario", request.data)
         }
         catch (error) {
             localStorage.setItem("OcurrioError", true)
@@ -372,6 +373,21 @@ export const Home = (props) => {
         }
     }
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/
+    const cargarCorrelativoPedido = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/PedidosXCliente/correlativo/0`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            localStorage.setItem("CorrelativoPedidoDiario", request.data)
+        }
+        catch (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        }
+    }
 
     const cargarMaestroLinea = async () => {
         setloading(true);

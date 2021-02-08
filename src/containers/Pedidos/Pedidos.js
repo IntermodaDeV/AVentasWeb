@@ -1165,18 +1165,27 @@ class Pedidos extends React.Component {
 
     }
 
-    obtenerUltimoCorrelativo = async () =>{
-        var correlativo = "",errorCor;
-        try{
-            this.setState((prevState)=>({...prevState,loadingRecibo:true}));
-            const request = await axios.get(this.urlApi + "/api/PedidosXCliente/correlativo",{headers:{
-                'Content-Type': 'application/json',
-                'Authorization':'Bearer ' + localStorage.getItem('token')
-            }});
+    obtenerUltimoCorrelativo = async () => {
+        var correlativo = "", errorCor;
+        if (localStorage.getItem("Conexion") === "Online") {
+            let isOnline = await verificarConexion();
+            if (isOnline) {
+                try {
+                    this.setState((prevState) => ({ ...prevState, loadingRecibo: true }));
+                    const request = await axios.get(this.urlApi + "/api/PedidosXCliente/correlativo/1", {
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        }
+                    });
 
-            return {correlativo:request.data,errorCor};
-        }catch(err){
-            return {correlativo,errorCor};
+                    return { correlativo: request.data, errorCor };
+                } catch (err) {
+                    return { correlativo, errorCor };
+                }
+            }
+        }else{
+            return { correlativo, errorCor };
         }
     }
 
@@ -1246,7 +1255,8 @@ class Pedidos extends React.Component {
     enviarPeticionPedido = async (location, correlativo) => {
         let isOnline = await verificarConexion();
         let pedido = {
-            NumeroReferencia : correlativo,
+            NumeroReferencia : localStorage.getItem("CorrelativoPedido"),
+            PedidoCache:localStorage.getItem("CorrelativoPedidoCache"),
             PedidoId: 100 + (Math.random() * (10000 - 100)),
             CodigoCliente: this.props.cliente.Codigo,
             Nombre : this.props.cliente.Nombre,

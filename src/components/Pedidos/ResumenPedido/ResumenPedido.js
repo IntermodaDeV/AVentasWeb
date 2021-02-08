@@ -163,11 +163,28 @@ const ResumenPedido = (props) => {
 
             if(correlativo === "")
             {
+
+                if(localStorage.getItem("CorrelativoPedido") === undefined || localStorage.getItem("CorrelativoPedido") === null){
+                    localStorage.setItem("CorrelativoPedidoCache", true);
+                    localStorage.setItem("CorrelativoPedido", localStorage.getItem("CorrelativoPedidoDiario"));
+                }
+                else{
+                    let CorrelativoActual = localStorage.getItem("CorrelativoPedido");
+                    let Iniciales = CorrelativoActual.substring(0, CorrelativoActual.lastIndexOf('-') + 1);
+                    let NumeroActual = CorrelativoActual.substring(CorrelativoActual.lastIndexOf('-') + 1);
+                    let NumeroSiguiente = Number(NumeroActual) + 1;
+                    localStorage.setItem("CorrelativoPedidoCache", true);
+                    localStorage.setItem("CorrelativoPedido", Iniciales + NumeroSiguiente);
+                }
+
                 Swal.fire({
                     type: 'error',
                     title: 'Error en la red obteniendo correlativo de pedido',
                     text: "Pedido se guardará en caché.",
                 });
+            }else {
+                localStorage.setItem("CorrelativoPedidoCache", false);
+                localStorage.setItem("CorrelativoPedido", correlativo)
             }
 
             correlativoInterno = correlativo;
