@@ -9,6 +9,7 @@ import {
   CardHeader as MuiCardHeader,
   CardContent,
   CardMedia,
+  CardActions, 
 } from '@material-ui/core';
 import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
 import styles from "components/Pedidos/Colecciones/Coleccion.module.css";
@@ -46,31 +47,28 @@ const Coleccion = (props) => {
       });
   }
   
-  const verficarPaquete = (e) => {
-    if(e.target.classList.contains("MuiButton-label"))
-    {
-      fetch(`${APIURL}/api/colecciones/${props.coleccion.CodigoColeccion}/${localStorage.getItem("empresa")}/imagenesColeccion`)
+  const verficarPaquete = () => {
+    if (Permisos.UsuarioOficina === false && props.coleccion.Estatus !== 1) {
+      Swal.fire({
+        title: 'Sin Acceso',
+        text: '¡Este paquete no esta disponible para la venta!',
+        type: 'error',
+        confirmButtonText: 'Ok',
+      });
+    }
+    else {
+      selectColeccion();
+    }
+  }
+
+  const cargarImagen = () => {
+    fetch(`${APIURL}/api/colecciones/${props.coleccion.CodigoColeccion}/${localStorage.getItem("empresa")}/imagenesColeccion`)
       .then(res => res.json())
       .then(data => {
         props.reiniciarPedido();
       });
-    }
-    else
-    {
-      if (Permisos.UsuarioOficina === false && props.coleccion.Estatus !== 1) {
-        Swal.fire({
-          title: 'Sin Acceso',
-          text: '¡Este paquete no esta disponible para la venta!',
-          type: 'error',
-          confirmButtonText: 'Ok',
-        });
-      }
-      else {
-        selectColeccion();
-      }
-    }
   }
-
+  
   const selectColeccion = async () => {
     dispatch({type:"RESET_PRODUCTOAGREGADO"});
     let HoraIngreso = localStorage.getItem('HoraIngreso');
@@ -134,17 +132,6 @@ const Coleccion = (props) => {
           />
 
           <CardContent>
-            {
-              Permisos.UsuarioOficina && Permisos.AdministradorProductos &&
-              <>
-              <hr className={"mt-0 " + styles.BorderTop}></hr>
-              <div className="text-center">
-                <Button  variant="outlined" size="medium" color="primary" style={{ textAlign:'center', marginBottom:'10px'}} startIcon ={<PhotoLibraryIcon/>}>
-                  Cargar Imagen
-                </Button>
-              </div>
-              </>
-            }
             <hr className={"mt-0 " + styles.BorderTop}></hr>
             <h4 style={{textAlign:'center'}}>{props.coleccion.CodigoColeccion}</h4>
             <h5 className={styles.TitleColeccion} style={{textAlign:'center', color: props.coleccion.Estatus === 1 ? 'green' : 'red'}}>Status AX: { props.coleccion.Estatus === 1 ? "Disponible para la venta" : "En Proceso"}</h5>
@@ -188,6 +175,14 @@ const Coleccion = (props) => {
             </div>
           </CardContent>
         </CardActionArea>
+        <CardActions>
+          {
+            Permisos.UsuarioOficina && Permisos.AdministradorProductos &&
+            <Button variant="outlined" size="medium" color="primary" onClick = {() => {cargarImagen()}} style={{ textAlign: 'center', marginBottom: '10px' }} startIcon={<PhotoLibraryIcon />}>
+              Cargar Imagen
+            </Button>
+          }
+        </CardActions>
       </Card>
     </div>
   );

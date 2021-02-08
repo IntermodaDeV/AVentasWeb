@@ -577,7 +577,7 @@ const DetalleRecibo = (props) => {
     const EnviarRecibo = async () =>{
             const { correlativo } = await props.obtenerCorrelativo();
             if (correlativo === "") {
-                if(localStorage.getItem("CorrelativoRecibo") === undefined || localStorage.getItem("CorrelativoRecibo") === null){
+                if(localStorage.getItem("CorrelativoRecibo") === undefined || localStorage.getItem("CorrelativoRecibo") === null || localStorage.getItem("CorrelativoRecibo") === "No Disponible"){
                     localStorage.setItem("CorrelativoCache", true);
                     localStorage.setItem("CorrelativoRecibo", "No Disponible");
                 }

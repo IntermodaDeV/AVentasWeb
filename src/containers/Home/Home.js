@@ -166,6 +166,7 @@ export const Home = (props) => {
         CarteraClientes();
     }
     const CargaModuloRecibo = () => {
+        cargarCorrelativoRecibo();
         cargarClientesRecibos();///Siempre debe ser el Ultimo Metodo
     }
 
@@ -352,6 +353,22 @@ export const Home = (props) => {
             console.log(error);
         } else {
             dispatch({ type: "SET_BANCOSGLOBAL", payload: data });
+        }
+    }
+
+    const cargarCorrelativoRecibo = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/recibos/correlativo`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            localStorage.setItem("CorrelativoRecibo", request.data)
+        }
+        catch (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
         }
     }
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/

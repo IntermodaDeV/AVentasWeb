@@ -11,17 +11,10 @@ const ImpresionBandejaSalida = (props) => {
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.NombreCliente;
     let DireccionCliente=props.recibo.Direccion; 
-    const clienteContado = "";//props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
     let valor = props.recibo.Total;
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
     const moneda = "";//Monedas.find(e=>e.IdMoneda === props.recibo.Moneda).Abreviacion;
-    if(clienteContado!==null && clienteContado!==undefined)
-    {
-        if(valor < 10000)
-        {
-            NombreCliente = 'CONSUMIDOR FINAL';
-        }
-    }
+
 
     const componentRef = React.useRef();
 
@@ -50,14 +43,21 @@ const ImpresionBandejaSalida = (props) => {
                             </div>
                             <div className="col p-0 text-center">
                                 <h2 className={"font-weight-bold " + styles.Title + styles.LineHeight_1_5}>
-                                    {'No. No Disponible'}
+                                    {"No." + props.recibo.NumeroRecibo}
                                 </h2>
                             </div>
                         </div>
-                        <div className="col-12 p-0 text-left">
-                            <h3 className={"font-weight-bold " + styles.LineHeight_1_5}>
-                                {NombreCliente}
-                            </h3>
+                        <div className="row">
+                            <div className="col p-0 text-left">
+                                <h3 className={"font-weight-bold " + styles.LineHeight_1_5}>
+                                    {NombreCliente}
+                                </h3>
+                            </div>
+                            <div className={"col text-center m-auto font-weight-bold" + styles.Size}>
+                                <h4 className={"font-weight-bold" + styles.Size}>
+                                    {"Este documento ha sido generado fuera de linea."}
+                                </h4>
+                            </div>
                         </div>
                         <div className="col-12 p-0 text-left">
                             <p>
