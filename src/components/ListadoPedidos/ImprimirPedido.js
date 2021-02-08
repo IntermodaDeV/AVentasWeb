@@ -30,16 +30,6 @@ const ImprimirPedido = (props) => {
 
     let TotalUnidad = 0;
     let GrupoTalla = "";
-    const IsSame = (GrupoTallaId) => {
-        let found = false;
-        if (GrupoTalla === "") {
-            GrupoTalla = GrupoTallaId;
-        }
-        else if (GrupoTalla === GrupoTallaId) {
-            found = true;
-        }
-        return found;
-    }
     const checkDist = (talla) => {
         let found = false;
         talla.Distribucion.map(() => {
@@ -48,6 +38,28 @@ const ImprimirPedido = (props) => {
         })
         return found;
     }
+
+    let tallasDist = [];
+    const Tallas = (talla) => {
+        console.log("talla",talla)
+        talla.Distribucion.forEach(dist => {
+            if(tallasDist.length > 0){
+                let ExisteTalla = tallasDist.filter(x => x.NombreTalla === dist.NombreTalla);
+
+                if(ExisteTalla.length === 0){
+                    tallasDist.push({NombreTalla: dist.NombreTalla, Orden: dist.Orden})
+                }
+            }
+            else{
+                tallasDist.push({NombreTalla: dist.NombreTalla, Orden: dist.Orden})
+            }
+        })
+        tallasDist.sort((a, b) => {
+            return Number(a.Orden) < Number(b.Orden) ? -1 : 1;
+          });
+        return tallasDist;
+    }
+
     const componentRef = React.useRef();
     return (
         <>
@@ -101,8 +113,8 @@ const ImprimirPedido = (props) => {
                     {props.gruposXDetPed.map((grupoTalla, index1) => {
                         let cantidad = 3;
                         let IsDist = false;
-                        let Same = false;
                         let CantDist = 0;
+                        let Distribuciones = []; 
                         return (
                             <table className={'table table-bordered table-xl-responsive'} style={{ borderColor: '#aaa', overflow: "auto" }} key={index1}>
                                 <thead>
@@ -110,13 +122,13 @@ const ImprimirPedido = (props) => {
                                         <th>
                                         </th>
                                         {grupoTalla.ListaTalla.map((talla, index2) => {
-                                            Same = IsSame(talla.GrupoTallaId);
+                                            Distribuciones = Tallas(talla);
                                             cantidad++;
                                             return (
                                                 <>
                                                     {
-                                                        talla.Distribucion.length !== 0 && Same === false &&
-                                                        talla.Distribucion.map((dist, index3) => {
+                                                        talla.Distribucion.length !== 0 && grupoTalla.ListaTalla.length === index2 + 1 &&
+                                                        Distribuciones.map((dist, index3) => {
                                                             IsDist = true;
                                                             cantidad++;
                                                             return (
@@ -171,7 +183,6 @@ const ImprimirPedido = (props) => {
                                                     let cellSize = 100 / cantidad;
                                                     let TotalXTalla = 0;
                                                     let TotalXProducto = 0;
-                                                    let count = 0;
                                                     let arreglo = [];
                                                     let totalcant = 0;
                                                     return (
@@ -187,15 +198,14 @@ const ImprimirPedido = (props) => {
                                                                 {color.NombreColor}
                                                             </td>
                                                             {detalles.map((det, index4) => {
-                                                                count++
                                                                 IsDist = det !== null ? checkDist(det.TallaObject) : IsDist;
                                                                 return (
                                                                     <>
                                                                         {
                                                                             IsDist === true && det !== null &&
                                                                             det.TallaObject.Distribucion.map((dist, index) => {
-                                                                                CantDist = parseInt(dist.NombreDistribucion.substr(11, 2));
-                                                                                //CantDist += parseInt(dist.Cantidad)
+                                                                                CantDist = det.TallaObject.Distribucion.reduce((acc, curr) => {return acc + Number(curr.Cantidad) }, 0);;
+          
                                                                                 TotalXTalla = dist.Cantidad * det.Cantidad;
                                                                                 TotalXProducto += TotalXTalla;
                                                                                 TotalUnidad += TotalXTalla;
@@ -204,14 +214,30 @@ const ImprimirPedido = (props) => {
                                                                                     totalcant = dist.Cantidad * det.Cantidad;
                                                                                 }
                                                                                 else {
-                                                                                    if (count === 1) {
-                                                                                        arreglo.push({ NombreTalla: dist.NombreTalla, cant: dist.Cantidad * det.Cantidad });
-                                                                                        return false;
+                                                                                    if (arreglo.length > 0) {
+                                                                                        const listaTallas = arreglo.filter(x => x.NombreTalla === dist.NombreTalla);
+                                                                                        if (detalles.length === (index4 + 1)) {
+                                                                                            if (listaTallas.length > 0) {
+                                                                                                cant = dist.Cantidad * det.Cantidad
+                                                                                                totalcant = listaTallas[0].cant + cant;
+                                                                                            }
+                                                                                            else {
+                                                                                                totalcant = dist.Cantidad * det.Cantidad;
+                                                                                            }
+                                                                                        }
+                                                                                        else if (listaTallas.length > 0) {
+                                                                                            cant = dist.Cantidad * det.Cantidad
+                                                                                            totalcant = listaTallas[0].cant + cant;
+                                                                                            return false;
+                                                                                        }
+                                                                                        else {
+                                                                                            arreglo.push({ NombreTalla: dist.NombreTalla, cant: dist.Cantidad * det.Cantidad });
+                                                                                            return false;
+                                                                                        }
                                                                                     }
                                                                                     else {
-                                                                                        const tallitas = arreglo.filter(x => x.NombreTalla === dist.NombreTalla);
-                                                                                        cant = dist.Cantidad * det.Cantidad;
-                                                                                        totalcant = tallitas[0].cant + cant;
+                                                                                        arreglo.push({ NombreTalla: dist.NombreTalla, cant: dist.Cantidad * det.Cantidad });
+                                                                                        return false;
                                                                                     }
                                                                                 }
                                                                                 return (

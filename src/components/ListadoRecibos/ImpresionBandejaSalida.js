@@ -8,12 +8,12 @@ import 'moment/locale/es';
 import {useSelector} from 'react-redux';
 
 const ImpresionBandejaSalida = (props) => {
+    const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.NombreCliente;
     let DireccionCliente=props.recibo.Direccion; 
-    let valor = props.recibo.Total;
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
-    const moneda = "";//Monedas.find(e=>e.IdMoneda === props.recibo.Moneda).Abreviacion;
+    const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Pagos[0].IdMoneda).Abreviacion;
 
 
     const componentRef = React.useRef();
