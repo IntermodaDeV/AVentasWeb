@@ -29,7 +29,6 @@ const ImprimirPedido = (props) => {
     }
 
     let TotalUnidad = 0;
-    let GrupoTalla = "";
     const checkDist = (talla) => {
         let found = false;
         talla.Distribucion.map(() => {
@@ -41,7 +40,6 @@ const ImprimirPedido = (props) => {
 
     let tallasDist = [];
     const Tallas = (talla) => {
-        console.log("talla",talla)
         talla.Distribucion.forEach(dist => {
             if(tallasDist.length > 0){
                 let ExisteTalla = tallasDist.filter(x => x.NombreTalla === dist.NombreTalla);

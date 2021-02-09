@@ -34,6 +34,7 @@ import { FaWifi } from "react-icons/fa";
 import { verificarConexion } from 'utils/http';
 import { Loading } from 'components/Global/Loading';
 import {APIURL} from 'utils/Enviroment';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 const Header = (props) => {
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -130,21 +131,33 @@ const Header = (props) => {
         setVisible(null);
       };
 
-    const LogOut = () => {
-        fetch(APIURL + "/api/cerrarSesion", {
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            method: 'POST',
-            body: JSON.stringify(localStorage.getItem("codigo"))
-        })
-            .then(res => res.json())
-            .then((result) => {
-                console.log(result.Message);
-                localStorage.clear();
-                window.location.reload();
-            },
-            )
+    const LogOut = async () => {
+        let isOnline = await verificarConexion();
+        if(isOnline)
+        {
+            fetch(APIURL + "/api/cerrarSesion", {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                method: 'POST',
+                body: JSON.stringify(localStorage.getItem("codigo"))
+            })
+                .then(res => res.json())
+                .then((result) => {
+                    console.log(result.Message);
+                    localStorage.clear();
+                    window.location.reload();
+                },
+                )
+        }
+        else{
+            Swal.fire({
+                title: 'Sin Internet',
+                text: '¡La sesion se puede cerrar unicamente si cuenta con acceso a internet!',
+                type: 'error',
+                confirmButtonText: 'Ok',
+              });
+        }
     }
 
     const menuId = 'account-menu';
