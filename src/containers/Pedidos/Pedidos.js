@@ -1258,7 +1258,7 @@ class Pedidos extends React.Component {
         let isOnline = await verificarConexion();
         let pedido = {
             NumeroReferencia : localStorage.getItem("CorrelativoPedido"),
-            PedidoCache:localStorage.getItem("CorrelativoPedidoCache"),
+            //PedidoCache:localStorage.getItem("CorrelativoPedidoCache"),
             PedidoId: 100 + (Math.random() * (10000 - 100)),
             CodigoCliente: this.props.cliente.Codigo,
             Nombre : this.props.cliente.Nombre,

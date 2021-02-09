@@ -61,13 +61,10 @@ if(clienteContado!==null && clienteContado!==undefined)
                                     <p>
                                         Dirección : {DireccionCliente}<br />
                                         Código    : {props.Pedido.CodigoCliente}<br /> 
-                                    </p>
-                                    {
-                                       props.Pedido.PedidoCache === "true" &&
+                                    </p>                                       
                                        <h4 style={{fontWeight:'bold'}}>
                                            {"Este documento ha sido generado fuera de linea."}
                                        </h4>
-                                   }
                                 </div>
                             </div>
                             <div className="col-6">
