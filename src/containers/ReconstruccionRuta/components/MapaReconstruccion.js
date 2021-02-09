@@ -66,7 +66,7 @@ const MapaReconstruccion = props => {
     }
 
     const onUnmount = React.useCallback(function callback(map) {
-        console.log(map)
+        
     }, [])
 
     const onLoadPolyline = polyline => {
@@ -87,7 +87,7 @@ const MapaReconstruccion = props => {
                 {inicioruta && <InfoWindow onCloseClick={clicMarcadorInicio}>
                     <div>
                         <h4 style={{ textAlign: 'center', color: 'green' }}>Inicio Ruta</h4>
-                        <p style={{ textAlign: 'center', color: 'green' }}>{moment(coordenadas[0].fecha).format('DD/MM/YYYY hh:mm a')}</p>
+                        <p style={{ textAlign: 'center', color: 'green' }}>{moment(new Date(coordenadas[0].fecha)).format('DD/MM/YYYY hh:mm a')}</p>
                     </div>
                 </InfoWindow>}
             </Marker>
@@ -95,7 +95,7 @@ const MapaReconstruccion = props => {
                 {finalruta && <InfoWindow onCloseClick={clicMarcadorFinal}>
                     <div>
                         <h4 style={{ textAlign: 'center', color: 'red' }}>Final Ruta</h4>
-                        <p style={{ textAlign: 'center', color: 'red' }}>{moment(coordenadas[coordenadas.length - 1].fecha).format('DD/MM/YYYY hh:mm a')}</p>
+                        <p style={{ textAlign: 'center', color: 'red' }}>{moment(new Date(coordenadas[coordenadas.length - 1].fecha)).format('DD/MM/YYYY hh:mm a')}</p>
                     </div>
                 </InfoWindow>}
             </Marker>

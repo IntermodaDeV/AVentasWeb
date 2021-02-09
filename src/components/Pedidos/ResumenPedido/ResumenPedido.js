@@ -258,6 +258,19 @@ const ResumenPedido = (props) => {
         }
     }
 
+    const cancelarReinicio = e => {
+        if (e.which === 116) {
+            e.preventDefault();
+        }
+    }
+
+    React.useEffect(() => {
+        window.addEventListener('keydown', cancelarReinicio);
+        return () => {
+            window.removeEventListener('keydown', cancelarReinicio);
+        }
+    }, [])
+
     React.useEffect(() => {
         if (lineaSeleccionada.IdLinea === "BIO" && props.Cliente.Codigo.includes('IMHN')) {
             const valorFlete = calcularFlete();

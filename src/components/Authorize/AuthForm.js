@@ -272,7 +272,7 @@ AuthForm.defaultProps = {
   usernameLabel: '  Usuario',
   usernameInputProps: {
     type: 'email',
-    placeholder: 'Correo Electronico',
+    placeholder: 'Codigo Usuario',
   },
   passwordLabel: '  Contraseña',
   passwordInputProps: {
