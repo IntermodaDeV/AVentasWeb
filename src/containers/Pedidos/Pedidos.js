@@ -1183,8 +1183,10 @@ class Pedidos extends React.Component {
                 } catch (err) {
                     return { correlativo, errorCor };
                 }
+            } else {
+                return { correlativo, errorCor };
             }
-        }else{
+        } else {
             return { correlativo, errorCor };
         }
     }
