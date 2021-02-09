@@ -1,7 +1,8 @@
-import React from 'react';
-//import { withGoogleMap, GoogleMap, Polyline, withScriptjs, Marker } from 'react-google-maps';
-import { GoogleMap, useJsApiLoader, Polyline, Marker } from '@react-google-maps/api';
+import React, { useState } from 'react';
+import { GoogleMap, useJsApiLoader, Polyline, Marker, InfoWindow } from '@react-google-maps/api';
 import { APIKEY } from 'utils/Enviroment';
+import moment from "moment";
+import 'moment/locale/es';
 
 //components
 import { PedidoMarker } from './PedidoMarker';
@@ -13,13 +14,15 @@ const MapaReconstruccion = props => {
     const { coordenadas, recibos, pedidos } = props.recorrido;
     let initialCoors = { lat: coordenadas[0].lat, lng: coordenadas[0].lng };
     let lastCoors = { lat: coordenadas[coordenadas.length - 1].lat, lng: coordenadas[coordenadas.length - 1].lng };
+    const [inicioruta, setInicio] = useState(false);
+    const [finalruta, setFinal] = useState(false);
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
         googleMapsApiKey: APIKEY
     })
 
-    const [options, setOptions] = React.useState({
+    const [options, setOptions] = useState({
         strokeColor: '#FF0000',
         strokeOpacity: 0.8,
         strokeWeight: 2,
@@ -70,10 +73,32 @@ const MapaReconstruccion = props => {
         animateCircle(polyline)
     }
 
+    const clicMarcadorInicio = () => {
+        setInicio(!inicioruta);
+    }
+
+    const clicMarcadorFinal = () => {
+        setFinal(!finalruta);
+    }
+
     return isLoaded ? (
         <GoogleMap zoom={15} center={initialCoors} mapContainerStyle={{ height: '100vh' }} onLoad={onLoad} onUnmount={onUnmount}>
-            <Marker position={initialCoors} icon={{ url: inicio }} />
-            <Marker position={lastCoors} icon={{ url: final }} />
+            <Marker position={initialCoors} icon={{ url: inicio }} onClick={clicMarcadorInicio}>
+                {inicioruta && <InfoWindow onCloseClick={clicMarcadorInicio}>
+                    <div>
+                        <h4 style={{ textAlign: 'center', color: 'green' }}>Inicio Ruta</h4>
+                        <p style={{ textAlign: 'center', color: 'green' }}>{moment(coordenadas[0].fecha).format('DD/MM/YYYY hh:mm a')}</p>
+                    </div>
+                </InfoWindow>}
+            </Marker>
+            <Marker position={lastCoors} icon={{ url: final }} onClick={clicMarcadorFinal}>
+                {finalruta && <InfoWindow onCloseClick={clicMarcadorFinal}>
+                    <div>
+                        <h4 style={{ textAlign: 'center', color: 'red' }}>Final Ruta</h4>
+                        <p style={{ textAlign: 'center', color: 'red' }}>{moment(coordenadas[coordenadas.length - 1].fecha).format('DD/MM/YYYY hh:mm a')}</p>
+                    </div>
+                </InfoWindow>}
+            </Marker>
             {(recibos && recibos.length > 0)
                 && recibos.map((x) => <ReciboMarker key={x.reciboId} datos={x} />)}
 

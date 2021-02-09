@@ -220,7 +220,9 @@ moment.locale('es')
               Valor: <span className="text-danger font-weight-bold">{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Saldo: <span className="text-danger font-weight-bold">{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Cuota: cuot,
-              IsVencida:isVencida
+              IsVencida:isVencida,
+              Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
+              Facturaa:fact.Factura
             })
           }
           else if (DiasVencido >= 0 && DiasVencido <= 15) {
@@ -239,7 +241,9 @@ moment.locale('es')
               Valor: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Saldo: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Cuota: cuot,
-              IsVencida:isVencida
+              IsVencida:isVencida,
+              Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
+              Facturaa:fact.Factura
             })
           }
           else {
@@ -258,7 +262,9 @@ moment.locale('es')
               Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Cuota: cuot,
-              IsVencida:isVencida
+              IsVencida:isVencida,
+              Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
+              Facturaa:fact.Factura
               //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               //   Accion : (<Button
 
@@ -275,6 +281,33 @@ moment.locale('es')
   })
 
   localStorage.setItem("totalCredito",saldoTotal.toFixed(2));
+
+    data.sort((a, b) => {
+      if (moment(a.Fechaa, "DD/MM/YYYY").isAfter(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
+        return 1;
+      }
+      if (moment(a.Fechaa, "DD/MM/YYYY").isBefore(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
+        return -1;
+      }
+      if (moment(a.Fechaa, "DD/MM/YYYY").isSame(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
+        return 0;
+      }
+
+      return 0;
+    });
+
+    data.sort((a, b) => {
+      if (a.Facturaa < b.Facturaa) {
+
+        return -1;
+      }
+      if (a.Facturaa > b.Facturaa) {
+
+        return 1;
+      }
+
+      return 0;
+    });
 
   const setCuotasAPagar = () => {
     let cuotasAPagar = [];
