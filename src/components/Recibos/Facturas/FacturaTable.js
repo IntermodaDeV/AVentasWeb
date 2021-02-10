@@ -184,7 +184,6 @@ const FacturaTable = props => {
   const [openModalPrecompra, setOpenModalPrecompra] = useState(false);
   const [cuotasa,setCuotasa] = useState([]);
   const [openModalCuota,setOpenModalCuota] = useState(false);
-
   const setCuotas = (tipoPedido) => {
     const cuotas = props.AcuerdosXTipoPedido.filter(acu => acu.TipoPedido === tipoPedido);
     props.SetCuotas(cuotas)
@@ -468,6 +467,19 @@ const FacturaTable = props => {
 
     return tempData;
   }
+
+  const IgnorarRestriccionPago = (dataTmp) => {
+    dataTmp.sort((a, b) => (new Date(a.FechaV) - new Date(b.FechaV)));
+    let tempData = dataTmp;
+
+    tempData.forEach(e => {
+      const newAction = React.cloneElement(e.Accion, { disabled: false });
+      e.Accion = newAction;
+    });
+
+    return tempData;
+  }
+
   props.AcuerdosXTipoPedido.forEach(acuXTipPed => {
     let saldo = 0;
     let saldoVencido = 0;
@@ -524,7 +536,12 @@ const FacturaTable = props => {
     data.sort((a,b)=>(new Date(a.FechaV)-new Date(b.FechaV)));
  
   });
-  data= RestriccionPago(data);
+  
+  if (props.Cliente.IgnorarSecuenciaFactura) {
+    data = IgnorarRestriccionPago(data);
+  } else {
+    data = RestriccionPago(data);
+  }
 
   data.push(
     {

@@ -14,6 +14,16 @@ const CargarAsignaciones = (props)=>{
     const [currentSheet, setCurrentSheet] = useState({});
     const context = useRef();
 
+    const convertirHora = hora => {
+        let separador = hora.split(":");
+
+        if (separador[0].length === 2) {
+            return hora;
+        }
+
+        return `0${separador[0]}:${separador[1]}`;
+    }
+
     const convertirFecha = readedData => {
 
         if (Object.keys(readedData.Sheets).length > 0) {
@@ -22,13 +32,33 @@ const CargarAsignaciones = (props)=>{
             let pagina = Object.keys(readedData.Sheets)[0];
 
             const filtro = Object.keys(data.Sheets[pagina]).filter((x) => (x.includes("C") && x !== "C1"));
-            
+            const filtroHoraInicio = Object.keys(data.Sheets[pagina]).filter((x) => (x.includes("D") && x !== "D1"));
+            const filtroHoraFinal = Object.keys(data.Sheets[pagina]).filter((x) => (x.includes("E") && x !== "E1"));
+
             for(let key of filtro){
                 if (typeof data.Sheets[pagina][key].v !== "number") {
                     ocurrioError = true;
                     break;
                 } else {
                     data.Sheets[pagina][key].v = moment(new Date((data.Sheets[pagina][key].v - (25567 + 1)) * 86400 * 1000)).format("DD/MM/YYYY");
+                }
+            }
+
+            for(let key of filtroHoraInicio){
+                if (typeof data.Sheets[pagina][key].v !== "number") {
+                    ocurrioError = true;
+                    break;
+                } else {
+                    data.Sheets[pagina][key].v = convertirHora(data.Sheets[pagina][key].w);
+                }
+            }
+
+            for(let key of filtroHoraFinal){
+                if (typeof data.Sheets[pagina][key].v !== "number") {
+                    ocurrioError = true;
+                    break;
+                } else {
+                    data.Sheets[pagina][key].v = convertirHora(data.Sheets[pagina][key].w);
                 }
             }
 

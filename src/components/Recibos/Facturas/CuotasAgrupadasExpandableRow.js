@@ -8,6 +8,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TableCell from "@material-ui/core/TableCell";
 import { FaEye } from "react-icons/fa";
 import moment from 'moment';
+import {useSelector} from 'react-redux';
 import 'moment/locale/es';
 
 const columns = [
@@ -64,7 +65,7 @@ const columns = [
 
 const CuotasAgrupadasExpandableRow = (props) => {
     let selectedRowsIndex = [];
-
+    const clienteSeleccionado = useSelector(e=>e.Recibo.clienteSelected);
     const data = [];
     let IdsSubFactura = [];
     if (props.SelectedRowsIndexXAcuerdo) {
@@ -212,17 +213,21 @@ const CuotasAgrupadasExpandableRow = (props) => {
             });
             if (seleccionando) {
                 if (currentRowsSelected[0].dataIndex !== seleccionadasActuales.length - 1) {
-                    seleccionadasActuales.pop();
-                } else {
-                }
+                    if (!clienteSeleccionado.IgnorarSecuenciaFactura) {
+                        seleccionadasActuales.pop();
+                    }
+                } 
             } else {
+                if(clienteSeleccionado.IgnorarSecuenciaFactura){
+                    props.SetCuotasAPagar(seleccionadasActuales.reduce((acc, curr) => { return [...acc, ...props.CuotasAgrupadas[curr].IdsSubFactura] }, []));
+                    return;
+                }
+
                 if (currentRowsSelected[0].dataIndex !== (seleccionadasActuales.length)) {
                     // seleccionadasActuales.pop();
                     props.SetCuotasAPagar(props.SelectedRowsIndexXAcuerdo[props.NumeroAcuerdo]);
                     return;
                     // seleccionadasActuales = props.SelectedRowsIndexXAcuerdo;
-                } else {
-
                 }
             }
             props.SetCuotasAPagar(seleccionadasActuales.reduce((acc, curr) => { return [...acc, ...props.CuotasAgrupadas[curr].IdsSubFactura] }, []));
@@ -230,6 +235,11 @@ const CuotasAgrupadasExpandableRow = (props) => {
 
         },
     }
+
+    if (clienteSeleccionado.IgnorarSecuenciaFactura) {
+        delete options.isRowSelectable;
+    }
+
     return (
         <TableRow>
             <TableCell colSpan={props.ColSpan} >

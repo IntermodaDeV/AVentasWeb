@@ -10,13 +10,14 @@ import {
     Card,
     CardContent,
 } from '@material-ui/core';
-import {useDispatch} from 'react-redux';
+import {useDispatch,useSelector} from 'react-redux';
 import CachedIcon from '@material-ui/icons/Cached';
 import axios from 'axios';
 import { Loading } from 'components/Global/Loading';
 import { APIURL } from 'utils/Enviroment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { verificarConexion } from 'utils/http';
+import {FiAlertTriangle} from 'react-icons/fi';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -27,7 +28,7 @@ const SelectCliente = (props) => {
     const [Value, setValue] = useState(null);
     const dispatch = useDispatch();
     const [loading,setLoading] = useState(false);
-
+    const RecibosCache = useSelector(e=>e.RecibosEnCache);
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
             let cliente = props.clientes.find(cl => {
@@ -146,8 +147,30 @@ const SelectCliente = (props) => {
         }
     }
 
+    const Validacion = async () => {
+        let isOnline = await verificarConexion();
+        if (RecibosCache.length > 0 && isOnline && localStorage.getItem("Conexion") === "Online") {
+            Swal.fire({
+              title: 'Pendiente a Sincronizar',
+              text: 'Tiene recibos en bandeja de salida, debera sincronizar para poder registrar un nuevo recibo.',
+              type: 'error',
+              confirmButtonText: 'OK',
+          });
+        }
+        else{
+            props.setCliente();
+        }
+        
+    }
     
     return (
+        <>
+        {
+            RecibosCache.length > 0 && localStorage.getItem("Conexion") === "Online" &&
+            <div style={{ textAlign: 'center', fontSize: '24px' }} className="alert alert-danger alert-dismissible fade show" role="alert">
+                <FiAlertTriangle style={{ fontSize: '28px', color: 'red' }} /> Tiene recibos en bandeja de salida, necesita sincronizar para poder registrar un nuevo recibo.
+            </div>
+        }
         <Card className="my-2" style={{ overflow: 'unset' }}>
             <CardContent>
                 <div>
@@ -178,7 +201,7 @@ const SelectCliente = (props) => {
                         <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                             <Button
                                 disabled={props.clienteSelected ? false : true}
-                                onClick={props.setCliente}
+                                onClick={() => Validacion()}
                                 variant="contained"
                                 color="primary">
                                 Continuar
@@ -214,6 +237,7 @@ const SelectCliente = (props) => {
                 </div>
             </CardContent>
         </Card>
+        </>
     );
 }
 export default SelectCliente;

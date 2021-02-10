@@ -64,6 +64,7 @@ const SelectCliente = (props) => {
     const BloqueoCredito = useSelector(e=>e.Permisos[0].BloqueoCredito);
     const [loading,setLoading] = useState(false);
     const [mensaje,setMensaje] = useState("Cargando clientes")
+    const PedidosCache = useSelector(p=>p.PedidoSincronizar);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -260,6 +261,20 @@ const SelectCliente = (props) => {
         props.onSetTotalPedido(0);
         props.onSetNumeroOrden(null);
         localStorage.removeItem("ColeccionSeleccionada");
+    }
+
+    const validacionPedidosCache = ()=>{
+        if (PedidosCache.length > 0 && localStorage.getItem("Conexion") === "Online") {
+            Swal.fire({
+              title: 'Pendiente a Sincronizar',
+              text: 'Tiene pedidos en bandeja de salida, debera sincronizar para poder registrar un nuevo pedido.',
+              type: 'error',
+              confirmButtonText: 'OK',
+          });
+        }
+        else{
+            continuarPedido();
+        }
     }
 
     const handleClose = () => {
@@ -461,6 +476,13 @@ const SelectCliente = (props) => {
         );
     }
     return (
+        <>
+        {
+            PedidosCache.length > 0 && localStorage.getItem("Conexion") === "Online" &&
+            <div style={{ textAlign: 'center', fontSize: '24px' }} className="alert alert-danger alert-dismissible fade show" role="alert">
+                <FiAlertTriangle style={{ fontSize: '28px', color: 'red' }} /> Tiene pedidos en bandeja de salida, necesita sincronizar para poder registrar un nuevo pedido.
+            </div>
+        }
         <div className="col">
             <Dialog
             disableBackdropClick 
@@ -509,7 +531,7 @@ const SelectCliente = (props) => {
                         <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                             <Button
                                 disabled={props.autocompleteValue ? false : true}
-                                onClick={continuarPedido}
+                                onClick={validacionPedidosCache}
                                 variant="contained"
                                 color="primary">
                                 Continuar
@@ -572,6 +594,7 @@ const SelectCliente = (props) => {
             }
             <Loading open={loading} title={mensaje}/>
         </div>
+        </>
     );
 }
 export default SelectCliente;

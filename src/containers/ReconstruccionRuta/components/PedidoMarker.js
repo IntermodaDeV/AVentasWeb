@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Marker, InfoWindow } from 'react-google-maps';
+import { Marker, InfoWindow } from '@react-google-maps/api';
 
 export const PedidoMarker = props => {
     const { datos } = props;

@@ -90,11 +90,21 @@ const Recibo = (props) => {
                                         </h2>
                                     </div>
                                 </div>
-                                <div className="col-12 p-0 text-left">
-                                    <h3 className={"font-weight-bold " + styles.LineHeight_1_5}>
-                                        {NombreCliente}
-                                    </h3>
-                                </div>
+                           <div className="row">
+                               <div className="col p-0 text-left">
+                                   <h3 className={"font-weight-bold " + styles.LineHeight_1_5}>
+                                       {NombreCliente}
+                                   </h3>
+                               </div>
+                               {
+                                   props.RecibosAplicados.ReciboCache === "true" &&
+                                   <div className={"col text-center m-auto font-weight-bold" + styles.Size}>
+                                       <h4 className={"font-weight-bold" + styles.Size}>
+                                           {"Este documento ha sido generado fuera de linea."}
+                                       </h4>
+                                   </div>
+                               }
+                           </div>
                                 <div className="col-12 p-0 text-left">
                                     <p>
                                         {DireccionCliente}
@@ -119,6 +129,9 @@ const Recibo = (props) => {
                                                         Tipo Pago
                                                     </th>
                                                     <th>
+                                                        Especificación Pago
+                                                    </th>
+                                                    <th>
                                                         Fecha
                                                     </th>
                                                     <th>
@@ -140,7 +153,9 @@ const Recibo = (props) => {
                                                             {pag.TipoPago}
                                                         </td>
                                                         <td>
-
+                                                            {pag.EspecificacionPago}
+                                                        </td>
+                                                        <td>
                                                             {moment(pag.Fecha).format("DD/MM/YYYY")}
                                                         </td>
                                                         <td>

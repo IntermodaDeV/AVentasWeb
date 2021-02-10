@@ -16,6 +16,7 @@ let DireccionCliente= props.Pedido.Direccion;
 const clienteContado = clientesContado.find(x=>x.id===props.Pedido.ClienteContadoId);
 const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
 const moneda = Monedas.find(e=>e.IdMoneda === props.Pedido.MonedaCliente).Abreviacion;
+console.log(props);
 
 if(clienteContado!==null && clienteContado!==undefined)
 {
@@ -59,8 +60,11 @@ if(clienteContado!==null && clienteContado!==undefined)
                                 <h2>{NombreCliente}</h2>
                                     <p>
                                         Dirección : {DireccionCliente}<br />
-                                        Código    : {props.Pedido.CodigoCliente}<br />
-                                    </p>
+                                        Código    : {props.Pedido.CodigoCliente}<br /> 
+                                    </p>                                       
+                                       <h4 style={{fontWeight:'bold'}}>
+                                           {"Este documento ha sido generado fuera de linea."}
+                                       </h4>
                                 </div>
                             </div>
                             <div className="col-6">

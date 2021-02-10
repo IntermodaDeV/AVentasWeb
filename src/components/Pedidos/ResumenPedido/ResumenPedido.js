@@ -58,7 +58,6 @@ const ResumenPedido = (props) => {
     let comunidadSelected = "";
     let modoEntrega = "";
     let habilitado = false;
-    let correlativoInterno = "";
 
     if (clienteContado === null) {
         if (props.Cliente.ComunidadAutonoma !== "") {
@@ -156,23 +155,31 @@ const ResumenPedido = (props) => {
             && ((totalGlobal + impuesto) + flete) > 10000;
     }
 
-    const Finalizar = async () => {
-        if(correlativoInterno === "")
-        {
-            const {correlativo} = await props.obtenerUltimoCorrelativo();
-
-            if(correlativo === "")
-            {
-                Swal.fire({
-                    type: 'error',
-                    title: 'Error en la red obteniendo correlativo de pedido',
-                    text: "Pedido se guardará en caché.",
-                });
+    const correlativoCache = (correlativo) => {
+        if (correlativo === "") {
+            if (localStorage.getItem("CorrelativoPedido") === undefined || localStorage.getItem("CorrelativoPedido") === null) {
+                localStorage.setItem("CorrelativoPedido", localStorage.getItem("CorrelativoPedidoDiario"));
             }
-
-            correlativoInterno = correlativo;
+            else {
+                let CorrelativoActual = localStorage.getItem("CorrelativoPedido");
+                let Iniciales = CorrelativoActual.substring(0, CorrelativoActual.lastIndexOf('-') + 1);
+                let NumeroActual = CorrelativoActual.substring(CorrelativoActual.lastIndexOf('-') + 1);
+                let NumeroSiguiente = Number(NumeroActual) + 1;
+                localStorage.setItem("CorrelativoPedido", Iniciales + NumeroSiguiente);
+            }
+            localStorage.setItem("CorrelativoPedidoCache", true);
+            Swal.fire({
+                type: 'error',
+                title: 'Error en la red obteniendo correlativo de pedido',
+                text: "Pedido se guardará en caché.",
+            });
+        } else {
+            localStorage.setItem("CorrelativoPedidoCache", false);
+            localStorage.setItem("CorrelativoPedido", correlativo)
         }
+    }
 
+    const Finalizar = async () => {
         props.guardarFecha(FechaEntrega);
         if (ApruebaBio()) {
             setOpenContado(true);
@@ -210,9 +217,11 @@ const ResumenPedido = (props) => {
                                 cancelButtonColor: '#d33',
                                 confirmButtonText: 'Continuar',
                                 cancelButtonText: 'Cancelar'
-                            }).then((result) => {
+                            }).then(async (result) => {
                                 if (result.value) {
-                                    props.enviarPedido(correlativoInterno);
+                                    const { correlativo } = await props.obtenerUltimoCorrelativo();
+                                    correlativoCache(correlativo);
+                                    props.enviarPedido(correlativo);
                                 }
                             })
                         } else if ((totalGlobal + impuesto) > props.Cliente.CreditoDisponible && TipoCredito.TipoPedido !== 'Contado') {
@@ -225,14 +234,18 @@ const ResumenPedido = (props) => {
                                 cancelButtonColor: '#d33',
                                 confirmButtonText: 'Continuar',
                                 cancelButtonText: 'Cancelar'
-                            }).then((result) => {
+                            }).then(async (result) => {
                                 if (result.value) {
-                                    props.enviarPedido(correlativoInterno);
+                                    const { correlativo } = await props.obtenerUltimoCorrelativo();
+                                    correlativoCache(correlativo);
+                                    props.enviarPedido(correlativo);
                                 }
                             })
                         }
                         else {
-                            props.enviarPedido(correlativoInterno);
+                            const { correlativo } = await props.obtenerUltimoCorrelativo();
+                            correlativoCache(correlativo);
+                            props.enviarPedido(correlativo);
                         }
 
                     }
@@ -240,6 +253,19 @@ const ResumenPedido = (props) => {
             }
         }
     }
+
+    const cancelarReinicio = e => {
+        if (e.which === 116) {
+            e.preventDefault();
+        }
+    }
+
+    React.useEffect(() => {
+        window.addEventListener('keydown', cancelarReinicio);
+        return () => {
+            window.removeEventListener('keydown', cancelarReinicio);
+        }
+    }, [])
 
     React.useEffect(() => {
         if (lineaSeleccionada.IdLinea === "BIO" && props.Cliente.Codigo.includes('IMHN')) {

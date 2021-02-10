@@ -166,10 +166,12 @@ export const Home = (props) => {
         CarteraClientes();
     }
     const CargaModuloRecibo = () => {
+        cargarCorrelativoRecibo();
         cargarClientesRecibos();///Siempre debe ser el Ultimo Metodo
     }
 
     const CargaModuloPedidos = () => {
+        cargarCorrelativoPedido();
         cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
 
     }
@@ -354,7 +356,38 @@ export const Home = (props) => {
             dispatch({ type: "SET_BANCOSGLOBAL", payload: data });
         }
     }
+
+    const cargarCorrelativoRecibo = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/recibos/correlativo/0`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            localStorage.setItem("CorrelativoReciboDiario", request.data)
+        }
+        catch (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        }
+    }
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/
+    const cargarCorrelativoPedido = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/PedidosXCliente/correlativo/0`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            localStorage.setItem("CorrelativoPedidoDiario", request.data)
+        }
+        catch (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        }
+    }
 
     const cargarMaestroLinea = async () => {
         setloading(true);
@@ -492,9 +525,13 @@ export const Home = (props) => {
         let listaPrecios = data;
         listaPrecios.forEach(e => {
             let coleccion = ColeccionOriginal.filter(c => c.CodigoColeccion === e.CodigoColeccion);
-            e.Edades.forEach(edades => {
+            e.Edades.forEach(async function(edades) {
                 let Edades;
                 if (coleccion !== undefined && coleccion.length > 0) {
+                    let imagenBlob = await convertirBlob(coleccion[0].FotoPortada);
+                    if (imagenBlob) {
+                        coleccion[0].FotoPortada = URL.createObjectURL(imagenBlob);
+                    }
                     let Edad = coleccion[0].Edades;
                     Edades = Edad.filter(e => e.IdEdad === edades.IdEdad);
                 }

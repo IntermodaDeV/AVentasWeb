@@ -40,6 +40,12 @@ const BandejaSalida = (props) => {
     const PedidosCache = useSelector(p=>p.PedidoSincronizar);
     const dispatch = useDispatch();
 
+    const cancelarReinicio = e => {
+        if (e.which === 116) {
+            e.preventDefault();
+        }
+    }
+
     useEffect(() => {
         if(!IsAllow("/lista-pedidos-BandejaSalida"))
         {
@@ -51,6 +57,11 @@ const BandejaSalida = (props) => {
             isLoaded: true,
             pedidos: PedidosCache
         });
+
+        window.addEventListener('keydown', cancelarReinicio);
+        return () => {
+            window.removeEventListener('keydown', cancelarReinicio);
+        }
         // eslint-disable-next-line
     }, []);
 
