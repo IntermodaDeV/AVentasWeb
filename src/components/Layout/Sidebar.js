@@ -52,6 +52,7 @@ import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
 import DescriptionIcon from '@material-ui/icons/Description';
 import AssessmentIcon from '@material-ui/icons/Assessment';
+import CloudQueueIcon from '@material-ui/icons/CloudQueue';
 
 //components
 import Logo from 'assets/img/logo/Barra.png';
@@ -112,6 +113,7 @@ const navItems = [
         expanded: [
             { to: '/lista-pedidos-BandejaSalida', name: 'Bandeja Salida', dataTut: 'DataTut_ListadoPedidos', Icon: Input, backgroundColor:'#c41021' },
             { to: '/lista-pedidos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_ListadoPedidos', Icon: AllInbox, backgroundColor:'#d49008'  },
+            { to: '/lista-pedidos-flotante', name: 'Pedidos Flotantes', dataTut: 'DataTut_ListadoPedidos', Icon: CloudQueueIcon, backgroundColor:''  },
             { to: '/pedidos', name: 'Nuevo Pedido', dataTut: 'DataTut_NuevoPedido', Icon: PostAdd, backgroundColor:''  },
             { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt, backgroundColor:''  },
         ]
