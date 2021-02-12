@@ -70,7 +70,7 @@ export const ListaPedidosFlotante = props => {
             })
         } catch (err) {
             setLoading(false);
-            let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido.";
+            let mensaje = "Ha ocurrido un error y no se pudo aprobar el pedido.";
 
             if (err.response) {
                 mensaje = err.response.data.Message;
@@ -88,7 +88,7 @@ export const ListaPedidosFlotante = props => {
     const peticionSincronizarPedido = (id, correlativo) => {
         Swal.fire({
             title: 'Aviso',
-            text: `¿Esta seguro de sincronizar el pedido flotante ${correlativo}?`,
+            text: `¿Esta seguro de aprobar el pedido flotante ${correlativo}?`,
             type: 'warning',
             width: '600px',
             showCancelButton: true,
@@ -163,7 +163,7 @@ export const ListaPedidosFlotante = props => {
                         <Button className='my-1' variant="outlined" onClick={() => obtenerDetallePedido(pedido, false)} size="small" color={"primary"}>Detalle</Button>
                     </span>
                     <span className="ml-1">
-                        <Button className='my-1' variant="outlined" onClick={() => peticionSincronizarPedido(pedido.Id, pedido.PedidoId)} size="small" color={"primary"}>Sincronizar</Button>
+                        <Button className='my-1' variant="outlined" onClick={() => peticionSincronizarPedido(pedido.Id, pedido.PedidoId)} size="small" color={"primary"}>Aprobar</Button>
                     </span >
                     <span className="ml-1">
                         <Button className='my-1' variant="outlined" onClick={() => peticionCancelarPedido(pedido.Id, pedido.PedidoId)} size="small" color={"primary"}>Cancelar</Button>

@@ -20,6 +20,7 @@ import { Loading } from 'components/Global/Loading';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'moment/locale/es';
 import Button from '@material-ui/core/Button';
+import axios from 'axios';
 moment.locale('es');
 
 const CardHeader = withStyles({
@@ -62,10 +63,33 @@ const Coleccion = (props) => {
   }
 
   const cargarImagen = () => {
-    fetch(`${APIURL}/api/colecciones/${props.coleccion.CodigoColeccion}/${localStorage.getItem("empresa")}/imagenesColeccion`)
-      .then(res => res.json())
+    axios.get(`${APIURL}/api/colecciones/${props.coleccion.CodigoColeccion}/${localStorage.getItem("empresa")}/imagenesColeccion`)
       .then(data => {
-        props.reiniciarPedido();
+        Swal.fire({
+          title: 'Confirmado',
+          text: `Se ha cargado la imagen del paquete con exito.`,
+          type: 'success',
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Continuar',
+        }).then((result) => {
+          if (result.value) {
+            props.reiniciarPedido();
+          }
+        })
+      }).catch((err) => {
+        let mensaje = "Ha ocurrido un error y no se pudo cargar la imagen.";
+
+        if (err.response) {
+          mensaje = err.response.data.Message;
+        }
+
+        Swal.fire({
+          title: 'Error',
+          text: mensaje,
+          type: 'error',
+          confirmButtonText: 'Ok',
+        });
       });
   }
   

@@ -91,7 +91,7 @@ const Recibo = (props) => {
                                                 Tipo Pago
                                                     </th>
                                             <th>
-                                                Especificación Pago
+                                                Esp. Pago
                                                     </th>
                                             <th>
                                                 Fecha

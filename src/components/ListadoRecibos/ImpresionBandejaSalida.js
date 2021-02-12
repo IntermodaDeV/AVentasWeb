@@ -83,7 +83,7 @@ const ImpresionBandejaSalida = (props) => {
                                                 Tipo Pago
                                                     </th>
                                             <th>
-                                                Especificación Pago
+                                                Esp. Pago
                                                     </th>
                                             <th>
                                                 Fecha
