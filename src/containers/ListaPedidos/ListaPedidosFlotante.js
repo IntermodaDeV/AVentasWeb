@@ -9,6 +9,8 @@ import Button from "@material-ui/core/Button";
 import MUIDataTable from "mui-datatables";
 import DetallePedido from 'components/ListadoPedidos/DetallePedido';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { DatePicker } from "@material-ui/pickers";
+import { Dropdown } from "semantic-ui-react";
 import moment from "moment";
 import 'moment/locale/es';
 
@@ -29,11 +31,16 @@ export const ListaPedidosFlotante = props => {
     });
 
     const [loading, setLoading] = useState(false);
+    const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 30));
+    const [fechaFin, setFechaFin] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
+    const [estado, setEstado] = useState(0);
 
-    const cargarPedidosFlotantes = async () => {
+    const cargarPedidosFlotantes = async (fechainicio, fechafin) => {
         try {
             setState({ ...state, isLoaded: true });
-            const request = await axios.get(APIURL + "/api/pedidosxcliente/flotantes", { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+            let Inicio = moment(fechainicio).format("YYYY-MM-DD");
+            let Fin = moment(fechafin).format("YYYY-MM-DD");
+            const request = await axios.get(`${APIURL}/api/pedidosxcliente/flotantes/${Inicio}/${Fin}/${estado}`, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
             setState({
                 ...state,
                 isLoaded: true,
@@ -42,6 +49,17 @@ export const ListaPedidosFlotante = props => {
         } catch (err) {
 
         }
+    }
+
+    const handleFechaInicio = (fecha) => {
+        setFechaInicio(fecha);
+
+        var fech = moment(fecha).add(30, 'days')
+        setFechaFin(fech);
+    }
+
+    const handleFechaFin = (date) => {
+        setFechaFin(date);
     }
 
     const obtenerDetallePedido = async (Pedido, EsImpresion) => {
@@ -62,7 +80,7 @@ export const ListaPedidosFlotante = props => {
             setLoading(true);
             await axios.post(`${APIURL}/api/pedidosxcliente/flotantes/sincronizar/${id}`, {}, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
             setLoading(false);
-            cargarPedidosFlotantes();
+            cargarPedidosFlotantes(fechaInicio, fechaFin);
             Swal.fire({
                 title: 'Confirmado',
                 text: 'Pedido sincronizado con exito.',
@@ -106,7 +124,7 @@ export const ListaPedidosFlotante = props => {
     const cancelarPedidoFlotante = async (id) => {
         try {
             await axios.post(`${APIURL}/api/pedidosxcliente/flotantes/cancelar/${id}`, {}, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
-            cargarPedidosFlotantes();
+            cargarPedidosFlotantes(fechaInicio, fechaFin);
             Swal.fire({
                 title: 'Confirmado',
                 text: 'Pedido cancelado con exito.',
@@ -157,17 +175,20 @@ export const ListaPedidosFlotante = props => {
                 pedido.NombreColeccion,
                 pedido.TotalUnidades,
                 moment(pedido.FechaEntrega).format('DD/MM/YYYY') !== "Invalid date" ? moment(pedido.FechaEntrega).format('DD/MM/YYYY') : "",
+                pedido.PedidoGenerado,
                 pedido.Asesor,
                 <div>
                     <span className="mr-1">
                         <Button className='my-1' variant="outlined" onClick={() => obtenerDetallePedido(pedido, false)} size="small" color={"primary"}>Detalle</Button>
                     </span>
-                    <span className="ml-1">
-                        <Button className='my-1' variant="outlined" onClick={() => peticionSincronizarPedido(pedido.Id, pedido.PedidoId)} size="small" color={"primary"}>Aprobar</Button>
-                    </span >
-                    <span className="ml-1">
-                        <Button className='my-1' variant="outlined" onClick={() => peticionCancelarPedido(pedido.Id, pedido.PedidoId)} size="small" color={"primary"}>Cancelar</Button>
-                    </span >
+                    {pedido.Estado === 0 && <>
+                        <span className="ml-1">
+                            <Button className='my-1' variant="outlined" onClick={() => peticionSincronizarPedido(pedido.Id, pedido.PedidoId)} size="small" color={"primary"}>Aprobar</Button>
+                        </span >
+                        <span className="ml-1">
+                            <Button className='my-1' variant="outlined" onClick={() => peticionCancelarPedido(pedido.Id, pedido.PedidoId)} size="small" color={"primary"}>Cancelar</Button>
+                        </span >
+                    </>}
                 </div>
             ]
             DataPedidos.push(data);
@@ -209,7 +230,7 @@ export const ListaPedidosFlotante = props => {
             props.history.push('/home');
         }
 
-        cargarPedidosFlotantes();
+        cargarPedidosFlotantes("1900-01-01", "1900-01-01");
 
         window.addEventListener('keydown', cancelarReinicio);
         return () => {
@@ -231,6 +252,58 @@ export const ListaPedidosFlotante = props => {
             <div className="px-3">
                 <Loading title="Sincronizando Pedido" open={loading} />
                 <h1 style={{ textAlign: 'center' }}>Pedidos Flotante</h1>
+                <div className="row mb-3">
+                    <div className='col-lg-2 col-sm-4 col-12'>
+                        <DatePicker
+                            disableToolbar
+                            autoOk
+                            label={"Fecha Inicio"}
+                            variant="inline"
+                            format={"DD/MM/YYYY"}
+                            value={fechaInicio}
+                            onChange={(date) => handleFechaInicio(date)}
+                        />
+
+                    </div>
+                    <div className='col-lg-2 col-sm-4 col-12'>
+                        <DatePicker
+                            disableToolbar
+                            autoOk
+                            minDate={fechaInicio}
+                            maxDate={moment(fechaInicio).add(365, 'days')}
+                            label={"Fecha Fin"}
+                            variant="inline"
+                            format={"DD/MM/YYYY"}
+                            value={fechaFin}
+                            onChange={(date) => handleFechaFin(date)}
+                        />
+                    </div>
+                    <div className='col-lg-2 col-sm-4 col-6' style={{ paddingTop: 10 }}>
+                        <Dropdown
+                            placeholder="Estado"
+                            selection
+                            style={{ zIndex: 999 }}
+                            onChange={(e, { value }) => {
+                                setEstado(value);
+                            }}
+                            options={[
+                                { key: 0, value: 0, text: "Pendiente" },
+                                { key: 1, value: 1, text: "Aprobado" },
+                                { key: 2, value: 2, text: "Cancelado" },
+                            ]}
+                            noResultsMessage={"No hay resultados"}
+                            closeOnChange={true}
+                            value={estado}
+                        />
+                    </div>
+                    <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 10 }}>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => { cargarPedidosFlotantes(fechaInicio, fechaFin) }}>Obtener
+                    </Button>
+                    </div>
+                </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>
                         <MUIDataTable
@@ -254,6 +327,7 @@ const HeadersListaPedidos = [
     "Paquete",
     "Total Unidades",
     "Fecha Entrega",
+    "Pedido Generado",
     "Asesor",
     {
         label: "Acciones",
