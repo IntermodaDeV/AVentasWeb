@@ -63,6 +63,7 @@ const initialState = {
     PreguntasEncuesta: [],
     TipoIngreso: [],
     GrupoOpciones: [],
+    EncuestaSelected : [],
 }
 
 const calcularLimite = (state) => {
@@ -716,6 +717,14 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             GrupoOpciones: action.payload
+        }
+    }
+
+    
+    if(action.type === 'SET_ENCUESTASELECTED'){
+        return {
+            ...state,
+            EncuestaSelected: action.payload
         }
     }
     return state;

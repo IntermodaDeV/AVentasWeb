@@ -287,6 +287,11 @@ const App = props => {
               layout={MainLayout}
               component={Encuestas}
             />
+            <LayoutRoute
+              path='/encuesta/selectCliente'
+              layout={MainLayout}
+              component={Encuestas}
+            />
             <Redirect to='/home' />
           </Switch>
         </Router>
