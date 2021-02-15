@@ -107,6 +107,18 @@ const BandejaSalida = (props) => {
             }
         }
         catch (err) {
+            let mensaje = "Ha ocurrido un error y no se ha registrado el pedido.";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+                target:myRef.current
+            });
             setLoading(false);
         }
     }
