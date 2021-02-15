@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React from 'react'
 import MUIDataTable from 'mui-datatables'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
@@ -136,7 +136,6 @@ const PagoReciboTable = (props) => {
         // }
     }
 
-    const [habilitado,setHabilitado] = useState(true);
 
     const Validaciones = () => {
         if(props.Pedido !== null && localStorage.getItem('Faltante') !== '0'){
@@ -144,6 +143,7 @@ const PagoReciboTable = (props) => {
             return;
         }
         else{
+            props.setHabilitado(true);
             props.EnviarRecibo()
         }
       };
@@ -185,7 +185,7 @@ const PagoReciboTable = (props) => {
                     return;
                 }
                 props.ConfirmEditarPago(indexArray);
-                setHabilitado(false);
+                props.setHabilitado(false);
             }
             if(isTarjeta)
             {
@@ -215,7 +215,7 @@ const PagoReciboTable = (props) => {
                 }
 
                 props.ConfirmEditarPago(indexArray);
-                setHabilitado(false);
+                props.setHabilitado(false);
             }
             if(isCheque)
             {
@@ -259,7 +259,7 @@ const PagoReciboTable = (props) => {
                     return;
                 }
                 props.ConfirmEditarPago(indexArray);
-                setHabilitado(false);
+                props.setHabilitado(false);
             }
             if(isDeposito)
             {
@@ -282,14 +282,14 @@ const PagoReciboTable = (props) => {
                         return;
                     }
                     props.ConfirmEditarPago(indexArray);
-                    setHabilitado(false);
+                    props.setHabilitado(false);
                 }
                 props.ConfirmEditarPago(indexArray);
-                setHabilitado(false);
+                props.setHabilitado(false);
             }
             if(isLetraCambio){
                 props.ConfirmEditarPago(indexArray);
-                setHabilitado(false);
+                props.setHabilitado(false);
             }
         }
     }
@@ -352,7 +352,7 @@ const PagoReciboTable = (props) => {
             props.Bancos[indexBanco] ? props.Bancos[indexBanco].NombreBanco : '',
             referencia,
             (<div className="d-flex">
-                <Button className="mr-1" onClick={() => { props.SetEditPagoXRecibo(indexArray); setHabilitado(true); }}><EditIcon /></Button>
+                <Button className="mr-1" onClick={() => { props.SetEditPagoXRecibo(indexArray); props.setHabilitado(true); }}><EditIcon /></Button>
                 <Button className="ml-1" onClick={() => { props.DeletePago(indexArray) }}><DeleteForeverIcon /></Button>
             </div>),
         ]
@@ -545,7 +545,7 @@ const PagoReciboTable = (props) => {
 
             (<div className="d-flex">
                 <Button className="mr-1" onClick={() => { /*props.ConfirmEditarPago(indexArray)*/ validacionDatosRecibo(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor,indexBanco, referencia,indexMoneda) }}><CheckIcon /></Button>
-                <Button className="ml-1" onClick={() => { props.CancelEditarPago(indexArray); setHabilitado(false)}}><CloseIcon /></Button>
+                <Button className="ml-1" onClick={() => { props.CancelEditarPago(indexArray); props.setHabilitado(false)}}><CloseIcon /></Button>
             </div>),
 
         ];
@@ -579,7 +579,7 @@ const PagoReciboTable = (props) => {
                     className="ml-1"
                     onClick={() => { Validaciones(); }}
                     variant="contained"
-                    disabled={habilitado}
+                    disabled={props.habilitado}
                     color="primary">
                     Pagar
                 </Button>

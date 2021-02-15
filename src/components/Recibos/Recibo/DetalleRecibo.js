@@ -59,6 +59,7 @@ const DetalleRecibo = (props) => {
     const dispatch = useDispatch();
     let calculo =React.useRef(1);
     let arregloModificado = [];
+    const [habilitado,setHabilitado] = useState(true);
     
     const [pagosXRecibo, setPagosXRecibo] = useState([
         {
@@ -692,6 +693,7 @@ const DetalleRecibo = (props) => {
             dispatch({ type: "SET_RECIBOSENCACHE", payload: ReciboCache });
             setModalRecibo(true);
             setLoading(false);
+            setHabilitado(false);
         }
         else
         {
@@ -780,6 +782,7 @@ const DetalleRecibo = (props) => {
                                 setRecibosAplicados(result);
                                 setModalRecibo(true);
                                 setLoading(false);
+                                setHabilitado(false);
                                 cargarCliente();
                             },
                             // Note: it's important to handle errors here
@@ -805,6 +808,7 @@ const DetalleRecibo = (props) => {
                                     text: result.Message,
                                 })
                                 setLoading(false);
+                                setHabilitado(false);
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow
@@ -899,6 +903,8 @@ const DetalleRecibo = (props) => {
                         DeletePago={deletePago}
                         Pedido = {pedidoSelected}
                         showAlert={showAlert}
+                        setHabilitado={setHabilitado}
+                        habilitado={habilitado}
                     ></PagoReciboTable>
                 </Card>
 
