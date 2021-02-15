@@ -117,7 +117,6 @@ const BandejaSalida = (props) => {
                 text: mensaje,
                 type: 'error',
                 confirmButtonText: 'Ok',
-                target:myRef.current
             });
             setLoading(false);
         }
