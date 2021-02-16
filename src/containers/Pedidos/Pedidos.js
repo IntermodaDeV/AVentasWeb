@@ -132,6 +132,111 @@ class Pedidos extends React.Component {
             isLoaded: true,
         })
     }
+
+    ModuloConfiguraciones = () => {
+        this.cargarMaestroLinea();
+        this.cargarTiposPedido();
+        this.cargarTiposColeccion();
+        this.cargarEmpresasTransporteGlobal();
+        this.cargarPrecioCajasGlobal();
+        this.cargarImpuestoClienteGlobal();
+        this.cargarImpuestoProductosGlobal();
+        this.cargarAbreviacionMonedas();
+    }
+
+    cargarEmpresasTransporteGlobal = () => {
+        fetch(this.urlApi + "/api/transporte/empresas")
+        .then(res => {
+            if (res.status === 200) {
+
+                res.json().then(
+                    (result) => {
+                        this.props.onSetEmpresasTransporte(result);
+                    },
+                    (error) => {
+                        this.setState({
+                            isLoaded: true,
+                            error
+                        });
+                    }
+                )
+            }
+            if (res.status === 401) {  
+                console.log("Ocurrio un error al cargar empresas transporte global")
+            }
+        })
+    }
+
+    cargarPrecioCajasGlobal = () => {
+        fetch(this.urlApi + "/api/transporte/preciocaja")
+            .then(res => {
+                if (res.status === 200) {
+                    res.json().then(
+                        (result) => {
+                            this.props.onStorePrecioCajasGlobal(result);
+                        },
+                        (error) => {
+                            this.setState({
+                                isLoaded: true,
+                                error
+                            });
+                        }
+                    )
+                }
+                if (res.status === 401) {
+                    console.log("Ocurrio un error al cargar precio caja global")
+                }
+            })
+    }
+
+    cargarImpuestoClienteGlobal = () => {
+        fetch(this.urlApi + "/api/gruposimpuestos/Clientes")
+            .then(res => {
+                if (res.status === 200) {
+                    res.json().then(
+                        (result) => {
+                            this.props.onStoreImpuestoClientesGlobal(result);
+                        },
+                        (error) => {
+                            this.setState({
+                                isLoaded: true,
+                                error
+                            });
+                        }
+                    )
+                }
+                if (res.status === 401) {
+                  console.log("Ocurrio un error al cargar impuesto cliente global")
+                }
+            })
+    }
+
+    cargarImpuestoProductosGlobal = () => {
+        fetch(this.urlApi + "/api/gruposimpuestos/Clientes")
+            .then(res => {
+                if (res.status === 200) {
+                    res.json().then(
+                        (result) => {
+                            this.props.onStoreImpuestoProductosGlobal(result);
+                        },
+                        (error) => {
+                            console.log("Ocurrio un error al cargar impuesto cliente global", error)
+                        }
+                    )
+                }
+                if (res.status === 401) {
+                  console.log("Ocurrio un error al cargar impuesto cliente global")
+                }
+            })
+    }
+
+    cargarAbreviacionMonedas =  () => {
+        fetch(this.urlApi + "/api/moneda")
+        .then(res=>res.json())
+        .then(data=>{this.props.onStoreAbreviacionMonedas(data);})
+        .catch(error=>console.log(error))
+    }
+
     cargarColecciones = (empresa) => {
         let colecciones = this.props.ListaPrecios.filter((x)=>x.EmpresaId===empresa);
         this.props.onStoreColecciones(colecciones);
@@ -165,6 +270,7 @@ class Pedidos extends React.Component {
                 }
             })
     }
+
     cargarClientes = () => {
         if (this.props.UsuarioOficina) {
             fetch(this.urlApi + "/api/cliente/pedido", {
@@ -205,7 +311,6 @@ class Pedidos extends React.Component {
         }
     }
 
-    
     cargarTiposPedido = () => {
         fetch(this.urlApi + "/api/tipopedido")
             .then(res => res.json())
@@ -2405,6 +2510,7 @@ class Pedidos extends React.Component {
                             onSetTableValue={this.props.onSetTableValue}
                             onSetTotalPedido={this.props.onSetTotalPedido}
                             onSetNumeroOrden={this.props.onSetNumeroOrden}
+                            ModuloConfiguraciones = {this.ModuloConfiguraciones}
                         />
                         </div>
                     </Switch>
@@ -2585,6 +2691,11 @@ const mapDispatchToProps = dispatch => {
         onStoreImpuestoClientes:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOS',payload:impuestos}),
         onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos}),
         onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
+        onSetEmpresasTransporte: (data) => {dispatch({ type: 'SET_EMPRESASTRANSPORTEGLOBAL', payload: data })},
+        onStorePrecioCajasGlobal:(precioCajas)=>dispatch({type:'SET_PRECIOCAJASGLOBAL',payload:precioCajas}),
+        onStoreImpuestoClientesGlobal:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOSGLOBAL',payload:impuestos}),
+        onStoreImpuestoProductosGlobal:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOSGLOBAL',payload:impuestos}),
+        onStoreAbreviacionMonedas:(data)=> dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data }),
         onSaveListaPrecios:(precios)=>{dispatch({type:'SET_LISTAPRECIOS',payload:precios})}
     };
 };

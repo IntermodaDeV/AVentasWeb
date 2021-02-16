@@ -86,6 +86,25 @@ const Recibos = (props) => {
     // eslint-disable-next-line
   }, [props.clienteSelected])
 
+  const ModuloConfiguraciones = () => {
+    cargarBancos();
+    cargarTipoPago();
+  }
+  
+  const cargarBancos = () => {
+    fetch(`${urlApi}/api/banco`)
+    .then(res=>res.json())
+    .then(data=>{props.onSetStoreBancos(data);})
+    .catch(error=>console.log(error))
+  }
+
+  const cargarTipoPago = async () => {
+    fetch(`${urlApi}/api/tipopago`)
+    .then(res=>res.json())
+    .then(data=>{props.onSetStoreTipoPago(data);})
+    .catch(error=>console.log(error))
+  }
+
   const calcularCuotasCuentaCorriente = () => {
     let agrupacionCuentCorriente = [];
     let agrupacionCuentaCorriente = [];
@@ -449,7 +468,7 @@ const Recibos = (props) => {
       let isOnline = await verificarConexion();
       if (isOnline) {
         try {
-          const request = await axios.get(`${urlApi}/api/recibos/correlativo/1`, {
+          const request = await axios.get(`${urlApi}/api/recibos/correlativo`, {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -588,6 +607,7 @@ const Recibos = (props) => {
                 </div>
             }
             <SelectCliente
+              ModuloConfiguraciones = {ModuloConfiguraciones}
               clientes={clientesFiltrados}
               clienteSelected={props.clienteSelected}
               onSelect={SelectedCliente}
@@ -746,6 +766,8 @@ const mapDispatchToProps = dispatch => {
     onSetTotalPedido: (TotalPedido) => dispatch({ type: 'SET_TOTALPEDIDO', TotalPedido: TotalPedido }),
     onSetNumeroOrden: (NumeroOrden) => dispatch({ type: 'SET_NUMEROORDEN', NumeroOrden: NumeroOrden }),
     onStoreTiposColeccion: (TiposColeccion) => dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: TiposColeccion }),
+    onSetStoreBancos: (data) => dispatch({ type: "SET_BANCOSGLOBAL", payload: data }),
+    onSetStoreTipoPago: (data) => dispatch({ type: "SET_TIPOPAGOGLOBAL", payload: data }),
     onStoreDatosParaPedido: (colecciones, clientes, TiposPedido, maestroLineas) => dispatch(
       { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
     onDeleteCuentaCorriente: ()=> dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'})
