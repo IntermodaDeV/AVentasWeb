@@ -102,6 +102,17 @@ const BadejaSalidaRecibos = (props) => {
             }
         }
         catch (err) {
+            let mensaje = "Ha ocurrido un error y no se ha registrado el recibo.";
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
             setLoading(false);
         }
     }

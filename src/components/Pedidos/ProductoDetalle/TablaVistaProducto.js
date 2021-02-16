@@ -9,6 +9,7 @@ import 'react-image-lightbox/style.css';
 import { FaEye } from "react-icons/fa";
 import { FiTrash2 } from 'react-icons/fi';
 import { Chip } from '@material-ui/core';
+import { ColorSinStockModal } from './ColorSinStockModal';
 
 const TablaVistaProducto = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
@@ -18,6 +19,7 @@ const TablaVistaProducto = (props) => {
     const [colorFiltrado,setColorFiltrado] = useState([]);
     const [showFiltro,setShowFiltro] = useState(false);
     const [listaColoresCopia,setListaColoresCopia] = useState(props.producto.ListaColores);
+    const [openColores,setOpenColores] = useState(false);
 
     const onFocus = () => {
 
@@ -131,8 +133,13 @@ const TablaVistaProducto = (props) => {
         setListaColoresCopia(props.producto.ListaColores);
     }
 
+    const handleClickColores = ()=>{
+        setOpenColores(!openColores);
+    }
+
     return (
         <div>
+            {props.producto.ListaColoresSinStock.length>0 && <p style={{marginRight:10}} className="btn btn-secondary" onClick={handleClickColores}>Otros Colores</p>}
             {props.producto.ListaColores.length > 1 && <p className="btn btn-primary" onClick={handleClickShowFiltro}>{showFiltro ? "Ocultar Filtro -" : "Filtrar colores +"}</p>}
             {colorFiltrado.length > 0 && <Chip
                 style={{ marginBottom: 10,marginLeft:10 }}
@@ -142,6 +149,7 @@ const TablaVistaProducto = (props) => {
                 icon={<FiTrash2 />}
             />}
             {showFiltro && <ListaColores colores={props.producto.ListaColores} handleColorFiltrado={handleClickColorFiltrado} colorFiltrado={colorFiltrado} />}
+            <ColorSinStockModal open={openColores} colores={props.producto.ListaColoresSinStock} close={handleClickColores}/>
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
                 <thead>
                     <tr className={styles.TrTest}>
