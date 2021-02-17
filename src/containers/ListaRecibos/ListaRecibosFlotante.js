@@ -16,6 +16,7 @@ import 'moment/locale/es';
 import DetalleRecibo from 'components/ListadoRecibos/DetalleRecibo';
 import { Loading } from 'components/Global/Loading';
 import { APIURL } from 'utils/Enviroment';
+import { IsAllow } from 'components/Seguridad/Permisos';
 
 export const ListaRecibosFlotante = props => {
     const [recibos, setRecibos] = useState([]);
@@ -117,12 +118,12 @@ export const ListaRecibosFlotante = props => {
     const sincronizarReciboFlotante = async (id) => {
         try {
             setLoading(true);
-            await axios.post(`${APIURL}/api/recibo/flotante/sincronizar/${id}`, {}, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+            const request = await axios.post(`${APIURL}/api/recibo/flotante/sincronizar/${id}`, {}, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
             setLoading(false);
             cargarRecibosFlotantes(startDate, endDate);
             Swal.fire({
                 title: 'Confirmado',
-                text: 'Recibo aprobado con exito.',
+                text: request.data,
                 type: 'success',
             })
         } catch (err) {
@@ -194,6 +195,7 @@ export const ListaRecibosFlotante = props => {
                     IdTipoPago: recib.TipoPago.Descripcion,
                     Valor: recib.Valor,
                     IdMoneda: recib.IdMoneda,
+                    ReciboGenerado:recib.ReciboGenerado,
                     CodigoAsesor: recib.CodigoAsesor,
                     Acciones:
                         <div>
@@ -222,6 +224,9 @@ export const ListaRecibosFlotante = props => {
     }
 
     useEffect(() => {
+        if (!IsAllow("/lista-recibos-flotante")) {
+            props.history.push('/home');
+        }
         cargarRecibosFlotantes("1900-01-01", "1900-01-01");
 
         //eslint-disable-next-line
@@ -350,6 +355,14 @@ const HeadersListaRecibos = [
     {
         name: "IdMoneda",
         label: "Moneda",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
+        name: "ReciboGenerado",
+        label: "Recibo Generado",
         options: {
             filter: true,
             sort: true,

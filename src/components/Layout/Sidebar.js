@@ -123,6 +123,7 @@ const navItems = [
         expanded: [
             { to: '/lista-recibos-BandejaSalida', name: 'Bandeja Salida', dataTut: 'DataTut_BandejaSalida', Icon: Input, backgroundColor:'#c41021' },
             { to: '/lista-recibos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_BandejaSalida', Icon: AllInbox, backgroundColor:'#d49008' },
+            { to: '/lista-recibos-flotante', name: 'Recibos Flotantes', dataTut: 'DataTut_ListadoPedidos', Icon: CloudQueueIcon, backgroundColor:''  },
             { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:''  },
             { to: '/lista-recibos-creditos', name: 'Resincronización recibos', dataTut: 'DataTut_ListadoRecibos', Icon: SyncAlt, backgroundColor:''  }
