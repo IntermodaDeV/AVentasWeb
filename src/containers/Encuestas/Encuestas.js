@@ -41,28 +41,29 @@ const Encuestas = (props) => {
   const NavHome = () => {
     props.history.push(`/Encuesta`);
   }
-    const cargarSeccion = async (encuestaId,nombreEncuesta) => {
-      try {
-          const request = await axios.get(`${APIURL}/api/Encuesta/Seccion/${encuestaId}`);
-          let Seccion = []
-          let valores = {Secciones: request.data, EncuestaId: encuestaId, NombreEncuesta: nombreEncuesta}
-          Seccion.push(valores);
-          dispatch({ type: 'SET_SECCIONESENCUESTA',payload: Seccion });
-          props.history.push("/Encuesta/Seccion");
-      } catch (err) {
-          let mensaje = "Ha ocurrido un error y no se han cargado las secciones de encuestas.";
 
-          if (err.response) {
-              mensaje = err.response.data.Message;
-          }
-          Swal.fire({
-              title: 'Error',
-              text: mensaje,
-              type: 'error',
-              confirmButtonText: 'Ok',
-          });
-      }
-  }
+  const cargarSeccion = async (encuestaId,nombreEncuesta) => {
+    try {
+        const request = await axios.get(`${APIURL}/api/Encuesta/Seccion/${encuestaId}`);
+        let Seccion = []
+        let valores = {Secciones: request.data, EncuestaId: encuestaId, NombreEncuesta: nombreEncuesta}
+        Seccion.push(valores);
+        dispatch({ type: 'SET_SECCIONESENCUESTA',payload: Seccion });
+        props.history.push("/Encuesta/Seccion");
+    } catch (err) {
+        let mensaje = "Ha ocurrido un error y no se han cargado las secciones de encuestas.";
+
+        if (err.response) {
+            mensaje = err.response.data.Message;
+        }
+        Swal.fire({
+            title: 'Error',
+            text: mensaje,
+            type: 'error',
+            confirmButtonText: 'Ok',
+        });
+    }
+  }  
 
   const cargarPreguntas = async (seccionId, NombreSeccion) => {
     try {

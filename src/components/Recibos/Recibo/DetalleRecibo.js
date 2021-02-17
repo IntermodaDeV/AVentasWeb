@@ -725,6 +725,7 @@ const DetalleRecibo = (props) => {
     
                 parametros = {
                     Fecha: pagosXRecibo[0].fecha,
+                    NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
                     CodigoCliente:props.Cliente.Codigo,
                     Tipo:(pedidoSelected!==null) ? "Anticipo [B-C]" : "Anticipo [T-O]",
                     FechaPago: pagosXRecibo[0].fecha,

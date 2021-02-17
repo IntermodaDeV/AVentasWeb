@@ -359,7 +359,7 @@ export const Home = (props) => {
 
     const cargarCorrelativoRecibo = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/recibos/correlativo/0`, {
+            const request = await axios.get(`${APIURL}/api/recibos/correlativo`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')

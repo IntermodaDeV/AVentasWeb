@@ -142,6 +142,43 @@ class Pedidos extends React.Component {
         this.cargarImpuestoClienteGlobal();
         this.cargarImpuestoProductosGlobal();
         this.cargarAbreviacionMonedas();
+        this.cargarClientesContado();
+        this.cargarComunidadAutonoma();
+        this.cargarMonedas();
+    }
+
+    cargarMonedas = async () => {
+        fetch(this.urlApi + "/api/moneda/monedas")
+            .then(res => res.json())
+            .then(data => { this.props.onStoreMonedas(data); })
+            .catch(error => console.log(error))
+    }
+
+    cargarComunidadAutonoma = () => {
+        fetch(this.urlApi + "/api/transporte/comunidadautonoma")
+            .then(res => res.json())
+            .then(data => { this.props.onStoreComunidadAutonoma(data); })
+            .catch(error => console.log(error))
+    }
+
+    cargarClientesContado = () => {
+        fetch(this.urlApi + `/api/clientecontado/${localStorage.getItem('codigo')}`)
+        .then(res => {
+            if (res.status === 200) {
+
+                res.json().then(
+                    (result) => {
+                        this.props.onStoreClienteContado(result);
+                    },
+                    (error) => {
+                        console.log(error)
+                    }
+                )
+            }
+            if (res.status === 401) {  
+                console.log("Ocurrio un error al cargar clientes de contado")
+            }
+        })
     }
 
     cargarEmpresasTransporteGlobal = () => {
@@ -154,10 +191,7 @@ class Pedidos extends React.Component {
                         this.props.onSetEmpresasTransporte(result);
                     },
                     (error) => {
-                        this.setState({
-                            isLoaded: true,
-                            error
-                        });
+                        console.log(error)
                     }
                 )
             }
@@ -176,10 +210,7 @@ class Pedidos extends React.Component {
                             this.props.onStorePrecioCajasGlobal(result);
                         },
                         (error) => {
-                            this.setState({
-                                isLoaded: true,
-                                error
-                            });
+                            console.log(error)
                         }
                     )
                 }
@@ -2696,6 +2727,9 @@ const mapDispatchToProps = dispatch => {
         onStoreImpuestoClientesGlobal:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOSGLOBAL',payload:impuestos}),
         onStoreImpuestoProductosGlobal:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOSGLOBAL',payload:impuestos}),
         onStoreAbreviacionMonedas:(data)=> dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data }),
+        onStoreClienteContado:(data)=> dispatch({ type: 'SET_CLIENTESCONTADO', payload: data }),
+        onStoreComunidadAutonoma:(data)=> dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data }),
+        onStoreMonedas:(data)=> dispatch({ type: 'SET_MONEDASGLOBAL', payload: data }),
         onSaveListaPrecios:(precios)=>{dispatch({type:'SET_LISTAPRECIOS',payload:precios})}
     };
 };
