@@ -11,6 +11,7 @@ import { Dropdown } from "semantic-ui-react";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import moment from "moment";
 import axios from 'axios';
+import { useSelector } from 'react-redux';
 import 'moment/locale/es';
 
 import DetalleRecibo from 'components/ListadoRecibos/DetalleRecibo';
@@ -25,6 +26,8 @@ export const ListaRecibosFlotante = props => {
     const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
     const [endDate, setEndDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1));
     const [estado, setEstado] = useState(0);
+    const [AsesorSelected, setAsesorSelected] = useState(null);
+    const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
 
     const getMuiTheme = () => createMuiTheme({
         overrides: {
@@ -47,7 +50,8 @@ export const ListaRecibosFlotante = props => {
         try {
             let Inicio = moment(fechainicio).format("YYYY-MM-DD");
             let Fin = moment(fechafinal).format("YYYY-MM-DD");
-            const request = await axios.get(`${APIURL}/api/Recibo/flotante/${Inicio}/${Fin}/${estado}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
+            const request = await axios.get(`${APIURL}/api/Recibo/flotante/${Inicio}/${Fin}/${estado}/${Asesor}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
             setRecibos(request.data);
         } catch (err) {
 
@@ -195,7 +199,7 @@ export const ListaRecibosFlotante = props => {
                     IdTipoPago: recib.TipoPago.Descripcion,
                     Valor: recib.Valor,
                     IdMoneda: recib.IdMoneda,
-                    ReciboGenerado:recib.ReciboGenerado,
+                    ReciboGenerado: recib.ReciboGenerado,
                     CodigoAsesor: recib.CodigoAsesor,
                     Acciones:
                         <div>
@@ -227,6 +231,7 @@ export const ListaRecibosFlotante = props => {
         if (!IsAllow("/lista-recibos-flotante")) {
             props.history.push('/home');
         }
+        setAsesorSelected(AsesoresUsuario[0].Usuario);
         cargarRecibosFlotantes("1900-01-01", "1900-01-01");
 
         //eslint-disable-next-line
@@ -285,6 +290,18 @@ export const ListaRecibosFlotante = props => {
                             noResultsMessage={"No hay resultados"}
                             closeOnChange={true}
                             value={estado}
+                        />
+                    </div>
+                    <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
+                        <Dropdown
+                            placeholder="Asesor"
+                            selection
+                            style={{ zIndex: 999 }}
+                            onChange={(e, { value }) => setAsesorSelected(value)}
+                            options={AsesoresUsuario.map((Ase) => ({ key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }))}
+                            noResultsMessage={"No hay resultados"}
+                            closeOnChange={true}
+                            value={AsesorSelected}
                         />
                     </div>
                     <div className="col-lg-1 col-sm-2 col-4" style={{ paddingTop: 10 }}>
