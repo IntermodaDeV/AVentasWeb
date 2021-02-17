@@ -7,7 +7,7 @@ const Select = (props) => {
         <div classname='form-control'>
             <label htmlFor={name}>{label}</label>
             <Field
-                style={{ width: '450px', marginRight: '20px' }}
+                style={{ width: '700px'}}
                 className="form-control"
                 id={name}
                 name={name} {...rest}

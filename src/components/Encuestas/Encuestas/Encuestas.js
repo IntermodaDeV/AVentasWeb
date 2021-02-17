@@ -129,8 +129,8 @@ export const Encuesta = (props) => {
     }
 
     const Modificar = (valores) => {
-        valores.FechaInicio = moment(fechaInicio).toDate();
-        valores.FechaFin = moment(fechaFin).toDate();
+        valores.FechaInicio = moment(fechaInicio).format("YYYY-MM-DD");
+        valores.FechaFin = moment(fechaFin).format("YYYY-MM-DD");
         ModificarEncuestas(valores)
     }
 
@@ -304,8 +304,8 @@ export const Encuesta = (props) => {
                         enableReinitialize = {false}
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
-                            values.FechaInicio = moment(fechaInicio).toDate();
-                            values.FechaFin = moment(fechaFin).toDate();
+                            values.FechaInicio = moment(fechaInicio).format("YYYY-MM-DD");
+                            values.FechaFin = moment(fechaFin).format("YYYY-MM-DD");
                             registrarEncuesta(values)
                         }}>
                         {({ errors, resetForm, values, setValues, setFieldValue }) => (

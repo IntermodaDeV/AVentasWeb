@@ -1,7 +1,7 @@
 import React from 'react'
 const TextError = (props) => {
     return(
-    <div classname = 'error'>
+    <div style={{color:'red', marginBottom: '10px'}} >
        {props.children}
     </div>
 )}

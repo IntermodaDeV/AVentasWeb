@@ -4,13 +4,13 @@ import TextError from './TextError'
 const Input = (props) => {
     const { label, name, ...rest } = props;
     return (
-        <div classname='form-control'>
+        <div classname='form-group'>
             <label htmlFor={name}>{label}</label>
             <Field
-                style={{ width: '450px', textAlign: 'center' }}
-                className="form-control"
                 id={name}
-                name={name} {...rest} />
+                name={name} {...rest} 
+                style={{  width: '700px'}}
+                className="form-control"/>
             <ErrorMessage name={name} component={TextError} />
         </div>
     )

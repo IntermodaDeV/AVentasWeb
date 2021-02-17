@@ -106,6 +106,7 @@ const navItems = [
         expanded: [
             { to: '/Mantenimiento/Encuesta', name: 'Mantemiento Encuesta', dataTut: 'DataTut_MantenimientoEncuestas', Icon: LocalLibraryIcon, backgroundColor:'' },
             { to: '/Encuesta', name: 'Encuesta', dataTut: 'DataTut_Encuestas', Icon: DescriptionIcon, backgroundColor:''  },
+            { to: '/encuesta/selectCliente', name: 'Responder Encuesta', dataTut: 'DataTut_Encuestas', Icon: DescriptionIcon, backgroundColor:''  },
            ]
     },
     {

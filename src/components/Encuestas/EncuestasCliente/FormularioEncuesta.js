@@ -1,13 +1,28 @@
 import React from 'react';
 import { Formik, Form } from 'formik';
-import { FaArrowLeft } from "react-icons/fa";
-import { Fab } from "@material-ui/core";
+import { Button } from "@material-ui/core";
+import SendIcon from '@material-ui/icons/Send';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
 import FormikControl from './Formulario/FormikControl'
 import * as yup from 'yup';
-import Button from '@material-ui/core/Button';
 import { APIURL } from 'utils/Enviroment';
 import axios from 'axios';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { withStyles } from "@material-ui/core/styles";
+import {
+    Card,
+    CardHeader as MuiCardHeader,
+    CardContent,
+} from '@material-ui/core';
+
+
+const CardHeader = withStyles({
+    title: {
+        fontWeight: '1000',
+        textAlign: 'center'
+    },
+})(MuiCardHeader);
+
 const FormularioEncuesta = (props) => {
     console.log(props)
     const obtenerModelo = secciones => {
@@ -97,73 +112,77 @@ const FormularioEncuesta = (props) => {
     }
 
     return (
+        <div style={{ height: '100%', display: 'flex', justifyContent: 'center' }} className="container-fluid">
+            <Card style={{ width: '900px' }} raised={true}>
+                <CardHeader
+                    titleTypographyProps={{ fontWeight: 'bold' }}
+                    title={props.EncuestaSelected[0].NombreEncuesta} >
+                </CardHeader>
+                <CardContent>
+                    <h2 style={{ textAlign: 'center' }}>{props.ClienteSelected.Codigo + " - " + props.EncuestaSelected[0].NombreEncuesta}</h2>
+                    <Formik
+                        initialValues={initialValues}
+                        enableReinitialize
+                        validationSchema={validationSchema}
+                        onSubmit={(values) => {
+                            registrarRespuestas(values);
+                        }}>
+                        {({ errors, resetForm, values, setValues }) => (
+                            <div className="form-group">
+                                <Form>
+                                    {
+                                        props.EncuestaSelected.map((seccion, index) => {
+                                            return (
+                                                <>
+                                                    <div style={{ background: '#D3F2F7' }}>
+                                                        <hr />
+                                                        <h4 style={{ fontWeight: 'bold', paddingLeft:'10px' }}>{"Sección: " + seccion.Nombre}</h4>
+                                                        <hr />
+                                                    </div>
 
-        <div className={"px-3"}>
-            <Fab size="small" color="default" onClick={() => props.history.push("/encuesta/selectCliente")} className={"mx-1"} style={{ transform: 'scale(0.8)' }}>
-                <FaArrowLeft size={"15px"} />
-            </Fab>
-            <h2 style={{ textAlign: 'center' }}>{props.ClienteSelected.Codigo + " - " +props.EncuestaSelected[0].NombreEncuesta}</h2>
-            <hr />
-            <Formik
-                initialValues={initialValues}
-                enableReinitialize
-                validationSchema={validationSchema}
-                onSubmit={(values) => {
-                    registrarRespuestas(values);
-                }}>
-                {({ errors, resetForm, values, setValues }) => (
-                    <div>
-                        <div className="form-group">
-                            <Form>
-                                {
-                                    props.EncuestaSelected.map((seccion, index) => {
-                                        return (
-                                            <>
-                                                <div>
-                                                    <h4 style={{marginBottom:'10px', marginTop: '10px'}}>{"Sección: " + seccion.Nombre}</h4>
-                                                </div>
-                                                {
-                                                    seccion.Preguntas.map((pregunta, index1) => {
-                                                        const Opciones = [];
-                                                        if (pregunta.GrupoOpcionesId !== null) {
-                                                            if (pregunta.TipoIngreso === 'select') {
-                                                                let GrupoOpciones = {}
-                                                                GrupoOpciones = { key: "Seleccione...", value: '' };
-                                                                Opciones.push(GrupoOpciones);
+                                                    {
+                                                        seccion.Preguntas.map((pregunta, index1) => {
+                                                            const Opciones = [];
+                                                            if (pregunta.GrupoOpcionesId !== null) {
+                                                                if (pregunta.TipoIngreso === 'select') {
+                                                                    let GrupoOpciones = {}
+                                                                    GrupoOpciones = { key: "Seleccione...", value: '' };
+                                                                    Opciones.push(GrupoOpciones);
+                                                                }
+                                                                pregunta.PreguntasOpciones.forEach(gp => {
+                                                                    let GrupoOpciones = {}
+                                                                    GrupoOpciones = { key: gp.GOpcionesDetalleNombre, value: gp.PreguntasOpcionesId }
+                                                                    Opciones.push(GrupoOpciones);
+                                                                });
                                                             }
-                                                            pregunta.PreguntasOpciones.forEach(gp => {
-                                                                let GrupoOpciones = {}
-                                                                GrupoOpciones = { key: gp.GOpcionesDetalleNombre, value: gp.PreguntasOpcionesId }
-                                                                Opciones.push(GrupoOpciones);
-                                                            });
-                                                        }
-                                                        return (
-                                                            <>
-                                                                {
-                                                                    pregunta.GrupoOpcionesId === null &&
-                                                                    <FormikControl control={pregunta.TipoIngreso} type={pregunta.TipoIngreso} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} id={pregunta.PreguntaId} name={pregunta.PreguntaId} />
-                                                                }
-                                                                {
-                                                                    pregunta.GrupoOpcionesId !== null &&
-                                                                    <FormikControl control={pregunta.TipoIngreso} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} name={pregunta.PreguntaId} options={Opciones} />
-
-                                                                }
-
-                                                            </>
-                                                        )
-                                                    })
-                                                }
-                                            </>
-                                        )
-                                    })
-                                }
-                                <Button class="btn btn-sucess" type="submit" color="sucess">Enviar</Button>
-                            </Form>
-                        </div>
-
-                    </div>
-                )}
-            </Formik>
+                                                            return (
+                                                                <>
+                                                                    {
+                                                                        pregunta.GrupoOpcionesId === null &&
+                                                                        <FormikControl control={pregunta.TipoIngreso} errors={errors} type={pregunta.TipoIngreso} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} id={pregunta.PreguntaId} name={pregunta.PreguntaId} />
+                                                                    }
+                                                                    {
+                                                                        pregunta.GrupoOpcionesId !== null &&
+                                                                        <FormikControl control={pregunta.TipoIngreso} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} name={pregunta.PreguntaId} options={Opciones} />
+                                                                    }
+                                                                </>
+                                                            )
+                                                        })
+                                                    }
+                                                </>
+                                            )
+                                        })
+                                    }
+                                    <div style={{ textAlign: 'right', paddingTop:'20px'}}>
+                                        <Button type="submit" variant="contained" onClick={() => props.history.push("/encuesta/selectCliente")} startIcon={<HighlightOffIcon />}>Cancelar</Button>
+                                        <Button type="submit" color="primary" variant="contained" startIcon={<SendIcon />}>Enviar</Button>
+                                    </div>
+                                </Form>
+                            </div>
+                        )}
+                    </Formik>
+                </CardContent>
+            </Card>
         </div>
     )
 }
