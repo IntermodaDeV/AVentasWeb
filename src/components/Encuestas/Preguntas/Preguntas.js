@@ -22,7 +22,7 @@ export const Preguntas = props => {
     const [mostrar, setMostrar] = useState(false);
     const [pregunta, setPregunta] = useState(null);
     const [requiereGrupoOpciones, setRequiereGrupoOpciones] = useState(false);
-    const [tipoIngreso, setTipoIngreso] = useState(TipoIngreso[0].value);
+    const [tipoIngreso, setTipoIngreso] = useState(TipoIngreso.length > 0 ? TipoIngreso[0].value : '');
     const [grupoOpcion, setGrupoOpcion] = useState(null);
     const context = useRef();
     const validationSchema = yup.object().shape(

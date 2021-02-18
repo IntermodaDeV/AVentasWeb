@@ -8,7 +8,7 @@ import * as yup from 'yup';
 import { APIURL } from 'utils/Enviroment';
 import axios from 'axios';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { withStyles } from "@material-ui/core/styles";
+import { withStyles, makeStyles } from "@material-ui/core/styles";
 import {
     Card,
     CardHeader as MuiCardHeader,
@@ -25,6 +25,12 @@ const CardHeader = withStyles({
 
 const FormularioEncuesta = (props) => {
     console.log(props)
+    const useStyles = makeStyles((theme) => ({
+        button: {
+            marginLeft: theme.spacing(2),
+        },
+    }));
+    const classes = useStyles();
     const obtenerModelo = secciones => {
         let modelo = {};
         for (let seccion of secciones) {
@@ -110,16 +116,14 @@ const FormularioEncuesta = (props) => {
             });
         }
     }
-
     return (
         <div style={{ height: '100%', display: 'flex', justifyContent: 'center' }} className="container-fluid">
             <Card style={{ width: '900px' }} raised={true}>
                 <CardHeader
                     titleTypographyProps={{ fontWeight: 'bold' }}
-                    title={props.EncuestaSelected[0].NombreEncuesta} >
+                    title={props.ClienteSelected.Codigo + " - " + props.EncuestaSelected[0].NombreEncuesta} >
                 </CardHeader>
                 <CardContent>
-                    <h2 style={{ textAlign: 'center' }}>{props.ClienteSelected.Codigo + " - " + props.EncuestaSelected[0].NombreEncuesta}</h2>
                     <Formik
                         initialValues={initialValues}
                         enableReinitialize
@@ -134,10 +138,11 @@ const FormularioEncuesta = (props) => {
                                         props.EncuestaSelected.map((seccion, index) => {
                                             return (
                                                 <>
-                                                    <div style={{ background: '#D3F2F7' }}>
-                                                        <hr />
-                                                        <h4 style={{ fontWeight: 'bold', paddingLeft:'10px' }}>{"Sección: " + seccion.Nombre}</h4>
-                                                        <hr />
+                                                    <div style={{ background: '#D3F2F7' }} className="form-group">
+
+                                                        <h5 style={{ fontWeight: 'bold', paddingLeft: '10px' }}>{"Sección: " + seccion.Titulo}</h5>
+                                                        <p style={{ fontStyle: 'italic', paddingLeft: '10px' }}>{seccion.Descripcion}</p>
+
                                                     </div>
 
                                                     {
@@ -173,9 +178,9 @@ const FormularioEncuesta = (props) => {
                                             )
                                         })
                                     }
-                                    <div style={{ textAlign: 'right', paddingTop:'20px'}}>
-                                        <Button type="submit" variant="contained" onClick={() => props.history.push("/encuesta/selectCliente")} startIcon={<HighlightOffIcon />}>Cancelar</Button>
-                                        <Button type="submit" color="primary" variant="contained" startIcon={<SendIcon />}>Enviar</Button>
+                                    <div style={{ textAlign: 'right', paddingTop: '20px' }}>
+                                        <Button className={classes.button} type="submit" variant="contained" onClick={() => props.history.push("/encuesta/selectCliente")} startIcon={<HighlightOffIcon />}>Cancelar</Button>
+                                        <Button className={classes.button} type="submit" color="primary" variant="contained" startIcon={<SendIcon />}>Enviar</Button>
                                     </div>
                                 </Form>
                             </div>

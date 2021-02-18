@@ -13,6 +13,7 @@ const RadioButton = (props) => {
                             return options.map(option => {
                                 return (
                                     <React.Fragment key={option.key}>
+                                        <label htmlFor={option.value} style={{ marginRight: '5px', marginLeft:'10px' }}>{option.key}</label>
                                         <input
                                             type='radio'
                                             id={option.value}
@@ -20,7 +21,7 @@ const RadioButton = (props) => {
                                             value={option.value}
                                             checked={field.value === String(option.value)}
                                         />
-                                        <label htmlFor={option.value} style={{ marginRight: '10px' }}>{option.key}</label>
+                                        
                                     </React.Fragment>
                                 )
                             })
