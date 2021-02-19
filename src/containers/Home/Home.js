@@ -163,6 +163,7 @@ export const Home = (props) => {
         cargarTipoVisitas(); ///Siempre debe ser el Ultimo Metodo
     }
     const ModuloCarteracliente = () => {
+        cargarDocumentosPendientes();
         CarteraClientes();
     }
     const CargaModuloRecibo = () => {
@@ -209,6 +210,19 @@ export const Home = (props) => {
         } else {
             return null;
         }
+    }
+
+    const cargarDocumentosPendientes = async () => {
+        const { data, error } = await get(`${APIURL}/api/documentospendientes/facturas`, "DocumentosPendientes");
+        dispatch({ type: "SET_DOCUMENTOSPENDIENTES", payload: data });
+
+        if (error) {
+            localStorage.setItem("OcurrioError", true)
+            console.log(error);
+        } else {
+            dispatch({ type: "SET_DOCUMENTOSPENDIENTES", payload: data });
+        }
+
     }
 
     const cargarComunidadAutonoma = async () => {

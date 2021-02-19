@@ -25,6 +25,7 @@ import { Dropdown } from "semantic-ui-react";
 import { verificarConexion } from 'utils/http';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
+import { FacturasReservadas } from 'components/Cartera/FacturasReservadas';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
@@ -52,6 +53,8 @@ export const Cartera = props => {
                 setFiltrados(data);
                 setLoading(false);
             }
+
+            cargarDocumentosPendientes();
         }
 
         if (AsesoresUsuario.length > 1) {
@@ -63,12 +66,24 @@ export const Cartera = props => {
                 setCliente(undefined);
                 setLoading(true);
                 const request = await axios.get(`${APIURL}/api/cliente/${seleccionado}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+                const requestPendientes = await axios.get(`${APIURL}/api/documentospendientes/facturas`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
                 dispatch({ type: "SET_CARTERA", payload: request.data });
+                dispatch({ type: "SET_DOCUMENTOSPENDIENTES", payload: requestPendientes.data });
                 setFiltrados(request.data);
                 setLoading(false);
             } catch (err) {
                 console.log(err);
             }
+        }
+    }
+
+    const cargarDocumentosPendientes = async () => {
+        try {
+            const { data, error } = await get(`${APIURL}/api/documentospendientes/facturas`, "DocumentosPendientes");
+            dispatch({ type: "SET_DOCUMENTOSPENDIENTES", payload: data });
+            console.log(error);
+        } catch (err) {
+
         }
     }
 
@@ -84,6 +99,7 @@ export const Cartera = props => {
             let isOnline = await verificarConexion();
             if (isOnline) {
                 localStorage.removeItem('expiracion-Cartera');
+                localStorage.removeItem('expiracion-DocumentosPendientes');
                 setCliente(undefined);
                 setLoading(true);
                 cargarCartera();
@@ -175,6 +191,10 @@ export const Cartera = props => {
         props.history.push('/cartera/cuenta');
     }
 
+    const redirectDocumentosPendientes = () => {
+        props.history.push('/cartera/facturas-reservadas');
+    }
+
     const handleChangeBusqueda = (busqueda) => {
         if (busqueda === "") {
             setFiltrados(clientes);
@@ -242,12 +262,14 @@ export const Cartera = props => {
                             >
                                 <Tab onClick={redirectCartera} icon={<PersonIcon />} label="Informacion" />
                                 <Tab onClick={redirectRoles} icon={<ContactMailIcon />} label="Cuenta Corriente" />
+                                <Tab onClick={redirectDocumentosPendientes} icon={<ContactMailIcon />} label="Facturas Reservadas" />
                             </Tabs>
                         </Paper>
                         <div style={{ height: '90%' }} className="card">
                             <Switch>
                                 <Route exact path={`${props.match.url}`} render={(props) => <InformacionGeneral cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/cuenta`} render={(props) => <CuentaCorriente cliente={cliente} />} />
+                                <Route exact path={`${props.match.url}/facturas-reservadas`} render={(props) => <FacturasReservadas cliente={cliente} />} />
                             </Switch>
                         </div>
                     </div></>)
