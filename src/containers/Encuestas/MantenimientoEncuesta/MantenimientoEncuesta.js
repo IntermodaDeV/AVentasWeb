@@ -8,6 +8,8 @@ import SupervisorAccountIcon from '@material-ui/icons/SupervisorAccount';
 import {TiposIngreso} from 'components/Encuestas/TiposIngreso/TiposIngreso';
 import {GrupoOpciones} from 'components/Encuestas/GrupoOpciones/GrupoOpciones'
 import {GrupoOpcionesDetalle} from 'components/Encuestas/GrupoOpcionesDetalle/GrupoOpcionesDetalle'
+import {Secciones} from 'components/Encuestas/Secciones/Secciones'
+
 export const MantenimientoEncuesta = props => {
     const [value, setValue] = React.useState(0);
 
@@ -27,6 +29,10 @@ export const MantenimientoEncuesta = props => {
         props.history.push('/Mantenimiento/Encuesta');
     }
 
+    const redirectSecciones = () =>{
+        props.history.push('/Mantenimiento/Encuesta/secciones');
+    }
+
     return (
         <div style={{height:'100%'}} className="container-fluid">
             <Paper square>
@@ -40,6 +46,7 @@ export const MantenimientoEncuesta = props => {
                     <Tab onClick={redirectTiposIngreso} icon={<RecentActorsIcon/>} label="Tipos Ingreso" />
                     <Tab onClick={redirectGrupoOpciones} icon = {<SupervisorAccountIcon/>} label ="Grupo Opciones"/>
                     <Tab onClick={redirectGrupoOpcionesDetalle} icon = {<SupervisorAccountIcon/>} label ="Grupo Opciones Detalle"/>
+                    <Tab onClick={redirectSecciones} icon = {<SupervisorAccountIcon/>} label ="Secciones"/>
                 </Tabs>
             </Paper>
             <div className="card" style={{height:'85%'}}>
@@ -47,6 +54,7 @@ export const MantenimientoEncuesta = props => {
                     <Route exact path={`${props.match.url}`} render={(props)=><TiposIngreso/>}/>
                     <Route exact path={`${props.match.url}/GrupoOpciones`} render={(props)=><GrupoOpciones/>}/>
                     <Route exact path={`${props.match.url}/GrupoOpcionesDetalle`} render={(props)=><GrupoOpcionesDetalle/>}/>
+                    <Route exact path={`${props.match.url}/secciones`} render={(props)=><Secciones/>}/>
                 </Switch>
             </div>
         </div>

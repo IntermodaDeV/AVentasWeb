@@ -411,7 +411,6 @@ export const Encuesta = (props) => {
             <div className="col">
                 <div class="card-body text-center">
                     <div class="text-right">
-                        <button className="btn btn-info" style={{marginRight:'10px'}} onClick={() => { props.cargarSecciones() }}>Registrar Nueva Sección <MdPlaylistAdd /></button>
                         <button className="btn btn-dark" onClick={() => { Mostrar() }}>Registrar Nuevo <MdPlaylistAdd /></button>
                     </div>
                 </div>

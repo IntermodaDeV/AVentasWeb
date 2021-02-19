@@ -44,12 +44,9 @@ const TablaSeccion = (props) => {
                                             }
                                             {
                                                 props.Mostrar === false &&
-                                                <>
-                                                <Button style={{ marginLeft: '10px' }} class="btn btn-success" onClick={() => { props.cargarPreguntas(sec.Id, sec.Nombre) }} startIcon={<FaEdit />} >Ver Preguntas</Button>
                                                 <Button style={{ marginLeft: '10px' }} class="btn btn-primary" onClick={() => { props.cargarUsuarios(sec.Id) }} startIcon={<GroupAddIcon />} >Usuarios</Button>
-                                                </>
                                             }
-                                            
+                                                <Button style={{ marginLeft: '10px' }} class="btn btn-success" onClick={() => { props.cargarPreguntas(sec.Id, sec.Nombre) }} startIcon={<FaEdit />} >Ver Preguntas</Button>
                                         </td>
                                     </tr>
                                 ))}

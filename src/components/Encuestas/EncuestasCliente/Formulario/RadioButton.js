@@ -1,11 +1,13 @@
 import React from 'react'
 import { Field, ErrorMessage } from 'formik'
 import TextError from './TextError'
+import FormikErrorFocus from 'formik-error-focus'
 const RadioButton = (props) => {
-    const { label, name, options, ...rest } = props;
+    const { label, Descripcion, name, options, ...rest } = props;
     return (
         <div classname='form-control'>
             <label>{label}</label>
+            <p style={{ fontStyle: 'italic', fontSize:'13px' }} htmlFor={"Id" + name}>{Descripcion}</p>
             <div className="form-group">
                 <Field name={name} {...rest}>
                     {
@@ -29,6 +31,13 @@ const RadioButton = (props) => {
 
                     }
                 </Field>
+                <FormikErrorFocus
+                    offset={0}
+                    align={'top'}
+                    focusDelay={200}
+                    ease={'linear'}
+                    duration={1000}
+                />
             </div>
             <ErrorMessage name={name} component={TextError} />
         </div>

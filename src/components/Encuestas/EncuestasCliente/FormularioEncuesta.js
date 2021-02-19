@@ -164,11 +164,11 @@ const FormularioEncuesta = (props) => {
                                                                 <>
                                                                     {
                                                                         pregunta.GrupoOpcionesId === null &&
-                                                                        <FormikControl control={pregunta.TipoIngreso} errors={errors} type={pregunta.TipoIngreso} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} id={pregunta.PreguntaId} name={pregunta.PreguntaId} />
+                                                                        <FormikControl control={pregunta.TipoIngreso} errors={errors} Descripcion = {pregunta.Descripcion} type={pregunta.TipoIngreso} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} id={pregunta.PreguntaId} name={pregunta.PreguntaId} />
                                                                     }
                                                                     {
                                                                         pregunta.GrupoOpcionesId !== null &&
-                                                                        <FormikControl control={pregunta.TipoIngreso} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} name={pregunta.PreguntaId} options={Opciones} />
+                                                                        <FormikControl control={pregunta.TipoIngreso} Descripcion = {pregunta.Descripcion} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} name={pregunta.PreguntaId} options={Opciones} />
                                                                     }
                                                                 </>
                                                             )

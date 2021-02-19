@@ -27,7 +27,7 @@ export const Preguntas = props => {
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
-            Nombre: yup.string().required('El nombre es obligatorio'),
+            Nombre: yup.string().required('La pregunta es obligatoria'),
             Obligatorio: yup.boolean(),
             RespuestaObligatorio: yup.boolean(),
             Status: yup.boolean(),
@@ -127,12 +127,13 @@ export const Preguntas = props => {
         }
     }
 
-    
-
     const openEdit = (resp) => {
         let requiereGrupoOpciones =TipoIngreso.length > 0 ? TipoIngreso.find(t => t.value === resp.TipoIngresoId).RequiereGrupoOpciones: false;
         setRequiereGrupoOpciones(requiereGrupoOpciones);
         setTipoIngreso(resp.TipoIngresoId);
+        if(requiereGrupoOpciones === false){
+            props.cargarGrupoOpcionesDetalle(0);
+        }
         setGrupoOpcion(resp.GrupoOpcionesId);
         if(resp.GrupoOpcionesId !== null)
         {
@@ -143,6 +144,10 @@ export const Preguntas = props => {
     }
 
     const Mostrar = () => {
+        setRequiereGrupoOpciones(false)
+        setGrupoOpcion(0)
+        props.cargarGrupoOpcionesDetalle(0);
+        setTipoIngreso(TipoIngreso.length > 0 ? TipoIngreso[0].value : '');
         setPregunta(null);
         setMostrar(true);
     }
@@ -226,7 +231,7 @@ export const Preguntas = props => {
                                 <Form>
                                     <div className="form-group">
                                         <Field
-                                            label="Nombre"
+                                            label="Pregunta"
                                             name="Nombre"
                                             error={!!errors.Nombre}
                                             helperText={errors.Nombre}
@@ -380,7 +385,7 @@ export const Preguntas = props => {
                     </Formik>
                 </DialogContent>
             </Dialog>
-            <TablaPreguntas Preguntas={Preguntas[0].Preguntas} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
+            <TablaPreguntas Preguntas={Preguntas[0].Preguntas} MostrarPregunta = {props.MostrarPregunta} setMostrarPregunta ={props.setMostrarPregunta} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
         </div>
        </> 
     )

@@ -131,7 +131,7 @@ const Encuestas = (props) => {
   const cargarGrupoOpciones = async () => {
     try {
       const request = await axios.get(`${APIURL}/api/GrupoOpciones`);
-      let GrupoOpciones = [{key: "Seleccione..." , value: ''}];
+      let GrupoOpciones = [{key: "Seleccione..." , value: null}];
       request.data.filter(g => g.Status === true).forEach(grupo => {
         let Valores = { key: grupo.Nombre, value: grupo.Id}
         GrupoOpciones.push(Valores);
