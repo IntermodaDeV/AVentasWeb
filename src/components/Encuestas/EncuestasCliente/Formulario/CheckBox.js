@@ -13,6 +13,7 @@ const CheckBox = (props) => {
                             return options.map(option => {
                                 return (
                                     <React.Fragment key={option.key}>
+                                        <label htmlFor={option.value} style={{ marginRight: '5px', marginLeft:'10px' }}>{option.key}</label>
                                         <input
                                             type='checkbox'
                                             id={option.value}
@@ -20,7 +21,6 @@ const CheckBox = (props) => {
                                             value={option.value}
                                             checked={field.value !== undefined ? field.value.includes(String(option.value)) : false}
                                         />
-                                        <label htmlFor={option.value} style={{ marginRight: '10px' }}>{option.key}</label>
                                     </React.Fragment>
                                 )
                             })

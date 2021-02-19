@@ -34,7 +34,7 @@ export const Encuesta = (props) => {
     const validationSchema = yup.object().shape(
         {
             Nombre: yup.string().required('El nombre es obligatorio'),
-            Descripcion: yup.string().required('La descripción es obligatoria'),       
+            Descripcion: yup.string(),       
         });
 
     useEffect(() => {
@@ -393,10 +393,10 @@ export const Encuesta = (props) => {
                 <DialogContent>
                     <div className="row">
                         <div className="col">
-                            <TablaRelacion funcion={asignarSeccion} accion="agregar" titulo="Secciones Asignadas" cabeceras={["Sección", "Acción"]} valores={SeccionesNoPermitidas} />
+                            <TablaRelacion funcion={asignarSeccion} accion="agregar" titulo="Secciones No Asignadas" cabeceras={["Sección", "Acción"]} valores={SeccionesNoPermitidas} />
                         </div>
                         <div className="col">
-                            <TablaRelacion funcion={removerSeccion} accion="remover" titulo="Secciones No Asignadas" cabeceras={["Sección", "Acción"]} valores={SeccionesPermitidas} />
+                            <TablaRelacion funcion={removerSeccion} accion="remover" titulo="Secciones Asignadas" cabeceras={["Sección", "Acción"]} valores={SeccionesPermitidas} />
                         </div>
                     </div>
                 </DialogContent>
@@ -411,7 +411,8 @@ export const Encuesta = (props) => {
             <div className="col">
                 <div class="card-body text-center">
                     <div class="text-right">
-                        <button className="btn btn-primary" onClick={() => { Mostrar() }}>Registrar Nuevo <MdPlaylistAdd /></button>
+                        <button className="btn btn-info" style={{marginRight:'10px'}} onClick={() => { props.cargarSecciones() }}>Registrar Nueva Sección <MdPlaylistAdd /></button>
+                        <button className="btn btn-dark" onClick={() => { Mostrar() }}>Registrar Nuevo <MdPlaylistAdd /></button>
                     </div>
                 </div>
                 <div style={{ marginTop: '20px' }} className="container-fluid">

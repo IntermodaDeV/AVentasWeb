@@ -23,6 +23,14 @@ const EncuestaBreadCrumb = (props) => {
                                 ]}
                             />
                         )} />
+                         <Route path={props.match.url + '/ListaSeccion'} exact render={(routeProps) => (
+                            <NavigationBreadcrumb
+                                BreadcrumbItems={[
+                                    { Click: () => { props.clickBreadCrumb("/Encuesta") }, Titulo: "Encuesta" },
+                                    { Titulo: "ListaSecciones" }
+                                ]}
+                            />
+                        )} />
                          <Route path={props.match.url + '/Seccion/preguntas'} exact render={(routeProps) => (
                             <NavigationBreadcrumb
                                 BreadcrumbItems={[

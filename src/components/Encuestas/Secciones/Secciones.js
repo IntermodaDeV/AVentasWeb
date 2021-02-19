@@ -16,7 +16,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import { useSelector } from 'react-redux';
 import { TablaRelacion } from 'components/Seguridad/Relacional/TablaRelacion';
 
-export const SeccionesEncuesta = props => {
+export const Secciones = props => {
     const [mostrar, setMostrar] = useState(false);
     const [mostrarUsuario, setMostrarUsuario] = useState(false);
     const [Seccion, setSeccion] = useState(null);
@@ -30,7 +30,7 @@ export const SeccionesEncuesta = props => {
         {
             Nombre: yup.string().required('El nombre es obligatorio'),
             Titulo: yup.string().required('El Titulo es obligatorio'),
-            Descripcion: yup.string().required('La descripción es obligatoria'),
+            Descripcion: yup.string(),
             Status: yup.boolean(),
             Obligatorio: yup.boolean(),
         });
@@ -45,7 +45,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(data.EncuestaId, props.EncuestaNombre);
+                props.cargarSeccion();
             });
 
         } catch (err) {
@@ -73,7 +73,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(data.EncuestaId, props.EncuestaNombre);
+                props.cargarSeccion();
             });
 
         } catch (err) {
@@ -100,7 +100,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(Secciones[0].EncuestaId, props.EncuestaNombre);
+                props.cargarSeccion();
             });
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha modificado el estado.";
@@ -207,7 +207,6 @@ export const SeccionesEncuesta = props => {
             Nombre: Seccion.Nombre,
             Titulo: Seccion.Titulo,
             Descripcion: Seccion.Descripcion,
-            EncuestaId: Seccion.EncuestaId,
             Status: Seccion.Status,
             Obligatorio: Seccion.Obligatorio,
             Usuario: localStorage.getItem('codigo')
@@ -219,7 +218,6 @@ export const SeccionesEncuesta = props => {
             Nombre: '',
             Titulo: '',
             Descripcion:'',
-            EncuestaId: Secciones[0].EncuestaId,
             Status: true,
             Obligatorio: false,
             Usuario: localStorage.getItem('codigo')
@@ -332,7 +330,7 @@ export const SeccionesEncuesta = props => {
             </Dialog>
 
 
-            <TablaSecciones Secciones={Secciones[0].Secciones} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={props.cargarPreguntas} cargarUsuarios ={cargarUsuarios}/>
+            <TablaSecciones Secciones={Secciones[0].Secciones} Mostrar ={true} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={props.cargarPreguntas} cargarUsuarios ={cargarUsuarios}/>
         </div>
     )
 }
