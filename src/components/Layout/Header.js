@@ -46,6 +46,8 @@ const Header = (props) => {
     const Permisos = useSelector(e=> e.Permisos);
     const UsuarioOficina = Permisos !== undefined && Permisos !== null && Permisos.length > 0 ? Permisos[0].UsuarioOficina : false;
     const [loading,setLoading] = React.useState(false);
+    const PedidosCache = useSelector(p=>p.PedidoSincronizar);
+    const RecibosCache = useSelector(r=> r.RecibosEnCache);
    
     const StyledMenu = withStyles({
         paper: {
@@ -131,32 +133,44 @@ const Header = (props) => {
         setVisible(null);
       };
 
+    const tieneDocumentosPendientes = () => {
+        return PedidosCache.length > 0 || RecibosCache.length > 0;
+    }
+
     const LogOut = async () => {
-        let isOnline = await verificarConexion();
-        if(isOnline)
-        {
-            fetch(APIURL + "/api/cerrarSesion", {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                method: 'POST',
-                body: JSON.stringify(localStorage.getItem("codigo"))
-            })
-                .then(res => res.json())
-                .then((result) => {
-                    console.log(result.Message);
-                    localStorage.clear();
-                    window.location.reload();
-                },
-                )
-        }
-        else{
+        if (tieneDocumentosPendientes()) {
             Swal.fire({
-                title: 'Sin Internet',
-                text: '¡La sesion se puede cerrar unicamente si cuenta con acceso a internet!',
-                type: 'error',
+                title: 'Documentos Pendientes',
+                text: 'Tiene documentos pendientes por sincronizar. Sincronice los documentos antes de cerrar sesión.',
+                type: 'warning',
                 confirmButtonText: 'Ok',
-              });
+            });
+        } else {
+            let isOnline = await verificarConexion();
+            if (isOnline) {
+                fetch(APIURL + "/api/cerrarSesion", {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    method: 'POST',
+                    body: JSON.stringify(localStorage.getItem("codigo"))
+                })
+                    .then(res => res.json())
+                    .then((result) => {
+                        console.log(result.Message);
+                        localStorage.clear();
+                        window.location.reload();
+                    },
+                    )
+            }
+            else {
+                Swal.fire({
+                    title: 'Sin Internet',
+                    text: '¡La sesion se puede cerrar unicamente si cuenta con acceso a internet!',
+                    type: 'error',
+                    confirmButtonText: 'Ok',
+                });
+            }
         }
     }
 
