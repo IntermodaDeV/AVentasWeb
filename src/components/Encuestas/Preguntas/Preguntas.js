@@ -24,6 +24,7 @@ export const Preguntas = props => {
     const [requiereGrupoOpciones, setRequiereGrupoOpciones] = useState(false);
     const [tipoIngreso, setTipoIngreso] = useState(TipoIngreso.length > 0 ? TipoIngreso[0].value : '');
     const [grupoOpcion, setGrupoOpcion] = useState(null);
+    const [mensaje, setmensaje] = useState("");
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
@@ -39,7 +40,12 @@ export const Preguntas = props => {
     const registrarPreguntas = async (data) => {
         data.GrupoOpcionesId = grupoOpcion;
         data.TipoIngresoId = tipoIngreso;
-        try {
+
+        if(data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0){
+            setmensaje("Este campo es obligatorio")
+        }
+        else{
+            try {
             await axios.post(`${APIURL}/api/preguntas/registrar`, data);
             setMostrar(false)
             Swal.fire({
@@ -48,10 +54,12 @@ export const Preguntas = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
+                setmensaje("");
                 props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
             });
 
         } catch (err) {
+            setmensaje("");
             let mensaje = "Ha ocurrido un error y no se ha registrado la pregunta.";
 
             if (err.response) {
@@ -63,6 +71,7 @@ export const Preguntas = props => {
                 type: 'error',
                 confirmButtonText: 'Ok',
             });
+            }
         }
     }
 
@@ -72,32 +81,37 @@ export const Preguntas = props => {
         pregunta.PreguntaOpciones.forEach(element => {
             data.GrupoOpcionesDetalle.push(element.GrupoOpcionesDetalleId)
         });
-        try {
-            await axios.post(`${APIURL}/api/preguntas/modificar`, data);
-            setMostrar(false)
-            Swal.fire({
-                title: 'Confirmado',
-                text: "Se ha modificado la pregunta exitosamente.",
-                type: 'success',
-                confirmButtonText: 'Ok',
-            }).then(e => {
-                props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
-            });
 
-        } catch (err) {
-            let mensaje = "Ha ocurrido un error y no se ha modificado la pantalla.";
-
-            if (err.response) {
-                mensaje = err.response.data.Message;
-            }
-            Swal.fire({
-                title: 'Error',
-                text: mensaje,
-                type: 'error',
-                confirmButtonText: 'Ok',
-            });
+        if(data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0){
+            setmensaje("Este campo es obligatorio")
         }
-       
+        else{
+            try {
+                await axios.post(`${APIURL}/api/preguntas/modificar`, data);
+                setMostrar(false)
+                Swal.fire({
+                    title: 'Confirmado',
+                    text: "Se ha modificado la pregunta exitosamente.",
+                    type: 'success',
+                    confirmButtonText: 'Ok',
+                }).then(e => {
+                    props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
+                });
+                setmensaje("")
+            } catch (err) {
+                let mensaje = "Ha ocurrido un error y no se ha modificado la pantalla.";
+                setmensaje("")
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+                Swal.fire({
+                    title: 'Error',
+                    text: mensaje,
+                    type: 'error',
+                    confirmButtonText: 'Ok',
+                });
+            }
+        }
     }
 
     const modificarEstado = async (id) => {
@@ -307,13 +321,14 @@ export const Preguntas = props => {
                                                     })
                                                 }
                                             </Field>
+                                            <p style={{color:'red'}} >{mensaje}</p>
                                         </div>
                                         </>
                                     }
                                     
                                     { props.grupoOpcionesDetalle.length > 0 && requiereGrupoOpciones && edit === false &&
                                     <>
-                                        <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de OpcionesDetalle</label>
+                                        <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones Detalle</label>
                                         <div className="form-group">
                                             <Field id="Opcion" name="GrupoOpcionesDetalleId" as='checkbox' style={{ marginRight: '20px' }}>
                                                 {
@@ -335,6 +350,7 @@ export const Preguntas = props => {
                                                     })
                                                 }
                                             </Field>
+                                            <p style={{color:'red'}} >{mensaje}</p>
                                         </div>
                                         </>
                                     }

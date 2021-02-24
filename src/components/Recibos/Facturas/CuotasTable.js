@@ -282,7 +282,7 @@ moment.locale('es')
 
   localStorage.setItem("totalCredito",saldoTotal.toFixed(2));
 
-    /*data.sort((a, b) => {
+    data.sort((a, b) => {
       if (moment(a.Fechaa, "DD/MM/YYYY").isAfter(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
         return 1;
       }
@@ -307,7 +307,7 @@ moment.locale('es')
       }
 
       return 0;
-    });*/
+    });
 
   const setCuotasAPagar = () => {
     let cuotasAPagar = [];
