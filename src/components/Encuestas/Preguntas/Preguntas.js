@@ -41,7 +41,7 @@ export const Preguntas = props => {
         data.GrupoOpcionesId = grupoOpcion;
         data.TipoIngresoId = tipoIngreso;
 
-        if(data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0){
+        if(data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0 && data.RequiereOpciones === true){
             setmensaje("Este campo es obligatorio")
         }
         else{
@@ -159,7 +159,7 @@ export const Preguntas = props => {
 
     const Mostrar = () => {
         setRequiereGrupoOpciones(false)
-        setGrupoOpcion(0)
+        setGrupoOpcion(null)
         props.cargarGrupoOpcionesDetalle(0);
         setTipoIngreso(TipoIngreso.length > 0 ? TipoIngreso[0].value : '');
         setPregunta(null);
