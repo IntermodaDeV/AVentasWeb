@@ -186,12 +186,13 @@ moment.locale('es')
       delete options.isRowSelectable;
     }
 
-  let saldoTotal = 0;
+ let Apagar  = 0;
 
   props.Cuotas.forEach(fact => {
     fact.Acuerdos.forEach(acu => {
       acu.Facturas.filter(f=> f.Saldo > 0).forEach(fact => {
         fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
+          console.log("cuot",cuot)
           let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
           let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days')
 
@@ -199,8 +200,7 @@ moment.locale('es')
           let ValorDescuento = cuot.Descuento;
           let isVencida = DiasVencido<0;
 
-          saldoTotal+= parseFloat(cuot.Saldo.toFixed(2));
-
+          Apagar = diasDescuento < 0 ? cuot.Saldo : cuot.Saldo - ValorDescuento;
           if (DiasVencido < 0) {
             foundExpired = true;
 
@@ -216,7 +216,7 @@ moment.locale('es')
               Fecha: <span className="text-danger font-weight-bold"> {moment(fact.FechaFactura).format("DD/MM/YYYY")}</span>,
               FechaVencimiento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,
               FechaDescuento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,
-              APagar: <span className="text-danger font-weight-bold">{(cuot.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+              APagar: <span className="text-danger font-weight-bold">{(Apagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Valor: <span className="text-danger font-weight-bold">{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Saldo: <span className="text-danger font-weight-bold">{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Cuota: cuot,
@@ -237,7 +237,7 @@ moment.locale('es')
               Fecha: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(fact.FechaFactura).format("DD/MM/YYYY")}</span>,
               FechaVencimiento: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,
               FechaDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,
-              APagar: <span className={"font-weight-bold " + styles.WarnRecibo}>{(cuot.Saldo - ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+              APagar: <span className={"font-weight-bold " + styles.WarnRecibo}>{(Apagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Valor: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Saldo: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Cuota: cuot,
@@ -258,7 +258,7 @@ moment.locale('es')
               Fecha: moment(fact.FechaFactura).format("DD/MM/YYYY"),
               FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
               FechaDescuento:moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "", 
-              APagar: (cuot.Saldo - ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+              APagar: (Apagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Cuota: cuot,
@@ -279,8 +279,7 @@ moment.locale('es')
       });
     });
   })
-
-  localStorage.setItem("totalCredito",saldoTotal.toFixed(2));
+  localStorage.setItem("totalCredito", (Apagar).toFixed(2));
 
     data.sort((a, b) => {
       if (moment(a.Fechaa, "DD/MM/YYYY").isAfter(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
