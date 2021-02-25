@@ -8,6 +8,7 @@ import CustomFooter from 'components/Layout/CustomFooter';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
 import { numberWithCommas } from 'utils/common';
+import { FiAlertTriangle } from 'react-icons/fi';
 
 const getMuiTheme = () => createMuiTheme({
     overrides: {
@@ -239,6 +240,9 @@ export const FacturasReservadas = props => {
 
         return (
             <div>
+                <div className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <FiAlertTriangle style={{ fontSize: '24px', color: 'red' }} /> {"Estos documentos se encuentran pendientes por liberar en AX y están reservando valores en facturas en la cuenta corriente de este cliente. Comuníquese con el departamento de Créditos o Bodega (Devoluciones) para gestionarlos."}
+                </div>
                 <MuiThemeProvider theme={getMuiTheme()}>
                     <MUIDataTable
                         title={"Facturas reservadas"}

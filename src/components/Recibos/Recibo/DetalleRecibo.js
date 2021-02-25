@@ -296,7 +296,7 @@ const DetalleRecibo = (props) => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
             if (PagoAcumulado >= 0) {
-                cuotasAProcesar.forEach(cuotProc => {
+                cuotasAProcesar.sort( (a,b)=> a.Fecha).forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
                     
@@ -396,7 +396,20 @@ const DetalleRecibo = (props) => {
                 });
             });
         });
-        return data.sort(CuotasSinAgruparSort);
+        
+        data.sort(CuotasSinAgruparSort);
+        return data.sort((a,b)=>{
+            if (a.NumeroFactura < b.NumeroFactura) {
+                return -1;
+              }
+              if (a.NumeroFactura > b.NumeroFactura) {
+        
+                return 1;
+              }
+        
+              return 0;
+        })
+
     }
     const CuotasSinAgruparSort = (a, b) => {
         if (moment(a.FechaVencimiento).isBefore(b.FechaVencimiento, 'days')) {
