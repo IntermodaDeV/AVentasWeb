@@ -37,7 +37,10 @@ export const Secciones = props => {
             Status: yup.boolean(),
             Obligatorio: yup.boolean(),
         });
-    
+        useEffect(() => {
+            cargarSecciones();
+             // eslint-disable-next-line
+        }, [])
     const cargarSecciones = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/Encuesta/Seccion`);
@@ -210,7 +213,6 @@ export const Secciones = props => {
     }
 
     const cargarPreguntas = async (seccionId, NombreSeccion) => {
-        debugger
         try {
             const request = await axios.get(`${APIURL}/api/preguntas/${seccionId}`);
             let preguntas = [];
@@ -277,11 +279,6 @@ export const Secciones = props => {
           console.log("Ha ocurrido un error", err.response)
         }
       }
-
-
-    useEffect(() => {
-         // eslint-disable-next-line
-    }, [])
 
     const openEdit = (sec) => {
         setSeccion(sec);
@@ -434,7 +431,7 @@ export const Secciones = props => {
             }
             {
                 MostrarPregunta === false &&
-                <TablaSecciones Secciones={Secciones[0].Secciones} Mostrar ={true} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={cargarPreguntas} cargarUsuarios ={cargarUsuarios}/>
+                <TablaSecciones Secciones={ Secciones.length > 0 ? Secciones[0].Secciones : []} Mostrar ={true} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={cargarPreguntas} cargarUsuarios ={cargarUsuarios}/>
 
             }
             
