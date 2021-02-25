@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 import MUIDataTable from 'mui-datatables'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
@@ -136,6 +136,19 @@ const PagoReciboTable = (props) => {
         // }
     }
 
+    const cancelarReinicio = e => {
+        if (e.which === 116) {
+            e.preventDefault();
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('keydown', cancelarReinicio);
+        return () => {
+            window.removeEventListener('keydown', cancelarReinicio);
+        }
+        // eslint-disable-next-line
+    }, []);
 
     const Validaciones = () => {
         if(props.Pedido !== null && localStorage.getItem('Faltante') !== '0'){
