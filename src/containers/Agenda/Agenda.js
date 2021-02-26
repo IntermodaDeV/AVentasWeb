@@ -786,6 +786,28 @@ class Agenda extends Component {
         return asignacion.Checkout;
     }
 
+    actualizarCoordenadasPedido = (longitud, latitud) => {
+        let copiaClientes = this.props.clientesPedido;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(this.state.clienteActivo.codigo);
+        copiaClientes[indice].Longitud = longitud;
+        copiaClientes[indice].Latitud = latitud;
+        this.props.onSaveClientesPedido(copiaClientes);
+    }
+
+    actualizarCoordenadasRecibo = (longitud, latitud) => {
+        let copiaClientes = this.props.clientesRecibo;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(this.state.clienteActivo.codigo);
+        copiaClientes[indice].Longitud = longitud;
+        copiaClientes[indice].Latitud = latitud;
+        this.props.onSaveClientesRecibo(copiaClientes);
+    }
+
+    actualizarDataExterna = request => {
+        const { latitud, longitud } = request.data;
+        this.actualizarCoordenadasPedido(longitud, latitud);
+        this.actualizarCoordenadasRecibo(longitud, latitud);
+    }
+
     actualizarData = request => {
         this.setState((prevState) => ({ ...prevState, clienteActivo: { ...prevState.clienteActivo, latitud: request.data.latitud, longitud: request.data.longitud } }));
         let copiaClientes = this.state.clientes;
@@ -797,6 +819,8 @@ class Agenda extends Component {
         this.setState({
             Eventos: eventos,
         })
+
+        this.actualizarDataExterna(request);
     }
 
     enviarCoordenadasApi = async (coor) => {
@@ -819,7 +843,17 @@ class Agenda extends Component {
         }
     }
 
-    verificarObtencionCoordenadas = () => {
+    mensajeErrorCoordenadas = () => {
+        Swal.fire({
+            title: 'Error',
+            text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+            type: 'error',
+            confirmButtonText: 'OK',
+            target: this.refCoordenadas.current
+        });
+    }
+
+    confirmacionCoordenadas = () => {
         Swal.fire({
             title: 'Confirmar',
             text: `¿Está seguro de realizar el pinneo en la ubicacón actual?`,
@@ -838,15 +872,27 @@ class Agenda extends Component {
                         latitude: position.coords.latitude
                     })
                 }, (error) => {
-                    Swal.fire({
-                        title: 'Error',
-                        text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
-                        type: 'error',
-                        confirmButtonText: 'OK',
-                        target: this.refCoordenadas.current
-                    });
+                    this.mensajeErrorCoordenadas()
                 });
             }
+        })
+    }
+
+    verificarObtencionCoordenadas = () => {
+        navigator.permissions.query({ name: 'geolocation' }).then(res => {
+            if (res.state === "granted") {
+                this.confirmacionCoordenadas();
+            } else {
+                Swal.fire({
+                    title: 'Advertencia',
+                    text: "Habilite la geoposición en su dispositivo para realizar esta acción.",
+                    type: 'warning',
+                    confirmButtonText: 'OK',
+                    target: this.refCoordenadas.current
+                });
+            }
+        }).catch(err => {
+            this.mensajeErrorCoordenadas()
         })
     }
 
@@ -920,7 +966,7 @@ class Agenda extends Component {
                                                 ?
                                                         <div ref={this.refCoordenadas}>
                                                             <h1 className="font-weight-light">No hay coordenadas disponibles</h1>
-                                                            <Button onClick={this.verificarObtencionCoordenadas} variant="contained" color="primary" style={{ display: 'block', margin: '0 auto' }}>Obtener coordenadas</Button>
+                                                            {this.state.AsesorSelected === localStorage.getItem('codigo') && <Button onClick={this.verificarObtencionCoordenadas} variant="contained" color="primary" style={{ display: 'block', margin: '0 auto' }}>Obtener coordenadas</Button>}
                                                         </div>
                                                 :
                                                     <GoogleMapReact
@@ -1247,7 +1293,9 @@ const ObtenerCoordenadas = (resolve, reject) => {
 const mapStateToProps = state => ({
     empresas:state.empresas,
     asignaciones:state.Asignaciones,
-    Permisos: state.Permisos
+    Permisos: state.Permisos,
+    clientesPedido:state.clientes,
+    clientesRecibo:state.Recibo.clientes
 });
 
 const mapDispatchToProps = dispatch =>({
@@ -1256,7 +1304,9 @@ const mapDispatchToProps = dispatch =>({
     onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})},
     onSaveAsignaciones:(asignaciones)=>{dispatch({type:'SET_ASIGNACIONES',payload:asignaciones})},
     onSaveTipoVisita:(data)=>{dispatch({ type: "SET_TIPOVISITA", payload: data })},
-    onSaveConfiguraciones:(data)=>{dispatch({ type: "SET_CONFIGURACIONES", payload: data })}
+    onSaveConfiguraciones:(data)=>{dispatch({ type: "SET_CONFIGURACIONES", payload: data })},
+    onSaveClientesPedido:(data)=>{dispatch({ type: 'STORE_CLIENTES', clientes: data })},
+    onSaveClientesRecibo:(data)=>{dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data })}
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(Agenda);

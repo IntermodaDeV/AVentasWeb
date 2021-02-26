@@ -50,6 +50,7 @@ const CuentaCorrienteTable = props => {
     const cuentaCorriente = useSelector(e=>e.CuentaImprimir);
     const clientesPedido = useSelector(c=>c.clientes);
     const clientesRecibo = useSelector(c=>c.Recibo);
+    const permisos = useSelector(e=>e.Permisos[0]);
     const dispatch = useDispatch();
     const [ocultar,setOcultar] = React.useState(false);
 
@@ -204,7 +205,7 @@ const CuentaCorrienteTable = props => {
             actualizarData(request);
             Swal.fire({
                 title: 'Confirmado',
-                text: "Coordenadas del cliente han sido actializadas con exito.",
+                text: "Coordenadas del cliente han sido actualizadas con éxito.",
                 type: 'success',
                 confirmButtonText: 'OK',
             });
@@ -235,7 +236,16 @@ const CuentaCorrienteTable = props => {
         Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
     }
 
-    const verificarObtencionCoordenadas = async () => {
+    const mensajeErrorCoordenadas = () => {
+        Swal.fire({
+            title: 'Error',
+            text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+            type: 'error',
+            confirmButtonText: 'OK',
+        });
+    }
+
+    const confirmacionCoordenadas = async () => {
         let isOnline = await verificarConexion();
         if (localStorage.getItem("Conexion") === "Online" && isOnline) {
             Swal.fire({
@@ -274,10 +284,27 @@ const CuentaCorrienteTable = props => {
         }
     }
 
+    const verificarObtencionCoordenadas = () => {
+        navigator.permissions.query({ name: 'geolocation' }).then(res => {
+            if (res.state === "granted") {
+                confirmacionCoordenadas();
+            } else {
+                Swal.fire({
+                    title: 'Advertencia',
+                    text: "Habilite la geoposición en su dispositivo para realizar esta acción.",
+                    type: 'warning',
+                    confirmButtonText: 'OK',
+                });
+            }
+        }).catch(err => {
+            mensajeErrorCoordenadas()
+        })
+    }
+
     return (
         <MuiThemeProvider theme={getMuiTheme()}>
             {(!props.cartera) && (<>
-                {((props.clienteSelected.Latitud === null || props.clienteSelected.Longitud === null) && ocultar === false) && <Button onClick={verificarObtencionCoordenadas} style={{ marginBottom: '10px', marginRight: 5 }} variant="contained" color="primary">Guardar coordenadas</Button>}
+                {((props.clienteSelected.Latitud === null || props.clienteSelected.Longitud === null) && ocultar === false && permisos.AsesoresUsuario.length === 1) && <Button onClick={verificarObtencionCoordenadas} style={{ marginBottom: '10px', marginRight: 5 }} variant="contained" color="primary">Guardar coordenadas</Button>}
             </>)}
             {(cuentaCorriente.length > 0) && (<div style={{ display: 'inline' }}>
                 <Button onClick={generatePDF} style={{ marginBottom: '10px' }} variant="contained" color="primary">Generar Reporte</Button>

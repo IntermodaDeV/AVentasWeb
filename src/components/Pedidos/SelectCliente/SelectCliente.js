@@ -68,6 +68,7 @@ const SelectCliente = (props) => {
     const PedidosCache = useSelector(p=>p.PedidoSincronizar);
     const clientesPedido = useSelector(c=>c.clientes);
     const clientesRecibo = useSelector(c=>c.Recibo);
+    const permisos = useSelector(e=>e.Permisos[0]);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -367,7 +368,7 @@ const SelectCliente = (props) => {
             actualizarData(request);
             Swal.fire({
                 title: 'Confirmado',
-                text: "Coordenadas del cliente han sido actializadas con exito.",
+                text: "Coordenadas del cliente han sido actualizadas con éxito.",
                 type: 'success',
                 confirmButtonText: 'OK',
             });
@@ -398,7 +399,16 @@ const SelectCliente = (props) => {
         Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
     }
 
-    const verificarObtencionCoordenadas = async () => {
+    const mensajeErrorCoordenadas = () => {
+        Swal.fire({
+            title: 'Error',
+            text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+            type: 'error',
+            confirmButtonText: 'OK',
+        });
+    }
+
+    const confirmacionCoordenadas = async () => {
         let isOnline = await verificarConexion();
         if (localStorage.getItem("Conexion") === "Online" && isOnline) {
             Swal.fire({
@@ -430,6 +440,23 @@ const SelectCliente = (props) => {
         } else {
             mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
         }
+    }
+
+    const verificarObtencionCoordenadas = () => {
+        navigator.permissions.query({ name: 'geolocation' }).then(res => {
+            if (res.state === "granted") {
+                confirmacionCoordenadas();
+            } else {
+                Swal.fire({
+                    title: 'Advertencia',
+                    text: "Habilite la geoposición en su dispositivo para realizar esta acción.",
+                    type: 'warning',
+                    confirmButtonText: 'OK',
+                });
+            }
+        }).catch(err => {
+            mensajeErrorCoordenadas()
+        })
     }
 
     if (props.autocompleteValue != null && props.autocompleteValue.EmpresaId.toUpperCase() !== empresa.toUpperCase() && props.autocompleteValue !== false) {
@@ -496,7 +523,7 @@ const SelectCliente = (props) => {
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.Direccion}</td>
                                     </tr>
-                                    {(props.autocompleteValue.Latitud === null || props.autocompleteValue.Longitud === null) &&
+                                    {((props.autocompleteValue.Latitud === null || props.autocompleteValue.Longitud === null) && permisos.AsesoresUsuario.length === 1 ) &&
                                         <tr>
                                             <td className={styles.InfoLabel}>
                                                 Coordenadas no Disponibles
