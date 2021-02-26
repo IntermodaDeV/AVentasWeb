@@ -28,6 +28,7 @@
     "element-react": "^1.4.34",
     "element-theme-default": "^1.4.13",
     "formik": "^2.1.4",
+    "formik-error-focus": "^1.1.0",
     "google-map-react": "^1.1.5",
     "html2canvas": "^1.0.0-rc.3",
     "jspdf": "^1.5.3",
@@ -81,7 +82,7 @@
     "yup": "^0.29.0"
   },
   "devDependencies": {
-    "node-sass": "^4.13.0",
+    "node-sass": "^4.14.1",
     "react-scripts": "3.2.0",
     "react-to-print": "^2.4.0"
   },

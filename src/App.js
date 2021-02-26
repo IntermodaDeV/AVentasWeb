@@ -35,6 +35,7 @@ import { Cartera } from 'containers/Cartera/Cartera';
 import { CoordenadasAsesor } from 'containers/Coordenadas/CoordenadasAsesor';
 import BandejaSalida from 'containers/ListaPedidos/BandejaSalida';
 import BadejaSalidaRecibos from 'containers/ListaRecibos/BadejaSalidaRecibos';
+import { ListaRecibosFlotante } from 'containers/ListaRecibos/ListaRecibosFlotante';
 import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/SincronizacionColeccionEspecifica'
 import { SincronizacionCliente } from 'containers/Sincronizacion/SincronizacionCliente'
 import { ReconstruccionRuta } from 'containers/ReconstruccionRuta/ReconstruccionRuta'
@@ -142,6 +143,12 @@ const App = props => {
               path='/lista-pedidos-flotante'
               layout={MainLayout}
               component={ListaPedidosFlotante}
+            />
+            <LayoutRoute
+              exact
+              path='/lista-recibos-flotante'
+              layout={MainLayout}
+              component={ListaRecibosFlotante}
             />
             <LayoutRoute
               exact

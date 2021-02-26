@@ -22,12 +22,13 @@ export const Preguntas = props => {
     const [mostrar, setMostrar] = useState(false);
     const [pregunta, setPregunta] = useState(null);
     const [requiereGrupoOpciones, setRequiereGrupoOpciones] = useState(false);
-    const [tipoIngreso, setTipoIngreso] = useState(TipoIngreso[0].value);
+    const [tipoIngreso, setTipoIngreso] = useState(TipoIngreso.length > 0 ? TipoIngreso[0].value : '');
     const [grupoOpcion, setGrupoOpcion] = useState(null);
+    const [mensaje, setmensaje] = useState("");
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
-            Nombre: yup.string().required('El nombre es obligatorio'),
+            Nombre: yup.string().required('La pregunta es obligatoria'),
             Obligatorio: yup.boolean(),
             RespuestaObligatorio: yup.boolean(),
             Status: yup.boolean(),
@@ -39,7 +40,12 @@ export const Preguntas = props => {
     const registrarPreguntas = async (data) => {
         data.GrupoOpcionesId = grupoOpcion;
         data.TipoIngresoId = tipoIngreso;
-        try {
+
+        if(data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0 && data.RequiereOpciones === true){
+            setmensaje("Este campo es obligatorio")
+        }
+        else{
+            try {
             await axios.post(`${APIURL}/api/preguntas/registrar`, data);
             setMostrar(false)
             Swal.fire({
@@ -48,10 +54,12 @@ export const Preguntas = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
+                setmensaje("");
                 props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
             });
 
         } catch (err) {
+            setmensaje("");
             let mensaje = "Ha ocurrido un error y no se ha registrado la pregunta.";
 
             if (err.response) {
@@ -63,6 +71,7 @@ export const Preguntas = props => {
                 type: 'error',
                 confirmButtonText: 'Ok',
             });
+            }
         }
     }
 
@@ -72,32 +81,37 @@ export const Preguntas = props => {
         pregunta.PreguntaOpciones.forEach(element => {
             data.GrupoOpcionesDetalle.push(element.GrupoOpcionesDetalleId)
         });
-        try {
-            await axios.post(`${APIURL}/api/preguntas/modificar`, data);
-            setMostrar(false)
-            Swal.fire({
-                title: 'Confirmado',
-                text: "Se ha modificado la pregunta exitosamente.",
-                type: 'success',
-                confirmButtonText: 'Ok',
-            }).then(e => {
-                props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
-            });
 
-        } catch (err) {
-            let mensaje = "Ha ocurrido un error y no se ha modificado la pantalla.";
-
-            if (err.response) {
-                mensaje = err.response.data.Message;
-            }
-            Swal.fire({
-                title: 'Error',
-                text: mensaje,
-                type: 'error',
-                confirmButtonText: 'Ok',
-            });
+        if(data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0){
+            setmensaje("Este campo es obligatorio")
         }
-       
+        else{
+            try {
+                await axios.post(`${APIURL}/api/preguntas/modificar`, data);
+                setMostrar(false)
+                Swal.fire({
+                    title: 'Confirmado',
+                    text: "Se ha modificado la pregunta exitosamente.",
+                    type: 'success',
+                    confirmButtonText: 'Ok',
+                }).then(e => {
+                    props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
+                });
+                setmensaje("")
+            } catch (err) {
+                let mensaje = "Ha ocurrido un error y no se ha modificado la pantalla.";
+                setmensaje("")
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+                Swal.fire({
+                    title: 'Error',
+                    text: mensaje,
+                    type: 'error',
+                    confirmButtonText: 'Ok',
+                });
+            }
+        }
     }
 
     const modificarEstado = async (id) => {
@@ -127,12 +141,13 @@ export const Preguntas = props => {
         }
     }
 
-    
-
     const openEdit = (resp) => {
         let requiereGrupoOpciones =TipoIngreso.length > 0 ? TipoIngreso.find(t => t.value === resp.TipoIngresoId).RequiereGrupoOpciones: false;
         setRequiereGrupoOpciones(requiereGrupoOpciones);
         setTipoIngreso(resp.TipoIngresoId);
+        if(requiereGrupoOpciones === false){
+            props.cargarGrupoOpcionesDetalle(0);
+        }
         setGrupoOpcion(resp.GrupoOpcionesId);
         if(resp.GrupoOpcionesId !== null)
         {
@@ -143,6 +158,10 @@ export const Preguntas = props => {
     }
 
     const Mostrar = () => {
+        setRequiereGrupoOpciones(false)
+        setGrupoOpcion(null)
+        props.cargarGrupoOpcionesDetalle(0);
+        setTipoIngreso(TipoIngreso.length > 0 ? TipoIngreso[0].value : '');
         setPregunta(null);
         setMostrar(true);
     }
@@ -226,7 +245,7 @@ export const Preguntas = props => {
                                 <Form>
                                     <div className="form-group">
                                         <Field
-                                            label="Nombre"
+                                            label="Pregunta"
                                             name="Nombre"
                                             error={!!errors.Nombre}
                                             helperText={errors.Nombre}
@@ -302,13 +321,14 @@ export const Preguntas = props => {
                                                     })
                                                 }
                                             </Field>
+                                            <p style={{color:'red'}} >{mensaje}</p>
                                         </div>
                                         </>
                                     }
                                     
                                     { props.grupoOpcionesDetalle.length > 0 && requiereGrupoOpciones && edit === false &&
                                     <>
-                                        <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de OpcionesDetalle</label>
+                                        <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones Detalle</label>
                                         <div className="form-group">
                                             <Field id="Opcion" name="GrupoOpcionesDetalleId" as='checkbox' style={{ marginRight: '20px' }}>
                                                 {
@@ -330,6 +350,7 @@ export const Preguntas = props => {
                                                     })
                                                 }
                                             </Field>
+                                            <p style={{color:'red'}} >{mensaje}</p>
                                         </div>
                                         </>
                                     }
@@ -380,7 +401,7 @@ export const Preguntas = props => {
                     </Formik>
                 </DialogContent>
             </Dialog>
-            <TablaPreguntas Preguntas={Preguntas[0].Preguntas} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
+            <TablaPreguntas Preguntas={Preguntas[0].Preguntas} MostrarPregunta = {props.MostrarPregunta} setMostrarPregunta ={props.setMostrarPregunta} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
         </div>
        </> 
     )

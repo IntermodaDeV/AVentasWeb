@@ -1,11 +1,13 @@
 import React from 'react'
 import { Field, ErrorMessage } from 'formik'
 import TextError from './TextError'
+import FormikErrorFocus from 'formik-error-focus'
 const RadioButton = (props) => {
-    const { label, name, options, ...rest } = props;
+    const { label, Descripcion, name, options, ...rest } = props;
     return (
         <div classname='form-control'>
             <label>{label}</label>
+            <p style={{ fontStyle: 'italic', fontSize:'13px' }} htmlFor={"Id" + name}>{Descripcion}</p>
             <div className="form-group">
                 <Field name={name} {...rest}>
                     {
@@ -13,6 +15,7 @@ const RadioButton = (props) => {
                             return options.map(option => {
                                 return (
                                     <React.Fragment key={option.key}>
+                                        <label htmlFor={option.value} style={{ marginRight: '5px', marginLeft:'10px' }}>{option.key}</label>
                                         <input
                                             type='radio'
                                             id={option.value}
@@ -20,7 +23,7 @@ const RadioButton = (props) => {
                                             value={option.value}
                                             checked={field.value === String(option.value)}
                                         />
-                                        <label htmlFor={option.value} style={{ marginRight: '10px' }}>{option.key}</label>
+                                        
                                     </React.Fragment>
                                 )
                             })
@@ -28,6 +31,13 @@ const RadioButton = (props) => {
 
                     }
                 </Field>
+                <FormikErrorFocus
+                    offset={0}
+                    align={'top'}
+                    focusDelay={200}
+                    ease={'linear'}
+                    duration={1000}
+                />
             </div>
             <ErrorMessage name={name} component={TextError} />
         </div>

@@ -9,7 +9,8 @@ import 'moment/locale/es';
 import axios from 'axios';
 import { useDispatch,useSelector } from 'react-redux';
 import {Encuesta} from 'components/Encuestas/Encuestas/Encuestas'
-import {SeccionesEncuesta} from 'components/Encuestas/Secciones/Secciones'
+import {Secciones} from 'components/Encuestas/Secciones/Secciones'
+import {SeccionesEncuesta} from 'components/Encuestas/Secciones/SeccionesEncuesta'
 import {Preguntas} from 'components/Encuestas/Preguntas/Preguntas';
 import SelectClienteEncuesta from 'components/Encuestas/EncuestasCliente/SelectClienteEncuesta'
 import {TablaEncuestasActivas} from 'components/Encuestas/EncuestasCliente/TablaEncuestasActivas';
@@ -17,7 +18,7 @@ import FormularioEncuesta from 'components/Encuestas/EncuestasCliente/Formulario
 moment.locale('es');
 const Encuestas = (props) => {
   const dispatch = useDispatch();
-  const Secciones = useSelector(e => e.SeccionEncuesta);
+  const secciones = useSelector(e => e.SeccionEncuesta);
   const Pregunta = useSelector(e => e.PreguntasEncuesta);
   const EncuestaSelected = useSelector(e => e.EncuestaSelected);
   const ClienteSelected = useSelector (e => e.cliente)
@@ -41,28 +42,51 @@ const Encuestas = (props) => {
   const NavHome = () => {
     props.history.push(`/Encuesta`);
   }
-    const cargarSeccion = async (encuestaId,nombreEncuesta) => {
-      try {
-          const request = await axios.get(`${APIURL}/api/Encuesta/Seccion/${encuestaId}`);
-          let Seccion = []
-          let valores = {Secciones: request.data, EncuestaId: encuestaId, NombreEncuesta: nombreEncuesta}
-          Seccion.push(valores);
-          dispatch({ type: 'SET_SECCIONESENCUESTA',payload: Seccion });
-          props.history.push("/Encuesta/Seccion");
-      } catch (err) {
-          let mensaje = "Ha ocurrido un error y no se han cargado las secciones de encuestas.";
+  const cargarSecciones = async () => {
+    try {
+        const request = await axios.get(`${APIURL}/api/Encuesta/Seccion`);
+        let Seccion = []
+        let valores = {Secciones: request.data, EncuestaId: '', NombreEncuesta: ''}
+        Seccion.push(valores);
+        dispatch({ type: 'SET_SECCIONESENCUESTA',payload: Seccion });
+        props.history.push("/Encuesta/ListaSeccion");
+    } catch (err) {
+        let mensaje = "Ha ocurrido un error y no se han cargado las secciones de encuestas.";
 
-          if (err.response) {
-              mensaje = err.response.data.Message;
-          }
-          Swal.fire({
-              title: 'Error',
-              text: mensaje,
-              type: 'error',
-              confirmButtonText: 'Ok',
-          });
-      }
-  }
+        if (err.response) {
+            mensaje = err.response.data.Message;
+        }
+        Swal.fire({
+            title: 'Error',
+            text: mensaje,
+            type: 'error',
+            confirmButtonText: 'Ok',
+        });
+    }
+  }  
+
+  const cargarSeccion = async (encuestaId,nombreEncuesta) => {
+    try {
+        const request = await axios.get(`${APIURL}/api/Encuesta/Seccion/${encuestaId}`);
+        let Seccion = []
+        let valores = {Secciones: request.data, EncuestaId: encuestaId, NombreEncuesta: nombreEncuesta}
+        Seccion.push(valores);
+        dispatch({ type: 'SET_SECCIONESENCUESTA',payload: Seccion });
+        props.history.push("/Encuesta/Seccion");
+    } catch (err) {
+        let mensaje = "Ha ocurrido un error y no se han cargado las secciones de encuestas.";
+
+        if (err.response) {
+            mensaje = err.response.data.Message;
+        }
+        Swal.fire({
+            title: 'Error',
+            text: mensaje,
+            type: 'error',
+            confirmButtonText: 'Ok',
+        });
+    }
+  }  
 
   const cargarPreguntas = async (seccionId, NombreSeccion) => {
     try {
@@ -107,7 +131,7 @@ const Encuestas = (props) => {
   const cargarGrupoOpciones = async () => {
     try {
       const request = await axios.get(`${APIURL}/api/GrupoOpciones`);
-      let GrupoOpciones = [{key: "Seleccione..." , value: ''}];
+      let GrupoOpciones = [{key: "Seleccione..." , value: null}];
       request.data.filter(g => g.Status === true).forEach(grupo => {
         let Valores = { key: grupo.Nombre, value: grupo.Id}
         GrupoOpciones.push(Valores);
@@ -219,8 +243,10 @@ const Encuestas = (props) => {
         <div className="row">
           <div className="col-12">
             <Encuesta
+             history={props.history}
              setLoading = {setLoading}
-             cargarSeccion= {cargarSeccion} />
+             cargarSeccion= {cargarSeccion}
+             cargarSecciones = {cargarSecciones} />
           </div>
         </div>
           </>
@@ -229,15 +255,31 @@ const Encuestas = (props) => {
         <>
           {BreadCrumb()}
           <div className="text-center">
-            <h4>{"Sección de Encuesta: " + Secciones[0].NombreEncuesta}</h4>
+            <h4>{"Sección de Encuesta: " + secciones[0].NombreEncuesta}</h4>
             <hr />
           </div>
           <div className="row">
             <div className="col-12">
-              <SeccionesEncuesta
-               cargarSeccion = {cargarSeccion}
-               cargarPreguntas = {cargarPreguntas}
-               EncuestaNombre = {Secciones[0].NombreEncuesta}/>
+              <SeccionesEncuesta 
+              Secciones={secciones[0].Secciones} 
+              Mostrar ={false} 
+              cargarPreguntas={cargarPreguntas}/>
+            </div>
+          </div>
+        </>
+      )} />
+      <Route path={props.match.url + '/ListaSeccion'} exact render={() => (
+        <>
+          {BreadCrumb()}
+          <div className="text-center">
+            <h4>{"Secciones"}</h4>
+            <hr />
+          </div>
+          <div className="row">
+            <div className="col-12">
+              <Secciones
+               cargarSeccion = {cargarSecciones}
+               cargarPreguntas = {cargarPreguntas}/>
             </div>
           </div>
         </>

@@ -296,7 +296,7 @@ const DetalleRecibo = (props) => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
             if (PagoAcumulado >= 0) {
-                cuotasAProcesar.forEach(cuotProc => {
+                cuotasAProcesar.sort( (a,b)=> a.Fecha).forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
                     
@@ -396,7 +396,20 @@ const DetalleRecibo = (props) => {
                 });
             });
         });
-        return data.sort(CuotasSinAgruparSort);
+        
+        data.sort(CuotasSinAgruparSort);
+        return data.sort((a,b)=>{
+            if (a.NumeroFactura < b.NumeroFactura) {
+                return -1;
+              }
+              if (a.NumeroFactura > b.NumeroFactura) {
+        
+                return 1;
+              }
+        
+              return 0;
+        })
+
     }
     const CuotasSinAgruparSort = (a, b) => {
         if (moment(a.FechaVencimiento).isBefore(b.FechaVencimiento, 'days')) {
@@ -579,7 +592,6 @@ const DetalleRecibo = (props) => {
             const { correlativo } = await props.obtenerCorrelativo();
             if (correlativo === "") {
                 if(localStorage.getItem("CorrelativoRecibo") === undefined || localStorage.getItem("CorrelativoRecibo") === null){
-                    localStorage.setItem("CorrelativoCache", true);
                     localStorage.setItem("CorrelativoRecibo", localStorage.getItem("CorrelativoReciboDiario"));
                 }
                 else{
@@ -587,12 +599,10 @@ const DetalleRecibo = (props) => {
                     let Iniciales = CorrelativoActual.substring(0, CorrelativoActual.lastIndexOf('-') + 1);
                     let NumeroActual = CorrelativoActual.substring(CorrelativoActual.lastIndexOf('-') + 1);
                     let NumeroSiguiente = Number(NumeroActual) + 1;
-                    localStorage.setItem("CorrelativoCache", true);
                     localStorage.setItem("CorrelativoRecibo", Iniciales + NumeroSiguiente);
                 }
             }
             else {
-                localStorage.setItem("CorrelativoCache", false);
                 localStorage.setItem("CorrelativoRecibo", correlativo)
             }
         ObtenerCoordenadas((position) => {
@@ -632,7 +642,6 @@ const DetalleRecibo = (props) => {
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
                 NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
-                ReciboCache : localStorage.getItem("CorrelativoCache"),
                 Fecha: pagosXRecibo[0].fecha,
                 FechaPago: pagosXRecibo[0].fecha,
                 SaldoFavor:saldoAFavor,
@@ -700,7 +709,6 @@ const DetalleRecibo = (props) => {
     
         let apiURL     = urlApi + "/api/Recibo";
         let parametros = {
-            ReciboCache : localStorage.getItem("CorrelativoCache"),
             Fecha: pagosXRecibo[0].fecha,
             FechaPago: pagosXRecibo[0].fecha,
             SaldoFavor:saldoAFavor,
@@ -729,8 +737,8 @@ const DetalleRecibo = (props) => {
                 apiURL = urlApi + "/api/Recibo/Anticipo";
     
                 parametros = {
-                    ReciboCache : localStorage.getItem("CorrelativoCache"),
                     Fecha: pagosXRecibo[0].fecha,
+                    NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
                     CodigoCliente:props.Cliente.Codigo,
                     Tipo:(pedidoSelected!==null) ? "Anticipo [B-C]" : "Anticipo [T-O]",
                     FechaPago: pagosXRecibo[0].fecha,

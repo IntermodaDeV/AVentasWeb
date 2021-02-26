@@ -27,11 +27,14 @@ export const Encuesta = (props) => {
     const [fechaFin, setfechaFin] = useState(new Date());
     const [EmpresasAsignadas,setEmpresasAsignadas] = useState([]);
     const [EmpresasNoAsignadas,setEmpresasNoAsignadas] = useState([]);
+    const [SeccionesPermitidas,setSeccionesPermitidas] = useState([]);
+    const [SeccionesNoPermitidas,setSeccionesNoPermitidas] = useState([]);
+    const [MostrarSecciones, setMostrarSecciones] = useState(false);
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
             Nombre: yup.string().required('El nombre es obligatorio'),
-            Descripcion: yup.string().required('La descripción es obligatoria'),       
+            Descripcion: yup.string(),       
         });
 
     useEffect(() => {
@@ -126,13 +129,21 @@ export const Encuesta = (props) => {
     }
 
     const Modificar = (valores) => {
-        valores.FechaInicio = moment(fechaInicio).toDate();
-        valores.FechaFin = moment(fechaFin).toDate();
+        valores.FechaInicio = moment(fechaInicio).format("YYYY-MM-DD");
+        valores.FechaFin = moment(fechaFin).format("YYYY-MM-DD");
         ModificarEncuestas(valores)
     }
+
     const Mostrar = () => {
         setEncuesta(null);
         setMostrar(true);
+    }
+
+    const AgregarSeccion = (EncuestaId) => {
+        cargarSeccionesPermitidas(EncuestaId);
+        cargarSeccionesNoPermitidas(EncuestaId);
+        setEncuestaSelected(EncuestaId)
+        setMostrarSecciones(true);
     }
 
     const CargarEmpresasUsuario = (EncuestaId) => {
@@ -140,6 +151,65 @@ export const Encuesta = (props) => {
         cargarEmpresasNoPermitidas(EncuestaId);
         setEncuestaSelected(EncuestaId)
         setMostrarEmpresas(true);
+    }
+
+    const cargarSeccionesPermitidas = async (EncuestaId) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Encuesta/SeccionesPermitidas/${EncuestaId}`);
+            setSeccionesPermitidas(request.data);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
+
+    const cargarSeccionesNoPermitidas = async (EncuestaId) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Encuesta/SeccionesNoPermitidas/${EncuestaId}`);
+            setSeccionesNoPermitidas(request.data);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
+
+    const asignarSeccion = async (SeccionId) => {
+        console.log(SeccionId)
+        try{
+            await axios.post(`${APIURL}/api/Encuesta/AsignarSecciones/${EncuestaSelected}/${SeccionId}/${localStorage.getItem('codigo')}`);
+            AgregarSeccion(EncuestaSelected);
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
+    const removerSeccion = async (SeccionId) => {
+        try{
+            await axios.post(`${APIURL}/api/Encuesta/RemoverSeccion/${SeccionId}/${EncuestaSelected}/${localStorage.getItem('codigo')}`);
+            AgregarSeccion(EncuestaSelected);
+        }catch(err){
+            let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
+
+            if(err.response){
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
     }
 
     const asignarEmpresa = async (EmpresaId) => {
@@ -234,8 +304,8 @@ export const Encuesta = (props) => {
                         enableReinitialize = {false}
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
-                            values.FechaInicio = moment(fechaInicio).toDate();
-                            values.FechaFin = moment(fechaFin).toDate();
+                            values.FechaInicio = moment(fechaInicio).format("YYYY-MM-DD");
+                            values.FechaFin = moment(fechaFin).format("YYYY-MM-DD");
                             registrarEncuesta(values)
                         }}>
                         {({ errors, resetForm, values, setValues, setFieldValue }) => (
@@ -318,20 +388,55 @@ export const Encuesta = (props) => {
                 </DialogActions>
             </Dialog>
 
+            <Dialog open={MostrarSecciones} aria-labelledby="form-dialog-title">
+                <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">SECCIONES PARA ENCUESTA</DialogTitle>
+                <DialogContent>
+                    <div className="row">
+                        <div className="col">
+                            <TablaRelacion funcion={asignarSeccion} accion="agregar" titulo="Secciones No Asignadas" cabeceras={["Sección", "Acción"]} valores={SeccionesNoPermitidas} />
+                        </div>
+                        <div className="col">
+                            <TablaRelacion funcion={removerSeccion} accion="remover" titulo="Secciones Asignadas" cabeceras={["Sección", "Acción"]} valores={SeccionesPermitidas} />
+                        </div>
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => { setMostrarSecciones(false) }} color="primary">
+                        Cancelar
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
 
             <div className="col">
                 <div class="card-body text-center">
                     <div class="text-right">
-                        <button className="btn btn-primary" onClick={() => { Mostrar() }}>Registrar Nuevo <MdPlaylistAdd /></button>
+                        <button className="btn btn-dark" onClick={() => { Mostrar() }}>Registrar Nuevo <MdPlaylistAdd /></button>
                     </div>
                 </div>
                 <div style={{ marginTop: '20px' }} className="container-fluid">
                     <div className="row">
                         <div className="col">
-                            <TablaEncuesta titulo="Encuestas Activas" cabeceras={["Nombre", "Descripción", "","",""]} valores={encuestas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} CargarEmpresasUsuario = {CargarEmpresasUsuario}/>
+                            <TablaEncuesta 
+                                titulo="Encuestas Activas" 
+                                cabeceras={["Nombre", "Descripción","","","",""]} 
+                                valores={encuestas} 
+                                setMostrar={Mostrar} 
+                                openEdit={openEdit} 
+                                cargarSecciones={props.cargarSeccion} 
+                                CargarEmpresasUsuario = {CargarEmpresasUsuario}
+                                AgregarSeccion = {AgregarSeccion}/>
                         </div>
                         <div className="col">
-                            <TablaEncuesta titulo="Encuestas Inactivas" cabeceras={["Nombre", "Descripción", "","",""]} valores={encuestasInactivas} setMostrar={Mostrar} openEdit={openEdit} cargarSecciones={props.cargarSeccion} CargarEmpresasUsuario ={CargarEmpresasUsuario}/>
+                            <TablaEncuesta 
+                                titulo="Encuestas Inactivas" 
+                                cabeceras={["Nombre", "Descripción", "","","",""]} 
+                                valores={encuestasInactivas} 
+                                setMostrar={Mostrar} 
+                                openEdit={openEdit} 
+                                cargarSecciones={props.cargarSeccion} 
+                                CargarEmpresasUsuario ={CargarEmpresasUsuario}
+                                AgregarSeccion = {AgregarSeccion}/>
                         </div>
                     </div>
                 </div>

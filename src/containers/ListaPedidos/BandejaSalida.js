@@ -73,52 +73,61 @@ const BandejaSalida = (props) => {
             confirmButtonText: 'Ok',
         })
     }
-    const Sincronizar = async (pedidoId) =>{
-        let isOnline = await verificarConexion();
-        try {
-            if (localStorage.getItem("Conexion") === "offline") {
-                mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
-            } else {
-                if (!isOnline) {
-                    mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
-                } else  {
-                setLoading(true);
-                const pedido = PedidosCache.find(x => x.PedidoId === pedidoId);
-                const request = await axios.post(urlApi + '/api/PedidosXCliente', pedido, {
-                    headers: {
-                        'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                        'Content-Type': 'application/json'
-                    },
-                });
 
-                if (request.data) {
-                    const nuevosPedidos = PedidosCache.filter(x => x.PedidoId !== pedidoId);
-                    dispatch({ type: "SET_RESETPEDIDOSINCRONIZAR", payload: nuevosPedidos });
-                    setState((prevState) => ({ ...prevState, pedidos: nuevosPedidos }));
+    const existeCorrelativoPrevio = correlativo => {
+        return PedidosCache.some(pedido => correlativo > pedido.NumeroReferencia);
+    }
 
-                    Swal.fire({
-                        type: 'success',
-                        title: 'Sincronizado',
-                        text: "Pedido sincronizado correctamente",
-                    });
+    const Sincronizar = async (pedidoId, correlativo) => {
+        if (existeCorrelativoPrevio(correlativo)) {
+            mostrarAdvertencia("Advertencia", "Se deben sincronizar los pedidos en orden de correlativo.", "warning");
+        } else {
+            let isOnline = await verificarConexion();
+            try {
+                if (localStorage.getItem("Conexion") === "offline") {
+                    mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
+                } else {
+                    if (!isOnline) {
+                        mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
+                    } else {
+                        setLoading(true);
+                        const pedido = PedidosCache.find(x => x.PedidoId === pedidoId);
+                        const request = await axios.post(urlApi + '/api/PedidosXCliente', pedido, {
+                            headers: {
+                                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                                'Content-Type': 'application/json'
+                            },
+                        });
+
+                        if (request.data) {
+                            const nuevosPedidos = PedidosCache.filter(x => x.PedidoId !== pedidoId);
+                            dispatch({ type: "SET_RESETPEDIDOSINCRONIZAR", payload: nuevosPedidos });
+                            setState((prevState) => ({ ...prevState, pedidos: nuevosPedidos }));
+
+                            Swal.fire({
+                                type: 'success',
+                                title: 'Sincronizado',
+                                text: "Pedido sincronizado correctamente",
+                            });
+                        }
+                        setLoading(false);
+                    }
                 }
+            }
+            catch (err) {
+                let mensaje = "Ha ocurrido un error y no se ha registrado el pedido.";
+
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+                Swal.fire({
+                    title: 'Error',
+                    text: mensaje,
+                    type: 'error',
+                    confirmButtonText: 'Ok',
+                });
                 setLoading(false);
             }
-            }
-        }
-        catch (err) {
-            let mensaje = "Ha ocurrido un error y no se ha registrado el pedido.";
-
-            if(err.response){
-                mensaje = err.response.data.Message;
-            }
-            Swal.fire({
-                title: 'Error',
-                text: mensaje,
-                type: 'error',
-                confirmButtonText: 'Ok',
-            });
-            setLoading(false);
         }
     }
 
@@ -155,7 +164,7 @@ const BandejaSalida = (props) => {
                     <div>
 
                         <span className="mr-1">
-                            <Button className='my-1' variant="outlined" onClick={() => Sincronizar(pedido.PedidoId)} size="small" color={"primary"}>Sincronizar</Button>
+                            <Button className='my-1' variant="outlined" onClick={() => Sincronizar(pedido.PedidoId,pedido.NumeroReferencia)} size="small" color={"primary"}>Sincronizar</Button>
                         </span>
                         <span className="ml-1">
                             <Button className='my-1' variant="outlined" onClick={() => ImpresionPedido(pedido)} size="small" color={"primary"}>

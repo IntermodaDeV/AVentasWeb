@@ -46,14 +46,14 @@ import {
     Explore,
     MyLocation,
     DriveEta,
-    Home
+    Home,
+    MenuBook,
+    LibraryBooks,
+    LocalLibrary,
+    Description
 } from '@material-ui/icons';
-import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
-import LocalLibraryIcon from '@material-ui/icons/LocalLibrary';
-import DescriptionIcon from '@material-ui/icons/Description';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
-
 //components
 import Logo from 'assets/img/logo/Barra.png';
 import styles from 'components/Layout/Layout.module.css';
@@ -102,10 +102,11 @@ const navItems = [
     { to: '/cartera', name: 'Cartera Clientes', dataTut: 'DataTut_Agenda', Icon: AccountBox },
     //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
     {
-        to: '/encuesta', name: 'Encuesta', dataTut: 'DataTut_EncuetasGeneral', Icon: LibraryBooksIcon,
+        to: '/encuesta', name: 'Encuesta', dataTut: 'DataTut_EncuetasGeneral', Icon: LibraryBooks,
         expanded: [
-            { to: '/Mantenimiento/Encuesta', name: 'Mantemiento Encuesta', dataTut: 'DataTut_MantenimientoEncuestas', Icon: LocalLibraryIcon, backgroundColor:'' },
-            { to: '/Encuesta', name: 'Encuesta', dataTut: 'DataTut_Encuestas', Icon: DescriptionIcon, backgroundColor:''  },
+            { to: '/Mantenimiento/Encuesta', name: 'Mantemiento Encuesta', dataTut: 'DataTut_MantenimientoEncuestas', Icon: LocalLibrary, backgroundColor:'' },
+            { to: '/Encuesta', name: 'Encuesta', dataTut: 'DataTut_Encuestas', Icon: Description, backgroundColor:''  },
+            { to: '/encuesta/selectCliente', name: 'Responder Encuesta', dataTut: 'DataTut_Encuestas', Icon: MenuBook, backgroundColor:''  },
            ]
     },
     {
@@ -123,6 +124,7 @@ const navItems = [
         expanded: [
             { to: '/lista-recibos-BandejaSalida', name: 'Bandeja Salida', dataTut: 'DataTut_BandejaSalida', Icon: Input, backgroundColor:'#c41021' },
             { to: '/lista-recibos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_BandejaSalida', Icon: AllInbox, backgroundColor:'#d49008' },
+            { to: '/lista-recibos-flotante', name: 'Recibos Flotantes', dataTut: 'DataTut_ListadoPedidos', Icon: CloudQueueIcon, backgroundColor:''  },
             { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:''  },
             { to: '/lista-recibos-creditos', name: 'Resincronización recibos', dataTut: 'DataTut_ListadoRecibos', Icon: SyncAlt, backgroundColor:''  }

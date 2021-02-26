@@ -68,52 +68,61 @@ const BadejaSalidaRecibos = (props) => {
             confirmButtonText: 'Ok',
         })
     }
-    const Sincronizar = async (reciboId) => {
-        let isOnline = await verificarConexion();
-        try {
-            if (localStorage.getItem("Conexion") === "offline") {
-                mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
-            } else {
-                if (!isOnline) {
-                    mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
-                } else {
-                    setLoading(true);
-                    const recibo = RecibosCache.find(x => x.ReciboId === reciboId);
-                    let Ruta = recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/Recibo';
-                    const request = await axios.post(urlApi + Ruta, recibo, {
-                        headers: {
-                            'Authorization': 'Bearer ' + localStorage.getItem('token'),
-                            'Content-Type': 'application/json'
-                        },
-                    });
 
-                    if (request.data) {
-                        setLoading(false);
-                        const nuevosRecibos = RecibosCache.filter(x => x.ReciboId !== reciboId);
-                        dispatch({ type: "SET_RESETRECIBOSENCACHE", payload: nuevosRecibos });
-                        setRecibos(nuevosRecibos);
-                        Swal.fire({
-                            type: 'success',
-                            title: 'Sincronizado',
-                            text: "Recibo sincronizado correctamente",
+    const existeCorrelativoPrevio = correlativo => {
+        return RecibosCache.some(recibo => correlativo > recibo.CodigoUltimoRecibo);
+    }
+
+    const Sincronizar = async (reciboId, correlativo) => {
+        if (existeCorrelativoPrevio(correlativo)) {
+            mostrarAdvertencia("Advertencia", "Se deben sincronizar los recibos en orden de correlativo.", "warning");
+        } else {
+            let isOnline = await verificarConexion();
+            try {
+                if (localStorage.getItem("Conexion") === "offline") {
+                    mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
+                } else {
+                    if (!isOnline) {
+                        mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
+                    } else {
+                        setLoading(true);
+                        const recibo = RecibosCache.find(x => x.ReciboId === reciboId);
+                        let Ruta = recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/Recibo';
+                        const request = await axios.post(urlApi + Ruta, recibo, {
+                            headers: {
+                                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                                'Content-Type': 'application/json'
+                            },
                         });
+
+                        if (request.data) {
+                            setLoading(false);
+                            const nuevosRecibos = RecibosCache.filter(x => x.ReciboId !== reciboId);
+                            dispatch({ type: "SET_RESETRECIBOSENCACHE", payload: nuevosRecibos });
+                            setRecibos(nuevosRecibos);
+                            Swal.fire({
+                                type: 'success',
+                                title: 'Sincronizado',
+                                text: "Recibo sincronizado correctamente",
+                            });
+                        }
                     }
                 }
             }
-        }
-        catch (err) {
-            let mensaje = "Ha ocurrido un error y no se ha registrado el recibo.";
+            catch (err) {
+                let mensaje = "Ha ocurrido un error y no se ha registrado el recibo.";
 
-            if (err.response) {
-                mensaje = err.response.data.Message;
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+                Swal.fire({
+                    title: 'Error',
+                    text: mensaje,
+                    type: 'error',
+                    confirmButtonText: 'Ok',
+                });
+                setLoading(false);
             }
-            Swal.fire({
-                title: 'Error',
-                text: mensaje,
-                type: 'error',
-                confirmButtonText: 'Ok',
-            });
-            setLoading(false);
         }
     }
 
@@ -140,7 +149,7 @@ const BadejaSalidaRecibos = (props) => {
                         <div>
 
                              <span className="mr-1">
-                                <Button className='my-1' variant="outlined" onClick={() => Sincronizar(recib.ReciboId)} size="small" color={"primary"}>Sincronizar</Button>
+                                <Button className='my-1' variant="outlined" onClick={() => Sincronizar(recib.ReciboId,recib.CodigoUltimoRecibo)} size="small" color={"primary"}>Sincronizar</Button>
                             </span> 
 
                             <span className="ml-1">

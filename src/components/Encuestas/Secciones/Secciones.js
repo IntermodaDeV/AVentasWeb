@@ -13,28 +13,56 @@ import TablaSecciones from 'components/Encuestas/Secciones/TablaSecciones';
 import { APIURL } from 'utils/Enviroment';
 import CheckBox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { TablaRelacion } from 'components/Seguridad/Relacional/TablaRelacion';
-
-export const SeccionesEncuesta = props => {
+import {Preguntas} from 'components/Encuestas/Preguntas/Preguntas';
+export const Secciones = props => {
+    const dispatch = useDispatch();
+    const Pregunta = useSelector(e => e.PreguntasEncuesta);
     const [mostrar, setMostrar] = useState(false);
     const [mostrarUsuario, setMostrarUsuario] = useState(false);
     const [Seccion, setSeccion] = useState(null);
     const [UsuariosConAcceso,setUsuariosConAcceso] = useState([]);
     const [UsuariosSinAcceso,setUsuariosSinAcceso] = useState([]);
     const [seccionSelected, setSeccionSelected] = useState(null);
+    const [grupoOpcionesDetalle, setGrupoOpcionesDetalle] = useState([]);
     const Secciones = useSelector(e => e.SeccionEncuesta);
-
+    const [MostrarPregunta,setMostrarPregunta] = useState(false);
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
             Nombre: yup.string().required('El nombre es obligatorio'),
             Titulo: yup.string().required('El Titulo es obligatorio'),
-            Descripcion: yup.string().required('La descripción es obligatoria'),
+            Descripcion: yup.string(),
             Status: yup.boolean(),
             Obligatorio: yup.boolean(),
         });
-    
+        useEffect(() => {
+            cargarSecciones();
+             // eslint-disable-next-line
+        }, [])
+    const cargarSecciones = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Encuesta/Seccion`);
+            let Seccion = []
+            let valores = { Secciones: request.data, EncuestaId: '', NombreEncuesta: '' }
+            Seccion.push(valores);
+            dispatch({ type: 'SET_SECCIONESENCUESTA', payload: Seccion });
+        } catch (err) {
+            let mensaje = "Ha ocurrido un error y no se han cargado las secciones de encuestas.";
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
     const registrarSecciones = async (data) => {
         try {
             await axios.post(`${APIURL}/api/Encuesta/Secciones/registrar`, data);
@@ -45,7 +73,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(data.EncuestaId, props.EncuestaNombre);
+                cargarSecciones();
             });
 
         } catch (err) {
@@ -73,7 +101,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(data.EncuestaId, props.EncuestaNombre);
+                cargarSecciones();
             });
 
         } catch (err) {
@@ -100,7 +128,7 @@ export const SeccionesEncuesta = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarSeccion(Secciones[0].EncuestaId, props.EncuestaNombre);
+                cargarSecciones();
             });
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha modificado el estado.";
@@ -184,10 +212,73 @@ export const SeccionesEncuesta = props => {
         }
     }
 
+    const cargarPreguntas = async (seccionId, NombreSeccion) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/preguntas/${seccionId}`);
+            let preguntas = [];
+            let valores = {Preguntas: request.data, SeccionId: seccionId, NombreSeccion: NombreSeccion}
+            preguntas.push(valores);
+            cargarTipoIngreso();
+            cargarGrupoOpciones();
+            setGrupoOpcionesDetalle([]);
+            dispatch({ type: 'SET_PREGUNTASENCUESTA',payload: preguntas });
+            setMostrarPregunta(true)
+        } catch (err) {
+            let mensaje = "Ha ocurrido un error y no se han cargado las preguntas de encuestas.";
     
-    useEffect(() => {
-         // eslint-disable-next-line
-    }, [])
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+      }
+
+      const cargarTipoIngreso = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/TipoIngreso`);
+            let TipoIngreso = [];
+            request.data.filter(g => g.Status === true).forEach(tipo => {
+              let Valores = { key: tipo.Nombre, value: tipo.Id, RequiereGrupoOpciones: tipo.RequiereGrupoOpciones}
+              TipoIngreso.push(Valores);
+            })
+            dispatch({type: 'SET_TIPOINGRESO', payload:TipoIngreso})
+        } catch (err) {
+          console.log("Ha ocurrido un error",err.response)
+        }
+      }
+    
+      const cargarGrupoOpciones = async () => {
+        try {
+          const request = await axios.get(`${APIURL}/api/GrupoOpciones`);
+          let GrupoOpciones = [{key: "Seleccione..." , value: '0'}];
+          request.data.filter(g => g.Status === true).forEach(grupo => {
+            let Valores = { key: grupo.Nombre, value: grupo.Id}
+            GrupoOpciones.push(Valores);
+          })
+          dispatch({type: 'SET_GRUPOOPCIONES', payload:GrupoOpciones})
+        } catch (err) {
+          console.log("Ha ocurrido un error", err.response)
+        }
+      }
+    
+      const cargarGrupoOpcionesDetalle = async (GrupoOpcionId) => {
+        try {
+          const request = await axios.get(`${APIURL}/api/GrupoOpcionesDetalle/${GrupoOpcionId}`);
+          let GrupoOpcionesDetalle = [];
+          request.data.forEach(grupo => {
+            let Valores = { key: grupo.Nombre, value: grupo.Id}
+            GrupoOpcionesDetalle.push(Valores);
+          })
+          setGrupoOpcionesDetalle(GrupoOpcionesDetalle);
+        } catch (err) {
+          console.log("Ha ocurrido un error", err.response)
+        }
+      }
 
     const openEdit = (sec) => {
         setSeccion(sec);
@@ -207,7 +298,6 @@ export const SeccionesEncuesta = props => {
             Nombre: Seccion.Nombre,
             Titulo: Seccion.Titulo,
             Descripcion: Seccion.Descripcion,
-            EncuestaId: Seccion.EncuestaId,
             Status: Seccion.Status,
             Obligatorio: Seccion.Obligatorio,
             Usuario: localStorage.getItem('codigo')
@@ -219,7 +309,6 @@ export const SeccionesEncuesta = props => {
             Nombre: '',
             Titulo: '',
             Descripcion:'',
-            EncuestaId: Secciones[0].EncuestaId,
             Status: true,
             Obligatorio: false,
             Usuario: localStorage.getItem('codigo')
@@ -330,9 +419,22 @@ export const SeccionesEncuesta = props => {
                     </Button>
                 </DialogActions>
             </Dialog>
+            {
+                MostrarPregunta &&
+                <Preguntas
+                  MostrarPregunta = {MostrarPregunta}
+                  setMostrarPregunta ={setMostrarPregunta}
+                  cargarPreguntas={cargarPreguntas}
+                  grupoOpcionesDetalle = {grupoOpcionesDetalle}
+                  cargarGrupoOpcionesDetalle = {cargarGrupoOpcionesDetalle}
+                  NombreSeccion = {Pregunta[0].NombreSeccion}/>
+            }
+            {
+                MostrarPregunta === false &&
+                <TablaSecciones Secciones={ Secciones.length > 0 ? Secciones[0].Secciones : []} Mostrar ={true} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={cargarPreguntas} cargarUsuarios ={cargarUsuarios}/>
 
-
-            <TablaSecciones Secciones={Secciones[0].Secciones} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} cargarPreguntas={props.cargarPreguntas} cargarUsuarios ={cargarUsuarios}/>
+            }
+            
         </div>
     )
 }

@@ -197,6 +197,7 @@ const SelectCliente = (props) => {
         }).then((result) => {
             if (result.value) {
                 recargarClientes();
+                props.ModuloConfiguraciones();
             }
         })
     }

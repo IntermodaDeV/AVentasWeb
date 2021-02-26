@@ -4,6 +4,7 @@ import { MdCancel, MdCheckCircle } from "react-icons/md";
 import Button from '@material-ui/core/Button';
 import { Table } from 'reactstrap';
 import { MdPlaylistAdd } from "react-icons/md";
+import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 
 const TablaPreguntas = (props) => {
     return (
@@ -11,6 +12,12 @@ const TablaPreguntas = (props) => {
             {
                 <div className="col">
                     <div class="card-body text-center">
+                        <div class="text-left">
+                            {
+                                props.MostrarPregunta &&
+                                <Button onClick={() => { props.setMostrarPregunta(false) }} startIcon={<KeyboardBackspaceIcon/>} color="primary">Regresar</Button>
+                            }
+                        </div>
                         <div class="text-right">
                             <button className="btn btn-primary" onClick={() => { props.setMostrar(true) }}>Registrar Nuevo <MdPlaylistAdd /></button>
                         </div>
@@ -19,7 +26,7 @@ const TablaPreguntas = (props) => {
                         <Table striped>
                             <thead>
                                 <tr>
-                                    <th style={{ textAlign: 'center' }}>Nombre</th>
+                                    <th style={{ textAlign: 'center' }}>Pregunta</th>
                                     <th style={{ textAlign: 'center' }}>Descripcion</th>
                                     <th style={{ textAlign: 'center' }}>Status</th>
                                     <th style={{ textAlign: 'center' }}>Acciones</th>
