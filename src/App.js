@@ -60,11 +60,14 @@ const App = props => {
     }, 60000)
 
     const cargarConfiguraciones = async () => {
+      if (localStorage.getItem("Operando") === "Si") {
+        return;
+      }
       if (verificarConexion()) {
         try {
           const request = await axios.get(`${APIURL}/api/configuraciones`);
-          if(request.data.APP_VERSION!==APP_VERSION){
-            if(!window.location.href.includes("Pedidos")){
+          if (request.data.APP_VERSION !== APP_VERSION) {
+            if (!window.location.href.includes("Pedidos")) {
               window.location.href = "/home";
             }
           }
@@ -75,8 +78,11 @@ const App = props => {
     }
 
     setInterval(() => {
-      if(localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined){
-        localStorage.setItem("SesionObligatorio",1);
+      if (localStorage.getItem("Operando") === "Si") {
+        return;
+      }
+      if (localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined) {
+        localStorage.setItem("SesionObligatorio", 1);
         localStorage.removeItem("token")
         window.location.reload();
       }
@@ -88,7 +94,7 @@ const App = props => {
           }
         }
       }
-    }, (2*60*1000))
+    }, (2 * 60 * 1000))
 
     setInterval(() => {
       cargarConfiguraciones();

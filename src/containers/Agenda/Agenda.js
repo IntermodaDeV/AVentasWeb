@@ -26,6 +26,7 @@ import {connect} from 'react-redux';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import { FaEye } from "react-icons/fa";
 import { get,verificarConexion } from 'utils/http';
+import axios from 'axios';
 moment.locale('es');
 class Agenda extends Component {
     urlApi = APIURL;
@@ -59,6 +60,7 @@ class Agenda extends Component {
     }
 
     myRef = React.createRef();
+    refCoordenadas = React.createRef();
 
     cargarClientes = async () => {
         let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
@@ -784,6 +786,70 @@ class Agenda extends Component {
         return asignacion.Checkout;
     }
 
+    actualizarData = request => {
+        this.setState((prevState) => ({ ...prevState, clienteActivo: { ...prevState.clienteActivo, latitud: request.data.latitud, longitud: request.data.longitud } }));
+        let copiaClientes = this.state.clientes;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(this.state.clienteActivo.codigo);
+        copiaClientes[indice].Latitud = request.data.latitud;
+        copiaClientes[indice].Longitud = request.data.longitud;
+        this.setState((prevState) => ({ ...prevState, clientes: copiaClientes }));
+        let eventos = this.setAsignaciones(this.state.Asignaciones);
+        this.setState({
+            Eventos: eventos,
+        })
+    }
+
+    enviarCoordenadasApi = async (coor) => {
+        try {
+            const data = {
+                cliente: this.state.clienteActivo.codigo,
+                latitud: coor.latitude,
+                longitud: coor.longitude
+            }
+            const request = await axios.post(`${APIURL}/api/cliente/coordenadas`, data);
+            this.actualizarData(request);
+        } catch (err) {
+            Swal.fire({
+                title: 'Error',
+                text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+                type: 'error',
+                confirmButtonText: 'OK',
+                target: this.refCoordenadas.current
+            });
+        }
+    }
+
+    verificarObtencionCoordenadas = () => {
+        Swal.fire({
+            title: 'Confirmar',
+            text: `¿Está seguro de realizar el pinneo en la ubicacón actual?`,
+            type: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#06bf53',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí',
+            cancelButtonText: 'No',
+            target: this.refCoordenadas.current
+        }).then((result) => {
+            if (result.value) {
+                ObtenerCoordenadas((position) => {
+                    this.enviarCoordenadasApi({
+                        longitude: position.coords.longitude,
+                        latitude: position.coords.latitude
+                    })
+                }, (error) => {
+                    Swal.fire({
+                        title: 'Error',
+                        text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+                        type: 'error',
+                        confirmButtonText: 'OK',
+                        target: this.refCoordenadas.current
+                    });
+                });
+            }
+        })
+    }
+
     render() {
         let tipoDisabled = false;
         let causaDisabled = false;
@@ -852,7 +918,10 @@ class Agenda extends Component {
                                                 <div style={{ height: '300px',display:'flex',alignItems:'center' }}>
                                                 {(this.state.clienteActivo.latitud === null && this.state.clienteActivo.longitud===null)
                                                 ?
-                                                    <h1 className="font-weight-light">No hay coordenadas disponibles</h1>
+                                                        <div ref={this.refCoordenadas}>
+                                                            <h1 className="font-weight-light">No hay coordenadas disponibles</h1>
+                                                            <Button onClick={this.verificarObtencionCoordenadas} variant="contained" color="primary" style={{ display: 'block', margin: '0 auto' }}>Obtener coordenadas</Button>
+                                                        </div>
                                                 :
                                                     <GoogleMapReact
                                                         bootstrapURLKeys={{ key: APIKEY }}

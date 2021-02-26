@@ -91,6 +91,7 @@ const BandejaSalida = (props) => {
                         mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
                     } else {
                         setLoading(true);
+                        localStorage.setItem("Operando","Si");
                         const pedido = PedidosCache.find(x => x.PedidoId === pedidoId);
                         const request = await axios.post(urlApi + '/api/PedidosXCliente', pedido, {
                             headers: {
@@ -100,6 +101,7 @@ const BandejaSalida = (props) => {
                         });
 
                         if (request.data) {
+                            localStorage.setItem("Operando","No");
                             const nuevosPedidos = PedidosCache.filter(x => x.PedidoId !== pedidoId);
                             dispatch({ type: "SET_RESETPEDIDOSINCRONIZAR", payload: nuevosPedidos });
                             setState((prevState) => ({ ...prevState, pedidos: nuevosPedidos }));
@@ -111,10 +113,12 @@ const BandejaSalida = (props) => {
                             });
                         }
                         setLoading(false);
+                        localStorage.setItem("Operando","No");
                     }
                 }
             }
             catch (err) {
+                localStorage.setItem("Operando","No");
                 let mensaje = "Ha ocurrido un error y no se ha registrado el pedido.";
 
                 if (err.response) {

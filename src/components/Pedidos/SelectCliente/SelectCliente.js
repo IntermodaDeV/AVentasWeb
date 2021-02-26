@@ -29,6 +29,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import logo from './iconfinder_Close_2001866.png';
 import {numberWithCommas} from 'utils/common';
 import CachedIcon from '@material-ui/icons/Cached';
+import RoomIcon from '@material-ui/icons/Room';
 import axios from 'axios';
 import { Loading } from 'components/Global/Loading';
 import { APIURL } from 'utils/Enviroment';
@@ -65,6 +66,8 @@ const SelectCliente = (props) => {
     const [loading,setLoading] = useState(false);
     const [mensaje,setMensaje] = useState("Cargando clientes")
     const PedidosCache = useSelector(p=>p.PedidoSincronizar);
+    const clientesPedido = useSelector(c=>c.clientes);
+    const clientesRecibo = useSelector(c=>c.Recibo);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -329,6 +332,105 @@ const SelectCliente = (props) => {
         }
     }
 
+    const actualizarCoordenadasPedido = (longitud, latitud) => {
+        let copiaClientes = clientesPedido;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(props.autocompleteValue.Codigo);
+        copiaClientes[indice].Longitud = longitud;
+        copiaClientes[indice].Latitud = latitud;
+        props.refrescarClienteSeleccionado(copiaClientes[indice]);
+        setValue(JSON.stringify(copiaClientes[indice]));
+        dispatch({ type: 'STORE_CLIENTES', clientes: copiaClientes });
+    }
+
+    const actualizarCoordenadasRecibo = (longitud, latitud) => {
+        let copiaClientes = clientesRecibo.clientes;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(props.autocompleteValue.Codigo);
+        copiaClientes[indice].Longitud = longitud;
+        copiaClientes[indice].Latitud = latitud;
+        dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: copiaClientes });
+    }
+
+    const actualizarData = request => {
+        const { latitud, longitud } = request.data;
+        actualizarCoordenadasPedido(longitud, latitud);
+        actualizarCoordenadasRecibo(longitud, latitud);
+    }
+
+    const enviarCoordenadasApi = async (coor) => {
+        try {
+            const data = {
+                cliente: props.autocompleteValue.Codigo,
+                latitud: coor.latitude,
+                longitud: coor.longitude
+            }
+            const request = await axios.post(`${APIURL}/api/cliente/coordenadas`, data);
+            actualizarData(request);
+            Swal.fire({
+                title: 'Confirmado',
+                text: "Coordenadas del cliente han sido actializadas con exito.",
+                type: 'success',
+                confirmButtonText: 'OK',
+            });
+        } catch (err) {
+            Swal.fire({
+                title: 'Error',
+                text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
+        }
+    }
+
+    const ObtenerCoordenadas = (resolve, reject) => {
+        const timeout = new Promise((resolve, reject) => {
+            setTimeout(reject, 10000);
+        });
+
+        const geolocationPromise = new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    resolve(position);
+                },
+                (error) => { reject(error) },
+                { enableHighAccuracy: true, timeout: 10000 }
+            )
+        });
+        Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
+    }
+
+    const verificarObtencionCoordenadas = async () => {
+        let isOnline = await verificarConexion();
+        if (localStorage.getItem("Conexion") === "Online" && isOnline) {
+            Swal.fire({
+                title: 'Confirmar',
+                text: `¿Está seguro de realizar el pinneo en la ubicacón actual?`,
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#06bf53',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
+            }).then((result) => {
+                if (result.value) {
+                    ObtenerCoordenadas((position) => {
+                        enviarCoordenadasApi({
+                            longitude: position.coords.longitude,
+                            latitude: position.coords.latitude
+                        })
+                    }, (error) => {
+                        Swal.fire({
+                            title: 'Error',
+                            text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+                            type: 'error',
+                            confirmButtonText: 'OK',
+                        });
+                    });
+                }
+            })
+        } else {
+            mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
+        }
+    }
 
     if (props.autocompleteValue != null && props.autocompleteValue.EmpresaId.toUpperCase() !== empresa.toUpperCase() && props.autocompleteValue !== false) {
         EsVisible = true;
@@ -394,6 +496,16 @@ const SelectCliente = (props) => {
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.Direccion}</td>
                                     </tr>
+                                    {(props.autocompleteValue.Latitud === null || props.autocompleteValue.Longitud === null) &&
+                                        <tr>
+                                            <td className={styles.InfoLabel}>
+                                                Coordenadas no Disponibles
+                                        </td>
+                                            <td className={styles.InfoLabelDetail}>
+                                                <Button style={{ marginLeft: 15 }} onClick={verificarObtencionCoordenadas} variant="contained" color="primary">Guardar <RoomIcon /></Button>
+                                            </td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
 

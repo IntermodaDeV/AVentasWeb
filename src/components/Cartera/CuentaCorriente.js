@@ -231,6 +231,7 @@ export const CuentaCorriente = props => {
     }
 
     return <CuentaCorrienteTable
+        cartera={true}
         clienteSelected={props.cliente}
         CuotasCuentaCorriente={cuotas}
     />

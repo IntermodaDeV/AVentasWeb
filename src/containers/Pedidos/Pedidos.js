@@ -645,6 +645,11 @@ class Pedidos extends React.Component {
             return (cliente.Nombre.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
         };
     }
+
+    refrescarClienteSeleccionado = cliente => {
+        this.setState((prevState) => ({ ...prevState, autocompleteValue: cliente }));
+    }
+
     handleSelect = (item) => {
         this.setState({
             selectClienteLoading: true,
@@ -1484,7 +1489,6 @@ class Pedidos extends React.Component {
             this.props.onSetNumeroOrden(numPedido);
         }
         else {
-
             const { data, error } = await post(this.urlApi + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
 
             if (error) {
@@ -2534,6 +2538,7 @@ class Pedidos extends React.Component {
                             fetchSuggestions={this.querySearch}
                             onSelect={this.handleSelect}
                             setCliente={this.seleccionarCliente}
+                            refrescarClienteSeleccionado={this.refrescarClienteSeleccionado}
                             autocompleteValue={this.state.autocompleteValue}
                             loading={this.state.selectClienteLoading}
                             codigoClientePreseleccionado={this.props.location.state ? this.props.location.state.CodigoCliente : null}
