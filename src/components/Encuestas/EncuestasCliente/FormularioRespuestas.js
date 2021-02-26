@@ -55,6 +55,10 @@ const FormularioRespuestas = (props) => {
                                                             props.RespuestaDetalle[0].RespuestasDetalle.filter(r => r.PreguntaId === pregunta.PreguntaId).forEach((respuesta, index2) => {
                                                                 if (pregunta.GrupoOpcionesId === null) {
                                                                     ValorRespuesta = respuesta.RespuestaAlfanumerica !== null ? respuesta.RespuestaAlfanumerica : respuesta.RespuestaNumerica;
+                                                                
+                                                                    if(pregunta.TipoIngreso === "date"){
+                                                                        pregunta.TipoIngreso = "input";
+                                                                    }
                                                                 }
                                                                 else {
                                                                     if (pregunta.TipoIngreso === "checkbox") {

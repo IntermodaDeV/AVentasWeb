@@ -50,7 +50,8 @@ import {
     MenuBook,
     LibraryBooks,
     LocalLibrary,
-    Description
+    Description,
+    Assignment
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
@@ -104,9 +105,10 @@ const navItems = [
     {
         to: '/encuesta', name: 'Encuesta', dataTut: 'DataTut_EncuetasGeneral', Icon: LibraryBooks,
         expanded: [
-            { to: '/Mantenimiento/Encuesta', name: 'Mantemiento Encuesta', dataTut: 'DataTut_MantenimientoEncuestas', Icon: LocalLibrary, backgroundColor:'' },
-            { to: '/Encuesta', name: 'Encuesta', dataTut: 'DataTut_Encuestas', Icon: Description, backgroundColor:''  },
+            { to: '/Mantenimiento/Encuesta', name: 'Configuraciones Encuesta', dataTut: 'DataTut_MantenimientoEncuestas', Icon: LocalLibrary, backgroundColor:'' },
+            { to: '/Encuesta', name: 'Encuestas', dataTut: 'DataTut_Encuestas', Icon: Description, backgroundColor:''  },
             { to: '/encuesta/selectCliente', name: 'Responder Encuesta', dataTut: 'DataTut_Encuestas', Icon: MenuBook, backgroundColor:''  },
+            { to: '/Encuesta/Resueltas', name: 'Encuestas Realizadas', dataTut: 'DataTut_EncuestasRealizadas', Icon: Assignment, backgroundColor:''  },
            ]
     },
     {

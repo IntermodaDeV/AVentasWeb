@@ -15,10 +15,10 @@ const datePicker = (props) => {
                         const { setFieldValue } = form
                         const { value } = field
                         return <DatePicker
+                            autoOk
                             id={name}
-                            {...field}
-                            {...rest}
-                            selected={value}
+                            format={"DD/MM/YYYY"}
+                            value={value}
                             onChange={val => setFieldValue(name, val)}
                         />
                     }

@@ -8,6 +8,7 @@ import * as yup from 'yup';
 import { APIURL } from 'utils/Enviroment';
 import axios from 'axios';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import moment from "moment";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import {
     Card,
@@ -72,10 +73,12 @@ const FormularioEncuesta = (props) => {
         for (let res of resp) {
             let respuestaObjeto = {};
             if (data[res] !== "") {
+                let esFecha = moment(data[res]).format("YYYY-MM-DD") !== "Invalid date" ? true: false;
+                let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
                 respuestaObjeto.PreguntaId = Number(res);
-                respuestaObjeto.RespuestaAlfanumerica = isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null;
-                respuestaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) ? null : Number(data[res]);
-                respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" ? data[res] : null;
+                respuestaObjeto.RespuestaAlfanumerica = ValorRespuesta;
+                respuestaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) || esFecha ? null : Number(data[res]);
+                respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false? data[res] : null;
                 respuestas.push(respuestaObjeto);
             }
 
@@ -88,7 +91,7 @@ const FormularioEncuesta = (props) => {
                 EncuestaId: props.EncuestaSelected[0].EncuestaId,
                 RespuestasDetalle: respuestas
             })
-
+            
         try {
             await axios.post(`${APIURL}/api/respuestas/registrar`, Info[0]);
 
