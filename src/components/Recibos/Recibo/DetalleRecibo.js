@@ -642,6 +642,7 @@ const DetalleRecibo = (props) => {
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
                 NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
+                Mensaje:"",
                 Fecha: pagosXRecibo[0].fecha,
                 FechaPago: pagosXRecibo[0].fecha,
                 SaldoFavor:saldoAFavor,

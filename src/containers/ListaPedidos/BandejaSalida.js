@@ -101,16 +101,24 @@ const BandejaSalida = (props) => {
                         });
 
                         if (request.data) {
-                            localStorage.setItem("Operando","No");
+                            localStorage.setItem("Operando", "No");
                             const nuevosPedidos = PedidosCache.filter(x => x.PedidoId !== pedidoId);
                             dispatch({ type: "SET_RESETPEDIDOSINCRONIZAR", payload: nuevosPedidos });
                             setState((prevState) => ({ ...prevState, pedidos: nuevosPedidos }));
 
-                            Swal.fire({
-                                type: 'success',
-                                title: 'Sincronizado',
-                                text: "Pedido sincronizado correctamente",
-                            });
+                            if (request.data.mensaje.includes("flotante")) {
+                                Swal.fire({
+                                    type: 'warning',
+                                    title: 'Advertencia',
+                                    text: request.data.mensaje,
+                                });
+                            } else {
+                                Swal.fire({
+                                    type: 'success',
+                                    title: 'Sincronizado',
+                                    text: "Pedido sincronizado correctamente",
+                                });
+                            }
                         }
                         setLoading(false);
                         localStorage.setItem("Operando","No");

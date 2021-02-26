@@ -102,11 +102,20 @@ const BadejaSalidaRecibos = (props) => {
                             const nuevosRecibos = RecibosCache.filter(x => x.ReciboId !== reciboId);
                             dispatch({ type: "SET_RESETRECIBOSENCACHE", payload: nuevosRecibos });
                             setRecibos(nuevosRecibos);
-                            Swal.fire({
-                                type: 'success',
-                                title: 'Sincronizado',
-                                text: "Recibo sincronizado correctamente",
-                            });
+
+                            if (request.data.Mensaje.includes("flotante")) {
+                                Swal.fire({
+                                    type: 'warning',
+                                    title: 'Advertencia',
+                                    text: request.data.Mensaje,
+                                });
+                            } else {
+                                Swal.fire({
+                                    type: 'success',
+                                    title: 'Sincronizado',
+                                    text: "Recibo sincronizado correctamente",
+                                });
+                            }
                         }
                     }
                 }

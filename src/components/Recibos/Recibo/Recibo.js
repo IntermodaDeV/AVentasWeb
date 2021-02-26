@@ -9,6 +9,7 @@ import {useSelector} from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {FiArrowRightCircle} from "react-icons/fi";
 import { FaPrint } from "react-icons/fa";
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 const Recibo = (props) => {
     const clientesContado = useSelector(e=>e.clientesContado);
@@ -31,6 +32,14 @@ const Recibo = (props) => {
         }
 
         DireccionCliente = clienteContado.Direccion;
+    }
+
+    if(props.RecibosAplicados.Mensaje.includes("flotante")){
+        Swal.fire({
+            type: 'warning',
+            title: 'Advertencia',
+            text: props.RecibosAplicados.Mensaje,
+        })
     }
     //const FechaEntrega = new Date();
     const componentRef = React.useRef();

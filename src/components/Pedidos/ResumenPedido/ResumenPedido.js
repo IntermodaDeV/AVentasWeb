@@ -168,11 +168,6 @@ const ResumenPedido = (props) => {
                 localStorage.setItem("CorrelativoPedido", Iniciales + NumeroSiguiente);
             }
             localStorage.setItem("CorrelativoPedidoCache", true);
-            Swal.fire({
-                type: 'error',
-                title: 'Error en la red obteniendo correlativo de pedido',
-                text: "Pedido se guardará en caché.",
-            });
         } else {
             localStorage.setItem("CorrelativoPedidoCache", false);
             localStorage.setItem("CorrelativoPedido", correlativo)

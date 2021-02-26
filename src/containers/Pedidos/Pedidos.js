@@ -1500,15 +1500,25 @@ class Pedidos extends React.Component {
                         text: mensaje,
                     })
                     this.setState({ loadingRecibo: false });
-                } else {
-                    let numPedido = data === undefined || data === null ? correlativo!==null || correlativo!==undefined || correlativo!==""?correlativo: "No Disponible" : data;
-                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-                    this.props.onSetNumeroOrden(numPedido);
                 }
             } else {
-                let numPedido = data === undefined || data === null ? correlativo!==null || correlativo!==undefined || correlativo!==""?correlativo: "No Disponible" : data;
-                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-                this.props.onSetNumeroOrden(numPedido);
+                if (data === null || data === undefined) {
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: localStorage.getItem("CorrelativoPedido") });
+                    this.props.onSetNumeroOrden(localStorage.getItem("CorrelativoPedido"));
+                    return;
+                }
+
+                const { correlativo, mensaje } = data;
+
+                if (mensaje.includes("flotante")) {
+                    Swal.fire({
+                        type: 'warning',
+                        title: 'Advertencia',
+                        text: mensaje,
+                    })
+                }
+                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: correlativo });
+                this.props.onSetNumeroOrden(correlativo);
             }
         }
     }
