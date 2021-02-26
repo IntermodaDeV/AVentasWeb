@@ -44,6 +44,7 @@ import {MantenimientoEncuesta} from 'containers/Encuestas/MantenimientoEncuesta/
 import Encuestas from 'containers/Encuestas/Encuestas'
 import axios from 'axios'
 import {APIURL,APP_VERSION} from 'utils/Enviroment'
+import {EncuestasResueltas} from 'containers/Encuestas/EncuestasResueltas'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -304,6 +305,11 @@ const App = props => {
               path='/encuesta/selectCliente'
               layout={MainLayout}
               component={Encuestas}
+            />
+            <LayoutRoute
+              path='/Encuesta/Resueltas'
+              layout={MainLayout}
+              component={EncuestasResueltas}
             />
             <Redirect to='/home' />
           </Switch>

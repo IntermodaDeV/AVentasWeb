@@ -5,10 +5,8 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
 import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import { ScaleLoader } from 'react-spinners';
-import { MdCheckCircle } from "react-icons/md";
 import { verificarConexion } from 'utils/http';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 const useStyles = makeStyles((theme) => ({
@@ -28,18 +26,28 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function getSteps() {
-  return ['Sincronizar configuraciones','Modulo Cartera de Clientes', 'Sincronizar Modulo Recibo', 'Sincronizar Modulo de pedidos'];
+  return ['Sincronizar Pedidos',
+    'Sincronizar Recibos',
+    'Sincronizar configuraciones',
+    'Modulo Cartera de Clientes',
+    'Sincronizar Modulo Recibo',
+    'Sincronizar Modulo de pedidos'
+  ];
 }
 
 function getStepContent(step) {
   switch (step) {
     case 0:
-      return "Se sincronizará configuraciones necesarias en sistema";
+      return "Se sincronizara los pedidos que se encuentren en la bandeja de Salida";
     case 1:
-      return "Se carga la cartera de clientes y su informacion general";
+      return "Se sincronizara los recibos que se encuestren en la bandeja de Salida";
     case 2:
-      return "Se sincronizara listado de clientes, monedas, bancos, tipos de pagos";
+      return "Se sincronizará configuraciones necesarias en sistema";
     case 3:
+      return "Se carga la cartera de clientes y su informacion general";
+    case 4:
+      return "Se sincronizara listado de clientes, monedas, bancos, tipos de pagos";
+    case 5:
       return "Se sincronizara listado de clientes, paquetes, precios, stock";
     default:
       return 'Unknown step';
@@ -49,15 +57,22 @@ function getStepContent(step) {
 const VerticalLinearStepper = (props) => {
   const classes = useStyles();
   const steps = getSteps();
-
-  const mostrarAdvertencia = (title,text,type)=>{
+  const mostrarAdvertencia = (title, text, type) => {
     Swal.fire({
-        title: title,
-        text: text,
-        type: type,
-        confirmButtonText: 'Ok',
+      title: title,
+      text: text,
+      type: type,
+      confirmButtonText: 'Ok',
     })
-}
+  }
+
+  const isStepOptional = (step) => {
+    return props.ModulosError.includes(step);
+  };
+
+  const isStepFailed = (step) => {
+    return props.ModulosError.includes(step);
+  };
 
   const SyncDiaria = async () => {
     let isOnline = await verificarConexion();
@@ -69,7 +84,7 @@ const VerticalLinearStepper = (props) => {
         mostrarAdvertencia('Sin internet', 'Necesita internet para poder realizar sincronización diaria.', 'warning');
       }
       else {
-        props.CargarModuloConfiguraciones();
+        props.CargarModuloInicial();
       }
     }
   };
@@ -95,24 +110,33 @@ const VerticalLinearStepper = (props) => {
 
         </div>
       </div>
-     
+
       <Stepper activeStep={props.activeStep} orientation="vertical">
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepLabel><h3>{label}</h3></StepLabel>
-            <StepContent>
-              <Typography>{getStepContent(index)}</Typography>
-            </StepContent>
-          </Step>
-        ))}
+        {steps.map((label, index) => {
+          const stepProps = {};
+          const labelProps = {};
+          if (isStepOptional(index)) {
+            labelProps.optional = (
+              <Typography variant="caption" color="error">
+                ¡Ocurrio un error en la sincronización!
+              </Typography>
+            );
+          }
+
+          if (isStepFailed(index)) {
+            labelProps.error = true;
+          }
+
+          return (
+            <Step key={label} {...stepProps}>
+              <StepLabel {...labelProps}><h3>{label}</h3></StepLabel>
+              <StepContent>
+                <Typography>{getStepContent(index)}</Typography>
+              </StepContent>
+            </Step>
+          )
+        })}
       </Stepper>
-      {props.activeStep === steps.length && (
-        <Paper square elevation={0} className={classes.resetContainer}>
-          <Typography><h3 style={{ color: localStorage.getItem("OcurrioError") === "false" ? 'green' :'red' }}>{localStorage.getItem("OcurrioError") === "false" ?"Proceso de sincronizacion ejecutado correctamente" : "Proceso de sincronizacion ejecutado con errores"}<MdCheckCircle /></h3></Typography> 
-          <Typography><h3 style={{ color: localStorage.getItem("PedidosPendientes") === "false" ? 'green' :'red' }}>{localStorage.getItem("PedidosPendientes") === "false" ?"Sincronización de pedidos ejecutado correctamente." : "Sincronización de pedidos ejecutado con errores."}<MdCheckCircle /></h3></Typography>
-          <Typography><h3 style={{ color: localStorage.getItem("RecibosPendientes") === "false" ? 'green' :'red' }}>{localStorage.getItem("RecibosPendientes") === "false" ?"Sincronización de recibos ejecutado correctamente." : "Sincronización de recibos ejecutado con errores."}<MdCheckCircle /></h3></Typography>        
-        </Paper>
-      )}
     </div>
   );
 }

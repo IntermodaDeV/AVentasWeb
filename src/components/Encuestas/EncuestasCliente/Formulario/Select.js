@@ -13,6 +13,7 @@ const Select = (props) => {
                 className="form-control"
                 id={name}
                 name={name} {...rest}
+                disabled = {props.Respuestas !== undefined ? true : false}
                 as='select'>
                 {
                     options.map(opcion => {

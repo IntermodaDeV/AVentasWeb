@@ -13,15 +13,18 @@ const CheckBox = (props) => {
                     {
                         ({ field }) => {
                             return options.map(option => {
+                                let valores = props.respuestaCheckBox !== undefined && props.respuestaCheckBox.length > 0 ? String(props.respuestaCheckBox) : field.value;
+                                let isDisable = props.respuestaCheckBox !== undefined ? true : false;
                                 return (
                                     <React.Fragment key={option.key}>
                                         <label htmlFor={option.value} style={{ marginRight: '5px', marginLeft:'10px' }}>{option.key}</label>
                                         <input
                                             type='checkbox'
                                             id={option.value}
+                                            disabled = {isDisable}
                                             {...field}
                                             value={option.value}
-                                            checked={field.value !== undefined ? field.value.includes(String(option.value)) : false}
+                                            checked={valores !== undefined ? valores.includes(String(option.value)) : false}
                                         />
                                     </React.Fragment>
                                 )

@@ -19,9 +19,10 @@ const RadioButton = (props) => {
                                         <input
                                             type='radio'
                                             id={option.value}
+                                            disabled = {props.Respuestas !== undefined ? true : false}
                                             {...field}
                                             value={option.value}
-                                            checked={field.value === String(option.value)}
+                                            checked={(props.Respuestas !== undefined ? String(props.Respuestas) : field.value) === String(option.value)}
                                         />
                                         
                                     </React.Fragment>

@@ -24,7 +24,6 @@ const CardHeader = withStyles({
 })(MuiCardHeader);
 
 const FormularioEncuesta = (props) => {
-    console.log(props)
     const useStyles = makeStyles((theme) => ({
         button: {
             marginLeft: theme.spacing(2),
