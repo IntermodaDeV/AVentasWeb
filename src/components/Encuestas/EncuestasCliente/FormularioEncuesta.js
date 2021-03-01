@@ -37,7 +37,7 @@ const FormularioEncuesta = (props) => {
             for (let pregunta of seccion.Preguntas) {
                 let tipoDato = "";
                 if (pregunta.TipoIngreso === "date") {
-                    tipoDato = new Date();
+                    tipoDato = null;
                 }
 
                 modelo[pregunta.PreguntaId] = tipoDato;
@@ -70,17 +70,24 @@ const FormularioEncuesta = (props) => {
         let Info = [];
         const resp = Object.keys(data);
         let respuestas = [];
+
         for (let res of resp) {
             let respuestaObjeto = {};
             if (data[res] !== "") {
-                let esFecha = moment(data[res]).format("YYYY-MM-DD") !== "Invalid date" && data[res] instanceof Date && Object.prototype.toString.call(data[res]) === '[object Date]'? true: false;
-               
-                let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
-                respuestaObjeto.PreguntaId = Number(res);
-                respuestaObjeto.RespuestaAlfanumerica = ValorRespuesta;
-                respuestaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) || esFecha ? null : Number(data[res]);
-                respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false? data[res] : null;
-                respuestas.push(respuestaObjeto);
+                for(let seccion of props.EncuestaSelected){
+                    let pregunta = seccion.Preguntas.filter(p => p.PreguntaId === Number(res));
+                    if(pregunta.length > 0){
+                        let esFecha = pregunta[0].TipoIngreso === "date";
+                        let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
+                        respuestaObjeto.PreguntaId = Number(res);
+                        respuestaObjeto.RespuestaAlfanumerica = ValorRespuesta;
+                        respuestaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) || esFecha ? null : Number(data[res]);
+                        respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false? data[res] : null;
+                        respuestas.push(respuestaObjeto);
+                    }
+                   
+                 }
+                
             }
 
         }
@@ -92,7 +99,7 @@ const FormularioEncuesta = (props) => {
                 EncuestaId: props.EncuestaSelected[0].EncuestaId,
                 RespuestasDetalle: respuestas
             })
-
+            
         try {
             await axios.post(`${APIURL}/api/respuestas/registrar`, Info[0]);
 

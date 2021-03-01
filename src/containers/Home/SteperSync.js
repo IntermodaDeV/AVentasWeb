@@ -9,6 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import { ScaleLoader } from 'react-spinners';
 import { verificarConexion } from 'utils/http';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { Paper } from '@material-ui/core';
 const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
@@ -137,6 +138,11 @@ const VerticalLinearStepper = (props) => {
           )
         })}
       </Stepper>
+        {props.activeStep === steps.length && (
+         <Paper square elevation={0} className={classes.resetContainer}>
+           <Typography><h3 style={{color:props.ModulosError.length > 0 ? "red" : "green"}}>{props.ModulosError.length > 0 ? "¡Proceso de Sincronización ejecutado con errores!" : "¡Proceso de Sincronización ejecutado correctamente!"}</h3></Typography>
+         </Paper>
+        )}
     </div>
   );
 }
