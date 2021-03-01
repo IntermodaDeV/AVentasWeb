@@ -73,7 +73,8 @@ const FormularioEncuesta = (props) => {
         for (let res of resp) {
             let respuestaObjeto = {};
             if (data[res] !== "") {
-                let esFecha = moment(data[res]).format("YYYY-MM-DD") !== "Invalid date" ? true: false;
+                let esFecha = moment(data[res]).format("YYYY-MM-DD") !== "Invalid date" && data[res] instanceof Date && Object.prototype.toString.call(data[res]) === '[object Date]'? true: false;
+               
                 let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
                 respuestaObjeto.PreguntaId = Number(res);
                 respuestaObjeto.RespuestaAlfanumerica = ValorRespuesta;
@@ -91,7 +92,7 @@ const FormularioEncuesta = (props) => {
                 EncuestaId: props.EncuestaSelected[0].EncuestaId,
                 RespuestasDetalle: respuestas
             })
-            
+
         try {
             await axios.post(`${APIURL}/api/respuestas/registrar`, Info[0]);
 
@@ -149,7 +150,7 @@ const FormularioEncuesta = (props) => {
 
                                                     {
                                                         seccion.Preguntas.map((pregunta, index1) => {
-                                                            const Opciones = [];
+                                                            const Opciones = [];     
                                                             if (pregunta.GrupoOpcionesId !== null) {
                                                                 if (pregunta.TipoIngreso === 'select') {
                                                                     let GrupoOpciones = {}

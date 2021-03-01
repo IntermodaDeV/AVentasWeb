@@ -301,6 +301,10 @@ const CuentaCorrienteTable = props => {
         })
     }
 
+    React.useEffect(()=>{
+        setOcultar(false)
+    },[props.clienteSelected])
+
     return (
         <MuiThemeProvider theme={getMuiTheme()}>
             {(!props.cartera) && (<>
