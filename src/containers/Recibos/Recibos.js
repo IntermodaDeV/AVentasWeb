@@ -89,6 +89,7 @@ const Recibos = (props) => {
   const ModuloConfiguraciones = () => {
     cargarBancos();
     cargarTipoPago();
+    cargarMonedasGlobal();
   }
   
   const cargarBancos = () => {
@@ -105,6 +106,12 @@ const Recibos = (props) => {
     .catch(error=>console.log(error))
   }
 
+  const cargarMonedasGlobal = async () => {
+    fetch(`${urlApi}/api/moneda/monedas`)
+        .then(res => res.json())
+        .then(data => { props.onStoreMonedas(data); })
+        .catch(error => console.log(error))
+}
   const calcularCuotasCuentaCorriente = () => {
     let agrupacionCuentCorriente = [];
     let agrupacionCuentaCorriente = [];
@@ -788,7 +795,8 @@ const mapDispatchToProps = dispatch => {
     onSetStoreTipoPago: (data) => dispatch({ type: "SET_TIPOPAGOGLOBAL", payload: data }),
     onStoreDatosParaPedido: (colecciones, clientes, TiposPedido, maestroLineas) => dispatch(
       { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
-    onDeleteCuentaCorriente: ()=> dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'})
+    onDeleteCuentaCorriente: ()=> dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'}),
+    onStoreMonedas:(data)=> dispatch({ type: 'SET_MONEDASGLOBAL', payload: data })
       
 
   };

@@ -468,6 +468,7 @@ const SelectCliente = (props) => {
         let ValorCreditoTotal = 0;
         let CXCTotal = 0;
         let Depto = props.autocompleteValue.ComunidadAutonoma? Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma) ? Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma).NAME : '' : '';
+        let Abreviacion = props.autocompleteValue.Moneda ? Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda) ? Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion : "" : "";
         infoCliente = (
             <Card>
                 <CardContent>
@@ -580,9 +581,9 @@ const SelectCliente = (props) => {
                                     })}
                                     <tr>
                                         <td>{<b>Total</b>}</td>
-                                        <td style={{color:parseFloat(numberWithCommas(ValorCreditoTotal))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(ValorCreditoTotal)}</td>
-                                        <td>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(CXCTotal)}</td>
-                                        <td style={{color:parseFloat(numberWithCommas(DisponibleTotal))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(DisponibleTotal)}</td>
+                                        <td style={{color:parseFloat(numberWithCommas(ValorCreditoTotal))>0?'green':'red'}}>{Abreviacion} {numberWithCommas(ValorCreditoTotal)}</td>
+                                        <td>{Abreviacion} {numberWithCommas(CXCTotal)}</td>
+                                        <td style={{color:parseFloat(numberWithCommas(DisponibleTotal))>0?'green':'red'}}>{Abreviacion} {numberWithCommas(DisponibleTotal)}</td>
                                     </tr>
                                     <tr>
                                         {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={()=>setOpenContado(true)} variant="contained" color="primary">{(clienteContado===null)?'Crear cliente contado':'Editar cliente contado'}</Button></td>}

@@ -144,10 +144,10 @@ class Pedidos extends React.Component {
         this.cargarAbreviacionMonedas();
         this.cargarClientesContado();
         this.cargarComunidadAutonoma();
-        this.cargarMonedas();
+        this.cargarMonedasGlobal();
     }
 
-    cargarMonedas = async () => {
+    cargarMonedasGlobal = async () => {
         fetch(this.urlApi + "/api/moneda/monedas")
             .then(res => res.json())
             .then(data => { this.props.onStoreMonedas(data); })
@@ -243,7 +243,7 @@ class Pedidos extends React.Component {
     }
 
     cargarImpuestoProductosGlobal = () => {
-        fetch(this.urlApi + "/api/gruposimpuestos/Clientes")
+        fetch(this.urlApi + "/api/gruposimpuestos/Articulos")
             .then(res => {
                 if (res.status === 200) {
                     res.json().then(
@@ -251,12 +251,12 @@ class Pedidos extends React.Component {
                             this.props.onStoreImpuestoProductosGlobal(result);
                         },
                         (error) => {
-                            console.log("Ocurrio un error al cargar impuesto cliente global", error)
+                            console.log("Ocurrio un error al cargar impuesto Articulos global", error)
                         }
                     )
                 }
                 if (res.status === 401) {
-                  console.log("Ocurrio un error al cargar impuesto cliente global")
+                  console.log("Ocurrio un error al cargar impuesto Articulos global")
                 }
             })
     }
