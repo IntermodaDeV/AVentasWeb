@@ -1500,6 +1500,10 @@ class Pedidos extends React.Component {
                         text: mensaje,
                     })
                     this.setState({ loadingRecibo: false });
+                } else {
+                    let numPedido = localStorage.getItem("CorrelativoPedido");
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+                    this.props.onSetNumeroOrden(numPedido);
                 }
             } else {
                 if (data === null || data === undefined) {
