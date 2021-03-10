@@ -187,7 +187,7 @@ moment.locale('es')
     }
 
  let Apagar  = 0;
-
+ let Saldo = 0
   props.Cuotas.forEach(fact => {
     fact.Acuerdos.forEach(acu => {
       acu.Facturas.filter(f=> f.Saldo > 0).forEach(fact => {
@@ -200,6 +200,7 @@ moment.locale('es')
           let isVencida = DiasVencido<0;
 
           Apagar = diasDescuento < 0 ? cuot.Saldo : cuot.Saldo - ValorDescuento;
+          Saldo = Saldo + Apagar;
           if (DiasVencido < 0) {
             foundExpired = true;
 
@@ -278,7 +279,7 @@ moment.locale('es')
       });
     });
   })
-  localStorage.setItem("totalCredito", (Apagar).toFixed(2));
+  localStorage.setItem("totalCredito", (Saldo).toFixed(2));
 
     data.sort((a, b) => {
       if (moment(a.Fechaa, "DD/MM/YYYY").isAfter(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
