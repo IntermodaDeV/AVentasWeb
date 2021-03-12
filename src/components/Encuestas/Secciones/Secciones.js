@@ -243,7 +243,7 @@ export const Secciones = props => {
             const request = await axios.get(`${APIURL}/api/TipoIngreso`);
             let TipoIngreso = [];
             request.data.filter(g => g.Status === true).forEach(tipo => {
-              let Valores = { key: tipo.Nombre, value: tipo.Id, RequiereGrupoOpciones: tipo.RequiereGrupoOpciones}
+              let Valores = { key: tipo.Etiqueta, value: tipo.Id, RequiereGrupoOpciones: tipo.RequiereGrupoOpciones}
               TipoIngreso.push(Valores);
             })
             dispatch({type: 'SET_TIPOINGRESO', payload:TipoIngreso})

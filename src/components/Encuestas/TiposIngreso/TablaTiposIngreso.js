@@ -21,6 +21,7 @@ const TablaTiposIngreso = (props) => {
                             <thead>
                                 <tr>
                                     <th style={{ textAlign: 'center' }}>Nombre</th>
+                                    <th style={{ textAlign: 'center' }}>Etiqueta</th>
                                     <th style={{ textAlign: 'center' }}>Status</th>
                                     <th style={{ textAlign: 'center' }}>Acciones</th>
                                 </tr>
@@ -29,6 +30,7 @@ const TablaTiposIngreso = (props) => {
                                 {props.TiposIngreso.map(tip => (
                                     <tr key={tip.Id}>
                                         <td style={{ textAlign: 'center' }}>{tip.Nombre}</td>
+                                        <td style={{ textAlign: 'center' }}>{tip.Etiqueta}</td>
                                         <th style={{ textAlign: 'center', color: tip.Status ? "green" : "red" }}>{tip.Status ? <p>Activo <MdCheckCircle /> </p> : <p>Inactivo <MdCancel /> </p>}</th>
                                         <td style={{ textAlign: 'center' }}>
                                             <Button style={{ marginLeft: '10px' }} class="btn btn-warning" onClick={() => { props.openEdit(tip) }} startIcon={<FaEdit />} >Editar</Button>
