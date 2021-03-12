@@ -98,9 +98,21 @@ const CargarAsignaciones = (props)=>{
         }
       };
     
-      const save = () => {
+    const save = () => {
         let result = generateObjects(currentSheet);
-        result = result.filter(x=>(x.CodigoCliente!=="" && x.CodigoAsesor!=="" && x.FechaAsignacion!=="" && x.HoraInicio!=="" && x.HoraFinal!=="" && x.idPrioridad!==""));
+        let existenVacios = result.some(x => (x.CodigoCliente === "" && x.CodigoAsesor === "" && x.FechaAsignacion === "" && x.HoraInicio === "" && x.HoraFinal === "" && x.idPrioridad === ""));
+        if (existenVacios) {
+            Swal.fire({
+                title: 'Advertencia',
+                text: "Se encontraron asignaciones con campos vacios.",
+                type: 'warning',
+                confirmButtonText: 'Ok',
+                target: context.current
+            });
+
+            return;
+        }
+
         fetch(`${APIURL}/api/asignaciones/cargar`,{
             headers:{
                 "Content-type":"application/json",

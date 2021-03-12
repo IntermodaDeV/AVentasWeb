@@ -9,32 +9,35 @@ import Button from '@material-ui/core/Button';
 import axios from 'axios';
 import { Formik, Form, Field } from 'formik';
 import * as yup from 'yup';
-import {TablaEncuesta} from 'components/Encuestas/Encuestas/TablaEncuesta';
+import { TablaEncuesta } from 'components/Encuestas/Encuestas/TablaEncuesta';
 import { APIURL } from 'utils/Enviroment';
 import { DatePicker } from "@material-ui/pickers";
 import moment from 'moment';
 import { MdPlaylistAdd } from "react-icons/md";
 import { TablaRelacion } from 'components/Seguridad/Relacional/TablaRelacion';
+import { RangoFecha } from './RangoFecha';
 
 export const Encuesta = (props) => {
     const [encuestas, setEncuestas] = useState([]);
     const [encuestasInactivas, setEncuestasInactivas] = useState([]);
-    const [EncuestaSelected,setEncuestaSelected] = useState(null);
+    const [EncuestaSelected, setEncuestaSelected] = useState(null);
     const [mostrar, setMostrar] = useState(false);
     const [mostrarEmpresas, setMostrarEmpresas] = useState(false);
     const [encuesta, setEncuesta] = useState(null);
     const [fechaInicio, setFechaInicio] = useState(new Date());
     const [fechaFin, setfechaFin] = useState(new Date());
-    const [EmpresasAsignadas,setEmpresasAsignadas] = useState([]);
-    const [EmpresasNoAsignadas,setEmpresasNoAsignadas] = useState([]);
-    const [SeccionesPermitidas,setSeccionesPermitidas] = useState([]);
-    const [SeccionesNoPermitidas,setSeccionesNoPermitidas] = useState([]);
+    const [EmpresasAsignadas, setEmpresasAsignadas] = useState([]);
+    const [EmpresasNoAsignadas, setEmpresasNoAsignadas] = useState([]);
+    const [SeccionesPermitidas, setSeccionesPermitidas] = useState([]);
+    const [SeccionesNoPermitidas, setSeccionesNoPermitidas] = useState([]);
     const [MostrarSecciones, setMostrarSecciones] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [encuestaId, setEncuestaId] = useState(0);
     const context = useRef();
     const validationSchema = yup.object().shape(
         {
             Nombre: yup.string().required('El nombre es obligatorio'),
-            Descripcion: yup.string(),       
+            Descripcion: yup.string(),
         });
 
     useEffect(() => {
@@ -44,7 +47,7 @@ export const Encuesta = (props) => {
     const cargarEncuestas = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/Encuesta`);
-            let fecha =  moment().format('YYYY-MM-DD');
+            let fecha = moment().format('YYYY-MM-DD');
             let EncuestasActivas = request.data.filter(e => moment(e.FechaInicio).format("YYYY-MM-DD") <= fecha && moment(e.FechaFin).format("YYYY-MM-DD") >= fecha);
             let EncuestasInactivas = request.data.filter(e => moment(e.FechaInicio).format("YYYY-MM-DD") > fecha || moment(e.FechaFin).format("YYYY-MM-DD") < fecha);
             setEncuestasInactivas(EncuestasInactivas);
@@ -173,13 +176,13 @@ export const Encuesta = (props) => {
 
     const asignarSeccion = async (SeccionId) => {
         console.log(SeccionId)
-        try{
+        try {
             await axios.post(`${APIURL}/api/Encuesta/AsignarSecciones/${EncuestaSelected}/${SeccionId}/${localStorage.getItem('codigo')}`);
             AgregarSeccion(EncuestaSelected);
-        }catch(err){
+        } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
 
-            if(err.response){
+            if (err.response) {
                 mensaje = err.response.data.Message;
             }
 
@@ -193,13 +196,13 @@ export const Encuesta = (props) => {
     }
 
     const removerSeccion = async (SeccionId) => {
-        try{
+        try {
             await axios.post(`${APIURL}/api/Encuesta/RemoverSeccion/${SeccionId}/${EncuestaSelected}/${localStorage.getItem('codigo')}`);
             AgregarSeccion(EncuestaSelected);
-        }catch(err){
+        } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
 
-            if(err.response){
+            if (err.response) {
                 mensaje = err.response.data.Message;
             }
 
@@ -213,13 +216,13 @@ export const Encuesta = (props) => {
     }
 
     const asignarEmpresa = async (EmpresaId) => {
-        try{
+        try {
             await axios.post(`${APIURL}/api/Encuesta/AsignarEmpresa/${EmpresaId}/${EncuestaSelected}/${localStorage.getItem('codigo')}`);
             CargarEmpresasUsuario(EncuestaSelected);
-        }catch(err){
+        } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
 
-            if(err.response){
+            if (err.response) {
                 mensaje = err.response.data.Message;
             }
 
@@ -233,13 +236,13 @@ export const Encuesta = (props) => {
     }
 
     const removerEmpresa = async (EmpresaId) => {
-        try{
+        try {
             await axios.post(`${APIURL}/api/Encuesta/RemoverEmpresa/${EmpresaId}/${EncuestaSelected}/${localStorage.getItem('codigo')}`);
             CargarEmpresasUsuario(EncuestaSelected);
-        }catch(err){
+        } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
 
-            if(err.response){
+            if (err.response) {
                 mensaje = err.response.data.Message;
             }
 
@@ -259,6 +262,11 @@ export const Encuesta = (props) => {
         } catch (err) {
             console.log("Ha ocurrido un error", err.response)
         }
+    }
+
+    const abrirRango = id => {
+        setOpen(!open);
+        setEncuestaId(id);
     }
 
     const cargarEmpresasNoPermitidas = async (EncuestaId) => {
@@ -301,7 +309,7 @@ export const Encuesta = (props) => {
                 <DialogContent>
                     <Formik
                         initialValues={initialValues}
-                        enableReinitialize = {false}
+                        enableReinitialize={false}
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
                             values.FechaInicio = moment(fechaInicio).format("YYYY-MM-DD");
@@ -353,7 +361,7 @@ export const Encuesta = (props) => {
                                             style={{ marginRight: '20px', fontSize: '40px' }}
                                             value={fechaFin}
                                             onChange={(date) => setfechaFin(date)}
-                                        /> 
+                                        />
                                     </div>
                                     <DialogActions>
                                         <Button onClick={() => { setMostrar(false) }} color="primary">
@@ -407,7 +415,7 @@ export const Encuesta = (props) => {
                 </DialogActions>
             </Dialog>
 
-
+            <RangoFecha abrirRango={abrirRango} open={open} encuestaId={encuestaId}/>
             <div className="col">
                 <div class="card-body text-center">
                     <div class="text-right">
@@ -417,26 +425,28 @@ export const Encuesta = (props) => {
                 <div style={{ marginTop: '20px' }} className="container-fluid">
                     <div className="row">
                         <div className="col">
-                            <TablaEncuesta 
-                                titulo="Encuestas Activas" 
-                                cabeceras={["Nombre", "Descripción","","","",""]} 
-                                valores={encuestas} 
-                                setMostrar={Mostrar} 
-                                openEdit={openEdit} 
-                                cargarSecciones={props.cargarSeccion} 
-                                CargarEmpresasUsuario = {CargarEmpresasUsuario}
-                                AgregarSeccion = {AgregarSeccion}/>
+                            <TablaEncuesta
+                                titulo="Encuestas Activas"
+                                cabeceras={["Nombre", "Descripción", "", "", "", "", ""]}
+                                valores={encuestas}
+                                abrirRango={abrirRango}
+                                setMostrar={Mostrar}
+                                openEdit={openEdit}
+                                cargarSecciones={props.cargarSeccion}
+                                CargarEmpresasUsuario={CargarEmpresasUsuario}
+                                AgregarSeccion={AgregarSeccion} />
                         </div>
                         <div className="col">
-                            <TablaEncuesta 
-                                titulo="Encuestas Inactivas" 
-                                cabeceras={["Nombre", "Descripción", "","","",""]} 
-                                valores={encuestasInactivas} 
-                                setMostrar={Mostrar} 
-                                openEdit={openEdit} 
-                                cargarSecciones={props.cargarSeccion} 
-                                CargarEmpresasUsuario ={CargarEmpresasUsuario}
-                                AgregarSeccion = {AgregarSeccion}/>
+                            <TablaEncuesta
+                                abrirRango={abrirRango}
+                                titulo="Encuestas Inactivas"
+                                cabeceras={["Nombre", "Descripción", "", "", "", "", ""]}
+                                valores={encuestasInactivas}
+                                setMostrar={Mostrar}
+                                openEdit={openEdit}
+                                cargarSecciones={props.cargarSeccion}
+                                CargarEmpresasUsuario={CargarEmpresasUsuario}
+                                AgregarSeccion={AgregarSeccion} />
                         </div>
                     </div>
                 </div>

@@ -9,6 +9,8 @@ const FormikControl = (props) => {
 
     const {control, ...rest} = props;
     switch(props.control){
+        case 'number':
+            return <Input type="number" {...rest}/>
         case 'input':
             return <Input {...rest}/>
         case 'textarea' : 
