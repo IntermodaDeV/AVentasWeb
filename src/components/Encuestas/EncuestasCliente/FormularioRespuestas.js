@@ -120,7 +120,7 @@ const FormularioRespuestas = (props) => {
                                         })
                                     }
                                     <div style={{ textAlign: 'right', paddingTop: '20px' }}>
-                                        <Button className={classes.button} type="submit" variant="contained" onClick={() => props.history.push("/encuesta/Resueltas")} startIcon={<HighlightOffIcon />}>Cancelar</Button>
+                                        <Button className={classes.button} type="submit" variant="contained" onClick={() => props.history.push("/encuesta/Resueltas")} startIcon={<HighlightOffIcon />}>Salir</Button>
                                     </div>
                                 </Form>
                             </div>

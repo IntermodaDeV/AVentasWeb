@@ -5,7 +5,7 @@ import FormikErrorFocus from 'formik-error-focus'
 const CheckBox = (props) => {
     const { label, Descripcion, name, options, ...rest } = props;
     return (
-        <div classname='form-control'>
+        <div classname='form-control' hidden={props.hidden}>
             <label>{label}</label>
             <p style={{ fontStyle: 'italic', fontSize:'13px' }} htmlFor={"Id" + name}>{Descripcion}</p>
             <div className="form-group">
@@ -42,6 +42,7 @@ const CheckBox = (props) => {
                 />
             </div>
             <ErrorMessage name={name} component={TextError} />
+            <br></br>
         </div>
     )
 }

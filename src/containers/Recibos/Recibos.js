@@ -90,7 +90,15 @@ const Recibos = (props) => {
     cargarBancos();
     cargarTipoPago();
     cargarMonedasGlobal();
+    cargarAbreviacionMonedas();
   }
+
+  const cargarAbreviacionMonedas =  () => {
+    fetch(`${urlApi}/api/moneda`)
+    .then(res=>res.json())
+    .then(data=>{props.onStoreAbreviacionMonedas(data);})
+    .catch(error=>console.log(error))
+}
   
   const cargarBancos = () => {
     fetch(`${urlApi}/api/banco`)
@@ -796,9 +804,8 @@ const mapDispatchToProps = dispatch => {
     onStoreDatosParaPedido: (colecciones, clientes, TiposPedido, maestroLineas) => dispatch(
       { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
     onDeleteCuentaCorriente: ()=> dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'}),
-    onStoreMonedas:(data)=> dispatch({ type: 'SET_MONEDASGLOBAL', payload: data })
-      
-
+    onStoreMonedas:(data)=> dispatch({ type: 'SET_MONEDASGLOBAL', payload: data }),
+    onStoreAbreviacionMonedas:(data)=> dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data })
   };
   
 };

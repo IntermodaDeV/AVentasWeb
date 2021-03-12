@@ -74,22 +74,19 @@ const FormularioEncuesta = (props) => {
         for (let res of resp) {
             let respuestaObjeto = {};
             if (data[res] !== "") {
-                for(let seccion of props.EncuestaSelected){
+                for (let seccion of props.EncuestaSelected) {
                     let pregunta = seccion.Preguntas.filter(p => p.PreguntaId === Number(res));
-                    if(pregunta.length > 0){
+                    if (pregunta.length > 0) {
                         let esFecha = pregunta[0].TipoIngreso === "date";
                         let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
                         respuestaObjeto.PreguntaId = Number(res);
                         respuestaObjeto.RespuestaAlfanumerica = ValorRespuesta;
                         respuestaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) || esFecha ? null : Number(data[res]);
-                        respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false? data[res] : null;
+                        respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false ? data[res] : null;
                         respuestas.push(respuestaObjeto);
                     }
-                   
-                 }
-                
+                }
             }
-
         }
 
         Info.push(
@@ -99,7 +96,7 @@ const FormularioEncuesta = (props) => {
                 EncuestaId: props.EncuestaSelected[0].EncuestaId,
                 RespuestasDetalle: respuestas
             })
-            
+
         try {
             await axios.post(`${APIURL}/api/respuestas/registrar`, Info[0]);
 
@@ -126,6 +123,34 @@ const FormularioEncuesta = (props) => {
             });
         }
     }
+
+    const Preguntas = (seccion, data) =>{
+        let Preguntas = []
+        seccion.Preguntas.forEach(pregunta => {
+            Preguntas.push(pregunta);
+            if (pregunta.GrupoOpcionesId !== null) {
+
+                pregunta.PreguntasOpciones.forEach(gp => {
+                    if(gp.PreguntasAnidadas.length > 0){
+                        for (let pa of gp.PreguntasAnidadas) {
+                             pa.hidden = true;
+                             const resp = Object.keys(data);
+                                for (let res of resp) {
+                                    if (data[res] !== "") {
+                                        if(pa.PreguntasOpcionesId == data[res]){
+                                            pa.hidden = false;
+                                        }
+                                    }
+                                }
+                            Preguntas.push(pa);
+                        }
+                    }
+                });
+            }
+        })
+        return Preguntas;
+    }
+
     return (
         <div style={{ height: '100%', display: 'flex', justifyContent: 'center' }} className="container-fluid">
             <Card style={{ width: '900px' }} raised={true}>
@@ -146,6 +171,7 @@ const FormularioEncuesta = (props) => {
                                 <Form>
                                     {
                                         props.EncuestaSelected.map((seccion, index) => {
+                                           let preguntas = Preguntas(seccion, values)
                                             return (
                                                 <>
                                                     <div style={{ background: '#D3F2F7' }} className="form-group">
@@ -156,7 +182,7 @@ const FormularioEncuesta = (props) => {
                                                     </div>
 
                                                     {
-                                                        seccion.Preguntas.map((pregunta, index1) => {
+                                                        preguntas.map((pregunta, index1) => {
                                                             const Opciones = [];     
                                                             if (pregunta.GrupoOpcionesId !== null) {
                                                                 if (pregunta.TipoIngreso === 'select') {
@@ -165,7 +191,7 @@ const FormularioEncuesta = (props) => {
                                                                     Opciones.push(GrupoOpciones);
                                                                 }
                                                                 pregunta.PreguntasOpciones.forEach(gp => {
-                                                                    let GrupoOpciones = {}
+                                                                    let GrupoOpciones = {};
                                                                     GrupoOpciones = { key: gp.GOpcionesDetalleNombre, value: gp.PreguntasOpcionesId }
                                                                     Opciones.push(GrupoOpciones);
                                                                 });
@@ -174,11 +200,25 @@ const FormularioEncuesta = (props) => {
                                                                 <>
                                                                     {
                                                                         pregunta.GrupoOpcionesId === null &&
-                                                                        <FormikControl control={pregunta.TipoIngreso} errors={errors} Descripcion = {pregunta.Descripcion} type={pregunta.TipoIngreso} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} id={pregunta.PreguntaId} name={pregunta.PreguntaId} />
+                                                                        <FormikControl 
+                                                                        hidden = {pregunta.hidden !== undefined ? pregunta.hidden : false} 
+                                                                        control={pregunta.TipoIngreso} 
+                                                                        errors={errors} 
+                                                                        Descripcion = {pregunta.Descripcion} 
+                                                                        type={pregunta.TipoIngreso} 
+                                                                        label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} 
+                                                                        id={pregunta.preguntaAnidada ? "Anidada-" + pregunta.PreguntaId :pregunta.PreguntaId} 
+                                                                        name={pregunta.preguntaAnidada ? "Anidada-" + pregunta.PreguntaId :pregunta.PreguntaId} />
                                                                     }
                                                                     {
                                                                         pregunta.GrupoOpcionesId !== null &&
-                                                                        <FormikControl control={pregunta.TipoIngreso} Descripcion = {pregunta.Descripcion} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} name={pregunta.PreguntaId} options={Opciones} />
+                                                                        <FormikControl 
+                                                                        hidden = {pregunta.hidden !== undefined ? pregunta.hidden : false} 
+                                                                        control={pregunta.TipoIngreso} 
+                                                                        Descripcion = {pregunta.Descripcion} 
+                                                                        label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} 
+                                                                        name={pregunta.preguntaAnidada ? "Anidada-" + pregunta.PreguntaId :pregunta.PreguntaId} 
+                                                                        options={Opciones} />
                                                                     }
                                                                 </>
                                                             )
@@ -189,7 +229,7 @@ const FormularioEncuesta = (props) => {
                                         })
                                     }
                                     <div style={{ textAlign: 'right', paddingTop: '20px' }}>
-                                        <Button className={classes.button} type="submit" variant="contained" onClick={() => props.history.push("/encuesta/selectCliente")} startIcon={<HighlightOffIcon />}>Cancelar</Button>
+                                        <Button className={classes.button} type="submit" variant="contained" onClick={() => props.history.push("/encuesta/selectCliente")} startIcon={<HighlightOffIcon />}>Salir</Button>
                                         <Button className={classes.button} type="submit" color="primary" variant="contained" startIcon={<SendIcon />}>Enviar</Button>
                                     </div>
                                 </Form>

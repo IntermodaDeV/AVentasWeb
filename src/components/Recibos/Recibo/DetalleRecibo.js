@@ -123,7 +123,6 @@ const DetalleRecibo = (props) => {
                         Facturas.Cuotas.filter(c => c.NumeroCuota === numCuota).forEach(function(Cuotas) {
                             Facturas.Saldo = Facturas.Saldo - valorPago - Descuento;
                             Cuotas.Saldo = Cuotas.Saldo - valorPago - Descuento;
-                            console.log(Facturas);
                         })
                     });
                 } );

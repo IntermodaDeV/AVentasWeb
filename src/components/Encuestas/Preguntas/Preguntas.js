@@ -20,10 +20,12 @@ export const Preguntas = props => {
     const TipoIngreso = useSelector(e => e.TipoIngreso);
     const GrupoOpciones = useSelector(g => g.GrupoOpciones);
     const [mostrar, setMostrar] = useState(false);
+    const [modalPreguntaAnidada, setmodalPreguntaAnidada] = useState(false);
     const [pregunta, setPregunta] = useState(null);
     const [requiereGrupoOpciones, setRequiereGrupoOpciones] = useState(false);
     const [tipoIngreso, setTipoIngreso] = useState(TipoIngreso.length > 0 ? TipoIngreso[0].value : '');
     const [grupoOpcion, setGrupoOpcion] = useState(null);
+    const [grupoOpcionPregunta, setgrupoOpcionPregunta] = useState([]);
     const [mensaje, setmensaje] = useState("");
     const context = useRef();
     const validationSchema = yup.object().shape(
@@ -33,44 +35,82 @@ export const Preguntas = props => {
             RespuestaObligatorio: yup.boolean(),
             Status: yup.boolean(),
         });
-    
-        useEffect(() => {
-             // eslint-disable-next-line
-        }, [])
+
+    useEffect(() => {
+        // eslint-disable-next-line
+    }, [])
     const registrarPreguntas = async (data) => {
         data.GrupoOpcionesId = grupoOpcion;
         data.TipoIngresoId = tipoIngreso;
 
-        if(data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0 && data.RequiereOpciones === true){
+        if (data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0 && data.RequiereOpciones === true) {
             setmensaje("Este campo es obligatorio")
         }
-        else{
+        else {
             try {
-            await axios.post(`${APIURL}/api/preguntas/registrar`, data);
-            setMostrar(false)
-            Swal.fire({
-                title: 'Confirmado',
-                text: "Se ha creado la pregunta exitosamente.",
-                type: 'success',
-                confirmButtonText: 'Ok',
-            }).then(e => {
+                await axios.post(`${APIURL}/api/preguntas/registrar`, data);
+                setMostrar(false)
+                Swal.fire({
+                    title: 'Confirmado',
+                    text: "Se ha creado la pregunta exitosamente.",
+                    type: 'success',
+                    confirmButtonText: 'Ok',
+                }).then(e => {
+                    setmensaje("");
+                    props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
+                });
+
+            } catch (err) {
                 setmensaje("");
-                props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
-            });
+                let mensaje = "Ha ocurrido un error y no se ha registrado la pregunta.";
 
-        } catch (err) {
-            setmensaje("");
-            let mensaje = "Ha ocurrido un error y no se ha registrado la pregunta.";
-
-            if (err.response) {
-                mensaje = err.response.data.Message;
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+                Swal.fire({
+                    title: 'Error',
+                    text: mensaje,
+                    type: 'error',
+                    confirmButtonText: 'Ok',
+                });
             }
-            Swal.fire({
-                title: 'Error',
-                text: mensaje,
-                type: 'error',
-                confirmButtonText: 'Ok',
-            });
+        }
+    }
+
+    const registrarPreguntasAnidadas = async (data) => {
+        data.GrupoOpcionesId = grupoOpcion;
+        data.TipoIngresoId = tipoIngreso;
+
+        if (data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0 && data.RequiereOpciones === true) {
+            setmensaje("Este campo es obligatorio")
+        }
+        else {
+            try {
+                await axios.post(`${APIURL}/api/preguntas/Anidadas`, data);
+                setmodalPreguntaAnidada(false)
+                Swal.fire({
+                    title: 'Confirmado',
+                    text: "Se ha creado la pregunta exitosamente.",
+                    type: 'success',
+                    confirmButtonText: 'Ok',
+                }).then(e => {
+                    setmensaje("");
+                    props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
+                });
+
+            } catch (err) {
+                setmensaje("");
+                let mensaje = "Ha ocurrido un error y no se ha registrado la pregunta.";
+
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+                Swal.fire({
+                    title: 'Error',
+                    text: mensaje,
+                    type: 'error',
+                    confirmButtonText: 'Ok',
+                });
             }
         }
     }
@@ -82,10 +122,10 @@ export const Preguntas = props => {
             data.GrupoOpcionesDetalle.push(element.GrupoOpcionesDetalleId)
         });
 
-        if(data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0){
+        if (data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0) {
             setmensaje("Este campo es obligatorio")
         }
-        else{
+        else {
             try {
                 await axios.post(`${APIURL}/api/preguntas/modificar`, data);
                 setMostrar(false)
@@ -157,6 +197,30 @@ export const Preguntas = props => {
         setMostrar(true);
     }
 
+    const openModalAnidado = (resp) => {
+        let requiereGrupoOpciones = TipoIngreso.length > 0 ? TipoIngreso.find(t => t.value === resp.TipoIngresoId).RequiereGrupoOpciones : false;
+        setRequiereGrupoOpciones(requiereGrupoOpciones);
+        setTipoIngreso(resp.TipoIngresoId);
+        if (requiereGrupoOpciones === false) {
+            props.cargarGrupoOpcionesDetalle(0);
+        }
+        setGrupoOpcion(resp.GrupoOpcionesId);
+        if (resp.GrupoOpcionesId !== null) {
+            props.cargarGrupoOpcionesDetalle(resp.GrupoOpcionesId);
+        }
+
+        if (resp.PreguntaOpciones.length > 0) {
+            let GrupoOpcion = [];
+            resp.PreguntaOpciones.forEach(op => {
+                let Valores = { key: op.GrupoOpcionesDetalle, value: op.Id }
+                GrupoOpcion.push(Valores);
+            });
+            setgrupoOpcionPregunta(GrupoOpcion)
+        }
+        setPregunta(resp);
+        setmodalPreguntaAnidada(true);
+    }
+
     const Mostrar = () => {
         setRequiereGrupoOpciones(false)
         setGrupoOpcion(null)
@@ -171,7 +235,7 @@ export const Preguntas = props => {
         let requiereOpciones = TipoIngreso.find(t => t.value == Id).RequiereGrupoOpciones;
         setRequiereGrupoOpciones(requiereOpciones);
         setTipoIngreso(Id);
-        if(requiereOpciones  === false){
+        if (requiereOpciones === false) {
             setGrupoOpcion(null);
         }
     }
@@ -181,24 +245,24 @@ export const Preguntas = props => {
         setGrupoOpcion(Id);
     }
 
-    const GrupoOpcions = (value) =>{
-        if(pregunta !== null){
+    const GrupoOpcions = (value) => {
+        if (pregunta !== null) {
             pregunta.PreguntaOpciones = pregunta.PreguntaOpciones.filter(p => p.GrupoOpcionesDetalleId !== value);
             setPregunta(pregunta);
         }
     }
     let initialValues, edit;
 
-    if (pregunta) {
-       
+    if (pregunta && modalPreguntaAnidada === false) {
+
         initialValues = {
             Id: pregunta.Id,
             SeccionEncuestaId: pregunta.SeccionEncuestaId,
             TipoIngresoId: pregunta.TipoIngresoId,
             RequiereOpciones: requiereGrupoOpciones,
             GrupoOpcionesId: pregunta.GrupoOpcionesId,
-            GrupoOpcionesDetalle : [],
-            GrupoOpcion : pregunta.PreguntaOpciones,
+            GrupoOpcionesDetalle: [],
+            GrupoOpcion: pregunta.PreguntaOpciones,
             Nombre: pregunta.Nombre,
             Descripcion: pregunta.Descripcion,
             Status: pregunta.Status,
@@ -215,9 +279,9 @@ export const Preguntas = props => {
             TipoIngresoId: TipoIngreso.length > 0 ? tipoIngreso : null,
             RequiereOpciones: requiereGrupoOpciones,
             GrupoOpcionesId: GrupoOpciones.length > 0 ? grupoOpcion : null,
-            GrupoOpcionesDetalle : [],
-            GrupoOpciones : [],
-            Nombre:'',
+            GrupoOpcionesDetalle: [],
+            GrupoOpciones: [],
+            Nombre: '',
             Descripcion: '',
             Status: true,
             Obligatorio: false,
@@ -228,181 +292,336 @@ export const Preguntas = props => {
     }
     return (
         <>
-        <div>
-            <Dialog open={mostrar} aria-labelledby="form-dialog-title">
-                <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">REGISTRAR PREGUNTAS</DialogTitle>
-                <DialogContent>
-                    <Formik
-                        initialValues={initialValues}
-                        enableReinitialize = {false}
-                        validationSchema={validationSchema}
-                        onSubmit={(values) => {
-                            registrarPreguntas(values)
-                        }}>
-                        {({ errors, resetForm, values, setValues }) => (
-                            
-                            <div ref={context}>
-                                <Form>
-                                    <div className="form-group">
-                                        <Field
-                                            label="Pregunta"
-                                            name="Nombre"
-                                            error={!!errors.Nombre}
-                                            helperText={errors.Nombre}
-                                            style={{ width: '450px', marginRight: '20px', fontSize: '40px' }}
-                                            as={TextField}
-                                            className="form-control"
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <Field
-                                            label="Descripcion"
-                                            name="Descripcion"
-                                            error={!!errors.Descripcion}
-                                            helperText={errors.Descripcion}
-                                            style={{ width: '450px', marginRight: '20px', fontSize: '40px' }}
-                                            as={TextField}
-                                            className="form-control"
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="TipoIngreso">Tipo Ingreso</label>
-                                        <Field id="Ingreso" name="TipoIngresoId" as='select' value={tipoIngreso} onChange={(e)=> {handleOnChange(e.target.value)}} className="form-control" style={{ width: '450px', marginRight: '20px' }}>
-                                            {
-                                                TipoIngreso.map(tig => {
-                                                    return (
-                                                        <option key={tig.value} value={tig.value}>
-                                                            {tig.key}
-                                                        </option>
-                                                    )
-                                                })
-                                            }
-                                        </Field>
-                                    </div>
-                                    { requiereGrupoOpciones &&
-                                        <div className="form-group">
-                                        <label htmlFor="GrupoOpciones" style={{ width: '450px'}}>Grupo de Opciones</label>
-                                        <Field id="GrupOpcion" name="GrupoOpcionesId" as='select' value={grupoOpcion} className="form-control"  onChange={(e)=> {grupoOpcionDetalle(e.target.value)}} style={{ width: '450px', marginRight: '20px' }}>
-                                            {
-                                                GrupoOpciones.map(grupo => {
-                                                    return (
-                                                        <option key={grupo.value} value={grupo.value}>
-                                                            {grupo.key}
-                                                        </option>
-                                                    )
-                                                })
-                                            }
-                                        </Field>
-                                    </div>
-                                    }
-                                    { props.grupoOpcionesDetalle.length > 0 && requiereGrupoOpciones && edit &&
-                                    <>
-                                        <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones Detalle</label>
-                                        <div className="form-group">
-                                            <Field id="Opcion" name="GrupoOpcionesDetalleId" as='checkbox' style={{ marginRight: '20px' }}>
-                                                {
-                                                    props.grupoOpcionesDetalle.map(grupo => {
+            <div>
+                <Dialog open={mostrar} aria-labelledby="form-dialog-title">
+                    <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">REGISTRAR PREGUNTAS</DialogTitle>
+                    <DialogContent>
+                        <Formik
+                            initialValues={initialValues}
+                            enableReinitialize={false}
+                            validationSchema={validationSchema}
+                            onSubmit={(values) => {
+                                registrarPreguntas(values)
+                            }}>
+                            {({ errors, resetForm, values, setValues }) => (
 
+                                <div ref={context}>
+                                    <Form>
+                                        <div className="form-group">
+                                            <Field
+                                                label="Pregunta"
+                                                name="Nombre"
+                                                error={!!errors.Nombre}
+                                                helperText={errors.Nombre}
+                                                style={{ width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                                as={TextField}
+                                                className="form-control"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <Field
+                                                label="Descripcion"
+                                                name="Descripcion"
+                                                error={!!errors.Descripcion}
+                                                helperText={errors.Descripcion}
+                                                style={{ width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                                as={TextField}
+                                                className="form-control"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="TipoIngreso">Tipo Ingreso</label>
+                                            <Field id="Ingreso" name="TipoIngresoId" as='select' value={tipoIngreso} onChange={(e) => { handleOnChange(e.target.value) }} className="form-control" style={{ width: '450px', marginRight: '20px' }}>
+                                                {
+                                                    TipoIngreso.map(tig => {
                                                         return (
-                                                            <React.Fragment key={grupo.key}>
-                                                                 <label htmlFor={grupo.value} style={{ marginRight: '10px' }}>{grupo.key}</label>
-                                                                <input
-                                                                    type='checkbox'
-                                                                    id={grupo.value}
-                                                                    name = "GrupoOpcionesDetalle"
-                                                                    value={grupo.value}
-                                                                    style={{ marginRight: '20px' }}
-                                                                    checked={pregunta.PreguntaOpciones.find(g => g.GrupoOpcionesDetalleId ===grupo.value)}
-                                                                    onChange={(e)=> GrupoOpcions(grupo.value)}
-                                                                >
-                                                                </input>
-                                                            </React.Fragment>
+                                                            <option key={tig.value} value={tig.value}>
+                                                                {tig.key}
+                                                            </option>
                                                         )
                                                     })
                                                 }
                                             </Field>
-                                            <p style={{color:'red'}} >{mensaje}</p>
                                         </div>
-                                        </>
-                                    }
-                                    
-                                    { props.grupoOpcionesDetalle.length > 0 && requiereGrupoOpciones && edit === false &&
-                                    <>
-                                        <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones Detalle</label>
-                                        <div className="form-group">
-                                            <Field id="Opcion" name="GrupoOpcionesDetalleId" as='checkbox' style={{ marginRight: '20px' }}>
-                                                {
-                                                    props.grupoOpcionesDetalle.map(grupo => {
+                                        {requiereGrupoOpciones &&
+                                            <div className="form-group">
+                                                <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones</label>
+                                                <Field id="GrupOpcion" name="GrupoOpcionesId" as='select' value={grupoOpcion} className="form-control" onChange={(e) => { grupoOpcionDetalle(e.target.value) }} style={{ width: '450px', marginRight: '20px' }}>
+                                                    {
+                                                        GrupoOpciones.map(grupo => {
+                                                            return (
+                                                                <option key={grupo.value} value={grupo.value}>
+                                                                    {grupo.key}
+                                                                </option>
+                                                            )
+                                                        })
+                                                    }
+                                                </Field>
+                                            </div>
+                                        }
+                                        {props.grupoOpcionesDetalle.length > 0 && requiereGrupoOpciones && edit &&
+                                            <>
+                                                <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones Detalle</label>
+                                                <div className="form-group">
+                                                    <Field id="Opcion" name="GrupoOpcionesDetalleId" as='checkbox' style={{ marginRight: '20px' }}>
+                                                        {
+                                                            props.grupoOpcionesDetalle.map(grupo => {
 
-                                                        return (
-                                                            <React.Fragment key={grupo.key}>
-                                                                 <label htmlFor={grupo.value} style={{ marginRight: '10px' }}>{grupo.key}</label>
-                                                                <input
-                                                                    type='checkbox'
-                                                                    id={grupo.value}
-                                                                    name = "GrupoOpcionesDetalle"
-                                                                    value={grupo.value}
-                                                                    style={{ marginRight: '20px' }}
-                                                                 >
-                                                                </input>
-                                                            </React.Fragment>
-                                                        )
-                                                    })
-                                                }
-                                            </Field>
-                                            <p style={{color:'red'}} >{mensaje}</p>
-                                        </div>
-                                        </>
-                                    }
+                                                                return (
+                                                                    <React.Fragment key={grupo.key}>
+                                                                        <label htmlFor={grupo.value} style={{ marginRight: '10px' }}>{grupo.key}</label>
+                                                                        <input
+                                                                            type='checkbox'
+                                                                            id={grupo.value}
+                                                                            name="GrupoOpcionesDetalle"
+                                                                            value={grupo.value}
+                                                                            style={{ marginRight: '20px' }}
+                                                                            checked={pregunta.PreguntaOpciones.find(g => g.GrupoOpcionesDetalleId === grupo.value)}
+                                                                            onChange={(e) => GrupoOpcions(grupo.value)}
+                                                                        >
+                                                                        </input>
+                                                                    </React.Fragment>
+                                                                )
+                                                            })
+                                                        }
+                                                    </Field>
+                                                    <p style={{ color: 'red' }} >{mensaje}</p>
+                                                </div>
+                                            </>
+                                        }
 
-                                    <FormControlLabel
-                                        control={
-                                            <Field
-                                                type="checkbox"
-                                                name="Status"
-                                                checked={values.Status}
-                                                as={CheckBox}
-                                            />
+                                        {props.grupoOpcionesDetalle.length > 0 && requiereGrupoOpciones && edit === false &&
+                                            <>
+                                                <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones Detalle</label>
+                                                <div className="form-group">
+                                                    <Field id="Opcion" name="GrupoOpcionesDetalleId" as='checkbox' style={{ marginRight: '20px' }}>
+                                                        {
+                                                            props.grupoOpcionesDetalle.map(grupo => {
+
+                                                                return (
+                                                                    <React.Fragment key={grupo.key}>
+                                                                        <label htmlFor={grupo.value} style={{ marginRight: '10px' }}>{grupo.key}</label>
+                                                                        <input
+                                                                            type='checkbox'
+                                                                            id={grupo.value}
+                                                                            name="GrupoOpcionesDetalle"
+                                                                            value={grupo.value}
+                                                                            style={{ marginRight: '20px' }}
+                                                                        >
+                                                                        </input>
+                                                                    </React.Fragment>
+                                                                )
+                                                            })
+                                                        }
+                                                    </Field>
+                                                    <p style={{ color: 'red' }} >{mensaje}</p>
+                                                </div>
+                                            </>
                                         }
-                                        label={"Activar"}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Field
-                                                type="checkbox"
-                                                name="Obligatorio"
-                                                checked={values.Obligatorio}
-                                                as={CheckBox}
-                                            />
-                                        }
-                                        label={"Obligatorio"}
-                                    />
-                                    <FormControlLabel
-                                        control={
-                                            <Field
-                                                type="checkbox"
-                                                name="RespuestaObligatorio"
-                                                checked={values.RespuestaObligatorio}
-                                                as={CheckBox}
-                                            />
-                                        }
-                                        label={"Respuesta Obligatoria"}
-                                    />
-                                    <DialogActions>
-                                        <Button onClick={() => { setMostrar(false) }} color="primary">
-                                            Cancelar
+
+                                        <FormControlLabel
+                                            control={
+                                                <Field
+                                                    type="checkbox"
+                                                    name="Status"
+                                                    checked={values.Status}
+                                                    as={CheckBox}
+                                                />
+                                            }
+                                            label={"Activar"}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Field
+                                                    type="checkbox"
+                                                    name="Obligatorio"
+                                                    checked={values.Obligatorio}
+                                                    as={CheckBox}
+                                                />
+                                            }
+                                            label={"Obligatorio"}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Field
+                                                    type="checkbox"
+                                                    name="RespuestaObligatorio"
+                                                    checked={values.RespuestaObligatorio}
+                                                    as={CheckBox}
+                                                />
+                                            }
+                                            label={"Respuesta Obligatoria"}
+                                        />
+                                        <DialogActions>
+                                            <Button onClick={() => { setMostrar(false) }} color="primary">
+                                                Cancelar
                                         </Button>
-                                        {edit && <Button type="button" onClick={() => { modificar(values) }} color="sucess"> Guardar</Button>}
-                                        {!edit && <Button type="submit" color="sucess">Guardar</Button>}
-                                    </DialogActions>
-                                </Form>
-                            </div>
-                        )}
-                    </Formik>
-                </DialogContent>
-            </Dialog>
-            <TablaPreguntas Preguntas={Preguntas[0].Preguntas} MostrarPregunta = {props.MostrarPregunta} setMostrarPregunta ={props.setMostrarPregunta} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} />
-        </div>
-       </> 
+                                            {edit && <Button type="button" onClick={() => { modificar(values) }} color="sucess"> Guardar</Button>}
+                                            {!edit && <Button type="submit" color="sucess">Guardar</Button>}
+                                        </DialogActions>
+                                    </Form>
+                                </div>
+                            )}
+                        </Formik>
+                    </DialogContent>
+                </Dialog>
+
+                <Dialog open={modalPreguntaAnidada} aria-labelledby="form-dialog-title">
+                    <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">REGISTRAR PREGUNTAS</DialogTitle>
+                    <DialogContent>
+                        <Formik
+                            initialValues={initialValues}
+                            enableReinitialize={false}
+                            validationSchema={validationSchema}
+                            onSubmit={(values) => {
+                                registrarPreguntasAnidadas(values)
+                            }}>
+                            {({ errors, values }) => (
+                                <div ref={context}>
+                                    <Form>
+
+                                        <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones Detalle</label>
+                                        <div className="form-group">
+                                            <Field
+                                                style={{ width: '450px' }}
+                                                className="form-control"
+                                                id="PreguntasOpcionesId"
+                                                name="PreguntasOpcionesId"
+                                                as='select'>
+                                                {
+                                                    grupoOpcionPregunta.map(opcion => {
+                                                        return (
+                                                            <option key={opcion.value} value={opcion.value}>
+                                                                {opcion.key}
+                                                            </option>
+                                                        )
+                                                    })
+                                                }
+                                            </Field>
+                                            <p style={{ color: 'red' }} >{mensaje}</p>
+                                        </div>
+                                          
+                                        <div className="form-group">
+                                            <Field
+                                                label="Pregunta"
+                                                name="Nombre"
+                                                error={!!errors.Nombre}
+                                                helperText={errors.Nombre}
+                                                style={{ width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                                as={TextField}
+                                                className="form-control"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <Field
+                                                label="Descripcion"
+                                                name="Descripcion"
+                                                error={!!errors.Descripcion}
+                                                helperText={errors.Descripcion}
+                                                style={{ width: '450px', marginRight: '20px', fontSize: '40px' }}
+                                                as={TextField}
+                                                className="form-control"
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label htmlFor="TipoIngreso">Tipo Ingreso</label>
+                                            <Field id="Ingreso" name="TipoIngresoId" as='select' value={tipoIngreso} onChange={(e) => { handleOnChange(e.target.value) }} className="form-control" style={{ width: '450px', marginRight: '20px' }}>
+                                                {
+                                                    TipoIngreso.map(tig => {
+                                                        return (
+                                                            <option key={tig.value} value={tig.value}>
+                                                                {tig.key}
+                                                            </option>
+                                                        )
+                                                    })
+                                                }
+                                            </Field>
+                                        </div>
+                                        {requiereGrupoOpciones &&
+                                            <div className="form-group">
+                                                <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones</label>
+                                                <Field id="GrupOpcion" name="GrupoOpcionesId" as='select' value={grupoOpcion} className="form-control" onChange={(e) => { grupoOpcionDetalle(e.target.value) }} style={{ width: '450px', marginRight: '20px' }}>
+                                                    {
+                                                        GrupoOpciones.map(grupo => {
+                                                            return (
+                                                                <option key={grupo.value} value={grupo.value}>
+                                                                    {grupo.key}
+                                                                </option>
+                                                            )
+                                                        })
+                                                    }
+                                                </Field>
+                                            </div>
+                                        }
+                                        {props.grupoOpcionesDetalle.length > 0 && requiereGrupoOpciones &&
+                                            <>
+                                                <label htmlFor="GrupoOpciones" style={{ width: '450px' }}>Grupo de Opciones Detalle</label>
+                                                <div className="form-group">
+                                                    <Field id="Opcion" name="GrupoOpcionesDetalleId" as='checkbox' style={{ marginRight: '20px' }}>
+                                                        {
+                                                            props.grupoOpcionesDetalle.map(grupo => {
+
+                                                                return (
+                                                                    <React.Fragment key={grupo.key}>
+                                                                        <label htmlFor={grupo.value} style={{ marginRight: '10px' }}>{grupo.key}</label>
+                                                                        <input
+                                                                            type='checkbox'
+                                                                            id={grupo.value}
+                                                                            name="GrupoOpcionesDetalle"
+                                                                            value={grupo.value}
+                                                                            style={{ marginRight: '20px' }}
+                                                                        >
+                                                                        </input>
+                                                                    </React.Fragment>
+                                                                )
+                                                            })
+                                                        }
+                                                    </Field>
+                                                    <p style={{ color: 'red' }} >{mensaje}</p>
+                                                </div>
+                                            </>
+                                        }
+                                        <FormControlLabel
+                                            control={
+                                                <Field
+                                                    type="checkbox"
+                                                    name="Status"
+                                                    checked={values.Status}
+                                                    as={CheckBox}
+                                                />
+                                            }
+                                            label={"Activar"}
+                                        />
+                                        <FormControlLabel
+                                            control={
+                                                <Field
+                                                    type="checkbox"
+                                                    name="RespuestaObligatorio"
+                                                    checked={values.RespuestaObligatorio}
+                                                    as={CheckBox}
+                                                />
+                                            }
+                                            label={"Respuesta Obligatoria"}
+                                        />
+                                        <DialogActions>
+                                            <Button onClick={() => { setmodalPreguntaAnidada(false) }} color="primary"> Cancelar</Button>
+                                            <Button type="submit" color="sucess">Guardar</Button>
+                                        </DialogActions>
+                                    </Form>
+                                </div>
+                            )}
+                        </Formik>
+                    </DialogContent>
+                </Dialog>
+                <TablaPreguntas
+                    Preguntas={Preguntas[0].Preguntas}
+                    MostrarPregunta={props.MostrarPregunta}
+                    setMostrarPregunta={props.setMostrarPregunta}
+                    setMostrar={Mostrar}
+                    openEdit={openEdit}
+                    ModificarEstado={modificarEstado}
+                    openModalAnidado={openModalAnidado} />
+            </div>
+        </>
     )
 }
