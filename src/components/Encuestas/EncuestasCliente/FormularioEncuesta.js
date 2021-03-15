@@ -65,26 +65,42 @@ const FormularioEncuesta = (props) => {
     let validationSchema = validaciones(props.EncuestaSelected);
     let initialValues = obtenerModelo(props.EncuestaSelected);
 
-
-    const registrarRespuestas = async (data) => {
+    let preguntas = [];
+    const registrarRespuestas = async (data, Preguntas) => {
         let Info = [];
         const resp = Object.keys(data);
         let respuestas = [];
-
+        let respuestasAnidadas = [];
         for (let res of resp) {
             let respuestaObjeto = {};
+            let respuestaAnidadaObjeto = {};
             if (data[res] !== "") {
                 for (let seccion of props.EncuestaSelected) {
-                    let pregunta = seccion.Preguntas.filter(p => p.PreguntaId === Number(res));
-                    if (pregunta.length > 0) {
-                        let esFecha = pregunta[0].TipoIngreso === "date";
-                        let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
-                        respuestaObjeto.PreguntaId = Number(res);
-                        respuestaObjeto.RespuestaAlfanumerica = ValorRespuesta;
-                        respuestaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) || esFecha ? null : Number(data[res]);
-                        respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false ? data[res] : null;
-                        respuestas.push(respuestaObjeto);
+                    if(res.includes("Anidada")){
+                        let PreguntaId = res.substring(res.lastIndexOf('-') + 1);
+                            let pregunta = Preguntas.filter(p => p.PreguntaId === Number(PreguntaId));
+                            let esFecha = pregunta[0].TipoIngreso === "date";
+                            let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
+                            respuestaAnidadaObjeto.PreguntaId = Number(PreguntaId);
+                            respuestaAnidadaObjeto.RespuestaAlfanumerica = ValorRespuesta;
+                            respuestaAnidadaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) || esFecha ? null : Number(data[res]);
+                            respuestaAnidadaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false ? data[res] : null;
+                            respuestasAnidadas.push(respuestaAnidadaObjeto);
+                        
                     }
+                    else{
+                        let pregunta = seccion.Preguntas.filter(p => p.PreguntaId === Number(res));
+                        if (pregunta.length > 0) {
+                            let esFecha = pregunta[0].TipoIngreso === "date";
+                            let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
+                            respuestaObjeto.PreguntaId = Number(res);
+                            respuestaObjeto.RespuestaAlfanumerica = ValorRespuesta;
+                            respuestaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) || esFecha ? null : Number(data[res]);
+                            respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false ? data[res] : null;
+                            respuestas.push(respuestaObjeto);
+                        }
+                    }
+                  
                 }
             }
         }
@@ -94,9 +110,9 @@ const FormularioEncuesta = (props) => {
                 CodigoCliente: props.ClienteSelected.Codigo,
                 Usuario: localStorage.getItem("codigo"),
                 EncuestaId: props.EncuestaSelected[0].EncuestaId,
-                RespuestasDetalle: respuestas
+                RespuestasDetalle: respuestas,
+                RespuestasAnidadasDetalle: respuestasAnidadas,
             })
-
         try {
             await axios.post(`${APIURL}/api/respuestas/registrar`, Info[0]);
 
@@ -137,7 +153,7 @@ const FormularioEncuesta = (props) => {
                              const resp = Object.keys(data);
                                 for (let res of resp) {
                                     if (data[res] !== "") {
-                                        if(pa.PreguntasOpcionesId == data[res]){
+                                        if(Number(pa.PreguntasOpcionesId) === Number(data[res])){
                                             pa.hidden = false;
                                         }
                                     }
@@ -164,14 +180,15 @@ const FormularioEncuesta = (props) => {
                         enableReinitialize
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
-                            registrarRespuestas(values);
+                            registrarRespuestas(values, preguntas);
                         }}>
                         {({ errors, resetForm, values, setValues }) => (
                             <div className="form-group">
                                 <Form>
                                     {
                                         props.EncuestaSelected.map((seccion, index) => {
-                                           let preguntas = Preguntas(seccion, values)
+                                           preguntas = Preguntas(seccion, values)
+                                        
                                             return (
                                                 <>
                                                     <div style={{ background: '#D3F2F7' }} className="form-group">

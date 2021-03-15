@@ -44,7 +44,10 @@ const TablaPreguntas = (props) => {
                                         </td>
                                         <td style={{ textAlign: 'left' }}>
                                             { preg.PreguntaOpciones.length > 0 &&
+                                            <>
                                                 <Button style={{ marginLeft: '10px' }} class="btn btn-success" onClick={() => { props.openModalAnidado(preg) }} startIcon={<MdAddBox />}>Agregar Pregunta</Button>
+                                                <Button style={{ marginLeft: '10px' }} class="btn btn-warning" onClick={() => { props.openEditarPreguntaAnidada(preg) }} startIcon={<FaEdit />}>Editar Pregunta Anidada</Button>
+                                            </>
                                             }
                                         </td>
                                     </tr>

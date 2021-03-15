@@ -25,6 +25,22 @@ const FormularioRespuestas = (props) => {
         },
     }));
     const classes = useStyles();
+    const Preguntas = (seccion) =>{
+        let Preguntas = []
+        seccion.Preguntas.forEach(pregunta => {
+            Preguntas.push(pregunta);
+            if (pregunta.GrupoOpcionesId !== null) {
+                pregunta.PreguntasOpciones.forEach(gp => {
+                    if(gp.PreguntasAnidadas.length > 0){
+                        for (let pa of gp.PreguntasAnidadas) {
+                            Preguntas.push(pa);
+                        }
+                    }
+                });
+            }
+        })
+        return Preguntas;
+    }
 
     return (
         <div style={{ height: '100%', display: 'flex', justifyContent: 'center' }} className="container-fluid">
@@ -40,6 +56,7 @@ const FormularioRespuestas = (props) => {
                                 <Form>
                                     {
                                         props.EncuestaSelected.map((seccion, index) => {
+                                            let preguntas = Preguntas(seccion)
                                             return (
                                                 <>
                                                     <div style={{ background: '#D3F2F7' }} className="form-group">
@@ -49,10 +66,26 @@ const FormularioRespuestas = (props) => {
 
                                                     </div>
                                                     {
-                                                        seccion.Preguntas.map((pregunta, index1) => {
+                                                        preguntas.map((pregunta, index1) => {
                                                             let ValorRespuesta = "";
                                                             let Respuesta = [];
                                                             props.RespuestaDetalle[0].RespuestasDetalle.filter(r => r.PreguntaId === pregunta.PreguntaId).forEach((respuesta, index2) => {
+                                                                if (pregunta.GrupoOpcionesId === null) {
+                                                                    ValorRespuesta = respuesta.RespuestaAlfanumerica !== null ? respuesta.RespuestaAlfanumerica : respuesta.RespuestaNumerica;
+                                                                
+                                                                    if(pregunta.TipoIngreso === "date"){
+                                                                        pregunta.TipoIngreso = "input";
+                                                                    }
+                                                                }
+                                                                else {
+                                                                    if (pregunta.TipoIngreso === "checkbox") {
+                                                                        Respuesta.push(respuesta.PreguntasOpcionesId);
+                                                                    }
+                                                                    ValorRespuesta = respuesta.PreguntasOpcionesId;
+                                                                }
+
+                                                            })
+                                                            props.RespuestaDetalle[0].RespuestasAnidadasDetalle.filter(r => r.PreguntaId === pregunta.PreguntaId).forEach((respuesta, index2) => {
                                                                 if (pregunta.GrupoOpcionesId === null) {
                                                                     ValorRespuesta = respuesta.RespuestaAlfanumerica !== null ? respuesta.RespuestaAlfanumerica : respuesta.RespuestaNumerica;
                                                                 
@@ -84,6 +117,10 @@ const FormularioRespuestas = (props) => {
                                                                         Opciones.push(GrupoOpciones);
                                                                     });
                                                                 }
+                                                            }
+                                                            if(ValorRespuesta === "" && pregunta.preguntaAnidada){
+                                                                // eslint-disable-next-line
+                                                                return;
                                                             }
                                                             return (
                                                                 <>
