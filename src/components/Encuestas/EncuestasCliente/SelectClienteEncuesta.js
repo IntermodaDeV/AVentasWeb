@@ -11,7 +11,7 @@ const SelectClienteEncuesta = (props) => {
     useEffect(() => {
         props.cargarClientes();
         // eslint-disable-next-line
-    });
+    },[]);
 
     var options = [];
     const handleOnChange = (value) => {

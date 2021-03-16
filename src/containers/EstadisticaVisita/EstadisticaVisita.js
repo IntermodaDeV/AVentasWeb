@@ -95,7 +95,7 @@ const columns = [
     },
     {
         name: 'NoAtendidas',
-        label: 'No Atendidas',
+        label: 'Por Realizar',
         options: {
             filter: true,
             sort: true
@@ -470,7 +470,7 @@ const EstadisticaVisita = (props) => {
                         <div className="card-body">
                             <div className="row no-gutters align-items-center">
                                 <div className="col mr-2">
-                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas No Atendidas</div>
+                                    <div className="text-xs font-weight-bold text-primary text-uppercase mb-1">Visitas Por Realizar</div>
                                     <div className="h5 mb-0 font-weight-bold text-gray-800">{estadisticasVisita.reduce((acc, cur) => { return acc + cur.NoAtendidas }, 0)}</div>
                                 </div>
                                 <div className="col-auto">

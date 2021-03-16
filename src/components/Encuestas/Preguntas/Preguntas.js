@@ -16,7 +16,7 @@ import TablaPreguntas from 'components/Encuestas/Preguntas/TablaPreguntas'
 import { useSelector } from 'react-redux';
 
 export const Preguntas = props => {
-    const Preguntas = useSelector(e => e.PreguntasEncuesta);
+    const Preg = useSelector(e => e.PreguntasEncuesta);
     const TipoIngreso = useSelector(e => e.TipoIngreso);
     const GrupoOpciones = useSelector(g => g.GrupoOpciones);
     const [mostrar, setMostrar] = useState(false);
@@ -43,7 +43,7 @@ export const Preguntas = props => {
     const Validaciones = yup.object().shape(
         {
             Nombre: yup.string().required('La pregunta es obligatoria'),
-            PreguntasOpcionesId: yup.string().required('Campo obligatorio'),
+            PreguntasOpcionesId: yup.string().required('El campo es obligatorio'),
             RespuestaObligatorio: yup.boolean(),
             Status: yup.boolean(),
         });
@@ -63,7 +63,7 @@ export const Preguntas = props => {
     const registrarPreguntas = async (data) => {
         data.GrupoOpcionesId = grupoOpcion;
         data.TipoIngresoId = tipoIngreso;
-
+        data.RequiereOpciones = requiereGrupoOpciones;
         if (data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0 && data.RequiereOpciones === true) {
             setmensaje("Este campo es obligatorio")
         }
@@ -101,7 +101,7 @@ export const Preguntas = props => {
     const registrarPreguntasAnidadas = async (data) => {
         data.GrupoOpcionesId = grupoOpcion;
         data.TipoIngresoId = tipoIngreso;
-
+        data.RequiereOpciones = requiereGrupoOpciones;
         if (data.GrupoOpcionesId != null && data.GrupoOpcionesDetalle.length === 0 && data.RequiereOpciones === true) {
             setmensaje("Este campo es obligatorio")
         }
@@ -114,10 +114,7 @@ export const Preguntas = props => {
                     text: "Se ha creado la pregunta exitosamente.",
                     type: 'success',
                     confirmButtonText: 'Ok',
-                }).then(e => {
-                    setmensaje("");
-                    props.cargarPreguntas(data.SeccionEncuestaId, props.NombreSeccion);
-                });
+                })
 
             } catch (err) {
                 setmensaje("");
@@ -139,6 +136,7 @@ export const Preguntas = props => {
     const modificar = async (data) => {
         data.TipoIngresoId = tipoIngreso;
         data.GrupoOpcionesId = grupoOpcion;
+        data.RequiereOpciones = requiereGrupoOpciones;
         pregunta.PreguntaOpciones.forEach(element => {
             data.GrupoOpcionesDetalle.push(element.GrupoOpcionesDetalleId)
         });
@@ -178,7 +176,8 @@ export const Preguntas = props => {
     const modificarPreguntaAnidada = async (data) => {
         data.TipoIngresoId = tipoIngreso;
         data.GrupoOpcionesId = grupoOpcion;
-        pregunta.PreguntaOpciones.forEach(element => {
+        data.RequiereOpciones = requiereGrupoOpciones;
+        preguntasAnidadas.PreguntaOpciones.forEach(element => {
             data.GrupoOpcionesDetalle.push(element.GrupoOpcionesDetalleId)
         });
 
@@ -221,7 +220,7 @@ export const Preguntas = props => {
                 type: 'success',
                 confirmButtonText: 'Ok',
             }).then(e => {
-                props.cargarPreguntas(Preguntas[0].SeccionId, props.NombreSeccion);
+                props.cargarPreguntas(Preg[0].SeccionId, props.NombreSeccion);
             });
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha modificado el estado.";
@@ -242,32 +241,39 @@ export const Preguntas = props => {
     const openEditarPreguntaAnidada = (resp) => {
         if (resp.PreguntaOpciones.length > 0) {
             let GrupoOpcion = [];
+            let count = 0;
             resp.PreguntaOpciones.forEach(async (op, Index) => {
                 let Pregunta = await cargarPreguntasAnidadas(op.Id);
-                if (Pregunta !== undefined && Pregunta.data.length > 0) {
+                if (Pregunta.data.length > 0) {
                     let Valores = { key: op.GrupoOpcionesDetalle, value: op.Id }
                     GrupoOpcion.push(Valores);
-                    if(Index === 0){
+
+                    if(count === 0){
                         let requiereGrupoOpciones =TipoIngreso.length > 0 ? TipoIngreso.find(t => t.value === Pregunta.data[0].TipoIngresoId).RequiereGrupoOpciones: false;
                         setTipoIngreso(Pregunta.data[0].TipoIngresoId);
                         setGrupoOpcion(Pregunta.data[0].GrupoOpcionesId);
                         setPreguntasAnidadas(Pregunta.data[0]);
                         setPreguntaOpcion(Pregunta.data[0].preguntaOpcionId);
                         setRequiereGrupoOpciones(requiereGrupoOpciones);
+                        if(requiereGrupoOpciones === false){
+                            props.cargarGrupoOpcionesDetalle(0);
+                        }
                         if (Pregunta.data[0].GrupoOpcionesId !== null) {
                             props.cargarGrupoOpcionesDetalle(Pregunta.data[0].GrupoOpcionesId);
                         }
                     }
+                    count ++;
                 }
             });
-            setgrupoOpcionPregunta(GrupoOpcion);
+                setgrupoOpcionPregunta(GrupoOpcion);
+                setPregunta(resp);
+                setmodalPreguntaAnidada(true);
+                setEditarPreguntaAnidada(true);
         }
-        setPregunta(resp);
-        setmodalPreguntaAnidada(true);
-        setEditarPreguntaAnidada(true);
     }
 
     const cerrarModalAnidado = () => {
+        setgrupoOpcionPregunta([]);
         setmodalPreguntaAnidada(false);
         setEditarPreguntaAnidada(false);
     } 
@@ -290,7 +296,8 @@ export const Preguntas = props => {
 
     const openModalAnidado = (resp) => {
         if (resp.PreguntaOpciones.length > 0) {
-            let GrupoOpcion = [{ key: "Seleccione...", value: '' }];
+            let GrupoOpcion = [];
+            let count = 0;
             resp.PreguntaOpciones.forEach(async op => {
                let Pregunta = await cargarPreguntasAnidadas(op.Id);
                if(Pregunta !== undefined && Pregunta.data.length > 0){
@@ -298,6 +305,10 @@ export const Preguntas = props => {
                }
                let Valores = { key: op.GrupoOpcionesDetalle, value: op.Id }
                GrupoOpcion.push(Valores);
+               if(count === 0){
+                setPreguntaOpcion(op.Id);
+               }
+               count = count + 1;
             });
             setgrupoOpcionPregunta(GrupoOpcion);
         }
@@ -320,7 +331,6 @@ export const Preguntas = props => {
     }
 
     const handleOnChange = (Id) => {
-        setrender(false)
         // eslint-disable-next-line
         let requiereOpciones = TipoIngreso.find(t => t.value == Id).RequiereGrupoOpciones;
         setRequiereGrupoOpciones(requiereOpciones);
@@ -328,6 +338,7 @@ export const Preguntas = props => {
         if (requiereOpciones === false) {
             setGrupoOpcion(null);
         }
+        setrender(false)
     }
 
     const grupoOpcionDetalle = (Id) => {
@@ -343,26 +354,30 @@ export const Preguntas = props => {
         }
     }
 
+    const GrupoOpcionesAnidadas = (value) => {
+        if (preguntasAnidadas !== null) {
+            preguntasAnidadas.PreguntaOpciones = preguntasAnidadas.PreguntaOpciones.filter(p => p.GrupoOpcionesDetalleId !== value);
+            setPreguntasAnidadas(preguntasAnidadas);
+        }
+    }
+
     const changePreguntaAnidada = async (Id) => {
-        setrender(true)
-        let GrupoOpcion = [];
-        pregunta.PreguntaOpciones.forEach(async op => {
+        setPreguntaOpcion(Id);
+        if (EditarPreguntaAnidada) {
+            setrender(true)
             let Pregunta = await cargarPreguntasAnidadas(Id);
             if (Pregunta.data.length > 0) {
-                let Valores = { key: op.GrupoOpcionesDetalle, value: op.Id }
-                GrupoOpcion.push(Valores);
                 setTipoIngreso(Pregunta.data[0].TipoIngresoId);
                 setGrupoOpcion(Pregunta.data[0].GrupoOpcionesId);
-                setPreguntaOpcion(Pregunta.data[0].preguntaOpcionId);
                 setPreguntasAnidadas(Pregunta.data[0])
-                let requiereGrupoOpciones =TipoIngreso.length > 0 ? TipoIngreso.find(t => t.value === Pregunta.data[0].TipoIngresoId).RequiereGrupoOpciones: false;
+                let requiereGrupoOpciones = TipoIngreso.length > 0 ? TipoIngreso.find(t => t.value === Pregunta.data[0].TipoIngresoId).RequiereGrupoOpciones : false;
                 setRequiereGrupoOpciones(requiereGrupoOpciones);
                 if (Pregunta.data[0].GrupoOpcionesId !== null) {
                     props.cargarGrupoOpcionesDetalle(Pregunta.data[0].GrupoOpcionesId);
                 }
             }
-        });
-        setgrupoOpcionPregunta(GrupoOpcion);
+        }
+
     }
 
     let initialValues, edit;
@@ -389,6 +404,7 @@ export const Preguntas = props => {
     else if(modalPreguntaAnidada === true && EditarPreguntaAnidada === true){
         initialValues = {
             Id: preguntasAnidadas.Id,
+            SeccionEncuestaId: Preg[0].SeccionId,
             TipoIngresoId: TipoIngreso.length > 0 ? tipoIngreso : null,
             RequiereOpciones: requiereGrupoOpciones,
             GrupoOpcionesId: GrupoOpciones.length > 0 ? grupoOpcion : null,
@@ -413,9 +429,9 @@ export const Preguntas = props => {
             GrupoOpcion: '',
             Nombre: '',
             Descripcion: '',
-            Status: pregunta.Status,
+            Status: true,
             RespuestaObligatorio: false,
-            PreguntasOpcionesId : '',
+            PreguntasOpcionesId : PreguntaOpcion,
             Usuario: localStorage.getItem('codigo')
         }
         edit = false;
@@ -423,7 +439,7 @@ export const Preguntas = props => {
     else {
         initialValues = {
             Id: '',
-            SeccionEncuestaId: Preguntas[0].SeccionId,
+            SeccionEncuestaId: Preg[0].SeccionId,
             TipoIngresoId: TipoIngreso.length > 0 ? tipoIngreso : null,
             RequiereOpciones: requiereGrupoOpciones,
             GrupoOpcionesId: GrupoOpciones.length > 0 ? grupoOpcion : null,
@@ -615,7 +631,7 @@ export const Preguntas = props => {
                 </Dialog>
 
                 <Dialog open={modalPreguntaAnidada} aria-labelledby="form-dialog-title">
-                    <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">REGISTRAR PREGUNTAS</DialogTitle>
+                    <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">REGISTRAR PREGUNTAS ANIDADAS</DialogTitle>
                     <DialogContent>
                         <Formik
                             initialValues={initialValues}
@@ -750,7 +766,7 @@ export const Preguntas = props => {
                                                                             value={grupo.value}
                                                                             style={{ marginRight: '20px' }}
                                                                             checked={preguntasAnidadas.PreguntaOpciones.find(g => g.GrupoOpcionesDetalleId === grupo.value)}
-                                                                            onChange={(e) => GrupoOpcions(grupo.value)}
+                                                                            onChange={(e) => GrupoOpcionesAnidadas(grupo.value)}
                                                                         >
                                                                         </input>
                                                                     </React.Fragment>
@@ -787,7 +803,7 @@ export const Preguntas = props => {
                                         <DialogActions>
                                             <Button onClick={() => { cerrarModalAnidado() }} color="primary"> Cancelar</Button>
                                             {EditarPreguntaAnidada && <Button type="button" onClick={() => { modificarPreguntaAnidada(values) }} color="sucess"> Guardar</Button>}
-                                            {!EditarPreguntaAnidada && <Button type="submit" color="sucess">Guardar</Button>}
+                                            {!EditarPreguntaAnidada && <Button type="submit" color="sucess">Registrar Nuevo</Button>}
                                         </DialogActions>
                                     </Form>
                                 </div>
@@ -796,7 +812,7 @@ export const Preguntas = props => {
                     </DialogContent>
                 </Dialog>
                 <TablaPreguntas
-                    Preguntas={Preguntas[0].Preguntas}
+                    Preguntas={Preg[0].Preguntas}
                     MostrarPregunta={props.MostrarPregunta}
                     setMostrarPregunta={props.setMostrarPregunta}
                     setMostrar={Mostrar}

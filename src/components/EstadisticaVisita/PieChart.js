@@ -32,7 +32,7 @@ const PieChart = (props) => {
     else {
         const data = {
             labels: [
-                "Atendidas", /*"Efectivas", "Productivas",*/"Canceladas", "No Atendidas"
+                "Atendidas", /*"Efectivas", "Productivas",*/"Canceladas", "Por Realizar"
             ],
             datasets: [
                 {
