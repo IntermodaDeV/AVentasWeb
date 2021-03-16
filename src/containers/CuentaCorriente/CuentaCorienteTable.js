@@ -13,6 +13,7 @@ import {DescargarCuentaExcel} from 'components/Cartera/DescargarCuentaExcel';
 import axios from 'axios';
 import {APIURL} from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
+import { ObtenerCoordenadas } from 'utils/common';
 moment.locale('es')
 
 const columnRender = (columnMeta, updateDirection) => {
@@ -217,23 +218,6 @@ const CuentaCorrienteTable = props => {
                 confirmButtonText: 'OK',
             });
         }
-    }
-
-    const ObtenerCoordenadas = (resolve, reject) => {
-        const timeout = new Promise((resolve, reject) => {
-            setTimeout(reject, 10000);
-        });
-
-        const geolocationPromise = new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    resolve(position);
-                },
-                (error) => { reject(error) },
-                { enableHighAccuracy: true, timeout: 10000 }
-            )
-        });
-        Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
     }
 
     const mensajeErrorCoordenadas = () => {

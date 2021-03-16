@@ -20,6 +20,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import { verificarConexion } from 'utils/http';
 import { Loading } from 'components/Global/Loading';
 import axios from 'axios';
+import { ObtenerCoordenadas } from 'utils/common';
 moment.locale('es');
 
 const urlApi = APIURL
@@ -971,23 +972,6 @@ const DetalleRecibo = (props) => {
         </div>);
 }
 
-
-const ObtenerCoordenadas = (resolve, reject) => {
-    const timeout = new Promise((resolve, reject) => {
-        setTimeout(reject, 10000);
-    });
-
-    const geolocationPromise = new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                resolve(position);
-            },
-            (error) => { reject(error) },
-            { enableHighAccuracy: true, timeout: 10000 }
-        )
-    });
-    Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
-}
 /*const cargarMonedas = new Promise((resolve, reject) => {
     let empresa = localStorage.getItem('EmpresaCliente');
     fetch(urlApi + "/api/Moneda/" + empresa, {

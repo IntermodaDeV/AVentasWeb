@@ -59,6 +59,7 @@ import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
 import { verificarConexion } from 'utils/http';
+import { ObtenerCoordenadas } from 'utils/common';
 
 const ReactSwal = withReactContent(Swal)
 
@@ -2796,22 +2797,5 @@ const ExpansionPanelDetails = withStyles(theme => ({
         padding: theme.spacing(2),
     },
 }))(MuiExpansionPanelDetails);
-
-const ObtenerCoordenadas = (resolve, reject) => {
-    const timeout = new Promise((resolve, reject) => {
-        setTimeout(reject, 10000);
-    });
-
-    const geolocationPromise = new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                resolve(position);
-            },
-            (error) => { reject(error) },
-            { enableHighAccuracy: true, timeout: 10000 }
-        )
-    });
-    Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
-}
 
 export default connect(mapStateToProps, mapDispatchToProps)(Pedidos);

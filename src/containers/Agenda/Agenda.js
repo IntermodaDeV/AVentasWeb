@@ -27,6 +27,8 @@ import {IsAllow} from 'components/Seguridad/Permisos';
 import { FaEye } from "react-icons/fa";
 import { get,verificarConexion } from 'utils/http';
 import axios from 'axios';
+import { ObtenerCoordenadas } from 'utils/common';
+
 moment.locale('es');
 class Agenda extends Component {
     urlApi = APIURL;
@@ -1271,23 +1273,6 @@ class Agenda extends Component {
         )
 
     }
-}
-
-const ObtenerCoordenadas = (resolve, reject) => {
-    const timeout = new Promise((resolve, reject) => {
-        setTimeout(reject, 10000);
-    });
-
-    const geolocationPromise = new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                resolve(position);
-            },
-            (error) => { reject(error) },
-            { enableHighAccuracy: true, timeout: 10000 }
-        )
-    });
-    Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
 }
 
 const mapStateToProps = state => ({
