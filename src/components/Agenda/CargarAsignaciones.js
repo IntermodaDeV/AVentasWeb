@@ -162,15 +162,37 @@ const CargarAsignaciones = (props) => {
             if (res.status === 200) {
                 res.json()
                     .then(resultado => {
-                        Swal.fire({
-                            title: 'Confirmado',
-                            text: resultado.Message,
-                            type: 'success',
-                            confirmButtonText: 'Ok',
-                            target: context.current
-                        }).then(e => {
-                            closeDialog();
-                        })
+
+                        if (resultado.StatusCode === 400) {
+                            let asignaciones = [...new Set(resultado.Lista)];
+                            let copiaAsignaciones = initialData;
+
+                            for (let asignacion of asignaciones) {
+                                copiaAsignaciones[asignacion].error = true;
+                            }
+
+                            Swal.fire({
+                                title: 'Error',
+                                text: resultado.Message,
+                                type: 'error',
+                                confirmButtonText: 'Ok',
+                                target: context.current
+                            })
+
+                            setInitialData((prev) => ([...copiaAsignaciones]));
+                        }
+
+                        if (resultado.StatusCode === 200) {
+                            Swal.fire({
+                                title: 'Confirmado',
+                                text: resultado.Message,
+                                type: 'success',
+                                confirmButtonText: 'Ok',
+                                target: context.current
+                            }).then(e => {
+                                closeDialog();
+                            })
+                        }
                     });
 
 
@@ -179,30 +201,6 @@ const CargarAsignaciones = (props) => {
             if (res.status === 400) {
                 res.json()
                     .then(resultado => {
-                        if (resultado.Message.includes("El cliente no existe o no esta asignado al asesor. En asignacion")) {
-                            let arreglo = Array.from(resultado.Message);
-                            let indice = parseInt(arreglo[arreglo.length - 1]) - 1;
-                            let copiaAsignaciones = initialData;
-                            copiaAsignaciones[indice].error = true;
-                            setInitialData((prev) => ([...copiaAsignaciones]));
-                        }
-
-                        if (resultado.Message.includes("Una o más asignaciones no se pueden crear ya que pertenecen a una fecha anterior.")) {
-                            let arreglo = Array.from(resultado.Message);
-                            let indice = parseInt(arreglo[arreglo.length - 1]) - 1;
-                            let copiaAsignaciones = initialData;
-                            copiaAsignaciones[indice].error = true;
-                            setInitialData((prev) => ([...copiaAsignaciones]));
-                        }
-
-                        if (resultado.Message.includes("Una o más asignaciones tienen conflicto de horario para el cliente")) {
-                            let arreglo = Array.from(resultado.Message);
-                            let indice = parseInt(arreglo[7]) - 1;
-                            let copiaAsignaciones = initialData;
-                            copiaAsignaciones[indice].error = true;
-                            setInitialData((prev) => ([...copiaAsignaciones]));
-                        }
-
                         Swal.fire({
                             title: 'Error',
                             text: resultado.Message,
