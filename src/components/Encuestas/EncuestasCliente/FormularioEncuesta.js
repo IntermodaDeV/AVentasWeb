@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState} from 'react';
 import { Formik, Form } from 'formik';
 import { Button } from "@material-ui/core";
 import SendIcon from '@material-ui/icons/Send';
@@ -15,7 +15,7 @@ import {
     CardHeader as MuiCardHeader,
     CardContent,
 } from '@material-ui/core';
-
+import { Loading } from 'components/Global/Loading';
 
 const CardHeader = withStyles({
     title: {
@@ -25,6 +25,7 @@ const CardHeader = withStyles({
 })(MuiCardHeader);
 
 const FormularioEncuesta = (props) => {
+    const [loading, setloading] = useState(false);
     const useStyles = makeStyles((theme) => ({
         button: {
             marginLeft: theme.spacing(2),
@@ -67,6 +68,7 @@ const FormularioEncuesta = (props) => {
 
     let preguntas = [];
     const registrarRespuestas = async (data, Preguntas) => {
+        setloading(true);
         let Info = [];
         const resp = Object.keys(data);
         let respuestas = [];
@@ -114,7 +116,7 @@ const FormularioEncuesta = (props) => {
             })
         try {
             await axios.post(`${APIURL}/api/respuestas/registrar`, Info[0]);
-
+            setloading(false);
             Swal.fire({
                 title: 'Enviado Correctamente',
                 text: "¡Se ha registrado correctamente!",
@@ -168,6 +170,7 @@ const FormularioEncuesta = (props) => {
 
     return (
         <div style={{ height: '100%', display: 'flex', justifyContent: 'center' }} className="container-fluid">
+            <Loading open={loading} title={"Enviando Encuesta..."} />
             <Card style={{ width: '900px' }} raised={true}>
                 <CardHeader
                     titleTypographyProps={{ fontWeight: 'bold' }}

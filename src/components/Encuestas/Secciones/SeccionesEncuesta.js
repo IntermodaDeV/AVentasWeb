@@ -104,7 +104,7 @@ export const SeccionesEncuesta = props => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => { setMostrarUsuario(false) }} color="primary">
-                        Cancelar
+                        SALIR
                     </Button>
                 </DialogActions>
             </Dialog>

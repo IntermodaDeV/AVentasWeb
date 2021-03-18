@@ -391,7 +391,7 @@ export const Encuesta = (props) => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => { setMostrarEmpresas(false) }} color="primary">
-                        Cancelar
+                        SALIR
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -410,7 +410,7 @@ export const Encuesta = (props) => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => { setMostrarSecciones(false) }} color="primary">
-                        Cancelar
+                        SALIR
                     </Button>
                 </DialogActions>
             </Dialog>
