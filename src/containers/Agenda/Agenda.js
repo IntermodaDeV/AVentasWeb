@@ -64,46 +64,6 @@ class Agenda extends Component {
     myRef = React.createRef();
     refCoordenadas = React.createRef();
 
-    cargarClientes = async () => {
-        let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
-        let Asesor = this.state.AsesorSelected === null ? asesores[0] : this.state.AsesorSelected;
-        fetch(this.urlApi + "/api/cliente/agenda/" + Asesor, {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
-            }
-        })
-            .then(res => {
-                if (res.status === 401) {
-                    localStorage.setItem('token', '');
-                    window.location.reload();
-                }
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                this.setState({
-                                    clientes: result,
-                                });
-                                
-                                var fecha = this.getFechas(2);
-                                this.cargarAsignaciones(fecha.Inicio, fecha.Fin);
-                            },
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                this.setState({
-                                    error: true
-                                });
-                            }
-                        )
-                }
-
-            })
-    }
-
     cargarAsesores = () => {
         let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
         this.setState({
@@ -133,34 +93,81 @@ class Agenda extends Component {
         .catch(error=>console.log(error))
     }
 
-    cargarAsignaciones = (FechaInicio, FechaFin) => {
-        var inicio = moment(FechaInicio).format();
-        var fin = moment(FechaFin).format();
-        var asesor = this.state.AsesorSelected;
-        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}&Asesor=${asesor}`, {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token'),
+    obtenerClientesUnicos = data => {
+        let clientes = [];
+
+        let noExistenAsignaciones = data.length === 0;
+        if (noExistenAsignaciones) {
+            return [];
+        }
+
+        for (let dia of data) {
+            for (let asignacion of dia.asignaciones) {
+                clientes.push(asignacion.cliente);
             }
-        })
-            .then(res => {
-                if (res.status === 200) {
+        }
 
-                    res.json()
-                        .then(
-                            (result) => {
-                                var eventos = this.setAsignaciones(result);
-                                this.setState({
-                                    Asignaciones: result,
-                                    ShowTable: true,
-                                    isLoaded: true,
-                                    Eventos: eventos,
-                                });
-                            },
-                        )
+        return [...new Set(clientes)];
+    }
+
+    cargarAsignaciones = async () => {
+        try {
+            let { Inicio, Fin } = this.getFechas(1);
+            let request = await axios.get(`${this.urlApi}/api/Asignaciones`, {
+                params: { FechaInicio: Inicio, FechaFin: Fin, Asesor: this.state.AsesorSelected }, headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token'),
                 }
+            });
+            let eventos = this.setAsignaciones(request.data);
+            this.setState({
+                Asignaciones: request.data,
+                ShowTable: true,
+                isLoaded: true,
+                Eventos: eventos,
+            });
+        } catch (err) {
 
-            })
+        }
+    }
+
+    cargarClientes = async (clientes) => {
+        try {
+            let request = await axios.get(`${this.urlApi}/api/cliente/agenda`, {
+                params: { clientes }, headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+            this.setState((prev) => ({ ...prev, clientes: request.data }))
+        } catch (err) {
+            this.setState({
+                error: true
+            });
+        }
+    }
+
+    cargarAsignacionesConClientes = async () => {
+        try {
+            let { Inicio, Fin } = this.getFechas(1);
+            let request = await axios.get(`${this.urlApi}/api/Asignaciones`, {
+                params: { FechaInicio: Inicio, FechaFin: Fin, Asesor: this.state.AsesorSelected }, headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+            let clientes = this.obtenerClientesUnicos(request.data);
+            await this.cargarClientes(clientes);
+            let eventos = this.setAsignaciones(request.data);
+            this.setState({
+                Asignaciones: request.data,
+                ShowTable: true,
+                isLoaded: true,
+                Eventos: eventos,
+            });
+        } catch (err) {
+
+        }
     }
 
     cargarRazonNoVenta = async () => {
@@ -187,17 +194,16 @@ class Agenda extends Component {
             })
     }
 
-    enviarCheckinApi = async (location,check)=>{
-
+    enviarCheckinApi = async (location, check) => {
         const isOnline = await verificarConexion();
-        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
                 title: "Sin internet",
                 text: "Necesita internet para poder realizar esta accion.",
                 type: "warning",
                 confirmButtonText: 'Ok',
             });
-        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+        } else if (localStorage.getItem("Conexion") === "Online" && isOnline) {
             const fechas = this.getFechas(2);
 
             const parametros = {
@@ -228,7 +234,7 @@ class Agenda extends Component {
                             })
                         });
 
-                    this.cargarAsignaciones(fechas.Inicio, fechas.Fin);
+                    this.cargarAsignaciones();
 
                 }
 
@@ -601,13 +607,14 @@ class Agenda extends Component {
     }
     
     onChangeAsesor = () => {
-        this.cargarClientes();
+        /*this.cargarClientes();
         var eventos = this.setAsignaciones(this.state.Asignaciones);
         this.setState({
             Eventos: eventos,
             OpenModalAsesor: false,
             clienteActivo : false
-        })
+        })*/
+        this.cargarAsignacionesConClientes();
     }
 
     handleOnChangeAsesor = (event) => {
@@ -687,8 +694,7 @@ class Agenda extends Component {
                         mostarNoAtendido: false,
                     });
 
-                    var fecha = this.getFechas(2);
-                    this.cargarAsignaciones(fecha.Inicio, fecha.Fin);
+                    this.cargarAsignaciones();
 
                     Toast.fire({
                         type: 'success',
@@ -751,7 +757,7 @@ class Agenda extends Component {
             this.setState((prevState)=>({...prevState,isLoaded:true}))
         } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
             this.cargarAsesores()
-            this.cargarClientes();
+            this.cargarAsignacionesConClientes();
             this.cargarRazonNoVenta();
             this.cargarTipoVisitas();
             this.cargarConfiguraciones();
