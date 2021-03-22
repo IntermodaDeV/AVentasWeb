@@ -38,6 +38,7 @@ import VistaRapidaProducto from 'components/Pedidos/ProductoLista/VistaRapidaPro
 import VistaProducto from 'components/Pedidos/ProductoDetalle/VistaProducto';
 import SelectCliente from 'components/Pedidos/SelectCliente/SelectCliente';
 import SelectTipoPedido from 'components/Pedidos/SelectTipoPedido/SelectTipoPedido';
+import SelectBodega from 'components/Pedidos/SelectBodega/SelectBodega';
 import SelectLinea from 'components/Pedidos/SelectLinea/SelectLinea';
 import MatrizResumen from 'components/Pedidos/MatrizResumen/MatrizResumen';
 import MatrizResumenExpandable from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable';
@@ -914,7 +915,7 @@ class Pedidos extends React.Component {
             this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
             //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
             this.props.onSetCliente(this.state.autocompleteValue);
-            this.props.history.push("/Pedidos/Linea");
+            this.props.history.push("/Pedidos/Bodega");
         }
         localStorage.setItem('EmpresaCliente', this.state.autocompleteValue.EmpresaId);
     }
@@ -927,9 +928,15 @@ class Pedidos extends React.Component {
             autocompleteValue: textValue
         });
     }
+    
     seleccionarLinea = (linea) => {
         this.props.onSetLineaSeleccionada(linea);
         this.props.history.push("/Pedidos/TipoPedido");
+    }
+
+    seleccionarBodega = (bodega) => {
+        this.props.onSetBodegaSeleccionada(bodega);
+        this.props.history.push("/Pedidos/Linea");
     }
     clickBreadCrumb = (nuevaRuta) => {
         this.props.history.push(nuevaRuta);
@@ -1958,6 +1965,7 @@ class Pedidos extends React.Component {
                         TableValue={this.props.TableValue}
                         LineaSeleccionada={this.props.LineaSeleccionada}
                         TipoPedido={this.props.TipoPedido}
+                        BodegaSeleccionada= {this.props.BodegaSeleccionada}
                     >
                     </PedidosBreadCrumb>
                     <Switch>
@@ -2078,21 +2086,11 @@ class Pedidos extends React.Component {
                         />
                         <Route
                             exact
-                            path={this.props.match.url + '/TipoPedido'}
+                            path={this.props.match.url + '/Bodega'}
                             render={() =>
                                 <Container fluid={true}>
                                     <Row style={{ marginBottom: '1rem' }}>
-                                        <Col style={{ textAlign: 'left' }}>
-                                            <NavigationBreadcrumb
-                                                BreadcrumbItems={[
-                                                    { Click: () => { this.clickBreadCrumb("/Pedidos/Linea") }, Titulo: this.props.LineaSeleccionada.Linea ? this.props.LineaSeleccionada.Linea : "Linea" },
-                                                    { Titulo: 'Tipo de Pedido' }
-                                                ]}
-                                            />
-
-
-                                        </Col>
-
+                                        
                                         <Col style={{ textAlign: 'right' }}>
                                             <Dropdown
                                                 onCommand={this.cancelarPedido.bind(this)}
@@ -2110,6 +2108,20 @@ class Pedidos extends React.Component {
                                             {this.props.cliente.Nombre}
                                         </Col>
                                     </Row>
+                                    <SelectBodega
+                                        setBodega={this.seleccionarBodega}
+                                        tiposPedido={this.props.TiposPedido}
+                                        Cliente={this.props.cliente}
+                                    />
+                                </Container>}
+                        />
+                        <Route
+                            exact
+                            path={this.props.match.url + '/TipoPedido'}
+                            render={() =>
+                                <Container fluid={true}>
+                                    <Row style={{ marginBottom: '0.5rem' }}>
+                                    </Row>
                                     <SelectTipoPedido
                                         setTipoPedido={this.seleccionarTipoPedido}
                                         tiposPedido={this.props.TiposPedido}
@@ -2122,8 +2134,17 @@ class Pedidos extends React.Component {
                             path={this.props.match.url + '/Linea'}
                             render={() =>
                                 <Container fluid={true}>
-                                    <Row style={{ marginBottom: '0.5rem' }}>
+                                    <Row style={{ marginBottom: '1rem' }}>
+                                        <Col style={{ textAlign: 'left' }}>
+                                            <NavigationBreadcrumb
+                                                BreadcrumbItems={[
+                                                    { Click: () => { this.clickBreadCrumb("/Pedidos/Bodega") }, Titulo: this.props.BodegaSeleccionada ? this.props.BodegaSeleccionada.Etiqueta : "Bodega" },
+                                                    { Titulo: 'Linea' }
+                                                ]}
+                                            />
 
+
+                                        </Col>
                                         <Col style={{ textAlign: 'right' }}>
                                             <Dropdown
                                                 onCommand={this.cancelarPedido.bind(this)}
@@ -2710,7 +2731,8 @@ const mapStateToProps = state => {
         PrecioCajasGlobal:state.PrecioCajasGlobal,
         ClienteImpuestosGlobal:state.ClienteImpuestosGlobal,
         ProductoImpuestosGlobal:state.ProductoImpuestosGlobal,
-        UsuarioOficina:state.Permisos[0].UsuarioOficina
+        UsuarioOficina:state.Permisos[0].UsuarioOficina,
+        BodegaSeleccionada: state.BodegaSeleccionada
     };
 };
 const mapDispatchToProps = dispatch => {
@@ -2750,7 +2772,8 @@ const mapDispatchToProps = dispatch => {
         onStoreClienteContado:(data)=> dispatch({ type: 'SET_CLIENTESCONTADO', payload: data }),
         onStoreComunidadAutonoma:(data)=> dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data }),
         onStoreMonedas:(data)=> dispatch({ type: 'SET_MONEDASGLOBAL', payload: data }),
-        onSaveListaPrecios:(precios)=>{dispatch({type:'SET_LISTAPRECIOS',payload:precios})}
+        onSaveListaPrecios:(precios)=>{dispatch({type:'SET_LISTAPRECIOS',payload:precios})},
+        onSetBodegaSeleccionada: (BodegaSeleccionada) => dispatch({ type: 'SET_BODEGASELECCIONADA', payload: BodegaSeleccionada })
     };
 };
 /* const linkButton = {

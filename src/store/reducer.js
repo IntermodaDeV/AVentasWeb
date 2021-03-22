@@ -65,7 +65,9 @@ const initialState = {
     GrupoOpciones: [],
     EncuestaSelected : [],
     DocumentosPendientes:[],
-    RespuestaDetalle: []
+    RespuestaDetalle: [],
+    MaestroBodegaAlmacenes: [],
+    BodegaSeleccionada: null,
 }
 
 const calcularLimite = (state) => {
@@ -178,7 +180,8 @@ const reducer = (state = initialState, action) => {
             LineaSeleccionada: null,
             TableValue: {},
             TotalPedido: 0.0,
-            NumeroOrden: null
+            NumeroOrden: null,
+            BodegaSeleccionada: null
         }
     }
     if (action.type === 'SET_TOTALPEDIDO') {
@@ -198,7 +201,8 @@ const reducer = (state = initialState, action) => {
             LineaSeleccionada: null,
             TableValue: {},
             TotalPedido: 0.0,
-            NumeroOrden: null
+            NumeroOrden: null,
+            BodegaSeleccionada: null 
         }
     }
     if (action.type === 'RESET_PRODUCTOS_AGREGADOS') {
@@ -240,6 +244,13 @@ const reducer = (state = initialState, action) => {
             ...state,
 
             LineaSeleccionada: action.LineaSeleccionada
+        }
+    }
+    if (action.type === 'SET_BODEGASELECCIONADA') {
+        return {
+            ...state,
+
+            BodegaSeleccionada: action.payload
         }
     }
     if (action.type === 'SET_TABLEVALUE') {
@@ -741,6 +752,13 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             RespuestaDetalle: action.payload
+        }
+    }
+
+    if(action.type === 'SET_BODEGAALMACENES'){
+        return {
+            ...state,
+            MaestroBodegaAlmacenes: action.payload
         }
     }
     

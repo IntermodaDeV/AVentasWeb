@@ -209,6 +209,7 @@ export const Home = (props) => {
         cargarPrecioCajas();
         cargarImpuestoClientes();
         cargarImpuestoProductos();
+        cargarMaestroBodega();
         /////Configuracion De Recibos
         cargarBancos();
         cargarTipoPago();
@@ -513,6 +514,17 @@ export const Home = (props) => {
         }
     }
 
+    const cargarMaestroBodega = async () => {
+        setMensaje('Cargando Maestro de Bodega')
+        const { data, error } = await get(`${APIURL}/api/MaestroBodegaAlmacenes`, "MaestroBodegaGlobal");
+        if (error) {
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
+            console.log(error);
+        } else {
+            dispatch({ type: 'SET_BODEGAALMACENES', payload: data });
+        }
+    }
     const cargarClientesPedidos = async () => {
         setMensaje('Cargando Cliente Pedidos')
         const { data, error } = await get(`${APIURL}/api/cliente/pedido`, "clientes");
