@@ -45,6 +45,7 @@ import Encuestas from 'containers/Encuestas/Encuestas'
 import axios from 'axios'
 import {APIURL,APP_VERSION} from 'utils/Enviroment'
 import {EncuestasResueltas} from 'containers/Encuestas/EncuestasResueltas'
+import { PaqueteBodega } from 'containers/PaqueteBodega/PaqueteBodega'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -274,6 +275,12 @@ const App = props => {
               path='/sincronizacionListaMonitor'
               layout={MainLayout}
               component={SincronizacionListaMonitor}
+            />
+            <LayoutRoute
+              exact
+              path='/bodega-especifico'
+              layout={MainLayout}
+              component={PaqueteBodega}
             />
             <LayoutRoute
               path='/seguridad-mantenimiento'
