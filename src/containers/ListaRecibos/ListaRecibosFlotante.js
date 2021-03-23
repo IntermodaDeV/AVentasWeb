@@ -26,6 +26,7 @@ export const ListaRecibosFlotante = props => {
     const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
     const [endDate, setEndDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1));
     const [estado, setEstado] = useState(0);
+    const [todos, setTodos] = useState(false);
     const [AsesorSelected, setAsesorSelected] = useState(null);
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
 
@@ -51,7 +52,8 @@ export const ListaRecibosFlotante = props => {
             let Inicio = moment(fechainicio).format("YYYY-MM-DD");
             let Fin = moment(fechafinal).format("YYYY-MM-DD");
             let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
-            const request = await axios.get(`${APIURL}/api/Recibo/flotante/${Inicio}/${Fin}/${estado}/${Asesor}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            let ruta = todos ? `${APIURL}/api/Recibo/flotante/${Inicio}/${Fin}/${estado}` : `${APIURL}/api/Recibo/flotante/${Inicio}/${Fin}/${estado}/${Asesor}`;
+            const request = await axios.get(ruta, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
             setRecibos(request.data);
         } catch (err) {
 
@@ -293,9 +295,18 @@ export const ListaRecibosFlotante = props => {
                         />
                     </div>
                     <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked={todos} onClick={() => { setTodos((prev) => (!prev)) }} />
+                            <label class="form-check-label" for="flexCheckDefault">
+                                Todos los asesores
+                            </label>
+                        </div>
+                    </div>
+                    <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
                         <Dropdown
                             placeholder="Asesor"
                             selection
+                            disabled={todos}
                             style={{ zIndex: 999 }}
                             onChange={(e, { value }) => setAsesorSelected(value)}
                             options={AsesoresUsuario.map((Ase) => ({ key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }))}

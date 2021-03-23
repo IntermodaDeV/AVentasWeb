@@ -36,6 +36,7 @@ export const ListaPedidosFlotante = props => {
     const [fechaFin, setFechaFin] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
     const [estado, setEstado] = useState(0);
     const [AsesorSelected, setAsesorSelected] = useState(null);
+    const [todos, setTodos] = useState(false);
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
 
     const cargarPedidosFlotantes = async (fechainicio, fechafin) => {
@@ -44,7 +45,8 @@ export const ListaPedidosFlotante = props => {
             let Inicio = moment(fechainicio).format("YYYY-MM-DD");
             let Fin = moment(fechafin).format("YYYY-MM-DD");
             let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
-            const request = await axios.get(`${APIURL}/api/pedidosxcliente/flotantes/${Inicio}/${Fin}/${estado}/${Asesor}`, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
+            let ruta = todos ? `${APIURL}/api/pedidosxcliente/flotantes/${Inicio}/${Fin}/${estado}` : `${APIURL}/api/pedidosxcliente/flotantes/${Inicio}/${Fin}/${estado}/${Asesor}`;
+            const request = await axios.get(ruta, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } });
             setState({
                 ...state,
                 isLoaded: true,
@@ -301,7 +303,16 @@ export const ListaPedidosFlotante = props => {
                         />
                     </div>
                     <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked={todos} onClick={() => { setTodos((prev) => (!prev)) }} />
+                            <label class="form-check-label" for="flexCheckDefault">
+                                Todos los asesores
+                            </label>
+                        </div>
+                    </div>
+                    <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
                         <Dropdown
+                            disabled={todos}
                             placeholder="Asesor"
                             selection
                             style={{ zIndex: 999 }}
