@@ -1406,11 +1406,11 @@ class Pedidos extends React.Component {
     enviarPeticionPedido = async (location, correlativo) => {
         let isOnline = await verificarConexion();
         let pedido = {
-            NumeroReferencia : localStorage.getItem("CorrelativoPedido"),
+            NumeroReferencia: localStorage.getItem("CorrelativoPedido"),
             //PedidoCache:localStorage.getItem("CorrelativoPedidoCache"),
             PedidoId: 100 + (Math.random() * (10000 - 100)),
             CodigoCliente: this.props.cliente.Codigo,
-            Nombre : this.props.cliente.Nombre,
+            Nombre: this.props.cliente.Nombre,
             Firma: this.state.firmaPedido,
             FechaEntrega: this.state.fechaEntregaPedido,
             AcuerdoVenta: this.props.AcuerdoVenta ? this.props.AcuerdoVenta.IdAcuerdoxCliente : '',
@@ -1421,14 +1421,17 @@ class Pedidos extends React.Component {
             DetallePedido: [],
             TipoPedido: this.props.TipoPedido,
             TipoVenta: this.calcularTipoVenta(),
-            ClienteContadoId:(this.props.clienteContado!==null) ? this.props.clienteContado.id : null,
-            ModoVenta:(this.props.TipoPedido.TipoPedido==='Contado')?'Contado':'Credito',
-            Flete:this.props.flete,
-            RequiereEntrega:this.props.requiereEntrega,
-            Impuesto:Number(localStorage.getItem('Impuesto')),
-            subtotal:this.props.TotalPedido,
+            ClienteContadoId: (this.props.clienteContado !== null) ? this.props.clienteContado.id : null,
+            ModoVenta: (this.props.TipoPedido.TipoPedido === 'Contado') ? 'Contado' : 'Credito',
+            Flete: this.props.flete,
+            RequiereEntrega: this.props.requiereEntrega,
+            Impuesto: Number(localStorage.getItem('Impuesto')),
+            subtotal: this.props.TotalPedido,
             Direccion: this.props.cliente.Direccion,
-            MonedaCliente : this.props.cliente.Moneda
+            MonedaCliente: this.props.cliente.Moneda,
+            BodegaEspecifica: !this.props.BodegaSeleccionada.BodegaPrincipal,
+            Sitio: this.props.BodegaSeleccionada.CodigoSitio,
+            Almacen: this.props.BodegaSeleccionada.Almacen
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
         let productosReducir = [];

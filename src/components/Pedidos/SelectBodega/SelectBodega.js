@@ -30,7 +30,7 @@ const SelectBodega = (props) => {
                         );
                     }
 
-                    if (bodega.EmpresaId.toUpperCase() === props.Cliente.EmpresaId) {
+                    if (localStorage.getItem("Conexion") === "Online" && bodega.EmpresaId.toUpperCase() === props.Cliente.EmpresaId) {
                         return (
                             <div key={index} className="col-xl-3 col-md-6 col-lg-6 col-12">
                                 <Button style={{ marginBottom: '10px' }} key={index} onClick={() => props.setBodega(bodega)} outline color="secondary" size="lg" block>{bodega.Etiqueta}</Button>

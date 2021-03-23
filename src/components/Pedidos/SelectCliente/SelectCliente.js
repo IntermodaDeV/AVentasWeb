@@ -263,6 +263,7 @@ const SelectCliente = (props) => {
         } else {
             props.setCliente();
         }
+        dispatch({ type: "SET_BODEGASELECCIONADA", payload: null });
         props.onSetTableValue({});
         props.onSetTotalPedido(0);
         props.onSetNumeroOrden(null);

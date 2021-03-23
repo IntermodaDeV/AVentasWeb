@@ -48,6 +48,7 @@ const Header = (props) => {
     const [loading,setLoading] = React.useState(false);
     const PedidosCache = useSelector(p=>p.PedidoSincronizar);
     const RecibosCache = useSelector(r=> r.RecibosEnCache);
+    const BodegaSeleccionada = useSelector(e=>e.BodegaSeleccionada);
    
     const StyledMenu = withStyles({
         paper: {
@@ -106,12 +107,11 @@ const Header = (props) => {
 
       };
 
-      const handleClose = () => {
+    const handleClose = () => {
         localStorage.setItem("Conexion", "offline");
         props.history.push('/home');
         setVisible(null);
-        
-      };
+    };
 
     const contieneRuta = ruta => {
         return ruta.toLowerCase().includes("/pedidos") || ruta.includes("/recibos") || ruta.includes("/Recibos")|| ruta.includes("/cartera");
@@ -125,13 +125,26 @@ const Header = (props) => {
         setVisible(null);
         
       };
-      const handleCloseOffline = () => {
+    const handleCloseOffline = () => {
+        debugger;
         localStorage.setItem("Conexion", "offline");
-        if(!contieneRuta(props.history.location.pathname)){
-            props.history.push('/home');
+        if (BodegaSeleccionada) {
+            if (!BodegaSeleccionada.BodegaPrincipal) {
+                Swal.fire({
+                    title: 'Bodega Especifico',
+                    text: "La funcionalidad de bodega especifico funciona unicamente online.",
+                    type: 'warning',
+                    confirmButtonText: 'OK',
+                });
+                props.history.push('/home');
+            }
+        } else {
+            if (!contieneRuta(props.history.location.pathname)) {
+                props.history.push('/home');
+            }
         }
         setVisible(null);
-      };
+    };
 
     const tieneDocumentosPendientes = () => {
         return PedidosCache.length > 0 || RecibosCache.length > 0;
