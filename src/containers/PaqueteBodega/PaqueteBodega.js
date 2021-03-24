@@ -11,6 +11,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 import { APIURL } from 'utils/Enviroment';
 import { TablaPaqueteBodega } from './components/TablaPaqueteBodega';
+import { IsAllow } from 'components/Seguridad/Permisos';
 
 export const PaqueteBodega = props => {
     const [almacenes, setAlmacenes] = useState([]);
@@ -124,10 +125,15 @@ export const PaqueteBodega = props => {
     }
 
     useEffect(() => {
+        if (!IsAllow("/configuracion-paquete-bodega")) {
+            props.history.push('/home');
+        }
         cargarColecciones();
         cargarAlmacenes();
         cargarSitios();
         cargarPaquetes();
+
+        // eslint-disable-next-line
     }, []);
 
     return (

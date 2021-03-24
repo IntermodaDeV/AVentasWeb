@@ -278,7 +278,7 @@ const App = props => {
             />
             <LayoutRoute
               exact
-              path='/bodega-especifico'
+              path='/configuracion-paquete-bodega'
               layout={MainLayout}
               component={PaqueteBodega}
             />

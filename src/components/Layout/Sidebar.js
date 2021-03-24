@@ -51,7 +51,9 @@ import {
     LibraryBooks,
     LocalLibrary,
     Description,
-    Assignment
+    Assignment,
+    Build,
+    AllInboxOutlined
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
@@ -152,6 +154,12 @@ const navItems = [
             //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
             { to: '/sincronizacion-especifica-coleccion', name: 'Colección Específica', dataTut: 'DataTut_SincLista', Icon: ViewCompact, backgroundColor:''  },
             { to: '/sincronizacion-especifica-cliente', name: 'Cliente Específica', dataTut: 'DataTut_SincLista', Icon: AccountBox, backgroundColor:''  }
+        ]
+    },
+    {
+        to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build,
+        expanded: [
+            { to: '/configuracion-paquete-bodega', name: 'Paquete bodega especifico', dataTut: 'DataTut_SincLista', Icon: AllInboxOutlined, backgroundColor:''  },
         ]
     }
 ];
