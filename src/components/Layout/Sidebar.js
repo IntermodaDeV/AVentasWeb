@@ -135,6 +135,16 @@ const navItems = [
         ]
     },
     {
+        to: '/sincronizacion', name: 'Sincronizacion', dataTut: 'DataTut_Sinc', Icon: Sync,
+        expanded: [
+            { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto, backgroundColor:''  },
+            { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr, backgroundColor:''  },
+            //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
+            { to: '/sincronizacion-especifica-coleccion', name: 'Colección Específica', dataTut: 'DataTut_SincLista', Icon: ViewCompact, backgroundColor:''  },
+            { to: '/sincronizacion-especifica-cliente', name: 'Cliente Específica', dataTut: 'DataTut_SincLista', Icon: AccountBox, backgroundColor:''  }
+        ]
+    },
+    {
         to: '/seguridad', name: 'Seguridad', dataTut: 'DataTut_Seguridad', Icon: Security,
         expanded: [
             { to: '/seguridad-permisos', name: 'Asignar Permisos', dataTut: 'DataTut_AsignarPermisos', Icon: AddBoxOutlined, backgroundColor:''  },
@@ -146,16 +156,6 @@ const navItems = [
     { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
     { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
     { to: '/coordenadas-global', name: 'Coordenadas Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
-    {
-        to: '/sincronizacion', name: 'Sincronizacion', dataTut: 'DataTut_Sinc', Icon: Sync,
-        expanded: [
-            { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto, backgroundColor:''  },
-            { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr, backgroundColor:''  },
-            //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
-            { to: '/sincronizacion-especifica-coleccion', name: 'Colección Específica', dataTut: 'DataTut_SincLista', Icon: ViewCompact, backgroundColor:''  },
-            { to: '/sincronizacion-especifica-cliente', name: 'Cliente Específica', dataTut: 'DataTut_SincLista', Icon: AccountBox, backgroundColor:''  }
-        ]
-    },
     {
         to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build,
         expanded: [

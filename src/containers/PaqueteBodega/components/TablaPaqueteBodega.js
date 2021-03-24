@@ -66,14 +66,6 @@ const DatatableOptions = {
 
 let HeaderDocumentoPendientes = [
     {
-        name: "Id",
-        label: "Id",
-        options: {
-            filter: true,
-            sort: true,
-        }
-    },
-    {
         name: "Coleccion",
         label: "Colección",
         options: {
@@ -144,7 +136,6 @@ export const TablaPaqueteBodega = props => {
 
     const obtenerDatos = () => {
         return props.paquetes.map(x => ({
-            Id: x.Id,
             Coleccion: x.Coleccion,
             Almacen: x.Almacen,
             Sitio: x.Sitio,
