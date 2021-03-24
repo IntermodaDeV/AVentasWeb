@@ -126,17 +126,18 @@ const Header = (props) => {
         
       };
     const handleCloseOffline = () => {
-        debugger;
         localStorage.setItem("Conexion", "offline");
-        if (BodegaSeleccionada) {
-            if (!BodegaSeleccionada.BodegaPrincipal) {
-                Swal.fire({
-                    title: 'Bodega Especifico',
-                    text: "La funcionalidad de bodega especifico funciona unicamente online.",
-                    type: 'warning',
-                    confirmButtonText: 'OK',
-                });
-                props.history.push('/home');
+        if (props.history.location.pathname.toLowerCase().includes("/pedidos")) {
+            if (BodegaSeleccionada) {
+                if (!BodegaSeleccionada.BodegaPrincipal) {
+                    Swal.fire({
+                        title: 'Bodega Especifico',
+                        text: "La funcionalidad de bodega especifico funciona unicamente online.",
+                        type: 'warning',
+                        confirmButtonText: 'OK',
+                    });
+                    props.history.push('/home');
+                }
             }
         } else {
             if (!contieneRuta(props.history.location.pathname)) {
