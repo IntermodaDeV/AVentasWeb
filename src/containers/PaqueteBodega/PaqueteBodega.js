@@ -145,7 +145,7 @@ export const PaqueteBodega = props => {
                 <CardBody>
                     <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
                         <Dropdown
-                            style={{ width: "5%" }}
+                            style={{ width: "5%", zIndex: 999 }}
                             placeholder="Seleccione empresa"
                             search
                             selection
@@ -157,7 +157,7 @@ export const PaqueteBodega = props => {
                             noResultsMessage={"No hay resultados"}
                         />
                         <Dropdown
-                            style={{ width: "5%" }}
+                            style={{ width: "5%", zIndex: 999 }}
                             placeholder="Seleccione coleccion"
                             search
                             selection
@@ -169,7 +169,7 @@ export const PaqueteBodega = props => {
                             noResultsMessage={"No hay resultados"}
                         />
                         <Dropdown
-                            style={{ width: "5%" }}
+                            style={{ width: "5%", zIndex: 999 }}
                             placeholder="Seleccione sitio"
                             search
                             selection
@@ -181,7 +181,7 @@ export const PaqueteBodega = props => {
                             noResultsMessage={"No hay resultados"}
                         />
                         <Dropdown
-                            style={{ width: "5%" }}
+                            style={{ width: "5%", zIndex: 999 }}
                             placeholder="Seleccione almacen"
                             search
                             selection

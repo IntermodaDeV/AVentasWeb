@@ -66,6 +66,14 @@ const DatatableOptions = {
 
 let HeaderDocumentoPendientes = [
     {
+        name: "Codigo",
+        label: "Codigo",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
         name: "Coleccion",
         label: "Colección",
         options: {
@@ -136,6 +144,7 @@ export const TablaPaqueteBodega = props => {
 
     const obtenerDatos = () => {
         return props.paquetes.map(x => ({
+            Codigo:x.Codigo,
             Coleccion: x.Coleccion,
             Almacen: x.Almacen,
             Sitio: x.Sitio,
@@ -146,13 +155,15 @@ export const TablaPaqueteBodega = props => {
     }
 
     return (
-        <MuiThemeProvider theme={getMuiTheme()}>
-            <MUIDataTable
-                title={"Paquetes bodega especifico"}
-                data={obtenerDatos()}
-                columns={HeaderDocumentoPendientes}
-                options={DatatableOptions}
-            />
-        </MuiThemeProvider>
+        <div style={{ zIndex: -99 }}>
+            <MuiThemeProvider theme={getMuiTheme()}>
+                <MUIDataTable
+                    title={"Paquetes bodega especifico"}
+                    data={obtenerDatos()}
+                    columns={HeaderDocumentoPendientes}
+                    options={DatatableOptions}
+                />
+            </MuiThemeProvider>
+        </div>
     );
 }
