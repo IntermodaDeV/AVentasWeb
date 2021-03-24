@@ -67,7 +67,7 @@ const DatatableOptions = {
 let HeaderDocumentoPendientes = [
     {
         name: "Codigo",
-        label: "Codigo",
+        label: "Codigo Coleccion",
         options: {
             filter: true,
             sort: true,
@@ -82,8 +82,24 @@ let HeaderDocumentoPendientes = [
         }
     },
     {
+        name: "CodigoAlmacen",
+        label: "Codigo Almacen",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
         name: "Almacen",
         label: "Almacen",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
+        name: "CodigoSitio",
+        label: "Codigo Sitio",
         options: {
             filter: true,
             sort: true,
@@ -144,9 +160,11 @@ export const TablaPaqueteBodega = props => {
 
     const obtenerDatos = () => {
         return props.paquetes.map(x => ({
-            Codigo:x.Codigo,
+            Codigo: x.Codigo,
             Coleccion: x.Coleccion,
+            CodigoAlmacen: x.CodigoAlmacen,
             Almacen: x.Almacen,
+            CodigoSitio: x.CodigoSitio,
             Sitio: x.Sitio,
             Empresa: x.Empresa,
             Estado: <p style={{ fontWeight: 'bolder', color: x.Estado ? 'green' : 'red' }}>{x.Estado ? "Activo" : "Inactivo"}</p>,

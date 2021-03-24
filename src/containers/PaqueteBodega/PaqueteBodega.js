@@ -90,13 +90,30 @@ export const PaqueteBodega = props => {
             const data = {
                 coleccion, empresa, sitio, almacen, usuario: localStorage.getItem('codigo')
             }
-            await axios.post(`${APIURL}/api/bodega`, data);
-            Swal.fire({
-                title: '¡Creado con exito!',
-                text: "Se ha creado el paquete para bodega especifico",
-                type: 'success',
-                confirmButtonText: 'OK',
-            });
+            try {
+                await axios.post(`${APIURL}/api/bodega`, data);
+                Swal.fire({
+                    title: '¡Creado con exito!',
+                    text: "Se ha creado el paquete para bodega especifico",
+                    type: 'success',
+                    confirmButtonText: 'OK',
+                });
+                cargarPaquetes();
+            } catch (err) {
+    
+                let mensaje = "Ha ocurrido un error y no se pudo crear el paquete especifico.";
+    
+                if (err.response) {
+                    mensaje = err.response.data.Message;
+                }
+    
+                Swal.fire({
+                    title: 'Error',
+                    text: mensaje,
+                    type: 'error',
+                    confirmButtonText: 'OK',
+                });
+            }
         } else {
             Swal.fire({
                 title: 'Campos requeridos',
