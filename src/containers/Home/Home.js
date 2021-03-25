@@ -431,13 +431,6 @@ export const Home = (props) => {
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
-            let Lineas = data;
-            Lineas.forEach(async function (l) {
-                let Imagen = await convertirBlob(l.Imagen);
-                if (Imagen) {
-                    l.Imagen = Imagen;
-                }
-            })
             dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: data });
         }
     }
