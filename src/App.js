@@ -46,6 +46,8 @@ import axios from 'axios'
 import {APIURL,APP_VERSION} from 'utils/Enviroment'
 import {EncuestasResueltas} from 'containers/Encuestas/EncuestasResueltas'
 import { PaqueteBodega } from 'containers/PaqueteBodega/PaqueteBodega'
+import { SitioBodega } from 'containers/SitioBodega/SitioBodega'
+import { AlmacenSitio } from 'containers/AlmacenSitio/AlmacenSitio'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -281,6 +283,18 @@ const App = props => {
               path='/configuracion-paquete-bodega'
               layout={MainLayout}
               component={PaqueteBodega}
+            />
+            <LayoutRoute
+              exact
+              path='/configuracion-sitio'
+              layout={MainLayout}
+              component={SitioBodega}
+            />
+            <LayoutRoute
+              exact
+              path='/configuracion-almacenes'
+              layout={MainLayout}
+              component={AlmacenSitio}
             />
             <LayoutRoute
               path='/seguridad-mantenimiento'

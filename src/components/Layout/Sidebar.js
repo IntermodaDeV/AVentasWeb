@@ -53,7 +53,8 @@ import {
     Description,
     Assignment,
     Build,
-    AllInboxOutlined
+    AllInboxOutlined,
+    HomeWork
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
@@ -160,6 +161,8 @@ const navItems = [
         to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build,
         expanded: [
             { to: '/configuracion-paquete-bodega', name: 'Paquete bodega especifico', dataTut: 'DataTut_SincLista', Icon: AllInboxOutlined, backgroundColor:''  },
+            { to: '/configuracion-sitio', name: 'Sitio', dataTut: 'DataTut_SincLista', Icon: HomeWork, backgroundColor:''  },
+            { to: '/configuracion-almacenes', name: 'Almacen', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  }
         ]
     }
 ];
