@@ -35,6 +35,7 @@ import { Loading } from 'components/Global/Loading';
 import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
 import { ObtenerCoordenadas } from 'utils/common';
+import{ reemplazarUrl } from 'utils/common';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -70,6 +71,7 @@ const SelectCliente = (props) => {
     const clientesPedido = useSelector(c=>c.clientes);
     const clientesRecibo = useSelector(c=>c.Recibo);
     const permisos = useSelector(e=>e.Permisos[0]);
+    const Configuraciones = useSelector(e=>e.Configuraciones);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -149,29 +151,29 @@ const SelectCliente = (props) => {
                         edades.ProductosXEdad.forEach(prod => {
                              ///Imagenes generales del producto
                             prod.ListaImagenes.forEach(async function (img){
-                                let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                                let imagenBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                 if (imagenBlob) {
-                                    img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                                    img.FotografiaProducto = imagenBlob;
                                 }
                             })
         
                               ///Imagenes por color del producto
                               prod.ListaColores.forEach(color => {
                                 color.ListaImagenes.forEach( async function (img) {
-                                    let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                                    let imagenColorBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                     if (imagenColorBlob) {
-                                        img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                                        img.FotografiaProducto = imagenColorBlob;
                                     }
                                 })
                             })
                         })
                     })
                 })
-                setTimeout(()=>{
+                //setTimeout(()=>{
                     dispatch({type:'SET_LISTAPRECIOS',payload:listaPrecios});
                     setLoading(false);
                     setMensaje("Cargando clientes")
-                },75000)
+                //},75000)
               
             })
             .catch(err => {
@@ -180,14 +182,14 @@ const SelectCliente = (props) => {
             });
     }
 
-    const convertirBlob = async (url)=>{
+    /*const convertirBlob = async (url)=>{
         try{
             const request = await axios.get(url, { responseType: 'blob' });
             return request.data;
         }catch(err){
             return null;
         }
-    }
+    }*/
 
     const handleRecarga = ()=>{
         Swal.fire({

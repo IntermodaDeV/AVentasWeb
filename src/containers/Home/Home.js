@@ -9,6 +9,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { verificarConexion } from 'utils/http';
+import{ reemplazarUrl } from 'utils/common';
 import update1 from 'assets/update1.jpeg';
 import update2 from 'assets/update2.jpeg';
 
@@ -23,6 +24,8 @@ export const Home = (props) => {
     const [update, setUpdate] = useState(false);
     const Colecciones = useSelector(e => e.ListaPrecios);
     const [ModulosError, setModulosError] = useState([]);
+    const Configuraciones = useSelector(e=>e.Configuraciones);
+
     useEffect(() => {
         localStorage.setItem("Operando", "No");
         if (localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined) {
@@ -575,9 +578,9 @@ export const Home = (props) => {
             e.Edades.forEach(async function (edades) {
                 let Edades;
                 if (coleccion !== undefined && coleccion.length > 0) {
-                    let imagenBlob = await convertirBlob(coleccion[0].FotoPortada);
+                    let imagenBlob = reemplazarUrl(coleccion[0].FotoPortada,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                     if (imagenBlob) {
-                        coleccion[0].FotoPortada = URL.createObjectURL(imagenBlob);
+                        coleccion[0].FotoPortada = imagenBlob;
                     }
                     let Edad = coleccion[0].Edades;
                     Edades = Edad.filter(e => e.IdEdad === edades.IdEdad);
@@ -594,20 +597,20 @@ export const Home = (props) => {
                             imges = ProductosXEdad[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
                         }
                         if (imges !== undefined && imges.length > 0) {
-                            if (imges[0].FotografiaProducto.includes("blob")) {
+                            if (imges[0].FotografiaProducto.includes(Configuraciones.UrlImagesOffline)) {
                                 img.FotografiaProducto = imges[0].FotografiaProducto;
                             }
                             else {
-                                let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                                let imagenBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                 if (imagenBlob) {
-                                    img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                                    img.FotografiaProducto = imagenBlob;
                                 }
                             }
                         }
                         else {
-                            let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                            let imagenBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                             if (imagenBlob) {
-                                img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                                img.FotografiaProducto = imagenBlob;
                             }
                         }
 
@@ -625,20 +628,20 @@ export const Home = (props) => {
                                 imgColor = colores[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
                             }
                             if (imgColor !== undefined && imgColor.length > 0) {
-                                if (imgColor[0].FotografiaProducto.includes("blob")) {
+                                if (imgColor[0].FotografiaProducto.includes(Configuraciones.UrlImagesOffline)) {
                                     img.FotografiaProducto = imgColor[0].FotografiaProducto;
                                 }
                                 else {
-                                    let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                                    let imagenColorBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                     if (imagenColorBlob) {
-                                        img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                                        img.FotografiaProducto = imagenColorBlob;
                                     }
                                 }
                             }
                             else {
-                                let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                                let imagenColorBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                 if (imagenColorBlob) {
-                                    img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                                    img.FotografiaProducto = imagenColorBlob;
                                 }
                             }
                         })
@@ -646,7 +649,7 @@ export const Home = (props) => {
                 })
             })
         })
-        setTimeout(() => {
+        //setTimeout(() => {
             logSession();
             dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
             let fecha = moment(new Date()).format("YYYY-MM-DD");
@@ -654,16 +657,16 @@ export const Home = (props) => {
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             setSyncDiaria(true);
             setloading(false);
-        }, 40000)
+        //}, 40000)
     }
-    const convertirBlob = async (url) => {
+    /*const convertirBlob = async (url) => {
         try {
             const request = await axios.get(url, { responseType: 'blob' });
             return request.data;
         } catch (err) {
             return null;
         }
-    }
+    }*/
 
     /*const convertToBase64 = async (url)=>{
         try{

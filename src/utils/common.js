@@ -13,3 +13,11 @@ export const ObtenerCoordenadas = (callBackSucces, callBackError) => {
         }
     })
 }
+
+export const reemplazarUrl = (data, original, offline) => {
+    if (data) {
+        let urlCopia = data;
+        return urlCopia.replace(original, offline);
+    }
+    return data;
+}
