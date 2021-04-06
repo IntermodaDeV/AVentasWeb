@@ -127,7 +127,15 @@ const Header = (props) => {
       };
     const handleCloseOffline = () => {
         localStorage.setItem("Conexion", "offline");
-        if (props.history.location.pathname.toLowerCase().includes("/pedidos")) {
+        if (props.history.location.pathname.toLowerCase().includes("/bodega")) {
+            props.history.push('/home');
+            Swal.fire({
+                title: 'Bodega Especifico',
+                text: "La funcionalidad de bodega especifico funciona unicamente online.",
+                type: 'warning',
+                confirmButtonText: 'OK',
+            });
+        } else if (props.history.location.pathname.toLowerCase().includes("/pedidos")) {
             if (BodegaSeleccionada) {
                 if (!BodegaSeleccionada.BodegaPrincipal) {
                     Swal.fire({
