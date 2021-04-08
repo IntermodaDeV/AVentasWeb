@@ -8,6 +8,20 @@ const SelectBodega = (props) => {
     const Bodegas = useSelector(b => b.MaestroBodegaAlmacenes);
     const Permisos = useSelector(e => e.Permisos[0]);
 
+    const BodegasOrdenadas = () => {
+        let bodegas = [];
+
+        for (let bodega of Bodegas) {
+            if (bodega.BodegaPrincipal) {
+                bodegas.unshift(bodega);
+            } else {
+                bodegas.push(bodega);
+            }
+        }
+
+        return bodegas;
+    }
+
     return (
         <>
             <div className="row">
@@ -21,7 +35,7 @@ const SelectBodega = (props) => {
 
             <div className="row">
 
-                {Bodegas.map((bodega, index) => {
+                {BodegasOrdenadas().map((bodega, index) => {
 
                     if (bodega.BodegaPrincipal) {
                         return (
