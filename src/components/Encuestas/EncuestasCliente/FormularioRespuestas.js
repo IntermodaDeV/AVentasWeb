@@ -69,7 +69,7 @@ const FormularioRespuestas = (props) => {
                                                         preguntas.map((pregunta, index1) => {
                                                             let ValorRespuesta = "";
                                                             let Respuesta = [];
-                                                            props.RespuestaDetalle[0].RespuestasDetalle.filter(r => r.PreguntaId === pregunta.PreguntaId).forEach((respuesta, index2) => {
+                                                            props.RespuestaDetalle[0].RespuestasDetalle.filter(r => r.PreguntaId === pregunta.PreguntaId && pregunta.preguntaAnidada === false).forEach((respuesta, index2) => {
                                                                 if (pregunta.GrupoOpcionesId === null) {
                                                                     ValorRespuesta = respuesta.RespuestaAlfanumerica !== null ? respuesta.RespuestaAlfanumerica : respuesta.RespuestaNumerica;
                                                                 
@@ -85,7 +85,7 @@ const FormularioRespuestas = (props) => {
                                                                 }
 
                                                             })
-                                                            props.RespuestaDetalle[0].RespuestasAnidadasDetalle.filter(r => r.PreguntaId === pregunta.PreguntaId).forEach((respuesta, index2) => {
+                                                            props.RespuestaDetalle[0].RespuestasAnidadasDetalle.filter(r => r.PreguntaId === pregunta.PreguntaId && pregunta.preguntaAnidada === true).forEach((respuesta, index2) => {
                                                                 if (pregunta.GrupoOpcionesId === null) {
                                                                     ValorRespuesta = respuesta.RespuestaAlfanumerica !== null ? respuesta.RespuestaAlfanumerica : respuesta.RespuestaNumerica;
                                                                 

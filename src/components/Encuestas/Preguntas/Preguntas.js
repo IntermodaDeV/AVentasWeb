@@ -60,6 +60,21 @@ export const Preguntas = props => {
         }
     }
 
+    const cargarPreguntasOpciones = async (preguntaId) => {
+        try {
+            const request =  await axios.get(`${APIURL}/api/preguntasOpciones/SinAnidada/${preguntaId}`);
+            let GrupoOpcion = [];
+            setPreguntaOpcion(request.data[0].Id);
+            request.data.forEach(preg =>{
+                let Valores = { key: preg.GrupoOpcionesDetalle, value: preg.Id }
+                GrupoOpcion.push(Valores);
+            })
+            setgrupoOpcionPregunta(GrupoOpcion);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
+
     const registrarPreguntas = async (data) => {
         data.GrupoOpcionesId = grupoOpcion;
         data.TipoIngresoId = tipoIngreso;
@@ -299,21 +314,7 @@ export const Preguntas = props => {
 
     const openModalAnidado = (resp) => {
         if (resp.PreguntaOpciones.length > 0) {
-            let GrupoOpcion = [];
-            let count = 0;
-            resp.PreguntaOpciones.forEach(async op => {
-                let Pregunta = await cargarPreguntasAnidadas(op.Id);
-                if (Pregunta !== undefined && Pregunta.data.length > 0) {
-                    return;
-                }
-                let Valores = { key: op.GrupoOpcionesDetalle, value: op.Id }
-                GrupoOpcion.push(Valores);
-                if (count === 0) {
-                    setPreguntaOpcion(op.Id);
-                }
-                count = count + 1;
-            });
-            setgrupoOpcionPregunta(GrupoOpcion);
+            cargarPreguntasOpciones(resp.Id);
         }
         setRequiereGrupoOpciones(false);
         setGrupoOpcion(null);
@@ -624,7 +625,7 @@ export const Preguntas = props => {
                                                 Cancelar
                                         </Button>
                                             {edit && <Button type="button" onClick={() => { modificar(values) }} color="sucess"> Guardar</Button>}
-                                            {!edit && <Button type="submit" color="sucess">Guardar</Button>}
+                                            {!edit && <Button type="submit">Guardar</Button>}
                                         </DialogActions>
                                     </Form>
                                 </div>
