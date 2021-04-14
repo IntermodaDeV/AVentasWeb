@@ -145,7 +145,7 @@ export const Home = (props) => {
         cargarPrecioCajas();
         cargarImpuestoClientes();
         cargarImpuestoProductos();
-
+        cargarMaestroBodega();
         /////Configuracion De Recibos
         cargarBancos();
         cargarTipoPago();

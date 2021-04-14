@@ -1222,7 +1222,7 @@ class Pedidos extends React.Component {
     }
 
     reiniciarPedido = () => {
-        this.props.history.push("/Pedidos/Linea");
+        this.props.history.push("/Pedidos/Bodega");
         this.setState({
             activeCollapse: [],
             mostrarRecibo: false,
