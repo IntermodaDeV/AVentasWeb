@@ -5,7 +5,7 @@ import FormikErrorFocus from 'formik-error-focus'
 const CheckBox = (props) => {
     const { label, Descripcion, name, options, ...rest } = props;
     return (
-        <div classname='form-control'>
+        <div classname='form-control' hidden={props.hidden}>
             <label>{label}</label>
             <p style={{ fontStyle: 'italic', fontSize:'13px' }} htmlFor={"Id" + name}>{Descripcion}</p>
             <div className="form-group">
@@ -13,15 +13,18 @@ const CheckBox = (props) => {
                     {
                         ({ field }) => {
                             return options.map(option => {
+                                let valores = props.respuestaCheckBox !== undefined && props.respuestaCheckBox.length > 0 ? String(props.respuestaCheckBox) : field.value;
+                                let isDisable = props.respuestaCheckBox !== undefined ? true : false;
                                 return (
                                     <React.Fragment key={option.key}>
                                         <label htmlFor={option.value} style={{ marginRight: '5px', marginLeft:'10px' }}>{option.key}</label>
                                         <input
                                             type='checkbox'
                                             id={option.value}
+                                            disabled = {isDisable}
                                             {...field}
                                             value={option.value}
-                                            checked={field.value !== undefined ? field.value.includes(String(option.value)) : false}
+                                            checked={valores !== undefined ? valores.includes(String(option.value)) : false}
                                         />
                                     </React.Fragment>
                                 )
@@ -39,6 +42,7 @@ const CheckBox = (props) => {
                 />
             </div>
             <ErrorMessage name={name} component={TextError} />
+            <br></br>
         </div>
     )
 }

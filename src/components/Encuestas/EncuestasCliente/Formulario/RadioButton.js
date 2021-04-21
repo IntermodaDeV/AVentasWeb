@@ -5,7 +5,7 @@ import FormikErrorFocus from 'formik-error-focus'
 const RadioButton = (props) => {
     const { label, Descripcion, name, options, ...rest } = props;
     return (
-        <div classname='form-control'>
+        <div classname='form-control' hidden={props.hidden}>
             <label>{label}</label>
             <p style={{ fontStyle: 'italic', fontSize:'13px' }} htmlFor={"Id" + name}>{Descripcion}</p>
             <div className="form-group">
@@ -19,9 +19,10 @@ const RadioButton = (props) => {
                                         <input
                                             type='radio'
                                             id={option.value}
+                                            disabled = {props.Respuestas !== undefined ? true : false}
                                             {...field}
                                             value={option.value}
-                                            checked={field.value === String(option.value)}
+                                            checked={(props.Respuestas !== undefined ? String(props.Respuestas) : field.value) === String(option.value)}
                                         />
                                         
                                     </React.Fragment>
@@ -40,6 +41,7 @@ const RadioButton = (props) => {
                 />
             </div>
             <ErrorMessage name={name} component={TextError} />
+            <br></br>
         </div>
     )
 }

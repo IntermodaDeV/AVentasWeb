@@ -10,8 +10,10 @@ import BusinessIcon from '@material-ui/icons/Business';
 import QueuePlayNextIcon from '@material-ui/icons/QueuePlayNext';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
+import GridOnIcon from '@material-ui/icons/GridOn';
+
 export const TablaEncuesta = props => {
-    const { titulo, cabeceras, valores } = props;
+    const { titulo, cabeceras, valores,abrirRango } = props;
 
     const dataTabla = () => {
         return valores.map((valor) =>
@@ -36,8 +38,12 @@ export const TablaEncuesta = props => {
                 <IconButton onClick={() => { props.cargarSecciones(valor.Id, valor.Nombre) }}>
                     <QueuePlayNextIcon fontSize="large"/>
                 </IconButton>
-            </Tooltip>
-
+            </Tooltip>,
+            <Tooltip title="Exportar Excel">
+            <IconButton onClick={() => { abrirRango(valor.Id) }}>
+                <GridOnIcon fontSize="large"/>
+            </IconButton>
+        </Tooltip>
             ]);
     }
 

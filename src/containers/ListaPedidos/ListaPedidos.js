@@ -213,6 +213,7 @@ const ListaPedidos = (props) => {
                 [pedido.NumeroPedido, pedido.Sincronizado],
                 [pedido.Linea.Linea, pedido.Sincronizado],
                 [pedido.NombreColeccion, pedido.Sincronizado],
+                (pedido.BodegaEspecifica===null?"No":pedido.BodegaEspecifica?"Si":"No"),
                 [pedido.TotalUnidades, pedido.Sincronizado],
                 [moment(pedido.FechaEntrega).format('DD/MM/YYYY'), pedido.Sincronizado],
                 <div>
@@ -464,6 +465,13 @@ const HeadersListaPedidos = [
                     <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
             }
+        }
+    },
+    {
+        label: "Bodega Especifica",
+        options: {
+            filter: true,
+            sort: false,
         }
     },
     {

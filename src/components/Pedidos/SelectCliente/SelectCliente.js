@@ -29,10 +29,13 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import logo from './iconfinder_Close_2001866.png';
 import {numberWithCommas} from 'utils/common';
 import CachedIcon from '@material-ui/icons/Cached';
+import RoomIcon from '@material-ui/icons/Room';
 import axios from 'axios';
 import { Loading } from 'components/Global/Loading';
 import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
+import { ObtenerCoordenadas } from 'utils/common';
+import{ reemplazarUrl } from 'utils/common';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -65,6 +68,10 @@ const SelectCliente = (props) => {
     const [loading,setLoading] = useState(false);
     const [mensaje,setMensaje] = useState("Cargando clientes")
     const PedidosCache = useSelector(p=>p.PedidoSincronizar);
+    const clientesPedido = useSelector(c=>c.clientes);
+    const clientesRecibo = useSelector(c=>c.Recibo);
+    const permisos = useSelector(e=>e.Permisos[0]);
+    const Configuraciones = useSelector(e=>e.Configuraciones);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -144,29 +151,29 @@ const SelectCliente = (props) => {
                         edades.ProductosXEdad.forEach(prod => {
                              ///Imagenes generales del producto
                             prod.ListaImagenes.forEach(async function (img){
-                                let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                                let imagenBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                 if (imagenBlob) {
-                                    img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                                    img.FotografiaProducto = imagenBlob;
                                 }
                             })
         
                               ///Imagenes por color del producto
                               prod.ListaColores.forEach(color => {
                                 color.ListaImagenes.forEach( async function (img) {
-                                    let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                                    let imagenColorBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                     if (imagenColorBlob) {
-                                        img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                                        img.FotografiaProducto = imagenColorBlob;
                                     }
                                 })
                             })
                         })
                     })
                 })
-                setTimeout(()=>{
+                //setTimeout(()=>{
                     dispatch({type:'SET_LISTAPRECIOS',payload:listaPrecios});
                     setLoading(false);
                     setMensaje("Cargando clientes")
-                },75000)
+                //},75000)
               
             })
             .catch(err => {
@@ -175,14 +182,14 @@ const SelectCliente = (props) => {
             });
     }
 
-    const convertirBlob = async (url)=>{
+    /*const convertirBlob = async (url)=>{
         try{
             const request = await axios.get(url, { responseType: 'blob' });
             return request.data;
         }catch(err){
             return null;
         }
-    }
+    }*/
 
     const handleRecarga = ()=>{
         Swal.fire({
@@ -258,6 +265,7 @@ const SelectCliente = (props) => {
         } else {
             props.setCliente();
         }
+        dispatch({ type: "SET_BODEGASELECCIONADA", payload: null });
         props.onSetTableValue({});
         props.onSetTotalPedido(0);
         props.onSetNumeroOrden(null);
@@ -329,6 +337,114 @@ const SelectCliente = (props) => {
         }
     }
 
+    const actualizarCoordenadasPedido = (longitud, latitud) => {
+        let copiaClientes = clientesPedido;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(props.autocompleteValue.Codigo);
+        copiaClientes[indice].Longitud = longitud;
+        copiaClientes[indice].Latitud = latitud;
+        props.refrescarClienteSeleccionado(copiaClientes[indice]);
+        setValue(JSON.stringify(copiaClientes[indice]));
+        dispatch({ type: 'STORE_CLIENTES', clientes: copiaClientes });
+    }
+
+    const actualizarCoordenadasRecibo = (longitud, latitud) => {
+        let copiaClientes = clientesRecibo.clientes;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(props.autocompleteValue.Codigo);
+        copiaClientes[indice].Longitud = longitud;
+        copiaClientes[indice].Latitud = latitud;
+        dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: copiaClientes });
+    }
+
+    const actualizarData = request => {
+        const { latitud, longitud } = request.data;
+        actualizarCoordenadasPedido(longitud, latitud);
+        actualizarCoordenadasRecibo(longitud, latitud);
+    }
+
+    const enviarCoordenadasApi = async (coor) => {
+        try {
+            const data = {
+                cliente: props.autocompleteValue.Codigo,
+                latitud: coor.latitude,
+                longitud: coor.longitude
+            }
+            const request = await axios.post(`${APIURL}/api/cliente/coordenadas`, data);
+            actualizarData(request);
+            Swal.fire({
+                title: 'Confirmado',
+                text: "Coordenadas del cliente han sido actualizadas con éxito.",
+                type: 'success',
+                confirmButtonText: 'OK',
+            });
+        } catch (err) {
+            Swal.fire({
+                title: 'Error',
+                text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
+        }
+    }
+
+    const mensajeErrorCoordenadas = () => {
+        Swal.fire({
+            title: 'Error',
+            text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+            type: 'error',
+            confirmButtonText: 'OK',
+        });
+    }
+
+    const confirmacionCoordenadas = async () => {
+        let isOnline = await verificarConexion();
+        if (localStorage.getItem("Conexion") === "Online" && isOnline) {
+            Swal.fire({
+                title: 'Confirmar',
+                text: `¿Está seguro de realizar el pinneo en la ubicacón actual?`,
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#06bf53',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
+            }).then((result) => {
+                if (result.value) {
+                    ObtenerCoordenadas((position) => {
+                        enviarCoordenadasApi({
+                            longitude: position.coords.longitude,
+                            latitude: position.coords.latitude
+                        })
+                    }, (error) => {
+                        Swal.fire({
+                            title: 'Error',
+                            text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+                            type: 'error',
+                            confirmButtonText: 'OK',
+                        });
+                    });
+                }
+            })
+        } else {
+            mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
+        }
+    }
+
+    const verificarObtencionCoordenadas = () => {
+        navigator.permissions.query({ name: 'geolocation' }).then(res => {
+            if (res.state === "granted") {
+                confirmacionCoordenadas();
+            } else {
+                Swal.fire({
+                    title: 'Advertencia',
+                    text: "Habilite la geoposición en su dispositivo para realizar esta acción.",
+                    type: 'warning',
+                    confirmButtonText: 'OK',
+                });
+            }
+        }).catch(err => {
+            mensajeErrorCoordenadas()
+        })
+    }
 
     if (props.autocompleteValue != null && props.autocompleteValue.EmpresaId.toUpperCase() !== empresa.toUpperCase() && props.autocompleteValue !== false) {
         EsVisible = true;
@@ -339,6 +455,7 @@ const SelectCliente = (props) => {
         let ValorCreditoTotal = 0;
         let CXCTotal = 0;
         let Depto = props.autocompleteValue.ComunidadAutonoma? Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma) ? Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma).NAME : '' : '';
+        let Abreviacion = props.autocompleteValue.Moneda ? Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda) ? Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion : "" : "";
         infoCliente = (
             <Card>
                 <CardContent>
@@ -394,6 +511,16 @@ const SelectCliente = (props) => {
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.Direccion}</td>
                                     </tr>
+                                    {((props.autocompleteValue.Latitud === null || props.autocompleteValue.Longitud === null) && permisos.AsesoresUsuario.length === 1 ) &&
+                                        <tr>
+                                            <td className={styles.InfoLabel}>
+                                                Coordenadas no Disponibles
+                                        </td>
+                                            <td className={styles.InfoLabelDetail}>
+                                                <Button style={{ marginLeft: 15 }} onClick={verificarObtencionCoordenadas} variant="contained" color="primary">Guardar <RoomIcon /></Button>
+                                            </td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
 
@@ -441,9 +568,9 @@ const SelectCliente = (props) => {
                                     })}
                                     <tr>
                                         <td>{<b>Total</b>}</td>
-                                        <td style={{color:parseFloat(numberWithCommas(ValorCreditoTotal))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(ValorCreditoTotal)}</td>
-                                        <td>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(CXCTotal)}</td>
-                                        <td style={{color:parseFloat(numberWithCommas(DisponibleTotal))>0?'green':'red'}}>{Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion} {numberWithCommas(DisponibleTotal)}</td>
+                                        <td style={{color:parseFloat(numberWithCommas(ValorCreditoTotal))>0?'green':'red'}}>{Abreviacion} {numberWithCommas(ValorCreditoTotal)}</td>
+                                        <td>{Abreviacion} {numberWithCommas(CXCTotal)}</td>
+                                        <td style={{color:parseFloat(numberWithCommas(DisponibleTotal))>0?'green':'red'}}>{Abreviacion} {numberWithCommas(DisponibleTotal)}</td>
                                     </tr>
                                     <tr>
                                         {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={()=>setOpenContado(true)} variant="contained" color="primary">{(clienteContado===null)?'Crear cliente contado':'Editar cliente contado'}</Button></td>}

@@ -37,8 +37,10 @@ const Coleccion = (props) => {
   const dispatch = useDispatch();
   const coleccion = useSelector(e=>e.coleccion);
   const [loading,setLoading] = React.useState(false);
+  const BodegaSeleccionada = useSelector(e=>e.BodegaSeleccionada);
+
   const cargarProductos = () => {
-    fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${cliente.EmpresaId}`)
+    fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${cliente.EmpresaId}/${BodegaSeleccionada.CodigoSitio}/${BodegaSeleccionada.Almacen}`)
       .then(res => res.json())
       .then(data => {
         props.Click();

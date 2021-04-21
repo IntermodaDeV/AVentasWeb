@@ -187,12 +187,11 @@ moment.locale('es')
     }
 
  let Apagar  = 0;
-
+ let Saldo = 0
   props.Cuotas.forEach(fact => {
     fact.Acuerdos.forEach(acu => {
       acu.Facturas.filter(f=> f.Saldo > 0).forEach(fact => {
         fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
-          console.log("cuot",cuot)
           let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
           let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days')
 
@@ -201,6 +200,7 @@ moment.locale('es')
           let isVencida = DiasVencido<0;
 
           Apagar = diasDescuento < 0 ? cuot.Saldo : cuot.Saldo - ValorDescuento;
+          Saldo = Saldo + Apagar;
           if (DiasVencido < 0) {
             foundExpired = true;
 
@@ -279,7 +279,7 @@ moment.locale('es')
       });
     });
   })
-  localStorage.setItem("totalCredito", (Apagar).toFixed(2));
+  localStorage.setItem("totalCredito", (Saldo).toFixed(2));
 
     data.sort((a, b) => {
       if (moment(a.Fechaa, "DD/MM/YYYY").isAfter(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {

@@ -5,7 +5,7 @@ import FormikErrorFocus from 'formik-error-focus'
 const Input = (props) => {
     const { label, Descripcion, name, ...rest } = props;
     return (
-        <div classname='form-group'>
+        <div classname='form-group' hidden={props.hidden}>
             <label htmlFor={name}>{label}</label>
             <p style={{ fontStyle: 'italic', fontSize:'13px' }} htmlFor={"Id" + name}>{Descripcion}</p>
             <Field
@@ -22,6 +22,7 @@ const Input = (props) => {
                 duration={1000}
             />
             <ErrorMessage name={name} component={TextError} />
+            <br></br>
         </div>
     )
 }

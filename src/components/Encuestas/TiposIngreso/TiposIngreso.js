@@ -23,6 +23,7 @@ export const TiposIngreso = props => {
     const validationSchema = yup.object().shape(
         {
             Nombre: yup.string().required('El nombre es obligatorio'),
+            Etiqueta: yup.string().required('La etiqueta es obligatoria'),
             Status: yup.boolean(),
             RequiereGrupoOpciones: yup.boolean(),
         });
@@ -149,6 +150,7 @@ export const TiposIngreso = props => {
         initialValues = {
             Id: tipoIngreso.$id,
             Nombre: tipoIngreso.Nombre,
+            Etiqueta:tipoIngreso.Etiqueta,
             Status: tipoIngreso.Status,
             RequiereGrupoOpciones: tipoIngreso.RequiereGrupoOpciones,
             Usuario: localStorage.getItem('codigo')
@@ -158,6 +160,7 @@ export const TiposIngreso = props => {
     else {
         initialValues = {
             Nombre: '',
+            Etiqueta:'',
             Status: true,
             RequiereGrupoOpciones: false,
             Usuario: localStorage.getItem('codigo')
@@ -185,6 +188,17 @@ export const TiposIngreso = props => {
                                             name="Nombre"
                                             error={!!errors.Nombre}
                                             helperText={errors.Nombre}
+                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px' }}
+                                            as={TextField}
+                                            className="form-control"
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <Field
+                                            label="Etiqueta"
+                                            name="Etiqueta"
+                                            error={!!errors.Etiqueta}
+                                            helperText={errors.Etiqueta}
                                             style={{ fontSize: '40px', width: '450px', marginRight: '20px' }}
                                             as={TextField}
                                             className="form-control"

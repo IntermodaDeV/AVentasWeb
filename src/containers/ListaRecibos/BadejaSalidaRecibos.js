@@ -85,6 +85,7 @@ const BadejaSalidaRecibos = (props) => {
                     if (!isOnline) {
                         mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
                     } else {
+                        localStorage.setItem("Operando","Si");
                         setLoading(true);
                         const recibo = RecibosCache.find(x => x.ReciboId === reciboId);
                         let Ruta = recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/Recibo';
@@ -96,20 +97,31 @@ const BadejaSalidaRecibos = (props) => {
                         });
 
                         if (request.data) {
+                            localStorage.setItem("Operando","No");
                             setLoading(false);
                             const nuevosRecibos = RecibosCache.filter(x => x.ReciboId !== reciboId);
                             dispatch({ type: "SET_RESETRECIBOSENCACHE", payload: nuevosRecibos });
                             setRecibos(nuevosRecibos);
-                            Swal.fire({
-                                type: 'success',
-                                title: 'Sincronizado',
-                                text: "Recibo sincronizado correctamente",
-                            });
+
+                            if (request.data.Mensaje.includes("flotante")) {
+                                Swal.fire({
+                                    type: 'warning',
+                                    title: 'Advertencia',
+                                    text: request.data.Mensaje,
+                                });
+                            } else {
+                                Swal.fire({
+                                    type: 'success',
+                                    title: 'Sincronizado',
+                                    text: "Recibo sincronizado correctamente",
+                                });
+                            }
                         }
                     }
                 }
             }
             catch (err) {
+                localStorage.setItem("Operando","No");
                 let mensaje = "Ha ocurrido un error y no se ha registrado el recibo.";
 
                 if (err.response) {

@@ -26,6 +26,9 @@ import {connect} from 'react-redux';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import { FaEye } from "react-icons/fa";
 import { get,verificarConexion } from 'utils/http';
+import axios from 'axios';
+import { ObtenerCoordenadas } from 'utils/common';
+
 moment.locale('es');
 class Agenda extends Component {
     urlApi = APIURL;
@@ -59,46 +62,7 @@ class Agenda extends Component {
     }
 
     myRef = React.createRef();
-
-    cargarClientes = async () => {
-        let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
-        let Asesor = this.state.AsesorSelected === null ? asesores[0] : this.state.AsesorSelected;
-        fetch(this.urlApi + "/api/cliente/agenda/" + Asesor, {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token')
-            }
-        })
-            .then(res => {
-                if (res.status === 401) {
-                    localStorage.setItem('token', '');
-                    window.location.reload();
-                }
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                this.setState({
-                                    clientes: result,
-                                });
-                                
-                                var fecha = this.getFechas(2);
-                                this.cargarAsignaciones(fecha.Inicio, fecha.Fin);
-                            },
-                            // Note: it's important to handle errors here
-                            // instead of a catch() block so that we don't swallow
-                            // exceptions from actual bugs in components.
-                            (error) => {
-                                this.setState({
-                                    error: true
-                                });
-                            }
-                        )
-                }
-
-            })
-    }
+    refCoordenadas = React.createRef();
 
     cargarAsesores = () => {
         let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
@@ -129,34 +93,81 @@ class Agenda extends Component {
         .catch(error=>console.log(error))
     }
 
-    cargarAsignaciones = (FechaInicio, FechaFin) => {
-        var inicio = moment(FechaInicio).format();
-        var fin = moment(FechaFin).format();
-        var asesor = this.state.AsesorSelected;
-        fetch(this.urlApi + `/api/Asignaciones?FechaInicio=${inicio}&FechaFin=${fin}&Asesor=${asesor}`, {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token'),
+    obtenerClientesUnicos = data => {
+        let clientes = [];
+
+        let noExistenAsignaciones = data.length === 0;
+        if (noExistenAsignaciones) {
+            return [];
+        }
+
+        for (let dia of data) {
+            for (let asignacion of dia.asignaciones) {
+                clientes.push(asignacion.cliente);
             }
-        })
-            .then(res => {
-                if (res.status === 200) {
+        }
 
-                    res.json()
-                        .then(
-                            (result) => {
-                                var eventos = this.setAsignaciones(result);
-                                this.setState({
-                                    Asignaciones: result,
-                                    ShowTable: true,
-                                    isLoaded: true,
-                                    Eventos: eventos,
-                                });
-                            },
-                        )
+        return [...new Set(clientes)];
+    }
+
+    cargarAsignaciones = async () => {
+        try {
+            let { Inicio, Fin } = this.getFechas(1);
+            let request = await axios.get(`${this.urlApi}/api/Asignaciones`, {
+                params: { FechaInicio: Inicio, FechaFin: Fin, Asesor: this.state.AsesorSelected }, headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token'),
                 }
+            });
+            let eventos = this.setAsignaciones(request.data);
+            this.setState({
+                Asignaciones: request.data,
+                ShowTable: true,
+                isLoaded: true,
+                Eventos: eventos,
+            });
+        } catch (err) {
 
-            })
+        }
+    }
+
+    cargarClientes = async (clientes) => {
+        try {
+            let request = await axios.get(`${this.urlApi}/api/cliente/agenda`, {
+                params: { clientes }, headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+            this.setState((prev) => ({ ...prev, clientes: request.data }))
+        } catch (err) {
+            this.setState({
+                error: true
+            });
+        }
+    }
+
+    cargarAsignacionesConClientes = async () => {
+        try {
+            let { Inicio, Fin } = this.getFechas(1);
+            let request = await axios.get(`${this.urlApi}/api/Asignaciones`, {
+                params: { FechaInicio: Inicio, FechaFin: Fin, Asesor: this.state.AsesorSelected }, headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+            let clientes = this.obtenerClientesUnicos(request.data);
+            await this.cargarClientes(clientes);
+            let eventos = this.setAsignaciones(request.data);
+            this.setState({
+                Asignaciones: request.data,
+                ShowTable: true,
+                isLoaded: true,
+                Eventos: eventos,
+            });
+        } catch (err) {
+
+        }
     }
 
     cargarRazonNoVenta = async () => {
@@ -183,17 +194,16 @@ class Agenda extends Component {
             })
     }
 
-    enviarCheckinApi = async (location,check)=>{
-
+    enviarCheckinApi = async (location, check) => {
         const isOnline = await verificarConexion();
-        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
                 title: "Sin internet",
                 text: "Necesita internet para poder realizar esta accion.",
                 type: "warning",
                 confirmButtonText: 'Ok',
             });
-        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+        } else if (localStorage.getItem("Conexion") === "Online" && isOnline) {
             const fechas = this.getFechas(2);
 
             const parametros = {
@@ -224,7 +234,7 @@ class Agenda extends Component {
                             })
                         });
 
-                    this.cargarAsignaciones(fechas.Inicio, fechas.Fin);
+                    this.cargarAsignaciones();
 
                 }
 
@@ -597,13 +607,14 @@ class Agenda extends Component {
     }
     
     onChangeAsesor = () => {
-        this.cargarClientes();
+        /*this.cargarClientes();
         var eventos = this.setAsignaciones(this.state.Asignaciones);
         this.setState({
             Eventos: eventos,
             OpenModalAsesor: false,
             clienteActivo : false
-        })
+        })*/
+        this.cargarAsignacionesConClientes();
     }
 
     handleOnChangeAsesor = (event) => {
@@ -683,8 +694,7 @@ class Agenda extends Component {
                         mostarNoAtendido: false,
                     });
 
-                    var fecha = this.getFechas(2);
-                    this.cargarAsignaciones(fecha.Inicio, fecha.Fin);
+                    this.cargarAsignaciones();
 
                     Toast.fire({
                         type: 'success',
@@ -747,7 +757,7 @@ class Agenda extends Component {
             this.setState((prevState)=>({...prevState,isLoaded:true}))
         } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
             this.cargarAsesores()
-            this.cargarClientes();
+            this.cargarAsignacionesConClientes();
             this.cargarRazonNoVenta();
             this.cargarTipoVisitas();
             this.cargarConfiguraciones();
@@ -782,6 +792,116 @@ class Agenda extends Component {
             }
 
         return asignacion.Checkout;
+    }
+
+    actualizarCoordenadasPedido = (longitud, latitud) => {
+        let copiaClientes = this.props.clientesPedido;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(this.state.clienteActivo.codigo);
+        copiaClientes[indice].Longitud = longitud;
+        copiaClientes[indice].Latitud = latitud;
+        this.props.onSaveClientesPedido(copiaClientes);
+    }
+
+    actualizarCoordenadasRecibo = (longitud, latitud) => {
+        let copiaClientes = this.props.clientesRecibo;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(this.state.clienteActivo.codigo);
+        copiaClientes[indice].Longitud = longitud;
+        copiaClientes[indice].Latitud = latitud;
+        this.props.onSaveClientesRecibo(copiaClientes);
+    }
+
+    actualizarDataExterna = request => {
+        const { latitud, longitud } = request.data;
+        this.actualizarCoordenadasPedido(longitud, latitud);
+        this.actualizarCoordenadasRecibo(longitud, latitud);
+    }
+
+    actualizarData = request => {
+        this.setState((prevState) => ({ ...prevState, clienteActivo: { ...prevState.clienteActivo, latitud: request.data.latitud, longitud: request.data.longitud } }));
+        let copiaClientes = this.state.clientes;
+        let indice = copiaClientes.map(x => x.Codigo).indexOf(this.state.clienteActivo.codigo);
+        copiaClientes[indice].Latitud = request.data.latitud;
+        copiaClientes[indice].Longitud = request.data.longitud;
+        this.setState((prevState) => ({ ...prevState, clientes: copiaClientes }));
+        let eventos = this.setAsignaciones(this.state.Asignaciones);
+        this.setState({
+            Eventos: eventos,
+        })
+
+        this.actualizarDataExterna(request);
+    }
+
+    enviarCoordenadasApi = async (coor) => {
+        try {
+            const data = {
+                cliente: this.state.clienteActivo.codigo,
+                latitud: coor.latitude,
+                longitud: coor.longitude
+            }
+            const request = await axios.post(`${APIURL}/api/cliente/coordenadas`, data);
+            this.actualizarData(request);
+        } catch (err) {
+            Swal.fire({
+                title: 'Error',
+                text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+                type: 'error',
+                confirmButtonText: 'OK',
+                target: this.refCoordenadas.current
+            });
+        }
+    }
+
+    mensajeErrorCoordenadas = () => {
+        Swal.fire({
+            title: 'Error',
+            text: "Ha ocurrido un error y no se pudo obtener las coordenadas.",
+            type: 'error',
+            confirmButtonText: 'OK',
+            target: this.refCoordenadas.current
+        });
+    }
+
+    confirmacionCoordenadas = () => {
+        Swal.fire({
+            title: 'Confirmar',
+            text: `¿Está seguro de realizar el pinneo en la ubicacón actual?`,
+            type: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#06bf53',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí',
+            cancelButtonText: 'No',
+            target: this.refCoordenadas.current
+        }).then((result) => {
+            if (result.value) {
+                ObtenerCoordenadas((position) => {
+                    this.enviarCoordenadasApi({
+                        longitude: position.coords.longitude,
+                        latitude: position.coords.latitude
+                    })
+                }, (error) => {
+                    this.mensajeErrorCoordenadas()
+                });
+            }
+        })
+    }
+
+    verificarObtencionCoordenadas = () => {
+        navigator.permissions.query({ name: 'geolocation' }).then(res => {
+            if (res.state === "granted") {
+                this.confirmacionCoordenadas();
+            } else {
+                Swal.fire({
+                    title: 'Advertencia',
+                    text: "Habilite la geoposición en su dispositivo para realizar esta acción.",
+                    type: 'warning',
+                    confirmButtonText: 'OK',
+                    target: this.refCoordenadas.current
+                });
+            }
+        }).catch(err => {
+            this.mensajeErrorCoordenadas()
+        })
     }
 
     render() {
@@ -852,7 +972,10 @@ class Agenda extends Component {
                                                 <div style={{ height: '300px',display:'flex',alignItems:'center' }}>
                                                 {(this.state.clienteActivo.latitud === null && this.state.clienteActivo.longitud===null)
                                                 ?
-                                                    <h1 className="font-weight-light">No hay coordenadas disponibles</h1>
+                                                        <div ref={this.refCoordenadas}>
+                                                            <h1 className="font-weight-light">No hay coordenadas disponibles</h1>
+                                                            {this.state.AsesorSelected === localStorage.getItem('codigo') && <Button onClick={this.verificarObtencionCoordenadas} variant="contained" color="primary" style={{ display: 'block', margin: '0 auto' }}>Obtener coordenadas</Button>}
+                                                        </div>
                                                 :
                                                     <GoogleMapReact
                                                         bootstrapURLKeys={{ key: APIKEY }}
@@ -1158,27 +1281,12 @@ class Agenda extends Component {
     }
 }
 
-const ObtenerCoordenadas = (resolve, reject) => {
-    const timeout = new Promise((resolve, reject) => {
-        setTimeout(reject, 10000);
-    });
-
-    const geolocationPromise = new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                resolve(position);
-            },
-            (error) => { reject(error) },
-            { enableHighAccuracy: true, timeout: 10000 }
-        )
-    });
-    Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
-}
-
 const mapStateToProps = state => ({
     empresas:state.empresas,
     asignaciones:state.Asignaciones,
-    Permisos: state.Permisos
+    Permisos: state.Permisos,
+    clientesPedido:state.clientes,
+    clientesRecibo:state.Recibo.clientes
 });
 
 const mapDispatchToProps = dispatch =>({
@@ -1187,7 +1295,9 @@ const mapDispatchToProps = dispatch =>({
     onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})},
     onSaveAsignaciones:(asignaciones)=>{dispatch({type:'SET_ASIGNACIONES',payload:asignaciones})},
     onSaveTipoVisita:(data)=>{dispatch({ type: "SET_TIPOVISITA", payload: data })},
-    onSaveConfiguraciones:(data)=>{dispatch({ type: "SET_CONFIGURACIONES", payload: data })}
+    onSaveConfiguraciones:(data)=>{dispatch({ type: "SET_CONFIGURACIONES", payload: data })},
+    onSaveClientesPedido:(data)=>{dispatch({ type: 'STORE_CLIENTES', clientes: data })},
+    onSaveClientesRecibo:(data)=>{dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data })}
 })
 
 export default connect(mapStateToProps,mapDispatchToProps)(Agenda);

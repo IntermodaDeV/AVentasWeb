@@ -50,7 +50,11 @@ import {
     MenuBook,
     LibraryBooks,
     LocalLibrary,
-    Description
+    Description,
+    Assignment,
+    Build,
+    AllInboxOutlined,
+    HomeWork
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
@@ -104,9 +108,10 @@ const navItems = [
     {
         to: '/encuesta', name: 'Encuesta', dataTut: 'DataTut_EncuetasGeneral', Icon: LibraryBooks,
         expanded: [
-            { to: '/Mantenimiento/Encuesta', name: 'Mantemiento Encuesta', dataTut: 'DataTut_MantenimientoEncuestas', Icon: LocalLibrary, backgroundColor:'' },
-            { to: '/Encuesta', name: 'Encuesta', dataTut: 'DataTut_Encuestas', Icon: Description, backgroundColor:''  },
+            { to: '/Mantenimiento/Encuesta', name: 'Configuraciones Encuesta', dataTut: 'DataTut_MantenimientoEncuestas', Icon: LocalLibrary, backgroundColor:'' },
+            { to: '/Encuesta', name: 'Encuestas', dataTut: 'DataTut_Encuestas', Icon: Description, backgroundColor:''  },
             { to: '/encuesta/selectCliente', name: 'Responder Encuesta', dataTut: 'DataTut_Encuestas', Icon: MenuBook, backgroundColor:''  },
+            { to: '/Encuesta/Resueltas', name: 'Encuestas Realizadas', dataTut: 'DataTut_EncuestasRealizadas', Icon: Assignment, backgroundColor:''  },
            ]
     },
     {
@@ -131,6 +136,16 @@ const navItems = [
         ]
     },
     {
+        to: '/sincronizacion', name: 'Sincronizacion', dataTut: 'DataTut_Sinc', Icon: Sync,
+        expanded: [
+            { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto, backgroundColor:''  },
+            { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr, backgroundColor:''  },
+            //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
+            { to: '/sincronizacion-especifica-coleccion', name: 'Colección Específica', dataTut: 'DataTut_SincLista', Icon: ViewCompact, backgroundColor:''  },
+            { to: '/sincronizacion-especifica-cliente', name: 'Cliente Específica', dataTut: 'DataTut_SincLista', Icon: AccountBox, backgroundColor:''  }
+        ]
+    },
+    {
         to: '/seguridad', name: 'Seguridad', dataTut: 'DataTut_Seguridad', Icon: Security,
         expanded: [
             { to: '/seguridad-permisos', name: 'Asignar Permisos', dataTut: 'DataTut_AsignarPermisos', Icon: AddBoxOutlined, backgroundColor:''  },
@@ -143,13 +158,11 @@ const navItems = [
     { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
     { to: '/coordenadas-global', name: 'Coordenadas Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
     {
-        to: '/sincronizacion', name: 'Sincronizacion', dataTut: 'DataTut_Sinc', Icon: Sync,
+        to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build,
         expanded: [
-            { to: '/sincronizacionlista', name: 'Sincronizacion Automática', dataTut: 'DataTut_SincLista', Icon: FlashAuto, backgroundColor:''  },
-            { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr, backgroundColor:''  },
-            //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
-            { to: '/sincronizacion-especifica-coleccion', name: 'Colección Específica', dataTut: 'DataTut_SincLista', Icon: ViewCompact, backgroundColor:''  },
-            { to: '/sincronizacion-especifica-cliente', name: 'Cliente Específica', dataTut: 'DataTut_SincLista', Icon: AccountBox, backgroundColor:''  }
+            { to: '/configuracion-paquete-bodega', name: 'Paquete bodega especifico', dataTut: 'DataTut_SincLista', Icon: AllInboxOutlined, backgroundColor:''  },
+            { to: '/configuracion-sitio', name: 'Sitio', dataTut: 'DataTut_SincLista', Icon: HomeWork, backgroundColor:''  },
+            { to: '/configuracion-almacenes', name: 'Almacen', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  }
         ]
     }
 ];

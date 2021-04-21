@@ -18,9 +18,9 @@ const Linea = (props) => {
     const [Raised, setRaised] = React.useState(false);
     const dispatch = useDispatch();
     const usuarioOficina = useSelector(e=>e.Permisos[0].UsuarioOficina);
+    const BodegaSeleccionada = useSelector(e=>e.BodegaSeleccionada);
     let imagen = props.Linea.Imagen !== null ? props.Linea.Imagen : nodisponible;
     const [loading,setLoading] = React.useState(false);
-
     if (props.Linea.Imagen === null) {
         switch (props.Linea.Linea) {
             case 'Complementario':
@@ -44,7 +44,7 @@ const Linea = (props) => {
     const cargarColecciones = async () => {
         if (usuarioOficina) {
             props.setLinea(props.Linea);
-            fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('EmpresaCliente')}`)
+            fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('EmpresaCliente')}/${BodegaSeleccionada.Almacen}/${BodegaSeleccionada.CodigoSitio}`)
                 .then(res => res.json())
                 .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
         } else {
@@ -56,7 +56,7 @@ const Linea = (props) => {
                 setLoading(false);
                 props.setLinea(props.Linea);
                 if (localStorage.getItem("Conexion") === "Online" && isOnline) {
-                    fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('EmpresaCliente')}`)
+                    fetch(`${APIURL}/api/colecciones/${props.Linea.IdLinea}/${localStorage.getItem('EmpresaCliente')}/${BodegaSeleccionada.Almacen}/${BodegaSeleccionada.CodigoSitio}`)
                         .then(res => res.json())
                         .then(data => dispatch({ type: 'STORE_COLECCIONES', colecciones: data }));
                 }

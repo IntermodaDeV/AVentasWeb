@@ -126,7 +126,7 @@ const DatatableOptions = {
 
 export const TablaResueltas = props => {
     const { encuestasResueltas, detalleEncuesta } = props;
-
+    
     const obtenerData = () => {
         return encuestasResueltas.map(e => (
             [
@@ -134,7 +134,7 @@ export const TablaResueltas = props => {
                 e.Cliente,
                 e.Usuario,
                 moment(e.Fecha).format("DD/MM/YYYY"),
-                <button className="btn btn-primary" onClick={() => { detalleEncuesta(e.EncuestaId, e.Cliente, e.Usuario) }}>Ver detalle</button>
+                <button className="btn btn-primary" onClick={() => { detalleEncuesta(e.EncuestaId, e.RespuestaId) }}>Ver detalle</button>
             ]
         ));
     }

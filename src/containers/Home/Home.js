@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { APIURL,APP_VERSION } from 'utils/Enviroment';
+import { APIURL, APP_VERSION } from 'utils/Enviroment';
 import { useSelector, useDispatch } from 'react-redux';
 import { Loading } from 'components/Global/Loading';
-import { get,backgroundPostPedidos,backgroundPostRecibos } from 'utils/http';
+import { get, backgroundPostPedidos, backgroundPostRecibos } from 'utils/http';
 import SteperSync from 'containers/Home/SteperSync';
 import { getLocalStorage } from 'utils/http';
 import moment from 'moment';
 import axios from 'axios';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { verificarConexion } from 'utils/http';
+import{ reemplazarUrl } from 'utils/common';
 import update1 from 'assets/update1.jpeg';
 import update2 from 'assets/update2.jpeg';
 
@@ -20,30 +21,33 @@ export const Home = (props) => {
     const [SyncDiaria, setSyncDiaria] = useState(true);
     const [UsuarioOficina, setUsuarioOficina] = useState(false);
     const [displaySincronizacion, setDisplaySincronizacion] = useState(false);
-    const [update,setUpdate] = useState(false);
+    const [update, setUpdate] = useState(false);
     const Colecciones = useSelector(e => e.ListaPrecios);
+    const [ModulosError, setModulosError] = useState([]);
+    const Configuraciones = useSelector(e=>e.Configuraciones);
+
     useEffect(() => {
-        if(localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined){
-            localStorage.setItem("SesionObligatorio",1);
+        localStorage.setItem("Operando", "No");
+        if (localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined) {
+            localStorage.setItem("SesionObligatorio", 1);
             localStorage.removeItem("token")
             window.location.reload();
-          }
+        }
         async function inicioSesion() {
             const permisos = await verificarUsuario();
             if (permisos) {
                 let config = await cargarConfiguraciones();
                 if (config.APP_VERSION === APP_VERSION) {
                     if (permisos[0].UsuarioOficina) {
-                        localStorage.setItem("UsuarioOficina",true);
+                        localStorage.setItem("UsuarioOficina", true);
                         cargarConfiguracionesUsuarioOficina();
                         dispatch({ type: 'SET_PERMISOS', payload: permisos });
                     } else {
-                        localStorage.setItem("UsuarioOficina",false);
+                        localStorage.setItem("UsuarioOficina", false);
                         setDisplaySincronizacion(true);
                         let data = getLocalStorage("ListaPrecios");
                         if (data === null) {
                             dispatch({ type: 'SET_PERMISOS', payload: [] });
-                            localStorage.setItem("OcurrioError", false)
                             setSyncDiaria(false);
                         }
                         else {
@@ -56,11 +60,11 @@ export const Home = (props) => {
                 }
             }
         }
-
+        setModulosError([])
         inicioSesion();
         // eslint-disable-next-line
     }, [])
-
+    /*---------------------------INICIO SESION ---------------------------------------------------------*/
     const logSession = async () => {
         try {
             const request = await axios.get(`https://ipapi.co/json`);
@@ -71,7 +75,7 @@ export const Home = (props) => {
                 Latitud: request.data.latitude,
                 Longitud: request.data.longitude,
                 Version_App: APP_VERSION
-              }
+            }
 
             registrarLogSesion(logSession);
         } catch (err) {
@@ -80,29 +84,21 @@ export const Home = (props) => {
         }
     }
 
-
+    
     const registrarLogSesion = (data) => {
         fetch(APIURL + "/api/logsesion", {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          method: 'POST',
-          body: JSON.stringify(data)
-        })
-          .then(res => res.json())
-          .then(
-            (result) => {
-              console.log(result.Message)
+            headers: {
+                'Content-Type': 'application/json',
             },
-          )
-      }
-    const sincronizarDocumentosPendientes = async () => {
-        setMensaje('Sincronizando Pedidos y Recibos');
-        let tienePedidosPendientes = await backgroundPostPedidos();
-        let tieneRecibosPendientes = await backgroundPostRecibos();
-
-        localStorage.setItem("PedidosPendientes", tienePedidosPendientes);
-        localStorage.setItem("RecibosPendientes", tieneRecibosPendientes);
+            method: 'POST',
+            body: JSON.stringify(data)
+        })
+            .then(res => res.json())
+            .then(
+                (result) => {
+                    console.log(result.Message)
+                },
+            )
     }
 
     const CargaPermisos = async () => {
@@ -110,71 +106,6 @@ export const Home = (props) => {
         if (isOnline) {
             ObtenerPermisos();
         }
-    }
-
-    const cargarConfiguracionesUsuarioOficina = () => {
-        setloading(true);
-        ////Configuracion General
-        cargarEmpresas();
-        cargarAbreviacionMonedas();
-        cargarClientesContado();
-        cargarComunidadAutonoma();
-        cargarMonedas();
-
-        ////Configuracion De Pedido
-        cargarMaestroLinea();
-        cargarTiposColeccion();
-        cargarTiposPedido();
-        cargarEmpresasTransporte();
-        cargarPrecioCajas();
-        cargarImpuestoClientes();
-        cargarImpuestoProductos();
-
-        /////Configuracion De Recibos
-        cargarBancos();
-        cargarTipoPago();
-        cargarTipoVisitasOficina();
-    }
-
-    const CargarModuloConfiguraciones = () => {
-        setloading(true);
-        ////Documentos Pendientes
-        sincronizarDocumentosPendientes();
-
-        ////Configuracion General
-        ObtenerPermisos();
-        cargarEmpresas();
-        cargarAbreviacionMonedas();
-        cargarClientesContado();
-        cargarComunidadAutonoma();
-        cargarMonedas();
-
-        ////Configuracion De Pedido
-        cargarMaestroLinea();
-        cargarTiposColeccion();
-        cargarTiposPedido();
-        cargarEmpresasTransporte();
-        cargarPrecioCajas();
-        cargarImpuestoClientes();
-        cargarImpuestoProductos();
-        /////Configuracion De Recibos
-        cargarBancos();
-        cargarTipoPago();
-        cargarTipoVisitas(); ///Siempre debe ser el Ultimo Metodo
-    }
-    const ModuloCarteracliente = () => {
-        cargarDocumentosPendientes();
-        CarteraClientes();
-    }
-    const CargaModuloRecibo = () => {
-        cargarCorrelativoRecibo();
-        cargarClientesRecibos();///Siempre debe ser el Ultimo Metodo
-    }
-
-    const CargaModuloPedidos = () => {
-        cargarCorrelativoPedido();
-        cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
-
     }
 
     const ObtenerPermisos = async () => {
@@ -197,6 +128,30 @@ export const Home = (props) => {
             })
     }
 
+    const cargarConfiguracionesUsuarioOficina = () => {
+        setloading(true);
+        ////Configuracion General
+        cargarEmpresas();
+        cargarAbreviacionMonedas();
+        cargarClientesContado();
+        cargarComunidadAutonoma();
+        cargarMonedas();
+
+        ////Configuracion De Pedido
+        cargarMaestroLinea();
+        cargarTiposColeccion();
+        cargarTiposPedido();
+        cargarEmpresasTransporte();
+        cargarPrecioCajas();
+        cargarImpuestoClientes();
+        cargarImpuestoProductos();
+        cargarMaestroBodega();
+        /////Configuracion De Recibos
+        cargarBancos();
+        cargarTipoPago();
+        cargarTipoVisitasOficina();
+    }
+
     const verificarUsuario = async () => {
         let onLine = await verificarConexion();
         if (onLine) {
@@ -211,13 +166,83 @@ export const Home = (props) => {
             return null;
         }
     }
+    /*----------------------------------------------------MODULOS DE SINCRONIZACION-------------------------------- */
+    
+    const ValoresModulos = [{ Nombre: "SincronizarPedidosPendiente", Valor: 0 },
+                            { Nombre: "SincronizarReciboPendiente", Valor: 1 },
+                            { Nombre: "SincronizarConfiguraciones", Valor: 2 },
+                            { Nombre: "SincronizarCartera", Valor: 3 },
+                            { Nombre: "SincronizarRecibo", Valor: 4 },
+                            { Nombre: "SincronizarPedidos", Valor: 5 }]
 
+    const CargaModuloPedidosPendientes = async () => {
+        setMensaje('Sincronizando Pedidos');
+        let tienePedidosPendientes = await backgroundPostPedidos();
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        localStorage.setItem("PedidosPendientes", tienePedidosPendientes);
+        CargaModuloRecibosPendientes();
+    }
+
+    const CargaModuloRecibosPendientes = async () => {
+        setMensaje('Sincronizando Recibos');
+        let tieneRecibosPendientes = await backgroundPostRecibos();
+        localStorage.setItem("RecibosPendientes", tieneRecibosPendientes);
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        CargarModuloConfiguraciones();
+    }
+
+    const CargarModuloConfiguraciones = () => {
+        setloading(true);
+        ////Documentos Pendientes
+        //sincronizarDocumentosPendientes();
+
+        ////Configuracion General
+        ObtenerPermisos();
+        cargarEmpresas();
+        cargarAbreviacionMonedas();
+        cargarClientesContado();
+        cargarComunidadAutonoma();
+        cargarMonedas();
+
+        ////Configuracion De Pedido
+        cargarMaestroLinea();
+        cargarTiposColeccion();
+        cargarTiposPedido();
+        cargarEmpresasTransporte();
+        cargarPrecioCajas();
+        cargarImpuestoClientes();
+        cargarImpuestoProductos();
+        cargarMaestroBodega();
+        /////Configuracion De Recibos
+        cargarBancos();
+        cargarTipoPago();
+        cargarTipoVisitas(); ///Siempre debe ser el Ultimo Metodo
+    }
+
+    const ModuloCarteracliente = () => {
+        cargarDocumentosPendientes();
+        CarteraClientes();
+    }
+
+    const CargaModuloRecibo = () => {
+        cargarCorrelativoRecibo();
+        cargarClientesRecibos();///Siempre debe ser el Ultimo Metodo
+    }
+
+    const CargaModuloPedidos = () => {
+        cargarCorrelativoPedido();
+        cargarClientesPedidos();///Siempre debe ser el Ultimo Metodo
+
+    }
+
+    /*------------------------------------------------------------------------------------------------------------------ */
     const cargarDocumentosPendientes = async () => {
         const { data, error } = await get(`${APIURL}/api/documentospendientes/facturas`, "DocumentosPendientes");
         dispatch({ type: "SET_DOCUMENTOSPENDIENTES", payload: data });
 
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarCartera")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: "SET_DOCUMENTOSPENDIENTES", payload: data });
@@ -229,7 +254,8 @@ export const Home = (props) => {
         setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/transporte/comunidadautonoma`, "comunidadesAutonomas");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data });
@@ -237,10 +263,12 @@ export const Home = (props) => {
     }
 
     const cargarEmpresas = async () => {
+        
         setMensaje('Cargando Empresas');
         const { data, error } = await get(`${APIURL}/api/empresa/empresas`, "Empresas");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'SET_EMPRESAS', payload: data });
@@ -251,7 +279,8 @@ export const Home = (props) => {
         setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/moneda`, "AbreviacionMonedas");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data });
@@ -262,7 +291,8 @@ export const Home = (props) => {
         setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/moneda/monedas`, "MonedasGlobal");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: "SET_MONEDASGLOBAL", payload: data });
@@ -283,28 +313,15 @@ export const Home = (props) => {
         setMensaje('Cargando Tipo Visitas');
         const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
             console.log(error);
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]));
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
-
-            if (UsuarioOficina) {
-                setSyncDiaria(true);
-                setloading(false);
-            }
-            else {
-                ModuloCarteracliente();
-            }
+            ModuloCarteracliente();
         } else {
             dispatch({ type: "SET_TIPOVISITA", payload: data });
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            if (UsuarioOficina) {
-                setSyncDiaria(true);
-                setloading(false);
-                setActiveStep((prevActiveStep) => prevActiveStep + 3);
-            }
-            else {
-                ModuloCarteracliente();
-            }
+            ModuloCarteracliente();
         }
     }
 
@@ -312,7 +329,6 @@ export const Home = (props) => {
         setMensaje('Cargando Tipo Visitas');
         const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
             console.log(error);
             setloading(false);
         } else {
@@ -325,7 +341,8 @@ export const Home = (props) => {
         setMensaje('Cargando Clientes de Contado');
         const { data, error } = await get(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`, "clientesContado");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: "SET_CLIENTESCONTADO", payload: data });
@@ -338,7 +355,8 @@ export const Home = (props) => {
         setMensaje('Cargando Clientes de Recibo');
         const { data, error } = await get(`${APIURL}/api/cliente/cuenta`, "Recibo", "clientes");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarRecibo")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             CargaModuloPedidos();
@@ -353,7 +371,8 @@ export const Home = (props) => {
         setMensaje('Cargando tipo de pago');
         const { data, error } = await get(`${APIURL}/api/tipopago`, "TipoPagoGlobal");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: "SET_TIPOPAGOGLOBAL", payload: data });
@@ -364,7 +383,8 @@ export const Home = (props) => {
         setMensaje('Cargando Bancos');
         const { data, error } = await get(`${APIURL}/api/banco`, "BancosGlobal");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: "SET_BANCOSGLOBAL", payload: data });
@@ -382,7 +402,8 @@ export const Home = (props) => {
             localStorage.setItem("CorrelativoReciboDiario", request.data)
         }
         catch (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarRecibo")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         }
     }
@@ -398,7 +419,8 @@ export const Home = (props) => {
             localStorage.setItem("CorrelativoPedidoDiario", request.data)
         }
         catch (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarPedidos")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         }
     }
@@ -408,24 +430,20 @@ export const Home = (props) => {
         setMensaje('Cargando lineas');
         const { data, error } = await get(`${APIURL}/api/maestrolinea`, "MaestroLineas");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
-            let Lineas = data;
-            Lineas.forEach(async function (l) {
-                let Imagen = await convertirBlob(l.Imagen);
-                if (Imagen) {
-                    l.Imagen = Imagen;
-                }
-            })
             dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: data });
         }
     }
+
     const cargarTiposColeccion = async () => {
         setMensaje('Cargando Tipos Coleccion');
         const { data, error } = await get(`${APIURL}/api/TiposColeccion`, "TiposColeccion");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: data });
@@ -436,7 +454,8 @@ export const Home = (props) => {
         setMensaje('Cargando Tipos de Pedidos');
         const { data, error } = await get(`${APIURL}/api/tipopedido`, "TiposPedido");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: data });
@@ -447,7 +466,8 @@ export const Home = (props) => {
         setMensaje('Cargando Empresas Transporte');
         const { data, error } = await get(`${APIURL}/api/transporte/empresas`, "EmpresaTransporteGlobal");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'SET_EMPRESASTRANSPORTEGLOBAL', payload: data });
@@ -458,7 +478,8 @@ export const Home = (props) => {
         setMensaje('Cargando Precio Cajas');
         const { data, error } = await get(`${APIURL}/api/transporte/preciocaja`, "PrecioCajasGlobal");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'SET_PRECIOCAJASGLOBAL', payload: data });
@@ -469,7 +490,8 @@ export const Home = (props) => {
         setMensaje('Cargando Impuestos Clientes');
         const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Clientes`, "ClienteImpuestosGlobal");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'SET_CLIENTEIMPUESTOSGLOBAL', payload: data });
@@ -480,18 +502,31 @@ export const Home = (props) => {
         setMensaje('Cargando Impuestos Productos')
         const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Articulos`, "ProductoImpuestosGlobal");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'SET_PRODUCTOIMPUESTOSGLOBAL', payload: data });
         }
     }
 
+    const cargarMaestroBodega = async () => {
+        setMensaje('Cargando Maestro de Bodega')
+        const { data, error } = await get(`${APIURL}/api/MaestroBodegaAlmacenes`, "MaestroBodegaGlobal");
+        if (error) {
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
+            console.log(error);
+        } else {
+            dispatch({ type: 'SET_BODEGAALMACENES', payload: data });
+        }
+    }
     const cargarClientesPedidos = async () => {
         setMensaje('Cargando Cliente Pedidos')
         const { data, error } = await get(`${APIURL}/api/cliente/pedido`, "clientes");
         if (error) {
-            localStorage.setItem("OcurrioError", true)
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarPedidos")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
             console.log(error);
         } else {
             dispatch({ type: 'STORE_CLIENTES', clientes: data });
@@ -525,7 +560,8 @@ export const Home = (props) => {
                     CargaImagenes(res.data);
                 })
                 .catch(err => {
-                    localStorage.setItem("OcurrioError", true)
+                    let step = ValoresModulos.filter(v => v.Nombre === "SincronizarPedidos")
+                    setModulosError((prevState) => ([...prevState, step[0].Valor]))
                     console.log(err)
                     setActiveStep((prevActiveStep) => prevActiveStep + 1);
                     setSyncDiaria(true);
@@ -539,12 +575,12 @@ export const Home = (props) => {
         let listaPrecios = data;
         listaPrecios.forEach(e => {
             let coleccion = ColeccionOriginal.filter(c => c.CodigoColeccion === e.CodigoColeccion);
-            e.Edades.forEach(async function(edades) {
+            e.Edades.forEach(async function (edades) {
                 let Edades;
                 if (coleccion !== undefined && coleccion.length > 0) {
-                    let imagenBlob = await convertirBlob(coleccion[0].FotoPortada);
+                    let imagenBlob = reemplazarUrl(coleccion[0].FotoPortada,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                     if (imagenBlob) {
-                        coleccion[0].FotoPortada = URL.createObjectURL(imagenBlob);
+                        coleccion[0].FotoPortada = imagenBlob;
                     }
                     let Edad = coleccion[0].Edades;
                     Edades = Edad.filter(e => e.IdEdad === edades.IdEdad);
@@ -561,20 +597,20 @@ export const Home = (props) => {
                             imges = ProductosXEdad[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
                         }
                         if (imges !== undefined && imges.length > 0) {
-                            if (imges[0].FotografiaProducto.includes("blob")) {
+                            if (imges[0].FotografiaProducto.includes(Configuraciones.UrlImagesOffline)) {
                                 img.FotografiaProducto = imges[0].FotografiaProducto;
                             }
                             else {
-                                let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                                let imagenBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                 if (imagenBlob) {
-                                    img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                                    img.FotografiaProducto = imagenBlob;
                                 }
                             }
                         }
                         else {
-                            let imagenBlob = await convertirBlob(img.FotografiaProducto);
+                            let imagenBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                             if (imagenBlob) {
-                                img.FotografiaProducto = URL.createObjectURL(imagenBlob);
+                                img.FotografiaProducto = imagenBlob;
                             }
                         }
 
@@ -592,20 +628,20 @@ export const Home = (props) => {
                                 imgColor = colores[0].ListaImagenes.filter(i => i.IdFotografia === img.IdFotografia)
                             }
                             if (imgColor !== undefined && imgColor.length > 0) {
-                                if (imgColor[0].FotografiaProducto.includes("blob")) {
+                                if (imgColor[0].FotografiaProducto.includes(Configuraciones.UrlImagesOffline)) {
                                     img.FotografiaProducto = imgColor[0].FotografiaProducto;
                                 }
                                 else {
-                                    let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                                    let imagenColorBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                     if (imagenColorBlob) {
-                                        img.FotografiaProducto =  URL.createObjectURL(imagenColorBlob);
+                                        img.FotografiaProducto = imagenColorBlob;
                                     }
                                 }
                             }
                             else {
-                                let imagenColorBlob = await convertirBlob(img.FotografiaProducto);
+                                let imagenColorBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                 if (imagenColorBlob) {
-                                    img.FotografiaProducto = URL.createObjectURL(imagenColorBlob);
+                                    img.FotografiaProducto = imagenColorBlob;
                                 }
                             }
                         })
@@ -613,7 +649,7 @@ export const Home = (props) => {
                 })
             })
         })
-        setTimeout(() => {
+        //setTimeout(() => {
             logSession();
             dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
             let fecha = moment(new Date()).format("YYYY-MM-DD");
@@ -621,16 +657,16 @@ export const Home = (props) => {
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             setSyncDiaria(true);
             setloading(false);
-        }, 60000)
+        //}, 40000)
     }
-    const convertirBlob = async (url) => {
+    /*const convertirBlob = async (url) => {
         try {
             const request = await axios.get(url, { responseType: 'blob' });
             return request.data;
         } catch (err) {
             return null;
         }
-    }
+    }*/
 
     /*const convertToBase64 = async (url)=>{
         try{
@@ -650,6 +686,8 @@ export const Home = (props) => {
             const { data, error } = await get(`${APIURL}/api/cliente/${localStorage.getItem("codigo")}`, "Cartera");
             if (error) {
                 CargaModuloRecibo();
+                let step = ValoresModulos.filter(v => v.Nombre === "SincronizarCartera")
+                setModulosError((prevState) => ([...prevState, step[0].Valor]))
                 setActiveStep((prevActiveStep) => prevActiveStep + 1);
                 console.log(error);
             } else {
@@ -672,9 +710,9 @@ export const Home = (props) => {
                         <div>
                             <h3>Nueva versión disponible. Presione shift+f5 para actualizar la aplicación.</h3>
                             <h5>Opción 1</h5>
-                            <img alt="update1" style={{width:'100%'}} src={update1} />
+                            <img alt="update1" style={{ width: '100%' }} src={update1} />
                             <h5>Opción 2</h5>
-                            <img alt="update2" style={{width:'100%'}} src={update2} />
+                            <img alt="update2" style={{ width: '100%' }} src={update2} />
                         </div>
                     )}
                     {displaySincronizacion && <div>
@@ -686,9 +724,10 @@ export const Home = (props) => {
                         }
 
                         <SteperSync
-                            CargarModuloConfiguraciones={CargarModuloConfiguraciones}
+                            CargarModuloInicial={CargaModuloPedidosPendientes}
                             loading={loading}
-                            activeStep={activeStep}>
+                            activeStep={activeStep}
+                            ModulosError={ModulosError}>
                         </SteperSync>
                     </div>}
                 </div>

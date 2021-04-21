@@ -44,6 +44,10 @@ import {MantenimientoEncuesta} from 'containers/Encuestas/MantenimientoEncuesta/
 import Encuestas from 'containers/Encuestas/Encuestas'
 import axios from 'axios'
 import {APIURL,APP_VERSION} from 'utils/Enviroment'
+import {EncuestasResueltas} from 'containers/Encuestas/EncuestasResueltas'
+import { PaqueteBodega } from 'containers/PaqueteBodega/PaqueteBodega'
+import { SitioBodega } from 'containers/SitioBodega/SitioBodega'
+import { AlmacenSitio } from 'containers/AlmacenSitio/AlmacenSitio'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -60,11 +64,14 @@ const App = props => {
     }, 60000)
 
     const cargarConfiguraciones = async () => {
+      if (localStorage.getItem("Operando") === "Si") {
+        return;
+      }
       if (verificarConexion()) {
         try {
           const request = await axios.get(`${APIURL}/api/configuraciones`);
-          if(request.data.APP_VERSION!==APP_VERSION){
-            if(!window.location.href.includes("Pedidos")){
+          if (request.data.APP_VERSION !== APP_VERSION) {
+            if (!window.location.href.includes("Pedidos")) {
               window.location.href = "/home";
             }
           }
@@ -75,8 +82,11 @@ const App = props => {
     }
 
     setInterval(() => {
-      if(localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined){
-        localStorage.setItem("SesionObligatorio",1);
+      if (localStorage.getItem("Operando") === "Si") {
+        return;
+      }
+      if (localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined) {
+        localStorage.setItem("SesionObligatorio", 1);
         localStorage.removeItem("token")
         window.location.reload();
       }
@@ -88,7 +98,7 @@ const App = props => {
           }
         }
       }
-    }, (2*60*1000))
+    }, (2 * 60 * 1000))
 
     setInterval(() => {
       cargarConfiguraciones();
@@ -269,6 +279,24 @@ const App = props => {
               component={SincronizacionListaMonitor}
             />
             <LayoutRoute
+              exact
+              path='/configuracion-paquete-bodega'
+              layout={MainLayout}
+              component={PaqueteBodega}
+            />
+            <LayoutRoute
+              exact
+              path='/configuracion-sitio'
+              layout={MainLayout}
+              component={SitioBodega}
+            />
+            <LayoutRoute
+              exact
+              path='/configuracion-almacenes'
+              layout={MainLayout}
+              component={AlmacenSitio}
+            />
+            <LayoutRoute
               path='/seguridad-mantenimiento'
               layout={MainLayout}
               component={Mantenimiento}
@@ -298,6 +326,11 @@ const App = props => {
               path='/encuesta/selectCliente'
               layout={MainLayout}
               component={Encuestas}
+            />
+            <LayoutRoute
+              path='/Encuesta/Resueltas'
+              layout={MainLayout}
+              component={EncuestasResueltas}
             />
             <Redirect to='/home' />
           </Switch>

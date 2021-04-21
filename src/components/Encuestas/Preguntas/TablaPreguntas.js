@@ -1,9 +1,8 @@
 import React from 'react'
 import { FaEdit } from "react-icons/fa";
-import { MdCancel, MdCheckCircle } from "react-icons/md";
+import { MdCancel, MdCheckCircle, MdAddBox, MdPlaylistAdd } from "react-icons/md";
 import Button from '@material-ui/core/Button';
 import { Table } from 'reactstrap';
-import { MdPlaylistAdd } from "react-icons/md";
 import KeyboardBackspaceIcon from '@material-ui/icons/KeyboardBackspace';
 
 const TablaPreguntas = (props) => {
@@ -30,6 +29,7 @@ const TablaPreguntas = (props) => {
                                     <th style={{ textAlign: 'center' }}>Descripcion</th>
                                     <th style={{ textAlign: 'center' }}>Status</th>
                                     <th style={{ textAlign: 'center' }}>Acciones</th>
+                                    <th style={{ textAlign: 'left' }}></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -41,6 +41,14 @@ const TablaPreguntas = (props) => {
                                         <td style={{ textAlign: 'center' }}>
                                             <Button style={{ marginLeft: '10px' }} class="btn btn-warning" onClick={() => { props.openEdit(preg) }} startIcon={<FaEdit />} >Editar</Button>
                                             <Button style={{ marginLeft: '10px' }} class="btn btn-info" onClick={() => { props.ModificarEstado(preg.Id) }} startIcon={<MdCancel />}>{preg.Status ? "Inactivar" : "Activar"}</Button>
+                                        </td>
+                                        <td style={{ textAlign: 'left' }}>
+                                            { preg.PreguntaOpciones.length > 0 &&
+                                            <>
+                                                <Button style={{ marginLeft: '10px' }} class="btn btn-success" onClick={() => { props.openModalAnidado(preg) }} startIcon={<MdAddBox />}>Agregar Pregunta</Button>
+                                                <Button style={{ marginLeft: '10px' }} class="btn btn-warning" onClick={() => { props.openEditarPreguntaAnidada(preg) }} startIcon={<FaEdit />}>Editar Pregunta Anidada</Button>
+                                            </>
+                                            }
                                         </td>
                                     </tr>
                                 ))}

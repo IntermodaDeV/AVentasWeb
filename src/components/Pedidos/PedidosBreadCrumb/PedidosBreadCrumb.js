@@ -32,6 +32,7 @@ const PedidosBreadCrumb = (props) => {
                         <Col style={{ textAlign: 'left' }}>
                             <NavigationBreadcrumb
                                 BreadcrumbItems={[
+                                    { Click: () => { props.clickBreadCrumb("/Pedidos/Bodega") }, Titulo: props.BodegaSeleccionada.Etiqueta },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/Linea") }, Titulo: props.LineaSeleccionada.Linea },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/TipoPedido") }, Titulo: props.TipoPedido.TipoPedido },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/Colecciones") }, Titulo: 'Colecciones' },
@@ -70,6 +71,7 @@ const PedidosBreadCrumb = (props) => {
                         <Col className="text-left">
                             <NavigationBreadcrumb
                                 BreadcrumbItems={[
+                                    { Click: () => { props.clickBreadCrumb("/Pedidos/Bodega") }, Titulo: props.BodegaSeleccionada.Etiqueta },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/Linea") }, Titulo: props.LineaSeleccionada.Linea },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/TipoPedido") }, Titulo: props.TipoPedido.TipoPedido },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/Colecciones") }, Titulo: 'Colecciones' },
@@ -105,6 +107,7 @@ const PedidosBreadCrumb = (props) => {
                         <Col style={{ textAlign: 'left' }}>
                             <NavigationBreadcrumb
                                 BreadcrumbItems={[
+                                    { Click: () => { props.clickBreadCrumb("/Pedidos/Bodega") }, Titulo: props.BodegaSeleccionada.Etiqueta },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/Linea") }, Titulo: props.LineaSeleccionada.Linea },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/TipoPedido") }, Titulo: props.TipoPedido.TipoPedido },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/Colecciones") }, Titulo: 'Colecciones' },
@@ -140,6 +143,7 @@ const PedidosBreadCrumb = (props) => {
                             <div className="col" style={{ textAlign: 'left' }}>
                                 <NavigationBreadcrumb
                                     BreadcrumbItems={[
+                                        { Click: () => { props.clickBreadCrumb("/Pedidos/Bodega") }, Titulo: props.BodegaSeleccionada.Etiqueta },
                                         { Click: () => { props.clickBreadCrumb("/Pedidos/Linea") }, Titulo: props.LineaSeleccionada.Linea },
                                         { Click: () => { props.clickBreadCrumb("/Pedidos/TipoPedido") }, Titulo: props.TipoPedido.TipoPedido },
                                         { Click: () => { props.clickBreadCrumb("/Pedidos/Colecciones") }, Titulo: 'Colecciones' },
@@ -181,9 +185,44 @@ const PedidosBreadCrumb = (props) => {
                         <Col sm={6} md={4}>
                             <NavigationBreadcrumb
                                 BreadcrumbItems={[
+                                    { Click: () => { props.clickBreadCrumb("/Pedidos/Bodega") }, Titulo: props.BodegaSeleccionada.Etiqueta },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/Linea") }, Titulo: props.LineaSeleccionada.Linea },
                                     { Click: () => { props.clickBreadCrumb("/Pedidos/TipoPedido") }, Titulo: props.TipoPedido.TipoPedido },
                                     { Titulo: 'Colecciones' }
+                                ]}
+                            />
+                        </Col>
+                        <Col sm={0} md={4}>
+                        </Col>
+                        <Col className={styles.ColBreadCrumb}>
+                            <Dropdown
+                                onCommand={props.cancelarPedido}
+                                menu={(
+                                    <Dropdown.Menu>
+                                        <Dropdown.Item command="">Cancelar</Dropdown.Item>
+                                    </Dropdown.Menu>
+                                )}
+                            >
+                                <span >
+                                    <FaSignOutAlt className={styles.FaSignOutAlt} />
+                                </span>
+                            </Dropdown>
+                            {"Cliente: "}
+                            {props.cliente.Nombre}
+                        </Col>
+                    </Row>
+                </Container>
+            )} />
+
+            <Route path={props.match.url + '/TipoPedido'} exact component={(routeProps) => (
+                <Container fluid={true}>
+                    <Row >
+                        <Col sm={6} md={4}>
+                            <NavigationBreadcrumb
+                                BreadcrumbItems={[
+                                    { Click: () => { props.clickBreadCrumb("/Pedidos/Bodega") }, Titulo: props.BodegaSeleccionada.Etiqueta },
+                                    { Click: () => { props.clickBreadCrumb("/Pedidos/Linea") }, Titulo: props.LineaSeleccionada.Linea },
+                                    { Titulo: 'Tipo de Pedido' }
                                 ]}
                             />
                         </Col>

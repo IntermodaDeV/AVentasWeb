@@ -38,6 +38,7 @@ import VistaRapidaProducto from 'components/Pedidos/ProductoLista/VistaRapidaPro
 import VistaProducto from 'components/Pedidos/ProductoDetalle/VistaProducto';
 import SelectCliente from 'components/Pedidos/SelectCliente/SelectCliente';
 import SelectTipoPedido from 'components/Pedidos/SelectTipoPedido/SelectTipoPedido';
+import SelectBodega from 'components/Pedidos/SelectBodega/SelectBodega';
 import SelectLinea from 'components/Pedidos/SelectLinea/SelectLinea';
 import MatrizResumen from 'components/Pedidos/MatrizResumen/MatrizResumen';
 import MatrizResumenExpandable from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable';
@@ -59,6 +60,7 @@ import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
 import { verificarConexion } from 'utils/http';
+import { ObtenerCoordenadas } from 'utils/common';
 
 const ReactSwal = withReactContent(Swal)
 
@@ -144,10 +146,10 @@ class Pedidos extends React.Component {
         this.cargarAbreviacionMonedas();
         this.cargarClientesContado();
         this.cargarComunidadAutonoma();
-        this.cargarMonedas();
+        this.cargarMonedasGlobal();
     }
 
-    cargarMonedas = async () => {
+    cargarMonedasGlobal = async () => {
         fetch(this.urlApi + "/api/moneda/monedas")
             .then(res => res.json())
             .then(data => { this.props.onStoreMonedas(data); })
@@ -243,7 +245,7 @@ class Pedidos extends React.Component {
     }
 
     cargarImpuestoProductosGlobal = () => {
-        fetch(this.urlApi + "/api/gruposimpuestos/Clientes")
+        fetch(this.urlApi + "/api/gruposimpuestos/Articulos")
             .then(res => {
                 if (res.status === 200) {
                     res.json().then(
@@ -251,12 +253,12 @@ class Pedidos extends React.Component {
                             this.props.onStoreImpuestoProductosGlobal(result);
                         },
                         (error) => {
-                            console.log("Ocurrio un error al cargar impuesto cliente global", error)
+                            console.log("Ocurrio un error al cargar impuesto Articulos global", error)
                         }
                     )
                 }
                 if (res.status === 401) {
-                  console.log("Ocurrio un error al cargar impuesto cliente global")
+                  console.log("Ocurrio un error al cargar impuesto Articulos global")
                 }
             })
     }
@@ -645,6 +647,11 @@ class Pedidos extends React.Component {
             return (cliente.Nombre.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
         };
     }
+
+    refrescarClienteSeleccionado = cliente => {
+        this.setState((prevState) => ({ ...prevState, autocompleteValue: cliente }));
+    }
+
     handleSelect = (item) => {
         this.setState({
             selectClienteLoading: true,
@@ -908,7 +915,7 @@ class Pedidos extends React.Component {
             this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
             //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
             this.props.onSetCliente(this.state.autocompleteValue);
-            this.props.history.push("/Pedidos/Linea");
+            this.props.history.push("/Pedidos/Bodega");
         }
         localStorage.setItem('EmpresaCliente', this.state.autocompleteValue.EmpresaId);
     }
@@ -921,9 +928,15 @@ class Pedidos extends React.Component {
             autocompleteValue: textValue
         });
     }
+    
     seleccionarLinea = (linea) => {
         this.props.onSetLineaSeleccionada(linea);
         this.props.history.push("/Pedidos/TipoPedido");
+    }
+
+    seleccionarBodega = (bodega) => {
+        this.props.onSetBodegaSeleccionada(bodega);
+        this.props.history.push("/Pedidos/Linea");
     }
     clickBreadCrumb = (nuevaRuta) => {
         this.props.history.push(nuevaRuta);
@@ -1209,7 +1222,7 @@ class Pedidos extends React.Component {
     }
 
     reiniciarPedido = () => {
-        this.props.history.push("/Pedidos/Linea");
+        this.props.history.push("/Pedidos/Bodega");
         this.setState({
             activeCollapse: [],
             mostrarRecibo: false,
@@ -1393,11 +1406,11 @@ class Pedidos extends React.Component {
     enviarPeticionPedido = async (location, correlativo) => {
         let isOnline = await verificarConexion();
         let pedido = {
-            NumeroReferencia : localStorage.getItem("CorrelativoPedido"),
+            NumeroReferencia: localStorage.getItem("CorrelativoPedido"),
             //PedidoCache:localStorage.getItem("CorrelativoPedidoCache"),
             PedidoId: 100 + (Math.random() * (10000 - 100)),
             CodigoCliente: this.props.cliente.Codigo,
-            Nombre : this.props.cliente.Nombre,
+            Nombre: this.props.cliente.Nombre,
             Firma: this.state.firmaPedido,
             FechaEntrega: this.state.fechaEntregaPedido,
             AcuerdoVenta: this.props.AcuerdoVenta ? this.props.AcuerdoVenta.IdAcuerdoxCliente : '',
@@ -1408,14 +1421,17 @@ class Pedidos extends React.Component {
             DetallePedido: [],
             TipoPedido: this.props.TipoPedido,
             TipoVenta: this.calcularTipoVenta(),
-            ClienteContadoId:(this.props.clienteContado!==null) ? this.props.clienteContado.id : null,
-            ModoVenta:(this.props.TipoPedido.TipoPedido==='Contado')?'Contado':'Credito',
-            Flete:this.props.flete,
-            RequiereEntrega:this.props.requiereEntrega,
-            Impuesto:Number(localStorage.getItem('Impuesto')),
-            subtotal:this.props.TotalPedido,
+            ClienteContadoId: (this.props.clienteContado !== null) ? this.props.clienteContado.id : null,
+            ModoVenta: (this.props.TipoPedido.TipoPedido === 'Contado') ? 'Contado' : 'Credito',
+            Flete: this.props.flete,
+            RequiereEntrega: this.props.requiereEntrega,
+            Impuesto: Number(localStorage.getItem('Impuesto')),
+            subtotal: this.props.TotalPedido,
             Direccion: this.props.cliente.Direccion,
-            MonedaCliente : this.props.cliente.Moneda
+            MonedaCliente: this.props.cliente.Moneda,
+            BodegaEspecifica: !this.props.BodegaSeleccionada.BodegaPrincipal,
+            Sitio: this.props.BodegaSeleccionada.CodigoSitio,
+            Almacen: this.props.BodegaSeleccionada.Almacen
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
         let productosReducir = [];
@@ -1484,7 +1500,6 @@ class Pedidos extends React.Component {
             this.props.onSetNumeroOrden(numPedido);
         }
         else {
-
             const { data, error } = await post(this.urlApi + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
 
             if (error) {
@@ -1497,14 +1512,28 @@ class Pedidos extends React.Component {
                     })
                     this.setState({ loadingRecibo: false });
                 } else {
-                    let numPedido = data === undefined || data === null ? correlativo!==null || correlativo!==undefined || correlativo!==""?correlativo: "No Disponible" : data;
+                    let numPedido = localStorage.getItem("CorrelativoPedido");
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                     this.props.onSetNumeroOrden(numPedido);
                 }
             } else {
-                let numPedido = data === undefined || data === null ? correlativo!==null || correlativo!==undefined || correlativo!==""?correlativo: "No Disponible" : data;
-                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-                this.props.onSetNumeroOrden(numPedido);
+                if (data === null || data === undefined) {
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: localStorage.getItem("CorrelativoPedido") });
+                    this.props.onSetNumeroOrden(localStorage.getItem("CorrelativoPedido"));
+                    return;
+                }
+
+                const { correlativo, mensaje } = data;
+
+                if (mensaje.includes("flotante")) {
+                    Swal.fire({
+                        type: 'warning',
+                        title: 'Advertencia',
+                        text: mensaje,
+                    })
+                }
+                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: correlativo });
+                this.props.onSetNumeroOrden(correlativo);
             }
         }
     }
@@ -1939,6 +1968,7 @@ class Pedidos extends React.Component {
                         TableValue={this.props.TableValue}
                         LineaSeleccionada={this.props.LineaSeleccionada}
                         TipoPedido={this.props.TipoPedido}
+                        BodegaSeleccionada= {this.props.BodegaSeleccionada}
                     >
                     </PedidosBreadCrumb>
                     <Switch>
@@ -2059,21 +2089,11 @@ class Pedidos extends React.Component {
                         />
                         <Route
                             exact
-                            path={this.props.match.url + '/TipoPedido'}
+                            path={this.props.match.url + '/Bodega'}
                             render={() =>
                                 <Container fluid={true}>
                                     <Row style={{ marginBottom: '1rem' }}>
-                                        <Col style={{ textAlign: 'left' }}>
-                                            <NavigationBreadcrumb
-                                                BreadcrumbItems={[
-                                                    { Click: () => { this.clickBreadCrumb("/Pedidos/Linea") }, Titulo: this.props.LineaSeleccionada.Linea ? this.props.LineaSeleccionada.Linea : "Linea" },
-                                                    { Titulo: 'Tipo de Pedido' }
-                                                ]}
-                                            />
-
-
-                                        </Col>
-
+                                        
                                         <Col style={{ textAlign: 'right' }}>
                                             <Dropdown
                                                 onCommand={this.cancelarPedido.bind(this)}
@@ -2091,6 +2111,20 @@ class Pedidos extends React.Component {
                                             {this.props.cliente.Nombre}
                                         </Col>
                                     </Row>
+                                    <SelectBodega
+                                        setBodega={this.seleccionarBodega}
+                                        tiposPedido={this.props.TiposPedido}
+                                        Cliente={this.props.cliente}
+                                    />
+                                </Container>}
+                        />
+                        <Route
+                            exact
+                            path={this.props.match.url + '/TipoPedido'}
+                            render={() =>
+                                <Container fluid={true}>
+                                    <Row style={{ marginBottom: '0.5rem' }}>
+                                    </Row>
                                     <SelectTipoPedido
                                         setTipoPedido={this.seleccionarTipoPedido}
                                         tiposPedido={this.props.TiposPedido}
@@ -2103,8 +2137,17 @@ class Pedidos extends React.Component {
                             path={this.props.match.url + '/Linea'}
                             render={() =>
                                 <Container fluid={true}>
-                                    <Row style={{ marginBottom: '0.5rem' }}>
+                                    <Row style={{ marginBottom: '1rem' }}>
+                                        <Col style={{ textAlign: 'left' }}>
+                                            <NavigationBreadcrumb
+                                                BreadcrumbItems={[
+                                                    { Click: () => { this.clickBreadCrumb("/Pedidos/Bodega") }, Titulo: this.props.BodegaSeleccionada ? this.props.BodegaSeleccionada.Etiqueta : "Bodega" },
+                                                    { Titulo: 'Linea' }
+                                                ]}
+                                            />
 
+
+                                        </Col>
                                         <Col style={{ textAlign: 'right' }}>
                                             <Dropdown
                                                 onCommand={this.cancelarPedido.bind(this)}
@@ -2534,6 +2577,7 @@ class Pedidos extends React.Component {
                             fetchSuggestions={this.querySearch}
                             onSelect={this.handleSelect}
                             setCliente={this.seleccionarCliente}
+                            refrescarClienteSeleccionado={this.refrescarClienteSeleccionado}
                             autocompleteValue={this.state.autocompleteValue}
                             loading={this.state.selectClienteLoading}
                             codigoClientePreseleccionado={this.props.location.state ? this.props.location.state.CodigoCliente : null}
@@ -2690,7 +2734,8 @@ const mapStateToProps = state => {
         PrecioCajasGlobal:state.PrecioCajasGlobal,
         ClienteImpuestosGlobal:state.ClienteImpuestosGlobal,
         ProductoImpuestosGlobal:state.ProductoImpuestosGlobal,
-        UsuarioOficina:state.Permisos[0].UsuarioOficina
+        UsuarioOficina:state.Permisos[0].UsuarioOficina,
+        BodegaSeleccionada: state.BodegaSeleccionada
     };
 };
 const mapDispatchToProps = dispatch => {
@@ -2730,7 +2775,8 @@ const mapDispatchToProps = dispatch => {
         onStoreClienteContado:(data)=> dispatch({ type: 'SET_CLIENTESCONTADO', payload: data }),
         onStoreComunidadAutonoma:(data)=> dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data }),
         onStoreMonedas:(data)=> dispatch({ type: 'SET_MONEDASGLOBAL', payload: data }),
-        onSaveListaPrecios:(precios)=>{dispatch({type:'SET_LISTAPRECIOS',payload:precios})}
+        onSaveListaPrecios:(precios)=>{dispatch({type:'SET_LISTAPRECIOS',payload:precios})},
+        onSetBodegaSeleccionada: (BodegaSeleccionada) => dispatch({ type: 'SET_BODEGASELECCIONADA', payload: BodegaSeleccionada })
     };
 };
 /* const linkButton = {
@@ -2777,22 +2823,5 @@ const ExpansionPanelDetails = withStyles(theme => ({
         padding: theme.spacing(2),
     },
 }))(MuiExpansionPanelDetails);
-
-const ObtenerCoordenadas = (resolve, reject) => {
-    const timeout = new Promise((resolve, reject) => {
-        setTimeout(reject, 10000);
-    });
-
-    const geolocationPromise = new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                resolve(position);
-            },
-            (error) => { reject(error) },
-            { enableHighAccuracy: true, timeout: 10000 }
-        )
-    });
-    Promise.race([timeout, geolocationPromise]).then((value) => resolve(value)).catch((error) => reject(error))
-}
 
 export default connect(mapStateToProps, mapDispatchToProps)(Pedidos);

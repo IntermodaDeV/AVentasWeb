@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState} from 'react';
 import { Formik, Form } from 'formik';
 import { Button } from "@material-ui/core";
 import SendIcon from '@material-ui/icons/Send';
@@ -8,13 +8,14 @@ import * as yup from 'yup';
 import { APIURL } from 'utils/Enviroment';
 import axios from 'axios';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import moment from "moment";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import {
     Card,
     CardHeader as MuiCardHeader,
     CardContent,
 } from '@material-ui/core';
-
+import { Loading } from 'components/Global/Loading';
 
 const CardHeader = withStyles({
     title: {
@@ -24,7 +25,7 @@ const CardHeader = withStyles({
 })(MuiCardHeader);
 
 const FormularioEncuesta = (props) => {
-    console.log(props)
+    const [loading, setloading] = useState(false);
     const useStyles = makeStyles((theme) => ({
         button: {
             marginLeft: theme.spacing(2),
@@ -37,7 +38,7 @@ const FormularioEncuesta = (props) => {
             for (let pregunta of seccion.Preguntas) {
                 let tipoDato = "";
                 if (pregunta.TipoIngreso === "date") {
-                    tipoDato = new Date();
+                    tipoDato = null;
                 }
 
                 modelo[pregunta.PreguntaId] = tipoDato;
@@ -65,21 +66,44 @@ const FormularioEncuesta = (props) => {
     let validationSchema = validaciones(props.EncuestaSelected);
     let initialValues = obtenerModelo(props.EncuestaSelected);
 
-
-    const registrarRespuestas = async (data) => {
+    let preguntas = [];
+    const registrarRespuestas = async (data, Preguntas) => {
+        setloading(true);
         let Info = [];
         const resp = Object.keys(data);
         let respuestas = [];
+        let respuestasAnidadas = [];
         for (let res of resp) {
             let respuestaObjeto = {};
+            let respuestaAnidadaObjeto = {};
             if (data[res] !== "") {
-                respuestaObjeto.PreguntaId = Number(res);
-                respuestaObjeto.RespuestaAlfanumerica = isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null;
-                respuestaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) ? null : Number(data[res]);
-                respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" ? data[res] : null;
-                respuestas.push(respuestaObjeto);
-            }
+                if (res.includes("Anidada")) {
+                    let PreguntaId = res.substring(res.lastIndexOf('-') + 1);
+                    let pregunta = Preguntas.filter(p => p.PreguntaId === Number(PreguntaId));
+                    let esFecha = pregunta !== undefined && pregunta.length > 0 ? pregunta[0].TipoIngreso === "date" : data[res]._isAMomentObject !== undefined ? true : false;
+                    let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
+                    respuestaAnidadaObjeto.PreguntaId = Number(PreguntaId);
+                    respuestaAnidadaObjeto.RespuestaAlfanumerica = ValorRespuesta;
+                    respuestaAnidadaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) || esFecha ? null : Number(data[res]);
+                    respuestaAnidadaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false ? data[res] : null;
+                    respuestasAnidadas.push(respuestaAnidadaObjeto);
 
+                }
+                else {
+                    for (let seccion of props.EncuestaSelected) {
+                        let pregunta = seccion.Preguntas.filter(p => p.PreguntaId === Number(res));
+                        if (pregunta.length > 0) {
+                            let esFecha = pregunta[0].TipoIngreso === "date";
+                            let ValorRespuesta = esFecha ? moment(data[res]).format("YYYY-MM-DD") : isNaN(Number(data[res])) && typeof (data[res]) === "string" ? data[res] : null
+                            respuestaObjeto.PreguntaId = Number(res);
+                            respuestaObjeto.RespuestaAlfanumerica = ValorRespuesta;
+                            respuestaObjeto.PreguntasOpcionesId = isNaN(Number(data[res])) || esFecha ? null : Number(data[res]);
+                            respuestaObjeto.PreguntasOpciones = typeof (data[res]) === "object" && esFecha === false ? data[res] : null;
+                            respuestas.push(respuestaObjeto);
+                        }
+                    }
+                }
+            }
         }
 
         Info.push(
@@ -87,12 +111,12 @@ const FormularioEncuesta = (props) => {
                 CodigoCliente: props.ClienteSelected.Codigo,
                 Usuario: localStorage.getItem("codigo"),
                 EncuestaId: props.EncuestaSelected[0].EncuestaId,
-                RespuestasDetalle: respuestas
+                RespuestasDetalle: respuestas,
+                RespuestasAnidadasDetalle: respuestasAnidadas,
             })
-
         try {
             await axios.post(`${APIURL}/api/respuestas/registrar`, Info[0]);
-
+            setloading(false);
             Swal.fire({
                 title: 'Enviado Correctamente',
                 text: "¡Se ha registrado correctamente!",
@@ -116,8 +140,37 @@ const FormularioEncuesta = (props) => {
             });
         }
     }
+
+    const Preguntas = (seccion, data) =>{
+        let Preguntas = []
+        seccion.Preguntas.forEach(pregunta => {
+            Preguntas.push(pregunta);
+            if (pregunta.GrupoOpcionesId !== null) {
+
+                pregunta.PreguntasOpciones.forEach(gp => {
+                    if(gp.PreguntasAnidadas.length > 0){
+                        for (let pa of gp.PreguntasAnidadas) {
+                             pa.hidden = true;
+                             const resp = Object.keys(data);
+                                for (let res of resp) {
+                                    if (data[res] !== "") {
+                                        if(Number(pa.PreguntasOpcionesId) === Number(data[res])){
+                                            pa.hidden = false;
+                                        }
+                                    }
+                                }
+                            Preguntas.push(pa);
+                        }
+                    }
+                });
+            }
+        })
+        return Preguntas;
+    }
+
     return (
         <div style={{ height: '100%', display: 'flex', justifyContent: 'center' }} className="container-fluid">
+            <Loading open={loading} title={"Enviando Encuesta..."} />
             <Card style={{ width: '900px' }} raised={true}>
                 <CardHeader
                     titleTypographyProps={{ fontWeight: 'bold' }}
@@ -129,13 +182,15 @@ const FormularioEncuesta = (props) => {
                         enableReinitialize
                         validationSchema={validationSchema}
                         onSubmit={(values) => {
-                            registrarRespuestas(values);
+                            registrarRespuestas(values, preguntas);
                         }}>
                         {({ errors, resetForm, values, setValues }) => (
                             <div className="form-group">
                                 <Form>
                                     {
                                         props.EncuestaSelected.map((seccion, index) => {
+                                           preguntas = Preguntas(seccion, values)
+                                        
                                             return (
                                                 <>
                                                     <div style={{ background: '#D3F2F7' }} className="form-group">
@@ -146,8 +201,8 @@ const FormularioEncuesta = (props) => {
                                                     </div>
 
                                                     {
-                                                        seccion.Preguntas.map((pregunta, index1) => {
-                                                            const Opciones = [];
+                                                        preguntas.map((pregunta, index1) => {
+                                                            const Opciones = [];     
                                                             if (pregunta.GrupoOpcionesId !== null) {
                                                                 if (pregunta.TipoIngreso === 'select') {
                                                                     let GrupoOpciones = {}
@@ -155,7 +210,7 @@ const FormularioEncuesta = (props) => {
                                                                     Opciones.push(GrupoOpciones);
                                                                 }
                                                                 pregunta.PreguntasOpciones.forEach(gp => {
-                                                                    let GrupoOpciones = {}
+                                                                    let GrupoOpciones = {};
                                                                     GrupoOpciones = { key: gp.GOpcionesDetalleNombre, value: gp.PreguntasOpcionesId }
                                                                     Opciones.push(GrupoOpciones);
                                                                 });
@@ -164,11 +219,25 @@ const FormularioEncuesta = (props) => {
                                                                 <>
                                                                     {
                                                                         pregunta.GrupoOpcionesId === null &&
-                                                                        <FormikControl control={pregunta.TipoIngreso} errors={errors} Descripcion = {pregunta.Descripcion} type={pregunta.TipoIngreso} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} id={pregunta.PreguntaId} name={pregunta.PreguntaId} />
+                                                                        <FormikControl 
+                                                                        hidden = {pregunta.hidden !== undefined ? pregunta.hidden : false} 
+                                                                        control={pregunta.TipoIngreso} 
+                                                                        errors={errors} 
+                                                                        Descripcion = {pregunta.Descripcion} 
+                                                                        type={pregunta.TipoIngreso} 
+                                                                        label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} 
+                                                                        id={pregunta.preguntaAnidada ? "Anidada-" + pregunta.PreguntaId :pregunta.PreguntaId} 
+                                                                        name={pregunta.preguntaAnidada ? "Anidada-" + pregunta.PreguntaId :pregunta.PreguntaId} />
                                                                     }
                                                                     {
                                                                         pregunta.GrupoOpcionesId !== null &&
-                                                                        <FormikControl control={pregunta.TipoIngreso} Descripcion = {pregunta.Descripcion} label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} name={pregunta.PreguntaId} options={Opciones} />
+                                                                        <FormikControl 
+                                                                        hidden = {pregunta.hidden !== undefined ? pregunta.hidden : false} 
+                                                                        control={pregunta.TipoIngreso} 
+                                                                        Descripcion = {pregunta.Descripcion} 
+                                                                        label={pregunta.RespuestaObligatorio === true ? "*" + pregunta.Nombre : pregunta.Nombre} 
+                                                                        name={pregunta.preguntaAnidada ? "Anidada-" + pregunta.PreguntaId :pregunta.PreguntaId} 
+                                                                        options={Opciones} />
                                                                     }
                                                                 </>
                                                             )
@@ -179,7 +248,7 @@ const FormularioEncuesta = (props) => {
                                         })
                                     }
                                     <div style={{ textAlign: 'right', paddingTop: '20px' }}>
-                                        <Button className={classes.button} type="submit" variant="contained" onClick={() => props.history.push("/encuesta/selectCliente")} startIcon={<HighlightOffIcon />}>Cancelar</Button>
+                                        <Button className={classes.button} type="submit" variant="contained" onClick={() => props.history.push("/encuesta/selectCliente")} startIcon={<HighlightOffIcon />}>Salir</Button>
                                         <Button className={classes.button} type="submit" color="primary" variant="contained" startIcon={<SendIcon />}>Enviar</Button>
                                     </div>
                                 </Form>
