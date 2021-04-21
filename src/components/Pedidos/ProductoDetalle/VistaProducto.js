@@ -18,6 +18,7 @@ import { EliminarImagenModal } from 'components/Pedidos/ProductoDetalle/Eliminar
 
 const VistaProducto = (props) => {
     const [precioProducto, setPrecio] = useState(undefined);
+    const [color,setColor] = useState('');
     const [selected, setselected] = useState(false);
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [listaImagenes, setListaImagenes] = useState(props.producto.ListaImagenes);
@@ -100,6 +101,7 @@ const VistaProducto = (props) => {
     }
 
     const setListaImagenesPrincipal = (color) => {
+        setColor(color);
         const imagenesColor = props.producto.ListaColores.filter(e => e.NombreColor === color);
         setListaImagenes(imagenesColor[0].ListaImagenes);
     }
@@ -188,7 +190,7 @@ const VistaProducto = (props) => {
                             <img alt={"ImagenProducto"} src={notFound}></img>
                         </div>
                         :
-                        <Slider ListaImagenes={listaImagenes} />
+                        <Slider ListaImagenes={listaImagenes} color={color}/>
                 }
             </div>
             <div className="col-md-7 mt-md-0 mt-3">

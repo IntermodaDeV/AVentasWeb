@@ -73,43 +73,48 @@ const SliderFunction = (props) => {
     }
 
     return (
-        <div className="row justify-content-center">
-            <div className="col-12">
-                <Slider  {...PrimaryCarouselSettings}
-                    asNavFor={state.nav2}
-                    ref={slider => (slider1 = slider)}
-                >
-                    {
-                        state.imagenes.map((imagen, index) => {
-                            return (
-                                <div key={index} className="w-100 row justify-content-center d-flex">
-                                    <img className={styles.ImagenProducto} alt="foto" src={imagen.FotografiaProducto} />
-                                </div>
-                            );
-                        })
-                    }
-                </Slider>
-            </div>
-            {
-                state.multipleImages &&
-                <div className="col-6 my-2">
-                    <Slider   {...SecondaryCarouselSettings}
-                        asNavFor={state.nav1}
-                        ref={slider => (slider2 = slider)}
+        <>
+            <div className="row justify-content-center">
+                <div className="col-12">
+                    <Slider  {...PrimaryCarouselSettings}
+                        asNavFor={state.nav2}
+                        ref={slider => (slider1 = slider)}
                     >
                         {
                             state.imagenes.map((imagen, index) => {
                                 return (
-                                    <div key={index} className='mx-2 w-auto'>
-                                        <img className={styles.ImagenProductoSmall} alt="foto" src={imagen.FotografiaProducto} />
-                                    </div>
+                                    <>
+                                        <div key={index} className="w-100 row justify-content-center d-flex">
+                                            <img className={styles.ImagenProducto} alt="foto" src={imagen.FotografiaProducto} />
+                                        </div>
+                                    </>
                                 );
                             })
                         }
                     </Slider>
                 </div>
-            }
-        </div>
+                {
+                    state.multipleImages &&
+                    <div className="col-6 my-2">
+                        <Slider   {...SecondaryCarouselSettings}
+                            asNavFor={state.nav1}
+                            ref={slider => (slider2 = slider)}
+                        >
+                            {
+                                state.imagenes.map((imagen, index) => {
+                                    return (
+                                        <div key={index} className='mx-2 w-auto'>
+                                            <img className={styles.ImagenProductoSmall} alt="foto" src={imagen.FotografiaProducto} />
+                                        </div>
+                                    );
+                                })
+                            }
+                        </Slider>
+                    </div>
+                }
+            </div>
+            <h4 style={{ textAlign: 'center', display: 'block',fontWeight:'bolder' }}>{props.color}</h4>
+        </>
     )
 }
 

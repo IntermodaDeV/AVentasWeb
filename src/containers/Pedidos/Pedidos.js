@@ -28,6 +28,7 @@ import {
 } from '@material-ui/core';
 import axios from 'axios';
 import { post,postPedidoStorage } from 'utils/http';
+import { Dropdown as MiDropdown} from "semantic-ui-react";
 
 //Components
 import NavigationBreadcrumb from 'components/Pedidos/NavigationBreadcrumb/NavigationBreadcrumb'
@@ -117,6 +118,7 @@ class Pedidos extends React.Component {
         clientes:[],
         clientesFiltrados:[],
         paisSeleccionado:null,
+        Ordenamiento:null
     };
 
 
@@ -1895,6 +1897,14 @@ class Pedidos extends React.Component {
         }
     }
 
+    OpcionesOrdenamiento = () => {
+        if (this.props.coleccion.ColeccionTipo === "F" || this.props.coleccion.ColeccionTipo === 'f') {
+            return ["Codigo", "Nombre"].map(e => ({ key: e, value: e, text: e }));
+        }
+
+        return ["Codigo", "Nombre", "Stock"].map(e => ({ key: e, value: e, text: e }));
+    }
+
     render() {
         const { error, isLoaded, loading } = this.state;
         var filtroActivo = false;
@@ -2421,9 +2431,22 @@ class Pedidos extends React.Component {
 
                                                     <div className="col">
                                                         <div className="container-fluid mt-4 p-0">
-
                                                             <div className="row" style={{ paddingBottom: '5px', borderBottom: '2px solid #90B9CB', }}>
                                                                 <div className={"col-md-9 col-8 " + styles.ChipContainer} >
+                                                                    <div>
+                                                                        Ordenar por:
+                                                                        <MiDropdown
+                                                                            search
+                                                                            selection
+                                                                            placeholder="Seleccione ordenamiento"
+                                                                            closeOnChange={true}
+                                                                            value={this.state.Ordenamiento}
+                                                                            options={ this.OpcionesOrdenamiento()}
+                                                                            onChange={(e, { value }) =>{
+                                                                                this.setState((prevState)=>({...prevState,Ordenamiento:value}));
+                                                                            }}
+                                                                        />
+                                                                    </div>
                                                                     <FiltroChips
                                                                         filtroActivo={filtroActivo}
                                                                         filtroAtributos={this.state.filtroAtributos}
@@ -2439,14 +2462,6 @@ class Pedidos extends React.Component {
                                                                     <div ref={this.CantidadProductos} className={"col-12 " + styles.CantidadProductosLabel}>
 
                                                                     </div>
-
-                                                                    {/* <div className="col-12 p-0">
-                                                                        <Radio style={{ transform: 'scale(0.94)', zIndex: 2 }}
-                                                                            slider
-                                                                            label={"Expandible"}
-                                                                            onChange={() => this.setExpandable()}
-                                                                            checked={this.state.expandable} />
-                                                                    </div> */}
 
                                                                     <div className="col-12 p-0">
                                                                         <Radio style={{ transform: 'scale(0.94)', zIndex: 2 }}
@@ -2488,6 +2503,7 @@ class Pedidos extends React.Component {
                                                                 TotalPedido={this.props.TotalPedido}
                                                                 alertaLimiteCredito={this.alertaLimiteCredito}
                                                                 NoStock={this.state.NoStock}
+                                                                Ordenamiento={this.state.Ordenamiento}
                                                             ></Productos>
                                                             {this.carrito()}
 
