@@ -12,6 +12,7 @@ import { verificarConexion } from 'utils/http';
 import{ reemplazarUrl } from 'utils/common';
 import update1 from 'assets/update1.jpeg';
 import update2 from 'assets/update2.jpeg';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 export const Home = (props) => {
     const dispatch = useDispatch();
@@ -163,7 +164,13 @@ export const Home = (props) => {
                 return null;
             }
         } else {
-            return null;
+            Swal.fire({
+                title: 'Sin Internet',
+                text: "Necesita internet para poder realizar esta accion.",
+                type: 'error',
+                confirmButtonText: 'Ok'
+            });
+            //return null;
         }
     }
     /*----------------------------------------------------MODULOS DE SINCRONIZACION-------------------------------- */
@@ -691,6 +698,7 @@ export const Home = (props) => {
                 setActiveStep((prevActiveStep) => prevActiveStep + 1);
                 console.log(error);
             } else {
+                localStorage.setItem("UltimaSyncCartera", new Date())
                 dispatch({ type: "SET_CARTERA", payload: data });
                 setActiveStep((prevActiveStep) => prevActiveStep + 1);
                 CargaModuloRecibo();
