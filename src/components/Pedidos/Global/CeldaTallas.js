@@ -76,29 +76,34 @@ const CeldaTallas = (props) => {
         });
     }
 
-    const handleChange = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio)=>
-    {
-        const cantidad = isNaN(parseInt(text.target.value))?0:parseInt(text.target.value);
-        if(props.NoEsFuturo === true && props.disponible < cantidad)
-        {
-            if(props.cantidadMinima===0){
+    const handleChange = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio) => {
+        const cantidad = isNaN(parseInt(text.target.value)) ? 0 : parseInt(text.target.value);
+
+        if (!props.NoEsFuturo && props.disponible < cantidad && props.stockVisibleFuturo) {
+            if (props.cantidadMinima === 0) {
                 return alertaFisicoDisponible();
             }
         }
 
-        if(props.cantidadMinima>0){
-            if(esMultiplo(props.cantidadMinima,cantidad) && cantidad>props.disponible){
-                if(!props.NoEsFuturo){
+        if (props.NoEsFuturo && props.disponible < cantidad) {
+            if (props.cantidadMinima === 0) {
+                return alertaFisicoDisponible();
+            }
+        }
+
+        if (props.cantidadMinima > 0) {
+            if (esMultiplo(props.cantidadMinima, cantidad) && cantidad > props.disponible) {
+                if (!props.NoEsFuturo) {
                     text.target.value = cantidad;
-                }else{
+                } else {
                     text.target.value = props.disponible;
                 }
                 props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
                 return;
             }
         }
-        
-        props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);   
+
+        props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
     }
 
     const agregarAlCarrito = () => {
@@ -162,7 +167,7 @@ const CeldaTallas = (props) => {
         <td className="p-1" style={{ backgroundColor: Focused ? '#D5EEE3' : 'unset', verticalAlign: "middle" }} onClick={clickEnCelda}>
             <div className={"row " + styles.Border}>
                 {
-                    props.NoEsFuturo &&
+                    (props.NoEsFuturo || props.stockVisibleFuturo) &&
                     <>
                         <div className={"col-12 px-0 " + styles.BordetBottom} style={{ fontSize: 11, textAlign: 'center' }}>
                             {/* <div className="row justify-content-center">

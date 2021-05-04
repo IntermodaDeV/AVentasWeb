@@ -154,6 +154,7 @@ const TablaVistaProducto = (props) => {
     const handleClickColores = ()=>{
         setOpenColores(!openColores);
     }
+    
     return (
         <div>
             {props.producto.ListaColoresSinStock.length>0 && <p style={{marginRight:10}} className="btn btn-secondary" onClick={handleClickColores}>Otros Colores</p>}
@@ -297,6 +298,7 @@ const TablaVistaProducto = (props) => {
                                                 onChange={props.onchangeText}
                                                 CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
                                                 cantidadMinima={props.producto.CantidadMinima}
+                                                stockVisibleFuturo={props.producto.StockVisible}
                                                 setColor={setColorSeleccionado}
                                             />
                                         )
