@@ -14,6 +14,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
+import { useSelector } from 'react-redux';
 const TablaVistaProducto = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
     const [imagenes, setImagenes] = useState([]);
@@ -24,7 +25,8 @@ const TablaVistaProducto = (props) => {
     const [listaColoresCopia,setListaColoresCopia] = useState(props.producto.ListaColores);
     const [openColores,setOpenColores] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
-
+    const permisos = useSelector(e => e.Permisos[0]);
+    const Coleccion = useSelector(e => e.coleccion);
     useEffect(() => {
         setIsChecked(props.producto.StockVisible);
         // eslint-disable-next-line
@@ -39,9 +41,16 @@ const TablaVistaProducto = (props) => {
 
     const onMostrar = async () => {
         try {
-           let request =  await axios.post(`${APIURL}/api/ColeccionesXLinea/productoStock/${props.producto.CodigoProducto}`);
-           props.producto.StockVisible = request.request.response === "true" ? true : false;
-           setIsChecked(props.producto.StockVisible);
+            let request = await axios.post(`${APIURL}/api/ColeccionesXLinea/productoStock/${props.producto.CodigoProducto}`);
+            props.producto.StockVisible = request.request.response === "true" ? true : false;
+
+            Coleccion.Edades.forEach(edad => {
+                let producto = edad.ProductosXEdad.find(p => p.CodigoProducto === props.producto.CodigoProducto);
+                if (producto) {
+                    producto.StockVisible = props.producto.StockVisible;
+                }
+            })
+            setIsChecked(props.producto.StockVisible);
         } catch (err) {
             console.log("Ha ocurrido un error: " + err)
         }
@@ -154,7 +163,6 @@ const TablaVistaProducto = (props) => {
     const handleClickColores = ()=>{
         setOpenColores(!openColores);
     }
-    
     return (
         <div>
             {props.producto.ListaColoresSinStock.length>0 && <p style={{marginRight:10}} className="btn btn-secondary" onClick={handleClickColores}>Otros Colores</p>}
@@ -168,12 +176,16 @@ const TablaVistaProducto = (props) => {
             />}
             {showFiltro && <ListaColores colores={props.producto.ListaColores} handleColorFiltrado={handleClickColorFiltrado} colorFiltrado={colorFiltrado} />}
             <ColorSinStockModal open={openColores} colores={props.producto.ListaColoresSinStock} close={handleClickColores}/>
-            <FormControlLabel
+            {
+                permisos.AdministradorProductos &&
+                <FormControlLabel
                 label="Mostrar Stock"
                 style={{marginLeft: '5px'}}
-                hidden = {props.futuro}
+                hidden = {props.futuro }
                 control={<Checkbox checked={isChecked} onChange={onMostrar} />}
             />
+            }
+            
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
                 <thead>
                     <tr className={styles.TrTest}>
