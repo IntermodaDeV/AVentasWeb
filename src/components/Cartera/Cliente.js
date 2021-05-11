@@ -16,7 +16,8 @@ export const Cliente = (props) => {
                 });
             }
         }
-    }, [props.seleccionado,props.codigo]);
+         // eslint-disable-next-line
+    }, [props.seleccionado]);
 
     if (props.seleccionado === undefined) {
         style = {

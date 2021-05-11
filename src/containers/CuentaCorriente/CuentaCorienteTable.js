@@ -57,20 +57,15 @@ const CuentaCorrienteTable = props => {
 
     let data = []
     const options = {
-        filterType: 'none',
-        sort: false,
-        pagination: false,
+        filter: true,
+        filterType: "dropdown",
         responsive: "scrollMaxHeight",
         print: false,
-        filter: false,
-        viewColumns: false,
         download: false,
         selectableRows: 'none',
-
-        expandableRowsOnClick: false,
         textLabels: {
             body: {
-                noMatch: "Nada que mostrar.",
+                noMatch: "No se han encontrado pedidos",
                 toolTip: "Ordenar",
             },
             pagination: {
@@ -99,14 +94,9 @@ const CuentaCorrienteTable = props => {
                 text: "Fila(s) seleccionadas",
                 delete: "Borrar",
                 deleteAria: "Borrar Filas Seleccionadas",
-            }
-        },
-        // onRowsSelect: (currentRowsSelected, allRowsSelected) => {
-        //   setSelectedRowsIndex(allRowsSelected.map(row => row.dataIndex))
-        // },
-
-
-    }
+            },
+        }
+    };
     data = props.CuotasCuentaCorriente.map(cuenCorr => {
           return Object.values(cuenCorr)
     })
