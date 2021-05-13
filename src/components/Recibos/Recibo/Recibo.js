@@ -10,7 +10,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import {FiArrowRightCircle} from "react-icons/fi";
 import { FaPrint } from "react-icons/fa";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-
+import { ObtenerCoordenadas } from 'utils/common';
+import { APIURL } from 'utils/Enviroment';
+import axios from 'axios';
 const Recibo = (props) => {
     const clientesContado = useSelector(e=>e.clientesContado);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
@@ -50,6 +52,40 @@ const Recibo = (props) => {
         },
       }));
     const classes = useStyles();
+
+    const RegistrarLogs = (e) => {
+        let logRecibo = {};
+        ObtenerCoordenadas((position) => {
+            logRecibo = {
+                numRecibo: props.RecibosAplicados.CodigoUltimoRecibo,
+                Usuario: localStorage.getItem("codigo"),
+                Fecha: new Date(),
+                Latitude: position.coords.latitude,
+                Longitude: position.coords.longitude
+            };
+            postLogRecibos(logRecibo);
+        }, (error) => {
+            logRecibo = {
+                numRecibo: props.RecibosAplicados.CodigoUltimoRecibo,
+                Usuario: localStorage.getItem("codigo"),
+                Fecha: new Date(),
+                Latitude: null,
+                Longitude: null
+            };
+            postLogRecibos(logRecibo);
+        });
+    }
+
+    const postLogRecibos = async (data) =>{
+        try {
+            const request = await axios.post(`${APIURL}/api/logImpresionRecibo`, data);
+            return request.data;
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
+    }
+
    return (
         <div className="col">
             {
@@ -64,6 +100,7 @@ const Recibo = (props) => {
                                         </Button>
                                         }
                                         content={() => componentRef.current}
+                                        onAfterPrint={(e) => RegistrarLogs(e)}
                                     />
 
                                 <Button onClick={() => props.Finalizar()} className = {classes.button} variant="contained" size="large" color="primary" endIcon ={<FiArrowRightCircle/>}>
