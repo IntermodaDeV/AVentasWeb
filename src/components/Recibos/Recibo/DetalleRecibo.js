@@ -641,7 +641,8 @@ const DetalleRecibo = (props) => {
             let ValorPago = Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0));
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
-                NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
+                NumeroRecibo : 'PR'+localStorage.getItem("CorrelativoRecibo"),
+                ReciboProforma:true,
                 Mensaje:"",
                 Fecha: pagosXRecibo[0].fecha,
                 FechaPago: pagosXRecibo[0].fecha,
@@ -673,7 +674,7 @@ const DetalleRecibo = (props) => {
                 SubFacturas: props.CuotasAPagar,
                 NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
                 EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
-                CodigoUltimoRecibo : localStorage.getItem("CorrelativoRecibo"),
+                CodigoUltimoRecibo : 'PR'+localStorage.getItem("CorrelativoRecibo"),
                 Total :  ValorPago,
                 Facturas : cuotasYDescuentoAplicado.Cuotas.map(fact => {              
                     let NumeroCuota = cuotasYDescuentoAplicado.agrupadas ? fact[0] : 0;

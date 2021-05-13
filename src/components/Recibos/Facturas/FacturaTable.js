@@ -8,6 +8,7 @@ import {
   // TablePagination, TableCell
 } from '@material-ui/core';
 import { FaEye } from "react-icons/fa";
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
 import FacturasModalPrecompra from "components/Recibos/FacturasModal/FacturasModalPrecompra";
 import CuotaModal from "components/Recibos/FacturasModal/CuotaModal";
@@ -109,74 +110,6 @@ const getOptions = (props) => {
   return options;
 }
 
-
-/* 
-const CustomFooter = (count, page, rowsPerPage, changeRowsPerPage, changePage, textLabels, props) => {
-
-  const Totales = {
-    Disponible: 0,
-    SaldoTotal: 0,
-    C15Dias: 0,
-  };
-
-  props.Credito.forEach(fact => {
-    Totales.Disponible += fact.Disponible;
-    Totales.SaldoTotal += fact.SaldoTotal;
-    Totales.C15Dias += fact.C15Dias;
-
-  })
-
-
-  const handleRowChange = event => {
-    changeRowsPerPage(event.target.value);
-  };
-
-  const handlePageChange = (_, page) => {
-    changePage(page);
-  };
-
-  return (
-    <tfoot>
-      <tr>
-        <TableCell style={{ width: 'calc((1/5)*100%)' }}>
-          <h6 className="font-weight-bolder text-dark">Totales</h6>
-        </TableCell>
-        <TableCell style={{ width: 'calc((1/5)*100%)', paddingLeft: '0.2%' }} className="font-weight-bolder text-dark">
-          {Totales.Disponible.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
-        </TableCell>
-        <TableCell style={{ width: 'calc((1/5)*100%)', paddingLeft: '0.2%' }} className="font-weight-bolder text-dark">
-          {Totales.SaldoTotal.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
-        </TableCell>
-        <TableCell style={{ width: 'calc((1/5)*100%)', paddingLeft: '0.2%' }} className="font-weight-bolder text-dark">
-          {Totales.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}
-        </TableCell>
-        <TableCell style={{ width: 'calc((1/5)*100%)' }}></TableCell>
-      </tr>
-      {false && <tr>
-        <TableCell style={{ justifyContent: 'flex-end', padding: '0px 24px 0px 24px' }} colSpan={1000}>
-          <TablePagination
-            component="div"
-            count={count}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            labelRowsPerPage={textLabels.rowsPerPage}
-            labelDisplayedRows={({ from, to, count }) => `${from}-${to} ${textLabels.displayRows} ${count}`}
-            backIconButtonProps={{
-              'aria-label': textLabels.previous,
-            }}
-            nextIconButtonProps={{
-              'aria-label': textLabels.next,
-            }}
-            rowsPerPageOptions={[10, 20, 100]}
-            onChangePage={handlePageChange}
-            onChangeRowsPerPage={handleRowChange}
-          />
-        </TableCell>
-      </tr>}
-    </tfoot>
-  );
-} */
-
 const FacturaTable = props => {
   const [DataModal, setDataModal] = useState([]);
   const [DataModalPrecompra, setDataModalPrecompra] = useState([]);
@@ -184,9 +117,29 @@ const FacturaTable = props => {
   const [openModalPrecompra, setOpenModalPrecompra] = useState(false);
   const [cuotasa,setCuotasa] = useState([]);
   const [openModalCuota,setOpenModalCuota] = useState(false);
+  
   const setCuotas = (tipoPedido) => {
-    const cuotas = props.AcuerdosXTipoPedido.filter(acu => acu.TipoPedido === tipoPedido);
-    props.SetCuotas(cuotas)
+    if (localStorage.getItem("Conexion") === "offline") {
+      Swal.fire({
+        title: 'Aviso',
+        text: 'Si continua de manera offline se generara un recibo proforma.',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Continuar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.value) {
+          const cuotas = props.AcuerdosXTipoPedido.filter(acu => acu.TipoPedido === tipoPedido);
+          props.SetCuotas(cuotas)
+        }
+      })
+    }
+    else {
+      const cuotas = props.AcuerdosXTipoPedido.filter(acu => acu.TipoPedido === tipoPedido);
+      props.SetCuotas(cuotas)
+    }
   };
 
   let data = [];

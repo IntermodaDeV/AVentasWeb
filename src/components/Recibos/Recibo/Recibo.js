@@ -105,14 +105,6 @@ const Recibo = (props) => {
                                        {NombreCliente}
                                    </h3>
                                </div>
-                               {
-                                   props.RecibosAplicados.ReciboCache === "true" &&
-                                   <div className={"col text-center m-auto font-weight-bold" + styles.Size}>
-                                       <h4 className={"font-weight-bold" + styles.Size}>
-                                           {"Este documento ha sido generado fuera de linea."}
-                                       </h4>
-                                   </div>
-                               }
                            </div>
                                 <div className="col-12 p-0 text-left">
                                     <p>
@@ -273,6 +265,8 @@ const Recibo = (props) => {
                                             <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
                                                 {localStorage.getItem('asesor')}
                                             </h4>
+                                            <br/>
+                                            {props.RecibosAplicados.ReciboProforma && <h4 style={{textAlign:'center',fontWeight:'bolder'}}>Proforma Provisional</h4>}
                                         </div>
                                     </div>
                                 </div>

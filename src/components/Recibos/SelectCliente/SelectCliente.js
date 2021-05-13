@@ -157,6 +157,21 @@ const SelectCliente = (props) => {
               type: 'error',
               confirmButtonText: 'OK',
           });
+        }else if(localStorage.getItem("Conexion") === "offline"){
+            Swal.fire({
+                title: 'Aviso',
+                text: 'Si continua de manera offline se generara un recibo proforma.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.value) {
+                    props.setCliente();
+                }
+            })
         }
         else{
             props.setCliente();
