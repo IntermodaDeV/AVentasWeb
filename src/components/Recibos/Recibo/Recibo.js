@@ -116,9 +116,12 @@ const Recibo = (props) => {
                                <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
 
                                <div className="col text-left m-auto">
-                                   <h2 className={"m-0 " + styles.Title}>
-                                       {empresa.NAME}
-                                   </h2>
+                                   <div style={{display:'flex',justifyContent:'space-between'}}>
+                                       <h2 className={"m-0 " + styles.Title}>
+                                           {empresa.NAME}
+                                       </h2>
+                                       <h4 style={{fontWeight:'bolder'}}>Original</h4>
+                                   </div>
                                    <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
                                        {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                                    </h3>
