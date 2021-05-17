@@ -643,6 +643,7 @@ const DetalleRecibo = (props) => {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
                 NumeroRecibo : 'PR'+localStorage.getItem("CorrelativoRecibo"),
                 ReciboProforma:true,
+                LogImpresion:[],
                 Mensaje:"",
                 Fecha: pagosXRecibo[0].fecha,
                 FechaPago: pagosXRecibo[0].fecha,

@@ -5,7 +5,7 @@ import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/Recibos/Recibo/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
-import {useSelector} from 'react-redux';
+import {useSelector,useDispatch} from 'react-redux';
 import { makeStyles } from '@material-ui/core/styles';
 import {FiArrowRightCircle} from "react-icons/fi";
 import { FaPrint } from "react-icons/fa";
@@ -24,6 +24,8 @@ const Recibo = (props) => {
     const clienteContado = pedidoSelected !== null && pedidoSelected !== undefined ? clientesContado.find(x=>x.id=== pedidoSelected.ClienteContado) : null;
     let Total = props.RecibosAplicados.Total;
     const moneda = Monedas.find(e=>e.IdMoneda===props.Cliente.Moneda).Abreviacion;
+    const RecibosEnCache = useSelector(e=>e.RecibosEnCache);
+    const dispatch = useDispatch();
     if(clienteContado!==null && clienteContado!==undefined)
     {
         if(Total < 10000)
@@ -76,7 +78,15 @@ const Recibo = (props) => {
         });
     }
 
-    const postLogRecibos = async (data) =>{
+    const postLogRecibos = async (data) => {
+        if (localStorage.getItem("Conexion") === "offline") {
+            let copiaEstado = RecibosEnCache;
+            let indice = copiaEstado.map(x => x.CodigoUltimoRecibo).indexOf(data.numRecibo);
+            copiaEstado[indice].LogImpresion = [...copiaEstado[indice].LogImpresion,data];
+            dispatch({ type: "SET_RECIBOSENCACHELOG", payload: copiaEstado });
+            return;
+        }
+
         try {
             const request = await axios.post(`${APIURL}/api/logImpresionRecibo`, data);
             return request.data;

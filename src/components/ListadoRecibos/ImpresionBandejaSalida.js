@@ -8,6 +8,7 @@ import 'moment/locale/es';
 import {useSelector} from 'react-redux';
 
 const ImpresionBandejaSalida = (props) => {
+    console.log(props)
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.NombreCliente;
@@ -27,15 +28,18 @@ const ImpresionBandejaSalida = (props) => {
                         <div className="row">
                             <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
                             <div className="col text-left m-auto">
-                                    <div style={{display:'flex',justifyContent:'space-between'}}>
-                                       <h2 className={"m-0 " + styles.Title}>
-                                           {empresa.NAME}
-                                       </h2>
-                                       <h4 style={{fontWeight:'bolder'}}>Copia</h4>
-                                   </div>
-                                <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                    {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
-                                </h3>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <h2 className={"m-0 " + styles.Title}>
+                                        {empresa.NAME}
+                                    </h2>
+                                    <h4 style={{ fontWeight: 'bolder' }}>Copia</h4>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
+                                        {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
+                                    </h3>
+                                    <h5 style={{ fontWeight: 'bolder' }}> Impresión No. {props.recibo.LogImpresion.length+1}</h5>
+                                </div>
                             </div>
                         </div>
                         <div className="row">
