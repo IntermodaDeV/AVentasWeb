@@ -5,19 +5,49 @@ import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/ListadoRecibos/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
-import {useSelector} from 'react-redux';
+import {useSelector,useDispatch} from 'react-redux';
+import { ObtenerCoordenadas } from 'utils/common';
 
 const ImpresionBandejaSalida = (props) => {
-    console.log(props)
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.NombreCliente;
     let DireccionCliente=props.recibo.Direccion; 
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
     const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Pagos[0].IdMoneda).Abreviacion;
-
+    const RecibosEnCache = useSelector(e=>e.RecibosEnCache);
+    const dispatch = useDispatch();
 
     const componentRef = React.useRef();
+
+    const RegistrarLogs = () => {
+        ObtenerCoordenadas((position) => {
+            let logRecibo = {
+                numRecibo: props.recibo.NumeroRecibo,
+                Usuario: localStorage.getItem("codigo"),
+                Fecha: new Date(),
+                Latitude: position.coords.latitude,
+                Longitude: position.coords.longitude
+            };
+            postLogRecibos(logRecibo);
+        }, (error) => {
+            let logRecibo = {
+                numRecibo: props.recibo.NumeroRecibo,
+                Usuario: localStorage.getItem("codigo"),
+                Fecha: new Date(),
+                Latitude: null,
+                Longitude: null
+            };
+            postLogRecibos(logRecibo);
+        });
+    }
+
+    const postLogRecibos = (data) => {
+        let copiaEstado = RecibosEnCache;
+        let indice = copiaEstado.map(x => x.CodigoUltimoRecibo).indexOf(data.numRecibo);
+        copiaEstado[indice].LogImpresion = [...copiaEstado[indice].LogImpresion, data];
+        dispatch({ type: "SET_RECIBOSENCACHELOG", payload: copiaEstado });
+    }
 
     return (
         <>
@@ -238,6 +268,7 @@ const ImpresionBandejaSalida = (props) => {
                             </Button>
                     }
                     content={() => componentRef.current}
+                    onAfterPrint={(e) => RegistrarLogs()}
                 />
                 <Button onClick={() => props.hidePrint()} color="primary">
                     Finalizar
