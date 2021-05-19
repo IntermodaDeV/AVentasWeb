@@ -132,7 +132,8 @@ const navItems = [
             { to: '/lista-recibos-flotante', name: 'Recibos Flotantes', dataTut: 'DataTut_ListadoPedidos', Icon: CloudQueueIcon, backgroundColor:''  },
             { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:''  },
-            { to: '/lista-recibos-creditos', name: 'Resincronización recibos', dataTut: 'DataTut_ListadoRecibos', Icon: SyncAlt, backgroundColor:''  }
+            { to: '/lista-recibos-creditos', name: 'Resincronización recibos', dataTut: 'DataTut_ListadoRecibos', Icon: SyncAlt, backgroundColor:''  },
+            { to: '/lista-recibos-proforma', name: 'Recibos Proforma', dataTut: 'DataTut_ListadoRecibosProforma', Icon: ListAlt, backgroundColor:''  }
         ]
     },
     {
