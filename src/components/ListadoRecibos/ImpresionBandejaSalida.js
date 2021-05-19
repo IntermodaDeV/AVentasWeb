@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect,useState } from 'react';
 import { DialogActions, DialogContent, DialogTitle, Button } from '@material-ui/core';
 import ReactToPrint from 'react-to-print';
 import Logo from 'assets/img/logo/LogoSinLetrasB.png';
@@ -9,6 +9,7 @@ import {useSelector,useDispatch} from 'react-redux';
 import { ObtenerCoordenadas } from 'utils/common';
 
 const ImpresionBandejaSalida = (props) => {
+    const [numeroCopia,setNumeroCopia] = useState(0);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.NombreCliente;
@@ -46,8 +47,16 @@ const ImpresionBandejaSalida = (props) => {
         let copiaEstado = RecibosEnCache;
         let indice = copiaEstado.map(x => x.CodigoUltimoRecibo).indexOf(data.numRecibo);
         copiaEstado[indice].LogImpresion = [...copiaEstado[indice].LogImpresion, data];
+        setNumeroCopia((prev)=>(prev+1));
         dispatch({ type: "SET_RECIBOSENCACHELOG", payload: copiaEstado });
     }
+
+    useEffect(() => {
+        let copiaEstado = RecibosEnCache;
+        let indice = copiaEstado.map(x => x.CodigoUltimoRecibo).indexOf(props.recibo.NumeroRecibo);
+        let cantidad = copiaEstado[indice].LogImpresion.length;
+        setNumeroCopia(cantidad);
+    }, [RecibosEnCache, props.recibo.NumeroRecibo])
 
     return (
         <>
@@ -62,13 +71,13 @@ const ImpresionBandejaSalida = (props) => {
                                     <h2 className={"m-0 " + styles.Title}>
                                         {empresa.NAME}
                                     </h2>
-                                    <h4 style={{ fontWeight: 'bolder' }}>Copia</h4>
+                                    <h4 style={{ fontWeight: 'bolder' }}>{(numeroCopia <= 1 ? "Original" : "Copia")}</h4>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
                                         {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                                     </h3>
-                                    <h5 style={{ fontWeight: 'bolder' }}> Impresión No. {props.recibo.LogImpresion.length+1}</h5>
+                                    <h5 style={{ fontWeight: 'bolder' }}> Impresión No. {numeroCopia+1}</h5>
                                 </div>
                             </div>
                         </div>
