@@ -55,27 +55,27 @@ const Recibo = (props) => {
       }));
     const classes = useStyles();
 
-    const RegistrarLogs = (e) => {
+    const RegistrarLogs = async () => {
         let logRecibo = {};
-        ObtenerCoordenadas((position) => {
-            logRecibo = {
-                numRecibo: props.RecibosAplicados.CodigoUltimoRecibo,
-                Usuario: localStorage.getItem("codigo"),
-                Fecha: new Date(),
-                Latitude: position.coords.latitude,
-                Longitude: position.coords.longitude
-            };
-            postLogRecibos(logRecibo);
-        }, (error) => {
-            logRecibo = {
-                numRecibo: props.RecibosAplicados.CodigoUltimoRecibo,
-                Usuario: localStorage.getItem("codigo"),
-                Fecha: new Date(),
-                Latitude: null,
-                Longitude: null
-            };
-            postLogRecibos(logRecibo);
-        });
+            ObtenerCoordenadas((position) => {
+                logRecibo = {
+                    numRecibo: props.RecibosAplicados.CodigoUltimoRecibo,
+                    Usuario: localStorage.getItem("codigo"),
+                    Fecha: new Date(),
+                    Latitude: position.coords.latitude,
+                    Longitude: position.coords.longitude
+                };
+                postLogRecibos(logRecibo);
+            }, (error) => {
+                logRecibo = {
+                    numRecibo: props.RecibosAplicados.CodigoUltimoRecibo,
+                    Usuario: localStorage.getItem("codigo"),
+                    Fecha: new Date(),
+                    Latitude: null,
+                    Longitude: null
+                };
+                postLogRecibos(logRecibo);
+            });
     }
 
     const postLogRecibos = async (data) => {
@@ -110,7 +110,7 @@ const Recibo = (props) => {
                                         </Button>
                                         }
                                         content={() => componentRef.current}
-                                        onAfterPrint={(e) => RegistrarLogs(e)}
+                                        onAfterPrint={() => RegistrarLogs()}
                                     />
 
                                 <Button onClick={() => props.Finalizar()} className = {classes.button} variant="contained" size="large" color="primary" endIcon ={<FiArrowRightCircle/>}>
