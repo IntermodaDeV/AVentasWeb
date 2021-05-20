@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Button } from '@material-ui/core';
 import ReactToPrint from 'react-to-print';
 import Logo from 'assets/img/logo/LogoSinLetrasB.png';
@@ -14,6 +14,7 @@ import { ObtenerCoordenadas } from 'utils/common';
 import { APIURL } from 'utils/Enviroment';
 import axios from 'axios';
 const Recibo = (props) => {
+    const [numeroImpresion,setNumeroImpresion] = useState(0);
     const clientesContado = useSelector(e=>e.clientesContado);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const pedidoSelected = useSelector(k => k.pedidoSelected);
@@ -82,13 +83,15 @@ const Recibo = (props) => {
         if (localStorage.getItem("Conexion") === "offline") {
             let copiaEstado = RecibosEnCache;
             let indice = copiaEstado.map(x => x.CodigoUltimoRecibo).indexOf(data.numRecibo);
-            copiaEstado[indice].LogImpresion = [...copiaEstado[indice].LogImpresion,data];
+            copiaEstado[indice].LogImpresion = [...copiaEstado[indice].LogImpresion, data];
             dispatch({ type: "SET_RECIBOSENCACHELOG", payload: copiaEstado });
+            setNumeroImpresion((prev) => (prev + 1));
             return;
         }
 
         try {
             const request = await axios.post(`${APIURL}/api/logImpresionRecibo`, data);
+            setNumeroImpresion((prev) => (prev + 1));
             return request.data;
         } catch (err) {
             console.log(err);
@@ -126,15 +129,18 @@ const Recibo = (props) => {
                                <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
 
                                <div className="col text-left m-auto">
-                                   <div style={{display:'flex',justifyContent:'space-between'}}>
+                                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                        <h2 className={"m-0 " + styles.Title}>
                                            {empresa.NAME}
                                        </h2>
-                                       <h4 style={{fontWeight:'bolder'}}>Original</h4>
+                                       <h4 style={{ fontWeight: 'bolder' }}>{(numeroImpresion === 0 ? "Original" : "Copia")}</h4>
                                    </div>
-                                   <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                       {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
-                                   </h3>
+                                   <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                       <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
+                                           {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
+                                       </h3>
+                                       <h5 style={{ fontWeight: 'bolder' }}> Impresión No. {numeroImpresion + 1}</h5>
+                                   </div>
                                </div>
                            </div>
                            <div className="row">
