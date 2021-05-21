@@ -646,7 +646,7 @@ const DetalleRecibo = (props) => {
                 LogImpresion:[],
                 Mensaje:"",
                 Fecha: pagosXRecibo[0].fecha,
-                FechaPago: pagosXRecibo[0].fecha,
+                FechaPago: new Date(pagosXRecibo[0].fecha.setHours(0,0,0,0)),
                 SaldoFavor:saldoAFavor,
                 CodigoCliente: props.Cliente.Codigo,
                 NombreCliente : props.Cliente.Nombre,
@@ -713,7 +713,7 @@ const DetalleRecibo = (props) => {
         let apiURL     = urlApi + "/api/Recibo";
         let parametros = {
             Fecha: pagosXRecibo[0].fecha,
-            FechaPago: pagosXRecibo[0].fecha,
+            FechaPago: new Date(pagosXRecibo[0].fecha.setHours(0,0,0,0)),
             SaldoFavor:saldoAFavor,
             Pagos: pagosXRecibo.map(pagXRecib => {
                 return {
@@ -744,7 +744,7 @@ const DetalleRecibo = (props) => {
                     NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
                     CodigoCliente:props.Cliente.Codigo,
                     Tipo:(pedidoSelected!==null) ? "Anticipo [B-C]" : "Anticipo [T-O]",
-                    FechaPago: pagosXRecibo[0].fecha,
+                    FechaPago: new Date(pagosXRecibo[0].fecha.setHours(0,0,0,0)),
                     Pagos: pagosXRecibo.map(pagXRecib => {
                         return {
                             "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
