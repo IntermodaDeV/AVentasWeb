@@ -33,7 +33,7 @@ export const ListaReciboProforma = (props) => {
     const [AsesorSelected, setAsesorSelected] = useState(null);
     const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
     useEffect(() => {
-        if(!IsAllow("/lista-recibos"))
+        if(!IsAllow("/lista-recibos-proforma"))
         {
             props.history.push('/home');
         }
