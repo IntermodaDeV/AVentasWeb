@@ -362,7 +362,7 @@ const DetalleRecibo = (props) => {
                     fact.Cuotas.forEach(cuot => {
                         if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
                             let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days');
-                            let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
+                            let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
                             // data.push([
                             //     cuot.TipoDocumento, //Tipo  
                             //     moment(fact.FechaFactura).format("DD/MM/YYYY"), //Fecha  
@@ -844,7 +844,7 @@ const DetalleRecibo = (props) => {
             let diasDescuento = 0;
             let fechaDescuento = moment(cuot.FechaMaxDescuento);
             if (fechaDescuento.isValid()) {
-                diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
+                diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
             }
             DataModal.push({
                 NumeroFactura: cuot.Factura.Factura,

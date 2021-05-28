@@ -160,7 +160,7 @@ const FacturaTable = props => {
       let diasDescuento = 0;
       let fechaDescuento = moment(factura.FechaMaxDescuento);
       if (fechaDescuento.isValid()) {
-        diasDescuento = moment(factura.FechaMaxDescuento).diff(moment(new Date()), 'days');
+        diasDescuento = moment(factura.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
       }
 
       if(credito ==='Precompra'){
@@ -209,7 +209,7 @@ const FacturaTable = props => {
     let diasDescuento = 0;
     let fechaDescuento = moment(cuota.FechaMaxDescuento);
     if (fechaDescuento.isValid()) {
-      diasDescuento = moment(cuota.FechaMaxDescuento).diff(moment(new Date()), 'days');
+      diasDescuento = moment(cuota.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
     }
 
     let cuotatmp={
