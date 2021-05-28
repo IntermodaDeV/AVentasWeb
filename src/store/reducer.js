@@ -609,6 +609,14 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if(action.type==='SET_RECIBOSENCACHELOG')
+    {
+        return{
+            ...state,
+            RecibosEnCache:action.payload
+        }
+    }
+
     if(action.type==='SET_RECIBOSENCACHE')
     {
         return{

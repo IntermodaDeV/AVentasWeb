@@ -138,8 +138,8 @@ const columns = [
 ]
 const EstadisticaVisita = (props) => {
 
-    const [fechaInicio, setFechaInicio] = useState(new Date());
-    const [fechaFin, setFechaFin] = useState(new Date((new Date()).valueOf() + (1000 * 60 * 60 * 24) * 6 + 1));
+    const [fechaInicio, setFechaInicio] = useState(moment().clone().startOf('month').format('YYYY-MM-DD'));
+    const [fechaFin, setFechaFin] = useState(new Date());
     const [estadisticasVisita, setEstadisticasVisita] = useState([]);
     const [estadisticaVisitaFiltrada, setestadisticaVisitaFiltrada] = useState([]);
     const [Usuarios, setUsuarios] = useState([]);

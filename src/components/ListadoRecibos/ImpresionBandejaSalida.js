@@ -1,22 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DialogActions, DialogContent, DialogTitle, Button } from '@material-ui/core';
 import ReactToPrint from 'react-to-print';
 import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/ListadoRecibos/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
-import {useSelector} from 'react-redux';
+import {useSelector,useDispatch} from 'react-redux';
+import { ObtenerCoordenadas } from 'utils/common';
 
 const ImpresionBandejaSalida = (props) => {
+    const [numeroCopia,setNumeroCopia] = useState(props.recibo.LogImpresion.length);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.NombreCliente;
     let DireccionCliente=props.recibo.Direccion; 
     const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
     const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Pagos[0].IdMoneda).Abreviacion;
-
+    const RecibosEnCache = useSelector(e=>e.RecibosEnCache);
+    const dispatch = useDispatch();
 
     const componentRef = React.useRef();
+
+    const RegistrarLogs = () => {
+        ObtenerCoordenadas((position) => {
+            let logRecibo = {
+                numRecibo: props.recibo.NumeroRecibo,
+                Usuario: localStorage.getItem("codigo"),
+                Fecha: new Date(),
+                Latitude: position.coords.latitude,
+                Longitude: position.coords.longitude
+            };
+            postLogRecibos(logRecibo);
+        }, (error) => {
+            let logRecibo = {
+                numRecibo: props.recibo.NumeroRecibo,
+                Usuario: localStorage.getItem("codigo"),
+                Fecha: new Date(),
+                Latitude: null,
+                Longitude: null
+            };
+            postLogRecibos(logRecibo);
+        });
+    }
+
+    const postLogRecibos = (data) => {
+        let copiaEstado = RecibosEnCache;
+        let indice = copiaEstado.map(x => x.CodigoUltimoRecibo).indexOf(data.numRecibo);
+        copiaEstado[indice].LogImpresion = [...copiaEstado[indice].LogImpresion, data];
+        dispatch({ type: "SET_RECIBOSENCACHELOG", payload: copiaEstado });
+        setNumeroCopia((prev)=>(prev+1));
+    }
 
     return (
         <>
@@ -27,12 +60,18 @@ const ImpresionBandejaSalida = (props) => {
                         <div className="row">
                             <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
                             <div className="col text-left m-auto">
-                                <h2 className={"m-0 " + styles.Title}>
-                                    {empresa.NAME}
-                                </h2>
-                                <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                    {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
-                                </h3>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <h2 className={"m-0 " + styles.Title}>
+                                        {empresa.NAME}
+                                    </h2>
+                                    <h4 style={{ fontWeight: 'bolder' }}>{(numeroCopia === 0 ? "Original" : "Copia")}</h4>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
+                                        {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
+                                    </h3>
+                                    <h5 style={{ fontWeight: 'bolder' }}> Impresión No. {numeroCopia+1}</h5>
+                                </div>
                             </div>
                         </div>
                         <div className="row">
@@ -52,11 +91,6 @@ const ImpresionBandejaSalida = (props) => {
                                 <h3 className={"font-weight-bold " + styles.LineHeight_1_5}>
                                     {NombreCliente}
                                 </h3>
-                            </div>
-                            <div className={"col text-center m-auto font-weight-bold" + styles.Size}>
-                                <h4 className={"font-weight-bold" + styles.Size}>
-                                    {"Este documento ha sido generado fuera de linea."}
-                                </h4>
                             </div>
                         </div>
                         <div className="col-12 p-0 text-left">
@@ -219,6 +253,8 @@ const ImpresionBandejaSalida = (props) => {
                                     <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
                                         {localStorage.getItem('asesor')}
                                     </h4>
+                                    <br/>
+                                   <h4 style={{textAlign:'center',fontWeight:'bolder'}}>Proforma Provisional</h4>
                                 </div>
                             </div>
                         </div>
@@ -234,6 +270,7 @@ const ImpresionBandejaSalida = (props) => {
                             </Button>
                     }
                     content={() => componentRef.current}
+                    onAfterPrint={(e) => RegistrarLogs()}
                 />
                 <Button onClick={() => props.hidePrint()} color="primary">
                     Finalizar

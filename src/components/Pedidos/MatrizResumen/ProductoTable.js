@@ -281,6 +281,7 @@ const ProductoTable = (props) => {
                                         setListaImagenesPrincipal={null}
                                         CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
                                         cantidadMinima={props.producto.CantidadMinima}
+                                        stockVisibleFuturo={props.producto.StockVisible}
                                     />
                                 )
                             })

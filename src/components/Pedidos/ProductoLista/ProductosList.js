@@ -158,16 +158,33 @@ const Productos = (props) => {
     });
 
     if (props.coleccion.ColeccionTipo !== "F" || props.coleccion.ColeccionTipo !== 'f') {
-        productosList.forEach((e,i)=>{
-            const stock = e.fisicaDisponible.reduce((a,b)=>(a+b.Cantidad),0);
+        productosList.forEach((e, i) => {
+            const stock = e.fisicaDisponible.reduce((a, b) => (a + b.Cantidad), 0);
             e.stockDisponible = stock;
         });
-    
-        productosList.sort((a,b)=>((a.stockDisponible>b.stockDisponible)?-1:1));
+        if (props.Ordenamiento) {
+            if (props.Ordenamiento === "Nombre") {
+                productosList.sort((a, b) => (a.NombreProducto.localeCompare(b.NombreProducto)));
+            } else if (props.Ordenamiento === "Codigo") {
+                productosList.sort((a, b) => (a.ProductoId.localeCompare(b.ProductoId)));
+            } else {
+                productosList.sort((a, b) => ((a.stockDisponible > b.stockDisponible) ? -1 : 1));
+            }
+        } else {
+            productosList.sort((a, b) => ((a.stockDisponible > b.stockDisponible) ? -1 : 1));
+        }
     }
 
-    if(props.coleccion.ColeccionTipo === "F" || props.coleccion.ColeccionTipo === 'f'){
-        productosList.sort((a,b)=>a.ProductoId.localeCompare(b.ProductoId));
+    if (props.coleccion.ColeccionTipo === "F" || props.coleccion.ColeccionTipo === 'f') {
+        if (props.Ordenamiento) {
+            if (props.Ordenamiento === "Nombre") {
+                productosList.sort((a, b) => (a.NombreProducto.localeCompare(b.NombreProducto)));
+            } else if (props.Ordenamiento === "Codigo") {
+                productosList.sort((a, b) => (a.ProductoId.localeCompare(b.ProductoId)));
+            }
+        } else {
+            productosList.sort((a, b) => a.ProductoId.localeCompare(b.ProductoId));
+        }
     }
 
     let productos = (

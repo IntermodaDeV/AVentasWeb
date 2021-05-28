@@ -26,6 +26,7 @@ import { verificarConexion } from 'utils/http';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import { FacturasReservadas } from 'components/Cartera/FacturasReservadas';
+import moment from 'moment';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
@@ -52,8 +53,8 @@ export const Cartera = props => {
                 dispatch({ type: "SET_CARTERA", payload: data });
                 setFiltrados(data);
                 setLoading(false);
+                localStorage.setItem("UltimaSyncCartera", new Date())
             }
-
             cargarDocumentosPendientes();
         }
 
@@ -235,8 +236,9 @@ export const Cartera = props => {
                     <ListaClientes clientes={filtrados} seleccionarCliente={seleccionarCliente} seleccionado={cliente} />
                 </div>}
                     <div className={`col-md-${showClientes ? "9" : "12"}`}>
+                        <h4>Ultima Sincronización: {moment(localStorage.getItem("UltimaSyncCartera")).format("DD/MM/YYYY h:mm:ss a")}</h4>
                         {AsesoresUsuario.length > 1 && <Dropdown
-                            placeholder="Seleccione cliente contado"
+                            placeholder="Seleccione Asesor"
                             fluid
                             search
                             selection

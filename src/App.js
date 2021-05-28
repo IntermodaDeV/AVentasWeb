@@ -48,6 +48,7 @@ import {EncuestasResueltas} from 'containers/Encuestas/EncuestasResueltas'
 import { PaqueteBodega } from 'containers/PaqueteBodega/PaqueteBodega'
 import { SitioBodega } from 'containers/SitioBodega/SitioBodega'
 import { AlmacenSitio } from 'containers/AlmacenSitio/AlmacenSitio'
+import { ListaReciboProforma } from 'containers/ListaRecibos/ListaRecibosProforma';
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -331,6 +332,11 @@ const App = props => {
               path='/Encuesta/Resueltas'
               layout={MainLayout}
               component={EncuestasResueltas}
+            />
+             <LayoutRoute
+              path='/lista-recibos-proforma'
+              layout={MainLayout}
+              component={ListaReciboProforma}
             />
             <Redirect to='/home' />
           </Switch>

@@ -641,10 +641,12 @@ const DetalleRecibo = (props) => {
             let ValorPago = Number(pagosXRecibo.reduce((acc, curr) => { return acc + Number(curr.valor) }, 0));
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
-                NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
+                NumeroRecibo : 'PR'+localStorage.getItem("CorrelativoRecibo"),
+                ReciboProforma:true,
+                LogImpresion:[],
                 Mensaje:"",
                 Fecha: pagosXRecibo[0].fecha,
-                FechaPago: pagosXRecibo[0].fecha,
+                FechaPago: new Date(pagosXRecibo[0].fecha.setHours(0,0,0,0)),
                 SaldoFavor:saldoAFavor,
                 CodigoCliente: props.Cliente.Codigo,
                 NombreCliente : props.Cliente.Nombre,
@@ -673,7 +675,7 @@ const DetalleRecibo = (props) => {
                 SubFacturas: props.CuotasAPagar,
                 NumPedido:(pedidoSelected!==null) ? pedidoSelected.NumeroPedido : null,
                 EsContado : props.Cliente.Nombre.includes("CONSUMIDOR FINAL")? "1" : "0",
-                CodigoUltimoRecibo : localStorage.getItem("CorrelativoRecibo"),
+                CodigoUltimoRecibo : 'PR'+localStorage.getItem("CorrelativoRecibo"),
                 Total :  ValorPago,
                 Facturas : cuotasYDescuentoAplicado.Cuotas.map(fact => {              
                     let NumeroCuota = cuotasYDescuentoAplicado.agrupadas ? fact[0] : 0;
@@ -711,7 +713,7 @@ const DetalleRecibo = (props) => {
         let apiURL     = urlApi + "/api/Recibo";
         let parametros = {
             Fecha: pagosXRecibo[0].fecha,
-            FechaPago: pagosXRecibo[0].fecha,
+            FechaPago: new Date(pagosXRecibo[0].fecha.setHours(0,0,0,0)),
             SaldoFavor:saldoAFavor,
             Pagos: pagosXRecibo.map(pagXRecib => {
                 return {
@@ -742,7 +744,7 @@ const DetalleRecibo = (props) => {
                     NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
                     CodigoCliente:props.Cliente.Codigo,
                     Tipo:(pedidoSelected!==null) ? "Anticipo [B-C]" : "Anticipo [T-O]",
-                    FechaPago: pagosXRecibo[0].fecha,
+                    FechaPago: new Date(pagosXRecibo[0].fecha.setHours(0,0,0,0)),
                     Pagos: pagosXRecibo.map(pagXRecib => {
                         return {
                             "CodigoTipoPago": tiposPago[pagXRecib.indexTiposPago].IdTipoPago,//"EFECTIVO",
@@ -793,6 +795,7 @@ const DetalleRecibo = (props) => {
                                 setLoading(false);
                                 setHabilitado(false);
                                 cargarCliente();
+                                dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'})
                             },
                             // Note: it's important to handle errors here
                             // instead of a catch() block so that we don't swallow

@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DialogActions, DialogContent, DialogTitle, Button } from '@material-ui/core';
 import ReactToPrint from 'react-to-print';
 import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/ListadoRecibos/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
+import axios from 'axios';
 import {useSelector} from 'react-redux';
+import {APIURL} from 'utils/Enviroment';
+import {ObtenerCoordenadas} from 'utils/common';
 
 const Recibo = (props) => {
+    const [numeroCopia,setNumeroCopia] = useState(props.recibo.NumeroCopia);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const clientesContado = useSelector(e=>e.clientesContado);
     const empresas = useSelector(e=>e.Empresas);
@@ -32,6 +36,40 @@ const Recibo = (props) => {
 
     const componentRef = React.useRef();
 
+    const RegistrarLogs = async () => {
+        let logRecibo = {};
+            ObtenerCoordenadas((position) => {
+                logRecibo = {
+                    numRecibo: props.recibo.NumeroRecibo,
+                    Usuario: localStorage.getItem("codigo"),
+                    Fecha: new Date(),
+                    Latitude: position.coords.latitude,
+                    Longitude: position.coords.longitude
+                };
+                postLogRecibos(logRecibo);
+            }, (error) => {
+                logRecibo = {
+                    numRecibo: props.recibo.NumeroRecibo,
+                    Usuario: localStorage.getItem("codigo"),
+                    Fecha: new Date(),
+                    Latitude: null,
+                    Longitude: null
+                };
+                postLogRecibos(logRecibo);
+            });
+    }
+
+    const postLogRecibos = async (data) => {
+        try {
+            const request = await axios.post(`${APIURL}/api/logImpresionRecibo`, data);
+            setNumeroCopia((prev)=>(prev+1));
+            return request.data;
+        } catch (err) {
+            console.log(err);
+            return null;
+        }
+    }
+
     return (
         <>
             <DialogTitle id="scroll-dialog-title">Vista Previa Recibo</DialogTitle>
@@ -40,14 +78,19 @@ const Recibo = (props) => {
                     <div id="top">
                         <div className="row">
                             <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
-
                             <div className="col text-left m-auto">
-                                <h2 className={"m-0 " + styles.Title}>
-                                    {empresa.NAME}
-                                </h2>
-                                <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
-                                {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF} 
-                                </h3>
+                                <div style={{display:'flex',justifyContent:'space-between'}}>
+                                    <h2 className={"m-0 " + styles.Title}>
+                                        {empresa.NAME}
+                                    </h2>
+                                    <h4 style={{ fontWeight: 'bolder' }}>{(numeroCopia <= 1 ? "Original" : "Copia")}</h4>
+                                </div>
+                                <div style={{display:'flex',justifyContent:'space-between'}}>
+                                    <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
+                                        {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
+                                    </h3>
+                                    <h5 style={{fontWeight:'bolder'}}> Impresión No. {numeroCopia}</h5>
+                                </div>
                             </div>
                         </div>
                         <div className="row">
@@ -242,6 +285,7 @@ const Recibo = (props) => {
                             Imprimir
                             </Button>
                     }
+                    onAfterPrint={() => RegistrarLogs()}
                     content={() => componentRef.current}
                 />
                 <Button onClick={() => props.hidePrint()} color="primary">

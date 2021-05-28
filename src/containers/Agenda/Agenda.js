@@ -780,7 +780,7 @@ class Agenda extends Component {
                 let fechaActual = moment(new Date()).format("DD-MM-YYYY");
                 let fechaAsignacion = moment(asignacion.fechaIngreso).format("DD-MM-YYYY");
     
-                if(fechaActual!==fechaAsignacion){
+                if(moment(fechaAsignacion).isBefore(fechaActual)){
                     return true;
                 }
     

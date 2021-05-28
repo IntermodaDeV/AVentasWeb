@@ -23,6 +23,7 @@ import {
 } from 'reactstrap';
 import {connect} from 'react-redux';
 import moment from "moment";
+import axios from 'axios'
 moment.locale('es');
 
 class Asignacion extends Component {
@@ -53,7 +54,8 @@ class Asignacion extends Component {
         showCargar:false,
         Asesores: [],
         AsesorSelected: null,
-        RutasSinFiltro : []
+        RutasSinFiltro : [],
+        IdAsignacion:null
     }
 
     setCargar = (show)=>{
@@ -316,6 +318,16 @@ class Asignacion extends Component {
             this.cargarTiposAsignacionCliente();
             this.cargarPrioridadesAsignacion();
             this.cargarTiempoEstimado();
+        }
+    }
+
+    eliminarAsignacion = async () => {
+        try {
+            await axios.post(`${APIURL}/api/asignaciones/eliminar/${this.state.IdAsignacion}`)
+            this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion);
+            alert("Asignación eliminada con exito.");
+        } catch (err) {
+            alert("No se pudo eliminar la asignación.");
         }
     }
 
@@ -616,9 +628,14 @@ class Asignacion extends Component {
                                 </Button>
                                 {
                                     this.state.ButtonQuitarDisabled ? null :
+                                    <>
                                         <Button onClick={() => this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion)} color="primary">
                                             Quitar
                                     </Button>
+                                    {this.state.IdAsignacion && (<Button onClick={this.eliminarAsignacion} color="primary">
+                                            Eliminar
+                                    </Button>)}
+                                    </>
                                 }
 
                                 <Button onClick={() => this.state.ButtonQuitarDisabled ? this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion) : this.handleInputEdit(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion)} color="primary">
@@ -900,6 +917,7 @@ class Asignacion extends Component {
 
                         prioridad = ListaAsignaciones[asignacionIndex].IdPrioridad;
                         tipoVisita = ListaAsignaciones[asignacionIndex].IdTipoVisita
+                        this.setState((prevState)=>({...prevState,IdAsignacion:ListaAsignaciones[asignacionIndex].IdAsignacionxAsesor}));
                     }
 
                 }

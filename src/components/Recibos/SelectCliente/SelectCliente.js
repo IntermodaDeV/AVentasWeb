@@ -153,10 +153,25 @@ const SelectCliente = (props) => {
         if (RecibosCache.length > 0 && isOnline && localStorage.getItem("Conexion") === "Online") {
             Swal.fire({
               title: 'Pendiente a Sincronizar',
-              text: 'Tiene recibos en bandeja de salida, debera sincronizar para poder registrar un nuevo recibo.',
+              text: 'Tiene recibos proforma en bandeja de salida, debera sincronizar para poder registrar un nuevo recibo.',
               type: 'error',
               confirmButtonText: 'OK',
           });
+        }else if(localStorage.getItem("Conexion") === "offline"){
+            Swal.fire({
+                title: 'Aviso',
+                text: 'Si continua de manera offline se generara un recibo proforma.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.value) {
+                    props.setCliente();
+                }
+            })
         }
         else{
             props.setCliente();
@@ -169,7 +184,7 @@ const SelectCliente = (props) => {
         {
             RecibosCache.length > 0 && localStorage.getItem("Conexion") === "Online" &&
             <div style={{ textAlign: 'center', fontSize: '24px' }} className="alert alert-danger alert-dismissible fade show" role="alert">
-                <FiAlertTriangle style={{ fontSize: '28px', color: 'red' }} /> Tiene recibos en bandeja de salida, necesita sincronizar para poder registrar un nuevo recibo.
+                <FiAlertTriangle style={{ fontSize: '28px', color: 'red' }} /> Tiene recibos Proforma en bandeja de salida, necesita sincronizar para poder registrar un nuevo recibo.
             </div>
         }
         <Card className="my-2" style={{ overflow: 'unset' }}>

@@ -88,7 +88,7 @@ const BadejaSalidaRecibos = (props) => {
                         localStorage.setItem("Operando","Si");
                         setLoading(true);
                         const recibo = RecibosCache.find(x => x.ReciboId === reciboId);
-                        let Ruta = recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/Recibo';
+                        let Ruta = recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/proforma';
                         const request = await axios.post(urlApi + Ruta, recibo, {
                             headers: {
                                 'Authorization': 'Bearer ' + localStorage.getItem('token'),
