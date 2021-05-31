@@ -46,7 +46,7 @@ const SelectCliente = (props) => {
 
     // let FacturacionEntrega = null;
     var alerta = false;
-    var EsVisible = false;
+    //var EsVisible = false;
     var options = [];
 
     const mostrarAdvertencia = (title,text,type)=>{
@@ -137,9 +137,9 @@ const SelectCliente = (props) => {
 
     };
 
-    if (props.clienteSelected != null && props.clienteSelected.EmpresaId.toUpperCase() !== localStorage.getItem('empresa').toUpperCase() && props.clienteSelected !== false) {
+    /*if (props.clienteSelected != null && props.clienteSelected.EmpresaId.toUpperCase() !== localStorage.getItem('empresa').toUpperCase() && props.clienteSelected !== false) {
         EsVisible = true;
-    }
+    }*/
 
     const mensajeError = () => {
         if (props.clienteSelected !== null) {
@@ -244,12 +244,12 @@ const SelectCliente = (props) => {
                         />
                     </Snackbar>
 
-                    <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} style={{ zIndex: 10 }} open={EsVisible} TransitionComponent={TransitionGrow}>
+                    {/*<Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} style={{ zIndex: 10 }} open={EsVisible} TransitionComponent={TransitionGrow}>
                         <MySnackbarContentWrapper
                             variant="error"
                             message="El cliente seleccionado no pertenece a su pais"
                         />
-                    </Snackbar>
+                </Snackbar>*/}
                 </div>
             </CardContent>
         </Card>
