@@ -1417,7 +1417,7 @@ class Pedidos extends React.Component {
             FechaEntrega: this.state.fechaEntregaPedido,
             AcuerdoVenta: this.props.AcuerdoVenta ? this.props.AcuerdoVenta.IdAcuerdoxCliente : '',
             location: location,
-            EmpresaId: "imhn",
+            EmpresaUsuario: localStorage.getItem('empresa'),
             Linea: this.props.LineaSeleccionada.IdLinea,
             CodigoColeccion: this.props.coleccion.CodigoColeccion,
             DetallePedido: [],

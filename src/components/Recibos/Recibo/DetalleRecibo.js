@@ -642,6 +642,7 @@ const DetalleRecibo = (props) => {
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
                 NumeroRecibo : 'PR'+localStorage.getItem("CorrelativoRecibo"),
+                EmpresaUsuario: localStorage.getItem('empresa'),
                 ReciboProforma:true,
                 LogImpresion:[],
                 Mensaje:"",
@@ -729,6 +730,7 @@ const DetalleRecibo = (props) => {
             })
             ,
             NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
+            EmpresaUsuario: localStorage.getItem('empresa'),
             Descripcion: '',
             location:location,
             SubFacturas: props.CuotasAPagar,
@@ -741,6 +743,7 @@ const DetalleRecibo = (props) => {
     
                 parametros = {
                     Fecha: pagosXRecibo[0].fecha,
+                    EmpresaUsuario: localStorage.getItem('empresa'),
                     NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
                     CodigoCliente:props.Cliente.Codigo,
                     Tipo:(pedidoSelected!==null) ? "Anticipo [B-C]" : "Anticipo [T-O]",
