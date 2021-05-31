@@ -400,7 +400,7 @@ export const Home = (props) => {
 
     const cargarCorrelativoRecibo = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/recibos/correlativo`, {
+            const request = await axios.get(`${APIURL}/api/recibos/correlativo/${localStorage.getItem('empresa')}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -417,7 +417,7 @@ export const Home = (props) => {
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/
     const cargarCorrelativoPedido = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/PedidosXCliente/correlativo/0`, {
+            const request = await axios.get(`${APIURL}/api/PedidosXCliente/correlativo/${localStorage.getItem('empresa')}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
