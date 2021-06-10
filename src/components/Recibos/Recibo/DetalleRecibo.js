@@ -228,12 +228,12 @@ const DetalleRecibo = (props) => {
                 cuotasAProcesar.forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
-                    if(calculo.current===2){
+                    //if(calculo.current===2){
                     valorPagos += montoAPagar;
                     Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0;
                     localStorage.setItem('valorPagos',valorPagos.toFixed(2));
                     localStorage.setItem('DescuentoFacturas',Descuento);  
-                    }
+                    //}
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
@@ -300,12 +300,12 @@ const DetalleRecibo = (props) => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
                     
-                    if(calculo.current===2){
+                    //if(calculo.current===2){
                         valorPagos += montoAPagar;  
                         Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0; 
                         localStorage.setItem('valorPagos',valorPagos.toFixed(2));
                         localStorage.setItem('DescuentoFacturas',Descuento);                
-                    }
+                    //}
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado.toFixed(2)) {
                             cuotProc.PagoAplicado += PagoAcumulado;
