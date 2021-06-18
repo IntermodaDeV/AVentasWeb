@@ -516,7 +516,7 @@ class Agenda extends Component {
                                 Vencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
                                 Dias: moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days'),
                                 FechaDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY"),
-                                DiasDescuento: moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days'),
+                                DiasDescuento: moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') +1,
                                 Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
                                 Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
                             });

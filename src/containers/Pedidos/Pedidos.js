@@ -1323,7 +1323,7 @@ class Pedidos extends React.Component {
             if (isOnline) {
                 try {
                     this.setState((prevState) => ({ ...prevState, loadingRecibo: true }));
-                    const request = await axios.get(this.urlApi + "/api/PedidosXCliente/correlativo/1", {
+                    const request = await axios.get(`${this.urlApi}/api/PedidosXCliente/correlativo/${localStorage.getItem('empresa')}`, {
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -1417,7 +1417,7 @@ class Pedidos extends React.Component {
             FechaEntrega: this.state.fechaEntregaPedido,
             AcuerdoVenta: this.props.AcuerdoVenta ? this.props.AcuerdoVenta.IdAcuerdoxCliente : '',
             location: location,
-            EmpresaId: "imhn",
+            EmpresaUsuario: localStorage.getItem('empresa'),
             Linea: this.props.LineaSeleccionada.IdLinea,
             CodigoColeccion: this.props.coleccion.CodigoColeccion,
             DetallePedido: [],

@@ -129,8 +129,8 @@ const Recibos = (props) => {
       acuXTip.Acuerdos.forEach(acu => {
         acu.Facturas.forEach(fact => {
           fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
-            let diasVencimiento = moment().diff(cuot.FechaVencimiento, 'days') * -1;
-            let diasDescuento = moment().diff(cuot.FechaMaxDescuento, 'days') * -1;
+            let diasVencimiento = (moment().diff(cuot.FechaVencimiento, 'days') * -1) + 1;
+            let diasDescuento = (moment().diff(cuot.FechaMaxDescuento, 'days') * -1) + 1;
             let aPagar = cuot.Saldo;
             if (diasDescuento >= 0 && cuot.Descuento) {
               aPagar -= cuot.Descuento;
@@ -148,11 +148,11 @@ const Recibos = (props) => {
                 IdAcuerdoxCliente: <span className={colorFuente}>{cuot.IdAcuerdoxCliente}</span>,// IdAcuerdoxCliente
                 NumeroCuota: <span className={colorFuente}>{cuot.NumeroCuota}</span>,// NumeroCuota
                 FechaFactura: <span className={colorFuente}>{moment(cuot.FechaFactura).format("DD/MM/YYYY")}</span>,// FechaFactura
-                FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento
+                FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY") === '01/01/1900' ? '' : moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento
                 Dias: <span className={colorFuente}>{isNaN(diasVencimiento) ? "":diasVencimiento}</span>,// Dias
                 Valor: <span className={colorFuente}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Valor
                 Saldo: <span className={colorFuente}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Saldo
-                FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
+                FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900'? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
                 DiasV: <span className={colorFuente}>{isNaN(diasDescuento) ? "":diasDescuento}</span>, // DiasV
                 Descuento: <span className={colorFuente}>{cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
@@ -171,7 +171,7 @@ const Recibos = (props) => {
                 Dias: isNaN(diasVencimiento) ? "":diasVencimiento,// Dias
                 Valor: cuot.ValorCuota,// Valor
                 Saldo:cuot.Saldo,// Saldo
-                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900' ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
                 DiasV: isNaN(diasDescuento) ? "":diasDescuento, // DiasV
                 Descuento: cuot.Descuento,// Descuento
                 APagar: aPagar,// APagar
@@ -191,8 +191,8 @@ const Recibos = (props) => {
                 Dias: <span className={colorFuente}>{isNaN(diasVencimiento) ? "":diasVencimiento}</span>,// Dias
                 Valor: <span className={colorFuente}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Valor
                 Saldo: <span className={colorFuente}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Saldo
-                FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
-                DiasV: <span className={colorFuente}>{isNaN(diasDescuento) ? "":diasDescuento}</span>, // DiasV
+                FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900'? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
+                DiasV: <span className={colorFuente}>{isNaN(diasDescuento) || moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") === '01/01/1900'? "":diasDescuento}</span>, // DiasV
                 Descuento: <span className={colorFuente}>{cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
@@ -323,7 +323,7 @@ const Recibos = (props) => {
     let diasDescuento = 0;
     let fechaDescuento = moment(factura.FechaMaxDescuento);
     if (fechaDescuento.isValid()) {
-      diasDescuento = moment(factura.FechaMaxDescuento).diff(moment(new Date()), 'days');
+      diasDescuento = moment(factura.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
     }
 
       let facturatmp={
@@ -501,7 +501,7 @@ const Recibos = (props) => {
       let isOnline = await verificarConexion();
       if (isOnline) {
         try {
-          const request = await axios.get(`${urlApi}/api/recibos/correlativo`, {
+          const request = await axios.get(`${urlApi}/api/recibos/correlativo/${localStorage.getItem('empresa')}`, {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + localStorage.getItem('token')

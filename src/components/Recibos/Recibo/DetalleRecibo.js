@@ -228,12 +228,12 @@ const DetalleRecibo = (props) => {
                 cuotasAProcesar.forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
-                    if(calculo.current===2){
+                    //if(calculo.current===2){
                     valorPagos += montoAPagar;
                     Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0;
                     localStorage.setItem('valorPagos',valorPagos.toFixed(2));
                     localStorage.setItem('DescuentoFacturas',Descuento);  
-                    }
+                    //}
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
@@ -300,12 +300,12 @@ const DetalleRecibo = (props) => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
                     
-                    if(calculo.current===2){
+                    //if(calculo.current===2){
                         valorPagos += montoAPagar;  
                         Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0; 
                         localStorage.setItem('valorPagos',valorPagos.toFixed(2));
                         localStorage.setItem('DescuentoFacturas',Descuento);                
-                    }
+                    //}
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado.toFixed(2)) {
                             cuotProc.PagoAplicado += PagoAcumulado;
@@ -362,7 +362,7 @@ const DetalleRecibo = (props) => {
                     fact.Cuotas.forEach(cuot => {
                         if (props.CuotasAPagar.includes(cuot.IdSubFactura)) {
                             let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days');
-                            let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
+                            let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
                             // data.push([
                             //     cuot.TipoDocumento, //Tipo  
                             //     moment(fact.FechaFactura).format("DD/MM/YYYY"), //Fecha  
@@ -642,6 +642,7 @@ const DetalleRecibo = (props) => {
             let ReciboCache = {
                 ReciboId :  100 + (Math.random() * (10000 - 100)),
                 NumeroRecibo : 'PR'+localStorage.getItem("CorrelativoRecibo"),
+                EmpresaUsuario: localStorage.getItem('empresa'),
                 ReciboProforma:true,
                 LogImpresion:[],
                 Mensaje:"",
@@ -729,6 +730,7 @@ const DetalleRecibo = (props) => {
             })
             ,
             NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
+            EmpresaUsuario: localStorage.getItem('empresa'),
             Descripcion: '',
             location:location,
             SubFacturas: props.CuotasAPagar,
@@ -741,6 +743,7 @@ const DetalleRecibo = (props) => {
     
                 parametros = {
                     Fecha: pagosXRecibo[0].fecha,
+                    EmpresaUsuario: localStorage.getItem('empresa'),
                     NumeroRecibo : localStorage.getItem("CorrelativoRecibo"),
                     CodigoCliente:props.Cliente.Codigo,
                     Tipo:(pedidoSelected!==null) ? "Anticipo [B-C]" : "Anticipo [T-O]",
@@ -844,7 +847,7 @@ const DetalleRecibo = (props) => {
             let diasDescuento = 0;
             let fechaDescuento = moment(cuot.FechaMaxDescuento);
             if (fechaDescuento.isValid()) {
-                diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days');
+                diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
             }
             DataModal.push({
                 NumeroFactura: cuot.Factura.Factura,

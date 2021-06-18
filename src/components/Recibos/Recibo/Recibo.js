@@ -133,7 +133,7 @@ const Recibo = (props) => {
                                        <h2 className={"m-0 " + styles.Title}>
                                            {empresa.NAME}
                                        </h2>
-                                       <h4 style={{ fontWeight: 'bolder' }}>{(numeroImpresion === 0 ? "Original" : "Copia")}</h4>
+                                       <h4 style={{ fontWeight: 'bolder' }}>{(numeroImpresion <= 4 ? "Original" : "Copia")}</h4>
                                    </div>
                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                        <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>

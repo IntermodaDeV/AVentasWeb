@@ -370,7 +370,7 @@ const DatatableOptions = {
       ),
     textLabels: {
         body: {
-            noMatch: "No se han encontrado recibos",
+            noMatch: "No se han encontrado recibos proforma",
             toolTip: "Ordenar",
         },
         pagination: {

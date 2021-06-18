@@ -164,7 +164,7 @@ moment.locale('es')
             <div className="pr-3 font-weight-bold  d-flex">
               <label className="m-auto">Total : </label>
               <label className="m-auto">{selectedRowsIndex.reduce((acc, curr) => {
-                let DiasVencido = moment(data[curr].Cuota.FechaMaxDescuento).diff(moment(new Date()), 'days');
+                let DiasVencido = moment(data[curr].Cuota.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
                 return acc + (DiasVencido < 0 ? Number(data[curr].Cuota.Saldo) : Number(data[curr].Cuota.Saldo - data[curr].Cuota.Descuento));
               }, 0).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
               }</label>
@@ -193,7 +193,7 @@ moment.locale('es')
       acu.Facturas.filter(f=> f.Saldo > 0).forEach(fact => {
         fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
           let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
-          let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days')
+          let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
 
           let DiasVencido = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
           let ValorDescuento = cuot.Descuento;

@@ -98,7 +98,7 @@ export const backgroundPostRecibos = async () => {
 
     if (isOnline && reciboSincronizar.length > 0) {
         for (let recibo of reciboSincronizar) {
-            let ruta = recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/Recibo';
+            let ruta = recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/proforma';
             const { error } = await backgroundPost(APIURL+ruta, recibo);
 
             if (error) {
