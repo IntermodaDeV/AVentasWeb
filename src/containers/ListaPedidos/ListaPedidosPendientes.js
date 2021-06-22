@@ -19,12 +19,13 @@ import { FiAlertTriangle } from 'react-icons/fi';
 import Dialog        from '@material-ui/core/Dialog';
 import { Loading } from 'components/Global/Loading';
 import { verificarConexion } from 'utils/http';
+import { useDispatch } from 'react-redux';
 
 moment.locale('es');
 
 export const ListaPedidosPendientes = (props) => {
     const urlApi = APIURL;
-
+    const dispatch = useDispatch();
     const [state, setState] = useState({
         error: false,
         isLoaded: false,
@@ -114,6 +115,7 @@ export const ListaPedidosPendientes = (props) => {
                     text: request.data,
                 });
                 setLoading(false);
+                cargarClientes();
                 cargarPedidos("1900-01-01", "1900-01-01");
             }catch(err){
                 setLoading(false);
@@ -136,6 +138,20 @@ export const ListaPedidosPendientes = (props) => {
                 type: 'warning',
                 confirmButtonText: 'Ok',
               })
+        }
+    }
+
+
+    const cargarClientes = async ()  => {
+        try {
+            const request = await axios.get(urlApi + "/api/cliente/pedido", {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            dispatch({ type: 'STORE_CLIENTES', clientes: request.data });
+        } catch (err) {
+            console.log("Ha ocurrido un error y no se actualizar la cartera de clientes");
         }
     }
 
