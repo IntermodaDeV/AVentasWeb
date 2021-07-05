@@ -1481,8 +1481,10 @@ class Pedidos extends React.Component {
                 })
             }
         })
-
-        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
+       
+        let total = pedido.subtotal + pedido.Impuesto + pedido.Flete
+        this.reducirDisponibleAcuerdo(pedido.CodigoCliente, total, pedido.TipoPedido.TipoPedido, pedido.AcuerdoVenta);
+        if (!isOnline || localStorage.getItem("Conexion") === "offline" || pedido.NumeroReferencia === "") {
             Swal.fire({
                 type: 'warning',
                 title: 'Advertencia',
@@ -1495,12 +1497,12 @@ class Pedidos extends React.Component {
             this.props.onSetNumeroOrden(numPedido);
             this.reducirStockBackground(productosReducir);
         }
-        else if (pedido.NumeroReferencia === "") {
+        /*else if (pedido.NumeroReferencia === "") {
             const data = postPedidoStorage(pedido);
             let numPedido = data.EncabezadoPedido.PedidoId;
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
-        }
+        }*/
         else {
             const { data, error } = await post(this.urlApi + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
 
@@ -1538,6 +1540,23 @@ class Pedidos extends React.Component {
                 this.props.onSetNumeroOrden(correlativo);
             }
         }
+    }
+
+    reducirDisponibleAcuerdo = (codigoCliente, montoTotal, TipoCredito, numAcuerdo) => {
+        let newlistaClientes = [];
+        let ClientesLista = this.state.clientes;
+        ClientesLista.filter(x => x.Codigo === codigoCliente).forEach(cliente => {
+            cliente.AcuerdosVenta.filter(x => x.IdAcuerdoxCliente === numAcuerdo).forEach(acuerdo => {
+                let nDisponible = acuerdo.Saldo - montoTotal;
+                acuerdo.Saldo = nDisponible;
+            })
+            cliente.Credito.filter(x => x.Tipo === TipoCredito).forEach(credito => {
+                let nDisponible = credito.Disponible - montoTotal;
+                credito.Disponible = nDisponible;
+            })
+        });
+        newlistaClientes = ClientesLista;
+        this.props.onStoreClientes(newlistaClientes);
     }
 
     desactivarLoading = ()=>{
