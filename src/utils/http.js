@@ -157,7 +157,7 @@ export const verificarConexion = async() => {
     if (navigator.onLine) {
         try {
             // eslint-disable-next-line
-            const request = await axios.get(APIURL + "/api/configuraciones/conexion");
+            const request = await axios.get(APIURL + "/api/configuraciones/conexion", {timeout:6000});
             return true;
         } catch (err) {
             return false;

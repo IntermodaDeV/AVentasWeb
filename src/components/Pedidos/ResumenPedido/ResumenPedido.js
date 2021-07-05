@@ -167,9 +167,7 @@ const ResumenPedido = (props) => {
                 let NumeroSiguiente = Number(NumeroActual) + 1;
                 localStorage.setItem("CorrelativoPedido", Iniciales + NumeroSiguiente);
             }
-            localStorage.setItem("CorrelativoPedidoCache", true);
         } else {
-            localStorage.setItem("CorrelativoPedidoCache", false);
             localStorage.setItem("CorrelativoPedido", correlativo)
         }
     }

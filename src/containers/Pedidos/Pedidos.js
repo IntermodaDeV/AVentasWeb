@@ -1409,7 +1409,7 @@ class Pedidos extends React.Component {
         let isOnline = await verificarConexion();
         let pedido = {
             NumeroReferencia: localStorage.getItem("CorrelativoPedido"),
-            //PedidoCache:localStorage.getItem("CorrelativoPedidoCache"),
+            //PedidoCache:localStorage.getItem("isOffline"),
             PedidoId: 100 + (Math.random() * (10000 - 100)),
             CodigoCliente: this.props.cliente.Codigo,
             Nombre: this.props.cliente.Nombre,
@@ -1496,6 +1496,7 @@ class Pedidos extends React.Component {
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
             this.reducirStockBackground(productosReducir);
+            localStorage.setItem("isOffline", true);
         }
         /*else if (pedido.NumeroReferencia === "") {
             const data = postPedidoStorage(pedido);
@@ -1505,7 +1506,7 @@ class Pedidos extends React.Component {
         }*/
         else {
             const { data, error } = await post(this.urlApi + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
-
+            localStorage.setItem("isOffline", false);
             if (error) {
                 if (error.response) {
                     let mensaje = error.response.data.Message;
@@ -1516,29 +1517,60 @@ class Pedidos extends React.Component {
                     })
                     this.setState({ loadingRecibo: false });
                 } else {
-                    let numPedido = localStorage.getItem("CorrelativoPedido");
+                    Swal.fire({
+                        type: 'warning',
+                        title: 'Advertencia',
+                        text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+                    });
+        
+                    const data = postPedidoStorage(pedido);
+                    let numPedido = data.EncabezadoPedido.PedidoId;
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                     this.props.onSetNumeroOrden(numPedido);
+                    localStorage.setItem("isOffline", true);
                 }
             } else {
-                if (data === null || data === undefined) {
-                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: localStorage.getItem("CorrelativoPedido") });
-                    this.props.onSetNumeroOrden(localStorage.getItem("CorrelativoPedido"));
+                if (!data) {
+                    Swal.fire({
+                        type: 'warning',
+                        title: 'Advertencia',
+                        text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+                    });
+        
+                    const data = postPedidoStorage(pedido);
+                    let numPedido = data.EncabezadoPedido.PedidoId;
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+                    this.props.onSetNumeroOrden(numPedido);
+                    localStorage.setItem("isOffline", true);
                     return;
                 }
 
                 const { correlativo, mensaje } = data;
-
-                if (mensaje.includes("flotante")) {
+                if(mensaje)
+                {
+                    if (mensaje.includes("flotante")) {
+                        Swal.fire({
+                            type: 'warning',
+                            title: 'Advertencia',
+                            text: mensaje,
+                        })
+                    }
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: correlativo });
+                    this.props.onSetNumeroOrden(correlativo);
+                }
+                else{
                     Swal.fire({
                         type: 'warning',
                         title: 'Advertencia',
-                        text: mensaje,
-                    })
+                        text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+                    });
+                    let numPedido = data.EncabezadoPedido.PedidoId;
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+                    this.props.onSetNumeroOrden(numPedido);
+                    localStorage.setItem("isOffline", true);
                 }
-                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: correlativo });
-                this.props.onSetNumeroOrden(correlativo);
             }
+            
         }
     }
 

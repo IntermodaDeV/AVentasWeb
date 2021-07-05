@@ -326,7 +326,7 @@ const ImprimirPedidoOriginal = (props) => {
                                 Dirección : {(clienteContado !== null && clienteContado !== undefined) ? clienteContado.Direccion : props.Cliente.Direccion}<br />
                                 Código    : {props.Cliente.Codigo}<br />
                                    {
-                                       localStorage.getItem("CorrelativoPedidoCache") === "true" &&
+                                       localStorage.getItem("isOffline") === "true" &&
                                        <h4 style={{fontWeight:'bold'}}>
                                            {"Este documento ha sido generado fuera de linea."}
                                        </h4>

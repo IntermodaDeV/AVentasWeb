@@ -49,6 +49,7 @@ import { PaqueteBodega } from 'containers/PaqueteBodega/PaqueteBodega'
 import { SitioBodega } from 'containers/SitioBodega/SitioBodega'
 import { AlmacenSitio } from 'containers/AlmacenSitio/AlmacenSitio'
 import { ListaReciboProforma } from 'containers/ListaRecibos/ListaRecibosProforma';
+import { Ubicaciones } from 'containers/Ubicaciones/Ubicaciones';
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -337,6 +338,11 @@ const App = props => {
               path='/lista-recibos-proforma'
               layout={MainLayout}
               component={ListaReciboProforma}
+            />
+             <LayoutRoute
+              path='/configuracion-ubicaciones'
+              layout={MainLayout}
+              component={Ubicaciones}
             />
             <Redirect to='/home' />
           </Switch>
