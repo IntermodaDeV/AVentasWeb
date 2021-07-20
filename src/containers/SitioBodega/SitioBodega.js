@@ -117,7 +117,7 @@ let HeaderSitios = [
         options: {
             filter: true,
             sort: true,
-            customBodyRender: (value, tableMeta, updateValue) => {
+            customBodyRender: (value) => {
                 return (
                     <span style={{ color: (value === "Activo") ? 'green' : 'red', fontWeight: 'bolder' }}>{value}</span>
                 );

@@ -1516,11 +1516,11 @@ class Pedidos extends React.Component {
                         text: mensaje,
                     })
                     this.setState({ loadingRecibo: false });
-                } else {
+                }/*else {
                     Swal.fire({
                         type: 'warning',
-                        title: 'Advertencia',
-                        text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+                        title: 'Error',
+                        text: "Ocurrió un error, el pedido se guardara en bandeja de salida.",
                     });
         
                     const data = postPedidoStorage(pedido);
@@ -1528,7 +1528,7 @@ class Pedidos extends React.Component {
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                     this.props.onSetNumeroOrden(numPedido);
                     localStorage.setItem("isOffline", true);
-                }
+                }*/
             } else {
                 if (!data) {
                     Swal.fire({
