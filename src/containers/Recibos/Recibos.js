@@ -524,7 +524,23 @@ const Recibos = (props) => {
     </div>
   );
   const SelectedCliente = cliente => {
-    //props.history.push('/Recibos/TipoCredito');
+    cliente.AcuerdosXTipoPedido.forEach(function(AcuerdosXTipoPedido) {
+
+            AcuerdosXTipoPedido.Acuerdos.forEach(function(Acuerdos) {
+
+                Acuerdos.Facturas.filter(f => f.Descuento === 0 && cliente.MaestroDescuento.length > 0).forEach(function(Facturas) {
+
+                  let Descuento = cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea)
+                  if(Descuento.length>0)
+                  {
+                    Facturas.Descuento = Facturas.TotalFactura * (Descuento[0].Porcentaje/100)
+                    Facturas.Cuotas.forEach(function(Cuotas) {
+                      Cuotas.Descuento = Cuotas.SaldoDivisa * (Descuento[0].Porcentaje/100);
+                    })
+                  }
+                });
+            } );
+        });
     props.onStoreReciboClienteSelected(cliente);
   }
   // if (clienteSelected && facturasXCliente && cuotasAPagar) {

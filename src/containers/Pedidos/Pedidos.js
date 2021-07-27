@@ -1529,6 +1529,8 @@ class Pedidos extends React.Component {
                     this.props.onSetNumeroOrden(numPedido);
                     localStorage.setItem("isOffline", true);
                 }*/
+                let numPedido = pedido.NumeroReferencia;
+                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             } else {
                 if (!data) {
                     Swal.fire({
