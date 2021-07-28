@@ -227,7 +227,7 @@ const DetalleRecibo = (props) => {
             if (PagoAcumulado >= 0) {
                 cuotasAProcesar.forEach(cuotProc => {
                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days');
-                    let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
+                    let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento.toFixed(2)) : (cuotProc.Saldo - cuotProc.PagoAplicado);
                     //if(calculo.current===2){
                     valorPagos += montoAPagar;
                     Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0;

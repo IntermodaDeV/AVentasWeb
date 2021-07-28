@@ -533,9 +533,19 @@ const Recibos = (props) => {
                   let Descuento = cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea)
                   if(Descuento.length>0)
                   {
-                    Facturas.Descuento = Facturas.TotalFactura * (Descuento[0].Porcentaje/100)
+                    let descuento = Facturas.TotalFactura * (Descuento[0].Porcentaje/100)
+                    Facturas.Descuento = descuento
                     Facturas.Cuotas.forEach(function(Cuotas) {
-                      Cuotas.Descuento = Cuotas.SaldoDivisa * (Descuento[0].Porcentaje/100);
+                      if(AcuerdosXTipoPedido.TipoPedido === "Ordinario" || AcuerdosXTipoPedido.TipoPedido === "Contado")
+                      {
+                        Cuotas.Descuento = Cuotas.ValorCuota * (Descuento[0].Porcentaje/100);
+                      }
+                      else
+                      {
+                        Cuotas.Descuento = Cuotas.SaldoDivisa * (Descuento[0].Porcentaje/100);
+                        Facturas.Saldo = Facturas.Saldo - descuento;
+                      }
+                        
                     })
                   }
                 });
