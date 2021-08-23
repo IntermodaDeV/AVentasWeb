@@ -68,6 +68,9 @@ const initialState = {
     RespuestaDetalle: [],
     MaestroBodegaAlmacenes: [],
     BodegaSeleccionada: null,
+    Devolucion: {
+        clienteSelected: null,
+    },
 }
 
 const calcularLimite = (state) => {
@@ -767,6 +770,16 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             MaestroBodegaAlmacenes: action.payload
+        }
+    }
+
+    if (action.type === 'STORE_DEVOLUCION_CLIENTESELECTED') {
+        return {
+            ...state,
+            Devolucion:{
+                ...state.Recibo,
+                clienteSelected: action.clienteSelected
+            }
         }
     }
     
