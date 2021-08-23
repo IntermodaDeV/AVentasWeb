@@ -399,7 +399,7 @@ const ImprimirPedidoOriginal = (props) => {
                         </div>
 
                         <div className="col-7 valueTotal">
-                        {moneda} {numberWithCommas(props.ValoresPedido.totalGlobal)}
+                        {moneda} {props.Cliente.IncluyeImpuesto ? numberWithCommas(props.ValoresPedido.totalGlobal-impuesto) : numberWithCommas(props.ValoresPedido.totalGlobal)}
                         </div>
                     </div>
 
@@ -429,7 +429,7 @@ const ImprimirPedidoOriginal = (props) => {
                         </div>
 
                         <div className="col-7 valueTotal">
-                        {moneda} {numberWithCommas((props.ValoresPedido.totalGlobal + impuesto) + props.ValoresPedido.flete)}
+                        {moneda} {props.Cliente.IncluyeImpuesto ? numberWithCommas(props.ValoresPedido.totalGlobal  + props.ValoresPedido.flete) : numberWithCommas((props.ValoresPedido.totalGlobal + impuesto) + props.ValoresPedido.flete)}
                         </div>
                     </div>
                 </div>

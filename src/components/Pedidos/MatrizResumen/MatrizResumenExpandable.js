@@ -170,9 +170,16 @@ const MatrizResumen = (props) => {
                                                     unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
                                                     totalGlobal = (precio.Precio * cantidadXTalla) + totalGlobal;
 
-                                                    if(clienteImpuesto.IMPUESTO!==0){
-                                                        impuesto = ((precio.Precio * cantidadXTalla)*productoImpuesto)+impuesto;
-                                                        localStorage.setItem('Impuesto',impuesto);
+                                                    if (clienteImpuesto.IMPUESTO !== 0) {
+                                                        if (cliente.IncluyeImpuesto) {
+                                                            let nuevoImpuesto = ((precio.Precio * cantidadXTalla) * productoImpuesto);
+                                                            totalGlobal -= nuevoImpuesto;
+                                                            impuesto = nuevoImpuesto + impuesto;
+                                                            localStorage.setItem('Impuesto', impuesto);
+                                                        } else {
+                                                            impuesto = ((precio.Precio * cantidadXTalla) * productoImpuesto) + impuesto;
+                                                            localStorage.setItem('Impuesto', impuesto);
+                                                        }
                                                     }
                                                 });
                                             });

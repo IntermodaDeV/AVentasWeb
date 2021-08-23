@@ -1407,6 +1407,7 @@ class Pedidos extends React.Component {
   
     enviarPeticionPedido = async (location, correlativo) => {
         let isOnline = await verificarConexion();
+        let nuevoSubtotal = this.props.cliente.Codigo.IncluyeImpuesto ? this.props.TotalPedido-Number(localStorage.getItem('Impuesto')) : this.props.TotalPedido;
         let pedido = {
             NumeroReferencia: localStorage.getItem("CorrelativoPedido"),
             //PedidoCache:localStorage.getItem("isOffline"),
@@ -1428,7 +1429,7 @@ class Pedidos extends React.Component {
             Flete: this.props.flete,
             RequiereEntrega: this.props.requiereEntrega,
             Impuesto: Number(localStorage.getItem('Impuesto')),
-            subtotal: this.props.TotalPedido,
+            subtotal: nuevoSubtotal,
             Direccion: this.props.cliente.Direccion,
             MonedaCliente: this.props.cliente.Moneda,
             BodegaEspecifica: !this.props.BodegaSeleccionada.BodegaPrincipal,
