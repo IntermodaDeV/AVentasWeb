@@ -153,7 +153,13 @@ const navItems = [
             { to: '/seguridad-mantenimiento', name: 'Mantenimiento', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt, backgroundColor:''  },
         ]
     },
-    { to: '/devolucion', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
+    {
+        to: '/devolucion', name: 'Devolucion', dataTut: 'DataTut_Devolucion', Icon: SwapHorizOutlined,
+        expanded: [
+            { to: '/devolucion', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
+            { to: '/MotivosDevolucion', name: 'Motivos Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
+        ]
+    },
     { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
     { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
     { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
