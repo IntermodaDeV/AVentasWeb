@@ -15,24 +15,28 @@ export const MotivosDevolucion = props => {
     const [UsuariosConAcceso, setUsuariosConAcceso] = useState([]);
     const [UsuariosSinAcceso, setUsuariosSinAcceso] = useState([]);
     const [MotivosDevolucion, setMotivosDevolucion] = useState([]);
-
+    const [MotDevolucionSelected, setMotDevolucionSelected] = useState(null);
     useEffect(() => {
         cargarMotivosDevolucion();
     }, []);
 
-    const cargarUsuarios = (seccionId) => {
-        cargarUsuariosConAcceso(seccionId);
-        cargarUsuariosSinAcceso(seccionId);
+    const cargarUsuarios = (idMotDevId) => {
+
+        cargarUsuariosConAcceso(idMotDevId);
+        cargarUsuariosSinAcceso(idMotDevId);
+        setMotDevolucionSelected(idMotDevId);
         setMostrarUsuario(true);
     }
-    const cargarUsuariosConAcceso = async (seccionId) => {
+
+    const ActualizarAprobacion = async (idMotivoDevolucion) => {
         try {
-            const request = await axios.get(`${APIURL}/api/secciones/usuarios/${seccionId}/${props.Secciones[0].EncuestaId}`);
-            setUsuariosConAcceso(request.data);
+            await axios.get(`${APIURL}/api/ActualizarAprobacionDevolucion/${idMotivoDevolucion}`);
+            cargarMotivosDevolucion();
         } catch (err) {
             console.log("Ha ocurrido un error", err.response)
         }
     }
+
 
     const cargarMotivosDevolucion = async () => {
         try {
@@ -43,9 +47,18 @@ export const MotivosDevolucion = props => {
         }
     }
 
-    const cargarUsuariosSinAcceso = async (seccionId) => {
+    const cargarUsuariosConAcceso = async (id) => {
         try {
-            const request = await axios.get(`${APIURL}/api/secciones/usuariosSinAcceso/${seccionId}/${props.Secciones[0].EncuestaId}`);
+            const request = await axios.get(`${APIURL}/api/motivosDevolucion/usuarios/${id}`);
+            setUsuariosConAcceso(request.data);
+        } catch (err) {
+            console.log("Ha ocurrido un error", err.response)
+        }
+    }
+
+    const cargarUsuariosSinAcceso = async (id) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/motivosDevolucion/sinAccesoUsuarios/${id}`);
             setUsuariosSinAcceso(request.data);
         } catch (err) {
             console.log("Ha ocurrido un error", err.response)
@@ -54,8 +67,11 @@ export const MotivosDevolucion = props => {
 
     const asignarUsuario = async (usuarioId) => {
         try {
-            await axios.post(`${APIURL}/api/secciones/AsignarAccesoUsuario/${usuarioId}/${localStorage.getItem('codigo')}/${props.Secciones[0].EncuestaId}`);
-            cargarUsuarios();
+            await axios.post(`${APIURL}/api/motivosDevolucion/AsignarAccesoUsuario/${MotDevolucionSelected}/${usuarioId}`,{}, { 
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            }});
+            cargarUsuarios(MotDevolucionSelected);
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
 
@@ -76,8 +92,11 @@ export const MotivosDevolucion = props => {
 
     const removerUsuario = async (usuarioId) => {
         try {
-            await axios.post(`${APIURL}/api/secciones/RemoverUsuario/${usuarioId}/${localStorage.getItem('codigo')}/${props.Secciones[0].EncuestaId}`)
-            cargarUsuarios();
+            await axios.post(`${APIURL}/api/motivosDevolucion/RemoverUsuario/${MotDevolucionSelected}/${usuarioId}`,{}, { 
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                }});
+            cargarUsuarios(MotDevolucionSelected);
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se ha guardado el registro";
 
@@ -101,10 +120,10 @@ export const MotivosDevolucion = props => {
                 <DialogContent>
                     <div className="row">
                         <div className="col">
-                            <TablaRelacion funcion={asignarUsuario} accion="agregar" titulo="Usuarios Sin Acceso" cabeceras={["Usuarios", "Accion"]} valores={UsuariosSinAcceso} />
+                            <TablaRelacion funcion={asignarUsuario} accion="agregar" titulo="Usuarios" cabeceras={["Usuarios", "Accion"]} valores={UsuariosSinAcceso} />
                         </div>
                         <div className="col">
-                            <TablaRelacion funcion={removerUsuario} accion="remover" titulo="Usuarios con acceso" cabeceras={["Usuarios", "Accion"]} valores={UsuariosConAcceso} />
+                            <TablaRelacion funcion={removerUsuario} accion="remover" titulo="Administradores de aprobaciones" cabeceras={["Usuarios", "Accion"]} valores={UsuariosConAcceso} />
                         </div>
                     </div>
                 </DialogContent>
@@ -116,7 +135,7 @@ export const MotivosDevolucion = props => {
             </Dialog>
 
 
-            <ListadoMotivosDevolucion MotivosDevolucion = {MotivosDevolucion} cargarUsuarios={cargarUsuarios} />
+            <ListadoMotivosDevolucion MotivosDevolucion = {MotivosDevolucion} ActualizarAprobacion = {ActualizarAprobacion} cargarUsuarios={cargarUsuarios}/>
         </div>
     )
 }

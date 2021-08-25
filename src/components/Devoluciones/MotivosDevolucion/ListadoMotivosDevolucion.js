@@ -4,7 +4,7 @@ import TableFooter from "@material-ui/core/TableFooter";
 import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
-import { MdCheckCircle, MdCancel } from "react-icons/md";
+import { MdCheckCircle, MdCancel, MdPerson } from "react-icons/md";
 
 export const ListadoMotivosDevolucion = props => {
     const cabeceras = [
@@ -33,16 +33,16 @@ export const ListadoMotivosDevolucion = props => {
             }
         },
         {
-            name: "Aprobacion",
-            label: "¿Es Necesario aprobacion?",
+            name: "estado",
+            label: "Estado",
             options: {
                 filter: true,
                 sort: true,
             }
         },
         {
-            name: "estado",
-            label: "Estado",
+            name: "Aprobacion",
+            label: "¿Es Necesario aprobacion?",
             options: {
                 filter: true,
                 sort: true,
@@ -57,20 +57,15 @@ export const ListadoMotivosDevolucion = props => {
             }
         }
     ]
-
-    console.log("props",props)
-
     const dataTabla = () => {
-        const estilo = true ? "success" : "danger";
-        const icono = true ? <MdCheckCircle /> : <MdCancel />
         return props.MotivosDevolucion.map((valor) =>
             [
                 valor.CodigoMotivoDevolucion,
                 valor.Descripcion,
                 valor.EmpresaId,
-                <input type="checkbox" checked={valor.aprobacionObligatoria} style={{ height: 15, width: 15}} onChange={(e)=> alert(valor.IdMotivoDevolucion)}/>,
-                valor.Estado ? "Activo" : "Inactivo",
-                <button onClick={() => { props.funcion(valor.Id) }} className={`btn btn-${estilo}`} >{} {icono}</button>
+                <span style={{color: valor.Estado ? "green":"red" }} >{valor.Estado ? "Activo" : "Inactivo"}{valor.Estado ? <MdCheckCircle /> : <MdCancel />}</span> ,
+                <input type="checkbox" checked={valor.aprobacionObligatoria} style={{ height: 16, width: 16}} onChange={(e)=> props.ActualizarAprobacion(valor.IdMotivoDevolucion)}/>, 
+                <button disabled={!valor.aprobacionObligatoria} onClick={() => { props.cargarUsuarios(valor.IdMotivoDevolucion) }} className={`btn btn-info`} >Usuarios {<MdPerson/>}</button>
             ]);
     }
 
