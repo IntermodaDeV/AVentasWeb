@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dropdown } from "semantic-ui-react";
 import 'semantic-ui-css/semantic.min.css'
 import {
@@ -6,23 +6,19 @@ import {
     CardContent,
     Button,
 } from '@material-ui/core';
-const ClienteSelected = (props) => {
-    const [Value, setValue] = useState([]);
-    useEffect(() => {
-        props.cargarClientes();
-        // eslint-disable-next-line
-    }, []);
+import { useSelector } from 'react-redux';
 
-    var options = [];
+const ClienteSelected = (props) => {
+    const [value, setValue] = useState();
+    const clientes = useSelector(e => e.clientes);
+
     const handleOnChange = (value) => {
         setValue(value);
     }
 
-    props.clientes.map(el => {
-        var cliente = { key: el.Codigo, value: JSON.stringify(el), text: el.Codigo + ' - ' + el.Nombre }
-        options.push(cliente);
-        return 0;
-    })
+    const obtenerClientes = () => {
+        return clientes.map(el => ({ key: el.Codigo, value: JSON.stringify(el), text: `${el.Codigo}-${el.Nombre}` }))
+    }
 
     return (
         <>
@@ -45,18 +41,18 @@ const ClienteSelected = (props) => {
                                     search
                                     selection
                                     onChange={(e, { value }) => handleOnChange(value)}
-                                    options={options}
+                                    options={obtenerClientes()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
                                     style={{ zIndex: 999 }}
                                     multiple={false}
-                                    value={Value}
+                                    value={value}
                                 />
                             </div>
                             <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                                 <Button
-                                    disabled={Value ? false : true}
-                                    onClick={()=>props.cargarProductoDevolucion(Value)}
+                                    disabled={value ? false : true}
+                                    onClick={() => props.cargarProductoDevolucion(value)}
                                     variant="contained"
                                     color="primary">
                                     Continuar

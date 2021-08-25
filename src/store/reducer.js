@@ -70,6 +70,7 @@ const initialState = {
     BodegaSeleccionada: null,
     Devolucion: {
         clienteSelected: null,
+        TableValue:{}
     },
 }
 
@@ -777,8 +778,19 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             Devolucion:{
-                ...state.Recibo,
+                ...state.Devolucion,
                 clienteSelected: action.clienteSelected
+            }
+        }
+    }
+
+    if (action.type === 'SET_TABLEVALUEDEVOLUCION') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                TableValue: action.payload
             }
         }
     }
