@@ -41,20 +41,13 @@ export const ProductosDevolucion = (props) => {
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].ListaImagenes = color.ListaImagenes;
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
                 producto.ListaTalla.map(talla => {
-                    let fisicoDisponible = producto.fisicaDisponible.find(fd => { return fd.CodigoColor === color.CodigoColor && fd.IdTalla === talla.Talla })
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = fisicoDisponible ? fisicoDisponible.Cantidad : 0;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 5;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
-                    if (fisicoDisponible ? fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0 : false) {
-                        let PreciosEspecifico = fisicoDisponible.PreciosEspecificos.find(p => p.GrupoPrecio === this.props.cliente.GrupoPrecio)
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = PreciosEspecifico.Precio
-                    } else {
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = precio.Precio;
-                    }
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 5
                     return false;
                 });
-                return false;
             });
 
         } else {
@@ -65,52 +58,92 @@ export const ProductosDevolucion = (props) => {
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].ListaImagenes = color.ListaImagenes;
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
                 producto.ListaTalla.map(talla => {
-                    let fisicoDisponible = producto.fisicaDisponible.find(fd => { return fd.CodigoColor === color.CodigoColor && fd.IdTalla === talla.Talla })
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = fisicoDisponible ? fisicoDisponible.Cantidad : 0;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 5;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
-                    if (fisicoDisponible ? fisicoDisponible.PreciosEspecificos && fisicoDisponible.PreciosEspecificos.length > 0 : false) {
-                        let PreciosEspecifico = fisicoDisponible.PreciosEspecificos.find(p => p.GrupoPrecio === this.props.cliente.GrupoPrecio)
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = PreciosEspecifico.Precio
-                    } else {
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = precio.Precio;
-                    }
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 5
                     return false;
                 });
-                return false;
             });
         }
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
     }
 
+    const eliminarProducto = (grupoTalla, codigoProducto) => {
+        let nuevoTableValue = { ...tableValue };
+        delete nuevoTableValue[grupoTalla]["Productos"][codigoProducto];
+
+        if (Object.keys(nuevoTableValue[grupoTalla]["Productos"]).length === 0) {
+            delete nuevoTableValue[grupoTalla];
+        }
+
+        dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: nuevoTableValue });
+    }
+
+    const eliminarColor = (grupoTalla, codigoProducto, color) => {
+        let nuevoTableValue = { ...tableValue };
+        delete nuevoTableValue[grupoTalla]["Productos"][codigoProducto]["Colores"][color];
+
+        if (Object.keys(nuevoTableValue[grupoTalla]["Productos"][codigoProducto]["Colores"]).length === 0) {
+            delete nuevoTableValue[grupoTalla]["Productos"][codigoProducto];
+        }
+
+        if (Object.keys(nuevoTableValue[grupoTalla]["Productos"]).length === 0) {
+            delete nuevoTableValue[grupoTalla];
+        }
+
+        dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: nuevoTableValue });
+    }
+
+    const ingresoCantidad = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio) => {
+        let nuevoTableValue = { ...tableValue };
+        const valor = (text.target.validity.valid) ? text.target.value : nuevoTableValue[grupoTalla].Productos[codigoProducto].Colores[codigoColor].Tallas[codigoTalla].Cantidad;
+        let valorPrevio = tableValue[grupoTalla].Productos[codigoProducto].Colores[codigoColor].Tallas[codigoTalla];
+        valorPrevio.Cantidad = valor;
+        dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: nuevoTableValue });
+    }
+
     return (
         <>
             <MotivosDevolucion agregarProducto={agregarProducto} />
-            <Card style={{ margin: '15px' }}>
-                <CardHeader
-                    title={
-                        <Typography gutterBottom variant="h5" component="h2">
-                            <h3>Productos a Devolver</h3>
-                        </Typography>}
-                    style={{ borderBottom: '1px solid #ddd', padding: '10px 16px' }}
-                />
-                <CardContent>
-                    <form>
-                        {Object.keys(tableValue).map((grupoTalla, index) => {
-                            let productos = Object.keys(tableValue[grupoTalla].Productos);
-                            return productos.map((codigoProducto, index1) => {
-                                let producto = tableValue[grupoTalla].Productos[codigoProducto];
-                                let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
 
-                                return (
-                                    <ExpandableDevolucion grupoTalla={grupoTalla} producto={producto} codigoProducto={codigoProducto} tallas={tallas} />
-                                )
-                            })
-                        })}
-                    </form>
-                </CardContent>
-            </Card>
+            {(Object.keys(tableValue).length > 0) &&
+                <Card style={{ margin: '15px' }}>
+                    <CardHeader
+                        title={
+                            <Typography gutterBottom variant="h5" component="h2">
+                                Productos a Devolver
+                            </Typography>}
+                        style={{ borderBottom: '1px solid #ddd', padding: '10px 16px' }}
+                    />
+                    <CardContent>
+                        <form>
+                            {Object.keys(tableValue).map((grupoTalla, index) => {
+                                let productos = Object.keys(tableValue[grupoTalla].Productos);
+                                return productos.map((codigoProducto, index1) => {
+                                    let producto = tableValue[grupoTalla].Productos[codigoProducto];
+                                    let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
+
+                                    return (
+                                        <ExpandableDevolucion
+                                            key={codigoProducto}
+                                            grupoTalla={grupoTalla}
+                                            producto={producto}
+                                            codigoProducto={codigoProducto}
+                                            tallas={tallas}
+                                            eliminarProducto={eliminarProducto}
+                                            eliminarColor={eliminarColor}
+                                            ingresoCantidad={ingresoCantidad}
+                                        />
+                                    )
+
+                                })
+                            })}
+                        </form>
+                    </CardContent>
+                </Card>
+            }
         </>
     );
 }

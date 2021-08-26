@@ -777,9 +777,10 @@ const reducer = (state = initialState, action) => {
     if (action.type === 'STORE_DEVOLUCION_CLIENTESELECTED') {
         return {
             ...state,
-            Devolucion:{
+            Devolucion: {
                 ...state.Devolucion,
-                clienteSelected: action.clienteSelected
+                clienteSelected: action.clienteSelected,
+                TableValue: {}
             }
         }
     }

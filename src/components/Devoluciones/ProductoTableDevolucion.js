@@ -1,25 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumen.module.css';
-import CeldaTallas from "components/Pedidos/Global/CeldaTallas";
+import { CeldaTallaDevolucion } from "components/Devoluciones/CeldaTallaDevolucion";
 import { FiTrash2 } from "react-icons/fi";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'sweetalert2/src/sweetalert2.scss';
-import { useSelector } from 'react-redux';
+import { numberWithCommas } from 'utils/common';
 
 const ProductoTableDevolucion = (props) => {
     const [dirty, setDirty] = useState(false);
-    const [hasBackOrder, setHasBackOrder] = useState("N");
-    const Configuraciones = useSelector(e => e.Configuraciones);
 
     let ArregloProductos = Object.keys(props.producto.Colores).map((key) => ([key, props.producto.Colores[key]]));
     ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1);
-
-    useEffect(() => {
-        setDirty(props.mostrarVacios);
-        cargarBackOrder();
-
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.mostrarVacios]);
 
     const EliminarProducto = (grupo, cod, nombre) => {
         Swal.fire({
@@ -46,8 +37,29 @@ const ProductoTableDevolucion = (props) => {
         })
     }
 
-    const cargarBackOrder = () => {
-        setHasBackOrder(Configuraciones.BO)
+    const EliminarColor = (nombreColor, grupo, cod, codigoColor) => {
+        Swal.fire({
+            title: '¿Eliminar color?',
+            text: `Desea eliminar el color ${nombreColor}?\nCódigo: ${cod}`,
+            type: 'warning',
+            showCancelButton: true,
+            cancelButtonColor: '#3085d6',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Eliminar!',
+            cancelButtonText: 'Cancelar',
+        }).then((result) => {
+            if (result.value) {
+                props.eliminarColor(grupo, cod, codigoColor);
+                Swal.fire(
+                    {
+                        type: 'success',
+                        title: 'El color ha sido eliminado',
+                        showConfirmButton: false,
+                        timer: 1500
+                    }
+                )
+            }
+        })
     }
 
     const onFocus = () => {
@@ -114,28 +126,22 @@ const ProductoTableDevolucion = (props) => {
                         }}>
                             {color.NombreColor}
                             <div className="pl-2">
-                                <FiTrash2 className={styles.FiTrash2} onClick={() => EliminarProducto(props.grupoTalla, props.codigoProducto, props.producto.NombreProducto)} />
+                                <FiTrash2 className={styles.FiTrash2} onClick={() => EliminarColor(color.NombreColor, props.grupoTalla, props.codigoProducto, codigoColor[0])} />
                             </div>
                         </td>
                         {
                             Object.keys(color.Tallas).map((codigoTalla, index3) => {
-                                var valorTalla = color.Tallas[codigoTalla];
-                                var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
-
+                                let valorTalla = color.Tallas[codigoTalla];
 
                                 let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
                                 let totalXTalla = cantidadXTalla * valorTalla.Precio;
                                 cantidadTotalXColor += cantidadXTalla;
                                 totalXColor = parseInt(totalXColor, 10) + totalXTalla;
 
-
                                 return (
-                                    <CeldaTallas
+                                    <CeldaTallaDevolucion
                                         key={index3}
                                         disponible={valorTalla.Disponible}
-                                        backorder={backOrder}
-                                        hasBackOrder={hasBackOrder}
-                                        NoEsFuturo={props.futuro}
                                         handleArrowKeys={handleArrowKeys}
                                         precio={valorTalla.Precio}
                                         codigoProducto={props.codigoProducto}
@@ -146,11 +152,6 @@ const ProductoTableDevolucion = (props) => {
                                         onFocus={onFocus}
                                         onBlur={onBlur}
                                         onChange={props.onValueChange}
-                                        color={null}
-                                        setListaImagenesPrincipal={null}
-                                        CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
-                                        cantidadMinima={props.producto.CantidadMinima}
-                                        stockVisibleFuturo={props.producto.StockVisible}
                                     />
                                 )
                             })
@@ -163,11 +164,11 @@ const ProductoTableDevolucion = (props) => {
                         }}>{cantidadTotalXColor}</td>
 
                         <td className="p-1" style={{
-                            textAlign: 'right',
+                            textAlign: 'center',
                             alignItems: 'center',
                             verticalAlign: 'middle',
                             fontWeight: 600,
-                        }}>{props.numberWithCommas(totalXColor)}</td>
+                        }}>{numberWithCommas(totalXColor)}</td>
                     </tr>
                 )
             })}

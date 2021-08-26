@@ -8,7 +8,7 @@ import {
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
 import ProductoTableDevolucion from './ProductoTableDevolucion';
 
-export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTalla }) => {
+export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTalla, eliminarProducto, eliminarColor, ingresoCantidad }) => {
     const [expandir, setExpandir] = useState(false)
 
     return (
@@ -53,11 +53,11 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
                                 <tbody>
                                     <ProductoTableDevolucion
                                         codigoProducto={codigoProducto}
-                                        futuro={true}
+                                        futuro={false}
                                         producto={producto}
                                         Cliente={{}}
                                         onfocus={() => { }}
-                                        onValueChange={(e) => { console.log(e) }}
+                                        onValueChange={ingresoCantidad}
                                         grupoTalla={grupoTalla}
                                         tallas={tallas}
                                         index={1}
@@ -65,7 +65,8 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
                                         numberWithCommas={(e) => { }}
                                         productoConCantindad={false}
                                         mostrarVacios={false}
-                                        Eliminar={() => { }}
+                                        Eliminar={eliminarProducto}
+                                        eliminarColor={eliminarColor}
                                         CrearDetallePedidoOnline={() => { }}
 
                                     />

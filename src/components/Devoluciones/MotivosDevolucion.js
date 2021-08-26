@@ -5,14 +5,23 @@ import {
 } from '@material-ui/core';
 import { Dropdown } from "semantic-ui-react";
 import axios from 'axios';
+import { useSelector } from 'react-redux';
+import { APIURL } from 'utils/Enviroment';
 
 export const MotivosDevolucion = ({ agregarProducto }) => {
+    const clienteSelected = useSelector(e => e.Devolucion.clienteSelected);
     const [codigo, setCodigo] = useState("");
     const [color, setColor] = useState("");
 
     const añadir = async () => {
-        const data = await axios.get(`http://localhost:62632/api/producto/imhn/${codigo}/${color}`)
+        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${codigo}/${color}`)
         agregarProducto(data.data)
+        limpiarCampos();
+    }
+
+    const limpiarCampos = () => {
+        setCodigo("");
+        setColor("");
     }
 
     return (
@@ -43,10 +52,10 @@ export const MotivosDevolucion = ({ agregarProducto }) => {
                     />
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 40 }}>
-                    <input type="text" class="mr-5 form-control" placeholder="Codigo Producto" onChange={(e) => { setCodigo(e.target.value) }} />
-                    <input type="text" class="mr-5 form-control" placeholder="Codigo Color" onChange={(e) => { setColor(e.target.value) }} />
-                    <input type="text" class="mr-5 form-control" placeholder="Talla" />
-                    <input type="text" class="mr-5 form-control" placeholder="Codigo Barra" />
+                    <input type="text" className="mr-5 form-control" placeholder="Codigo Producto" value={codigo} onChange={(e) => { setCodigo(e.target.value) }} />
+                    <input type="text" className="mr-5 form-control" placeholder="Codigo Color" value={color} onChange={(e) => { setColor(e.target.value) }} />
+                    <input type="text" className="mr-5 form-control" placeholder="Talla" />
+                    <input type="text" className="mr-5 form-control" placeholder="Codigo Barra" />
                     <button className="btn btn-success" onClick={añadir}>Añadir</button>
                 </div>
             </CardContent>
