@@ -70,7 +70,8 @@ const initialState = {
     BodegaSeleccionada: null,
     Devolucion: {
         clienteSelected: null,
-        TableValue:{}
+        TableValue: {},
+        devolucionCompleta: false
     },
 }
 
@@ -780,7 +781,8 @@ const reducer = (state = initialState, action) => {
             Devolucion: {
                 ...state.Devolucion,
                 clienteSelected: action.clienteSelected,
-                TableValue: {}
+                TableValue: {},
+                devolucionCompleta: false
             }
         }
     }
@@ -791,7 +793,18 @@ const reducer = (state = initialState, action) => {
 
             Devolucion: {
                 ...state.Devolucion,
-                TableValue: action.payload
+                TableValue: action.payload 
+            }
+        }
+    }
+
+    if (action.type === 'SET_DEVOLUCIONCOMPLETA') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                devolucionCompleta: !state.Devolucion.devolucionCompleta
             }
         }
     }

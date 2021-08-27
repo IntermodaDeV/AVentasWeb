@@ -101,9 +101,11 @@ const ProductoTableDevolucion = (props) => {
                                     {props.codigoProducto}
                                 </div>
                                 <div>{props.producto.NombreProducto}</div>
-                                <div className="pl-2">
-                                    <FiTrash2 className={styles.FiTrash2} onClick={() => EliminarProducto(props.grupoTalla, props.codigoProducto, props.producto.NombreProducto)} />
-                                </div>
+                                {props.devolucionCompleta &&
+                                    <div className="pl-2">
+                                        <FiTrash2 className={styles.FiTrash2} onClick={() => EliminarProducto(props.grupoTalla, props.codigoProducto, props.producto.NombreProducto)} />
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -125,9 +127,11 @@ const ProductoTableDevolucion = (props) => {
                             fontWeight: 600,
                         }}>
                             {color.NombreColor}
-                            <div className="pl-2">
-                                <FiTrash2 className={styles.FiTrash2} onClick={() => EliminarColor(color.NombreColor, props.grupoTalla, props.codigoProducto, codigoColor[0])} />
-                            </div>
+                            {props.devolucionCompleta &&
+                                <div className="pl-2">
+                                    <FiTrash2 className={styles.FiTrash2} onClick={() => EliminarColor(color.NombreColor, props.grupoTalla, props.codigoProducto, codigoColor[0])} />
+                                </div>
+                            }
                         </td>
                         {
                             Object.keys(color.Tallas).map((codigoTalla, index3) => {
@@ -152,6 +156,7 @@ const ProductoTableDevolucion = (props) => {
                                         onFocus={onFocus}
                                         onBlur={onBlur}
                                         onChange={props.onValueChange}
+                                        devolucionCompleta={props.devolucionCompleta}
                                     />
                                 )
                             })

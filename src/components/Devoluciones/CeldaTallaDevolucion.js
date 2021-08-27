@@ -33,6 +33,10 @@ export const CeldaTallaDevolucion = (props) => {
 
 
     const isDisabled = () => {
+        if (!props.devolucionCompleta) {
+            return true;
+        }
+
         if (props.precio === 0 || props.disponible === 0) {
             return true;
         }

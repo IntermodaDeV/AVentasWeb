@@ -70,6 +70,52 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
     }
 
+    const agregarDevolucionCompleta = (productos, productosDevolver) => {
+        let miTableValue = {};
+
+        for (const producto of productos) {
+
+            const productoDevolver = productosDevolver.filter(x => x.IdProducto === producto.CodigoProducto);
+
+            if (miTableValue[producto.GrupoTalla] === undefined) {
+                miTableValue[producto.GrupoTalla] = {};
+            }
+
+            if (Object.keys(miTableValue[producto.GrupoTalla]).length === 0) {
+                miTableValue[producto.GrupoTalla] = {};
+                miTableValue[producto.GrupoTalla].Productos = {};
+                miTableValue[producto.GrupoTalla].ListaTallas = producto.ListaTalla;
+            }
+
+            if (miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] === undefined) {
+                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] = {};
+                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores = {};
+                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].ListaTallas = producto.ListaTalla
+                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].NombreProducto = producto.NombreProducto;
+
+                for (const color of producto.ListaColores) {
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor] = {}
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].NombreColor = color.NombreColor;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Color = color.Color;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].ListaImagenes = color.ListaImagenes;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
+
+                    for (const talla of producto.ListaTalla) {
+                        const productoValores = productoDevolver.find(x => x.CodigoColor === color.CodigoColor && x.CodigoTalla.toUpperCase() === talla.Talla);
+
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = productoValores ? productoValores.Cantidad : 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = productoValores ? productoValores.Cantidad : 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = productoValores ? productoValores.PrecioUnitario : 0;
+                    }
+                }
+            }
+        }
+
+        dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
+    }
+
     const eliminarProducto = (grupoTalla, codigoProducto) => {
         let nuevoTableValue = { ...tableValue };
         delete nuevoTableValue[grupoTalla]["Productos"][codigoProducto];
@@ -104,9 +150,26 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: nuevoTableValue });
     }
 
+    const obtenerTotales = producto => {
+        let totales = { totalCantidad: 0 };
+
+        Object.keys(producto.Colores).forEach((codigoColor) => {
+            let color = producto.Colores[codigoColor];
+            var totalXColor = 0;
+
+            Object.keys(color.Tallas).forEach((codigoTalla) => {
+                var valorTalla = color.Tallas[codigoTalla];
+                totalXColor = parseInt(totalXColor, 10) + (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+            })
+            totales.totalCantidad += totalXColor;
+        })
+
+        return totales;
+    }
+
     return (
         <>
-            <MotivosDevolucion agregarProducto={agregarProducto} />
+            <MotivosDevolucion agregarProducto={agregarProducto} agregarDevolucionCompleta={agregarDevolucionCompleta} />
 
             {(Object.keys(tableValue).length > 0) &&
                 <Card style={{ margin: '15px' }}>
@@ -124,6 +187,7 @@ export const ProductosDevolucion = (props) => {
                                 return productos.map((codigoProducto, index1) => {
                                     let producto = tableValue[grupoTalla].Productos[codigoProducto];
                                     let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
+                                    let { totalCantidad } = obtenerTotales(producto);
 
                                     return (
                                         <ExpandableDevolucion
@@ -132,6 +196,7 @@ export const ProductosDevolucion = (props) => {
                                             producto={producto}
                                             codigoProducto={codigoProducto}
                                             tallas={tallas}
+                                            totalCantidad={totalCantidad}
                                             eliminarProducto={eliminarProducto}
                                             eliminarColor={eliminarColor}
                                             ingresoCantidad={ingresoCantidad}

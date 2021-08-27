@@ -6,6 +6,7 @@ import {
     CardContent,
     Button,
 } from '@material-ui/core';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { useSelector } from 'react-redux';
 
 const ClienteSelected = (props) => {
@@ -18,6 +19,20 @@ const ClienteSelected = (props) => {
 
     const obtenerClientes = () => {
         return clientes.map(el => ({ key: el.Codigo, value: JSON.stringify(el), text: `${el.Codigo}-${el.Nombre}` }))
+    }
+
+    const continuarDevolucion = (cliente) => {
+        const clienteJson = JSON.parse(cliente);
+        if (clienteJson.FacturacionEntrega === "Todo") {
+            Swal.fire({
+                title: 'Bloqueado',
+                text: 'Actualmente no se tiene relación comercial con el cliente. Su cuenta ha sido bloqueada para todo tipo de transacción.',
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
+            return;
+        }
+        props.cargarProductoDevolucion(cliente);
     }
 
     return (
@@ -52,7 +67,7 @@ const ClienteSelected = (props) => {
                             <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                                 <Button
                                     disabled={value ? false : true}
-                                    onClick={() => props.cargarProductoDevolucion(value)}
+                                    onClick={() => continuarDevolucion(value)}
                                     variant="contained"
                                     color="primary">
                                     Continuar
