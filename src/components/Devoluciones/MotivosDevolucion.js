@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Card,
     CardContent,
@@ -16,6 +16,7 @@ export const MotivosDevolucion = ({ agregarProducto, agregarDevolucionCompleta }
     const [codigo, setCodigo] = useState("");
     const [color, setColor] = useState("");
     const [factura, setFactura] = useState("");
+    const [facturas, setFacturas] = useState([]);
 
     const añadir = async () => {
         const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${codigo}/${color}`)
@@ -40,6 +41,15 @@ export const MotivosDevolucion = ({ agregarProducto, agregarDevolucionCompleta }
         agregarDevolucionCompleta(productosDevolver, data.data);
     }
 
+    const obtenerFacturasCliente = async () => {
+        try {
+            const data = await axios.get(`${APIURL}/api/factura/${clienteSelected.Codigo}`);
+            setFacturas(data.data);
+        } catch (err) {
+
+        }
+    }
+
     const limpiarCampos = () => {
         setCodigo("");
         setColor("");
@@ -48,6 +58,14 @@ export const MotivosDevolucion = ({ agregarProducto, agregarDevolucionCompleta }
     const handleDevolucionCompleta = () => {
         dispatch({ type: "SET_DEVOLUCIONCOMPLETA" })
     }
+
+    const dataFacturas = () => {
+        return facturas.map(x => ({ key: x.factura, value: x.factura, text: `${x.factura} - ${x.pedido}` }));
+    }
+
+    useEffect(() => {
+        obtenerFacturasCliente();
+    });
 
     return (
         <Card style={{ margin: '15px' }}>
@@ -84,8 +102,18 @@ export const MotivosDevolucion = ({ agregarProducto, agregarDevolucionCompleta }
                     ?
                     <div style={{ marginTop: 40 }}>
                         <h3>Seleccione factura</h3>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <input type="text" className="mr-5 form-control" placeholder="Factura" onChange={(e) => { setFactura(e.target.value) }} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                            <Dropdown
+                                placeholder="Seleccione factura"
+                                search
+                                selection
+                                options={dataFacturas()}
+                                noResultsMessage={"No hay resultados"}
+                                closeOnChange={true}
+                                style={{ zIndex: 999, width: '100%' }}
+                                multiple={false}
+                                onChange={(e, { value }) => { setFactura(value) }}
+                            />
                             <button className="btn btn-success" onClick={obtenerProductosFactura}>Registrar</button>
                         </div>
                     </div>

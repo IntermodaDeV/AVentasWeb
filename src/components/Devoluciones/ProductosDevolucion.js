@@ -1,17 +1,78 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Card,
     CardContent,
-    CardHeader,
-    Typography,
 } from '@material-ui/core';
-import { MotivosDevolucion } from 'components/Devoluciones/MotivosDevolucion';
+import { Dropdown } from "semantic-ui-react";
 import { useSelector, useDispatch } from 'react-redux';
 import { ExpandableDevolucion } from './ExpandableDevolucion';
+import axios from 'axios';
+import { APIURL } from 'utils/Enviroment';
 
 export const ProductosDevolucion = (props) => {
     let tableValue = useSelector(e => e.Devolucion.TableValue);
     const dispatch = useDispatch();
+    const clienteSelected = useSelector(e => e.Devolucion.clienteSelected);
+    const devolucionCompleta = useSelector(e => e.Devolucion.devolucionCompleta);
+
+    const [codigo, setCodigo] = useState("");
+    const [color, setColor] = useState("");
+    const [codigoBarra, setCodigoBarra] = useState("");
+    const [talla, setTalla] = useState("");
+    const [factura, setFactura] = useState("");
+    const [facturas, setFacturas] = useState([]);
+
+    const añadir = async () => {
+        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${codigo}/${color}`)
+        agregarProducto(data.data)
+        limpiarCampos();
+    }
+
+    const obtenerProductosFactura = async () => {
+        const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${factura}`);
+        let codigoProductos = [...new Set(data.data.map(x => x.IdProducto))];
+        let productosDevolver = [];
+
+        for (let codigo of codigoProductos) {
+            let productos = data.data.filter(x => x.IdProducto === codigo);
+            let colores = [...new Set(productos.map(x => x.CodigoColor))];
+            let tallas = [...new Set(productos.map(x => x.CodigoTalla))];
+
+            let nuevosProductos = await axios.get(`${APIURL}/api/productodevolucion/producto/${codigo}`, { params: { colores, tallas } });
+            productosDevolver.push(nuevosProductos.data)
+        }
+
+        agregarDevolucionCompleta(productosDevolver, data.data);
+    }
+
+    const obtenerFacturasCliente = async () => {
+        try {
+            const data = await axios.get(`${APIURL}/api/factura/${clienteSelected.Codigo}`);
+            setFacturas(data.data);
+        } catch (err) {
+
+        }
+    }
+
+    const limpiarCampos = () => {
+        setCodigo("");
+        setColor("");
+        setTalla("");
+        setCodigoBarra("");
+    }
+
+    const handleDevolucionCompleta = () => {
+        dispatch({ type: "SET_DEVOLUCIONCOMPLETA" })
+    }
+
+    const dataFacturas = () => {
+        return facturas.map(x => ({ key: x.factura, value: x.factura, text: `${x.factura} - ${x.pedido}` }));
+    }
+
+    useEffect(() => {
+        obtenerFacturasCliente();
+        // eslint-disable-next-line
+    }, []);
 
     const agregarProducto = (producto) => {
         let miTableValue = { ...tableValue };
@@ -38,14 +99,12 @@ export const ProductosDevolucion = (props) => {
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor] = {}
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].NombreColor = color.NombreColor;
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Color = color.Color;
-                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].ListaImagenes = color.ListaImagenes;
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
                 producto.ListaTalla.map(talla => {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 5;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 5
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 0;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = 0;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 0
                     return false;
                 });
             });
@@ -55,14 +114,12 @@ export const ProductosDevolucion = (props) => {
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor] = {}
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].NombreColor = color.NombreColor;
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Color = color.Color;
-                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].ListaImagenes = color.ListaImagenes;
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
                 producto.ListaTalla.map(talla => {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 5;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = "";
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 5
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 0;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = 0;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 0;
                     return false;
                 });
             });
@@ -97,7 +154,6 @@ export const ProductosDevolucion = (props) => {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor] = {}
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].NombreColor = color.NombreColor;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Color = color.Color;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].ListaImagenes = color.ListaImagenes;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
 
                     for (const talla of producto.ListaTalla) {
@@ -106,7 +162,6 @@ export const ProductosDevolucion = (props) => {
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = productoValores ? productoValores.Cantidad : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = productoValores ? productoValores.Cantidad : 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Distribucion = talla.Distribucion;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = productoValores ? productoValores.PrecioUnitario : 0;
                     }
                 }
@@ -167,48 +222,114 @@ export const ProductosDevolucion = (props) => {
         return totales;
     }
 
+    const obtenerAtributosBarra = async (e) => {
+        if (e.key === "Enter") {
+            try {
+                const data = await axios.get(`${APIURL}/api/productodevolucion/codigobarra/${codigoBarra}`)
+                setCodigo(data.data.productoId);
+                setTalla(data.data.tallaId);
+                setColor(data.data.colorId);
+            } catch (err) {
+
+            }
+        }
+    }
+
     return (
         <>
-            <MotivosDevolucion agregarProducto={agregarProducto} agregarDevolucionCompleta={agregarDevolucionCompleta} />
+            <Card style={{ margin: '15px', minHeight: '100vh' }}>
+                <CardContent>
+                    <div>
+                        <h3>Motivo devolución</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                            <Dropdown
+                                placeholder="Seleccione Cliente"
+                                search
+                                selection
+                                options={[{ key: 1, value: 1, text: "uno" }]}
+                                noResultsMessage={"No hay resultados"}
+                                closeOnChange={true}
+                                style={{ zIndex: 999 }}
+                                multiple={false}
 
-            {(Object.keys(tableValue).length > 0) &&
-                <Card style={{ margin: '15px' }}>
-                    <CardHeader
-                        title={
-                            <Typography gutterBottom variant="h5" component="h2">
-                                Productos a Devolver
-                            </Typography>}
-                        style={{ borderBottom: '1px solid #ddd', padding: '10px 16px' }}
-                    />
-                    <CardContent>
-                        <form>
-                            {Object.keys(tableValue).map((grupoTalla, index) => {
-                                let productos = Object.keys(tableValue[grupoTalla].Productos);
-                                return productos.map((codigoProducto, index1) => {
-                                    let producto = tableValue[grupoTalla].Productos[codigoProducto];
-                                    let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
-                                    let { totalCantidad } = obtenerTotales(producto);
+                            />
+                            <Dropdown
+                                placeholder="Seleccione Cliente"
+                                search
+                                selection
+                                options={[{ key: 1, value: 1, text: "uno" }]}
+                                noResultsMessage={"No hay resultados"}
+                                closeOnChange={true}
+                                style={{ zIndex: 999 }}
+                                multiple={false}
 
-                                    return (
-                                        <ExpandableDevolucion
-                                            key={codigoProducto}
-                                            grupoTalla={grupoTalla}
-                                            producto={producto}
-                                            codigoProducto={codigoProducto}
-                                            tallas={tallas}
-                                            totalCantidad={totalCantidad}
-                                            eliminarProducto={eliminarProducto}
-                                            eliminarColor={eliminarColor}
-                                            ingresoCantidad={ingresoCantidad}
-                                        />
-                                    )
+                            />
+                            <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
+                        </div>
+                    </div>
+                    {devolucionCompleta
+                        ?
+                        <div style={{ marginTop: 40 }}>
+                            <h3>Seleccione factura</h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Dropdown
+                                    placeholder="Seleccione factura"
+                                    search
+                                    selection
+                                    options={dataFacturas()}
+                                    noResultsMessage={"No hay resultados"}
+                                    closeOnChange={true}
+                                    style={{ zIndex: 999, width: '90%' }}
+                                    multiple={false}
+                                    onChange={(e, { value }) => { setFactura(value) }}
+                                />
+                                <button className="btn btn-success" onClick={obtenerProductosFactura}>Registrar</button>
+                            </div>
+                        </div>
+                        :
+                        <div style={{ marginTop: 40 }}>
+                            <h3>Agregar producto</h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <input type="text" className="mr-5 form-control" placeholder="Codigo Producto" value={codigo} onChange={(e) => { setCodigo(e.target.value) }} />
+                                <input type="text" className="mr-5 form-control" placeholder="Codigo Color" value={color} onChange={(e) => { setColor(e.target.value) }} />
+                                <input type="text" className="mr-5 form-control" placeholder="Talla" value={talla} onChange={(e) => { setTalla(e.target.value) }} />
+                                <input type="text" className="mr-5 form-control" placeholder="Codigo Barra" value={codigoBarra} onChange={(e) => { setCodigoBarra(e.target.value) }} onKeyPress={obtenerAtributosBarra} />
+                                <button className="btn btn-success" onClick={añadir}>Añadir</button>
+                            </div>
+                        </div>
+                    }
+                    {(Object.keys(tableValue).length > 0) &&
+                        <>
+                            <h3 style={{ marginTop: '3em' }}>Productos a devolver</h3>
+                            <form>
+                                {Object.keys(tableValue).map((grupoTalla, index) => {
+                                    let productos = Object.keys(tableValue[grupoTalla].Productos);
+                                    return productos.map((codigoProducto, index1) => {
+                                        let producto = tableValue[grupoTalla].Productos[codigoProducto];
+                                        let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
+                                        let { totalCantidad } = obtenerTotales(producto);
 
-                                })
-                            })}
-                        </form>
-                    </CardContent>
-                </Card>
-            }
+                                        return (
+                                            <ExpandableDevolucion
+                                                key={codigoProducto}
+                                                grupoTalla={grupoTalla}
+                                                producto={producto}
+                                                codigoProducto={codigoProducto}
+                                                tallas={tallas}
+                                                totalCantidad={totalCantidad}
+                                                eliminarProducto={eliminarProducto}
+                                                eliminarColor={eliminarColor}
+                                                ingresoCantidad={ingresoCantidad}
+                                            />
+                                        )
+
+                                    })
+                                })}
+                            </form>
+                        </>
+                    }
+                </CardContent>
+            </Card>
         </>
     );
 }
