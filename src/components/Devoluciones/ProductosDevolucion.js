@@ -8,12 +8,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { ExpandableDevolucion } from './ExpandableDevolucion';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
+import { Loading } from 'components/Global/Loading';
 
 export const ProductosDevolucion = (props) => {
     let tableValue = useSelector(e => e.Devolucion.TableValue);
     const dispatch = useDispatch();
     const clienteSelected = useSelector(e => e.Devolucion.clienteSelected);
     const devolucionCompleta = useSelector(e => e.Devolucion.devolucionCompleta);
+    const motivosDevolucion = useSelector(e => e.Devolucion.motivosDevolucion);
 
     const [codigo, setCodigo] = useState("");
     const [color, setColor] = useState("");
@@ -21,6 +23,9 @@ export const ProductosDevolucion = (props) => {
     const [talla, setTalla] = useState("");
     const [factura, setFactura] = useState("");
     const [facturas, setFacturas] = useState([]);
+    const [motivosDevolucionDetalle, setMotivosDevolucionDetalle] = useState([]);
+    const [open, setOpen] = useState(false);
+    const [title, setTitle] = useState("");
 
     const añadir = async () => {
         const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${codigo}/${color}`)
@@ -29,28 +34,52 @@ export const ProductosDevolucion = (props) => {
     }
 
     const obtenerProductosFactura = async () => {
-        const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${factura}`);
-        let codigoProductos = [...new Set(data.data.map(x => x.IdProducto))];
-        let productosDevolver = [];
+        try {
+            setTitle("Obteniendo productos de factura");
+            setOpen(true);
+            const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${factura}`);
+            let codigoProductos = [...new Set(data.data.map(x => x.IdProducto))];
+            let productosDevolver = [];
 
-        for (let codigo of codigoProductos) {
-            let productos = data.data.filter(x => x.IdProducto === codigo);
-            let colores = [...new Set(productos.map(x => x.CodigoColor))];
-            let tallas = [...new Set(productos.map(x => x.CodigoTalla))];
+            for (let codigo of codigoProductos) {
+                let productos = data.data.filter(x => x.IdProducto === codigo);
+                let colores = [...new Set(productos.map(x => x.CodigoColor))];
+                let tallas = [...new Set(productos.map(x => x.CodigoTalla))];
 
-            let nuevosProductos = await axios.get(`${APIURL}/api/productodevolucion/producto/${codigo}`, { params: { colores, tallas } });
-            productosDevolver.push(nuevosProductos.data)
+                let nuevosProductos = await axios.get(`${APIURL}/api/productodevolucion/producto/${codigo}`, { params: { colores, tallas } });
+                productosDevolver.push(nuevosProductos.data)
+            }
+
+            agregarDevolucionCompleta(productosDevolver, data.data);
+            setOpen(false);
+        } catch (err) {
+            setOpen(false);
         }
-
-        agregarDevolucionCompleta(productosDevolver, data.data);
     }
 
     const obtenerFacturasCliente = async () => {
         try {
+            setTitle("Obteniendo facturas del cliente");
+            setOpen(true);
             const data = await axios.get(`${APIURL}/api/factura/${clienteSelected.Codigo}`);
             setFacturas(data.data);
+            setOpen(false);
         } catch (err) {
+            setOpen(false);
+        }
+    }
 
+    const obtenerMotivosDevolucion = async () => {
+        try {
+            if (motivosDevolucion.length === 0) {
+                setTitle("Obteniendo motivos devolucion");
+                setOpen(true);
+                const data = await axios.get(`${APIURL}/api/devolucion/motivos/${clienteSelected.EmpresaId}`);
+                dispatch({ type: "SET_MOTIVOSDEVOLUCION", payload: data.data });
+                setOpen(false);
+            }
+        } catch (err) {
+            setOpen(false);
         }
     }
 
@@ -65,12 +94,31 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_DEVOLUCIONCOMPLETA" })
     }
 
+    const handleChangeMotivo = (value) => {
+        const detalle = motivosDevolucion.find(x => x.codigo === value);
+        dispatch({ type: "SET_MOTIVODEVOLUCION", payload: value });
+        setMotivosDevolucionDetalle(detalle.detalle);
+    }
+
+    const handleChangeMotivoDetalle = (value) => {
+        dispatch({ type: "SET_MOTIVODEVOLUCIONDETALLE", payload: value });
+    }
+
     const dataFacturas = () => {
         return facturas.map(x => ({ key: x.factura, value: x.factura, text: `${x.factura} - ${x.pedido}` }));
     }
 
+    const dataMotivos = () => {
+        return motivosDevolucion.map(x => ({ key: x.codigo, value: x.codigo, text: x.descripcion }));
+    }
+
+    const dataMotivosDetalle = () => {
+        return motivosDevolucionDetalle.map(x => ({ key: x.codigo, value: x.codigo, text: x.descripcion }));
+    }
+
     useEffect(() => {
         obtenerFacturasCliente();
+        obtenerMotivosDevolucion();
         // eslint-disable-next-line
     }, []);
 
@@ -225,44 +273,48 @@ export const ProductosDevolucion = (props) => {
     const obtenerAtributosBarra = async (e) => {
         if (e.key === "Enter") {
             try {
+                setTitle("Obteniendo atributos producto");
+                setOpen(true);
                 const data = await axios.get(`${APIURL}/api/productodevolucion/codigobarra/${codigoBarra}`)
                 setCodigo(data.data.productoId);
                 setTalla(data.data.tallaId);
                 setColor(data.data.colorId);
+                setOpen(false);
             } catch (err) {
-
+                setOpen(false);
             }
         }
     }
 
     return (
         <>
+            <Loading open={open} title={title} />
             <Card style={{ margin: '15px', minHeight: '100vh' }}>
                 <CardContent>
                     <div>
                         <h3>Motivo devolución</h3>
                         <div style={{ display: 'flex', justifyContent: 'space-around' }}>
                             <Dropdown
-                                placeholder="Seleccione Cliente"
+                                placeholder="Seleccione un motivo devolución"
                                 search
                                 selection
-                                options={[{ key: 1, value: 1, text: "uno" }]}
+                                options={dataMotivos()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
                                 style={{ zIndex: 999 }}
                                 multiple={false}
-
+                                onChange={(e, { value }) => { handleChangeMotivo(value) }}
                             />
                             <Dropdown
-                                placeholder="Seleccione Cliente"
+                                placeholder="Seleccione detalle devolución"
                                 search
                                 selection
-                                options={[{ key: 1, value: 1, text: "uno" }]}
+                                options={dataMotivosDetalle()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
                                 style={{ zIndex: 999 }}
                                 multiple={false}
-
+                                onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
                             />
                             <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
                         </div>
@@ -273,13 +325,13 @@ export const ProductosDevolucion = (props) => {
                             <h3>Seleccione factura</h3>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Dropdown
-                                    placeholder="Seleccione factura"
+                                    placeholder="Seleccione facturas"
                                     search
                                     selection
                                     options={dataFacturas()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
-                                    style={{ zIndex: 999, width: '90%' }}
+                                    style={{ zIndex: 99, width: '90%' }}
                                     multiple={false}
                                     onChange={(e, { value }) => { setFactura(value) }}
                                 />

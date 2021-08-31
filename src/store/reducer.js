@@ -71,7 +71,10 @@ const initialState = {
     Devolucion: {
         clienteSelected: null,
         TableValue: {},
-        devolucionCompleta: false
+        devolucionCompleta: false,
+        motivosDevolucion: [],
+        motivoDevolucion: "",
+        motivoDevolucionDetalle: ""
     },
 }
 
@@ -805,6 +808,40 @@ const reducer = (state = initialState, action) => {
             Devolucion: {
                 ...state.Devolucion,
                 devolucionCompleta: !state.Devolucion.devolucionCompleta
+            }
+        }
+    }
+
+    if (action.type === 'SET_MOTIVOSDEVOLUCION') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                motivosDevolucion: action.payload
+            }
+        }
+    }
+
+    if (action.type === 'SET_MOTIVODEVOLUCION') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                motivoDevolucion: action.payload,
+                motivoDevolucionDetalle: ""
+            }
+        }
+    }
+
+    if (action.type === 'SET_MOTIVODEVOLUCIONDETALLE') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                motivoDevolucionDetalle: action.payload
             }
         }
     }
