@@ -3,6 +3,8 @@ import {
     Card,
     CardContent,
 } from '@material-ui/core';
+import Swal from 'sweetalert2/dist/sweetalert2.js'
+import 'sweetalert2/src/sweetalert2.scss';
 import { Dropdown } from "semantic-ui-react";
 import { useSelector, useDispatch } from 'react-redux';
 import { ExpandableDevolucion } from './ExpandableDevolucion';
@@ -16,6 +18,8 @@ export const ProductosDevolucion = (props) => {
     const clienteSelected = useSelector(e => e.Devolucion.clienteSelected);
     const devolucionCompleta = useSelector(e => e.Devolucion.devolucionCompleta);
     const motivosDevolucion = useSelector(e => e.Devolucion.motivosDevolucion);
+    const motivoDevolucion = useSelector(e => e.Devolucion.motivoDevolucion);
+    const motivoDevolucionDetalle = useSelector(e => e.Devolucion.motivoDevolucionDetalle);
 
     const [codigo, setCodigo] = useState("");
     const [color, setColor] = useState("");
@@ -23,9 +27,12 @@ export const ProductosDevolucion = (props) => {
     const [talla, setTalla] = useState("");
     const [factura, setFactura] = useState("");
     const [facturas, setFacturas] = useState([]);
+    const [motivosDevolucionMaestro, setMotivosDevolucionMaestro] = useState([]);
     const [motivosDevolucionDetalle, setMotivosDevolucionDetalle] = useState([]);
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
+
+    let productosSinCantidad = false;
 
     const añadir = async () => {
         const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${codigo}/${color}`)
@@ -69,18 +76,9 @@ export const ProductosDevolucion = (props) => {
         }
     }
 
-    const obtenerMotivosDevolucion = async () => {
-        try {
-            if (motivosDevolucion.length === 0) {
-                setTitle("Obteniendo motivos devolucion");
-                setOpen(true);
-                const data = await axios.get(`${APIURL}/api/devolucion/motivos/${clienteSelected.EmpresaId}`);
-                dispatch({ type: "SET_MOTIVOSDEVOLUCION", payload: data.data });
-                setOpen(false);
-            }
-        } catch (err) {
-            setOpen(false);
-        }
+    const obtenerMotivosDevolucion = () => {
+        const motivosDevolucionCliente = motivosDevolucion.filter(x => x.empresa === clienteSelected.EmpresaId);
+        setMotivosDevolucionMaestro(motivosDevolucionCliente);
     }
 
     const limpiarCampos = () => {
@@ -109,7 +107,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const dataMotivos = () => {
-        return motivosDevolucion.map(x => ({ key: x.codigo, value: x.codigo, text: x.descripcion }));
+        return motivosDevolucionMaestro.map(x => ({ key: x.codigo, value: x.codigo, text: x.descripcion }));
     }
 
     const dataMotivosDetalle = () => {
@@ -177,7 +175,7 @@ export const ProductosDevolucion = (props) => {
 
     const agregarDevolucionCompleta = (productos, productosDevolver) => {
         let miTableValue = {};
-
+        
         for (const producto of productos) {
 
             const productoDevolver = productosDevolver.filter(x => x.IdProducto === producto.CodigoProducto);
@@ -194,6 +192,7 @@ export const ProductosDevolucion = (props) => {
 
             if (miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] === undefined) {
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] = {};
+                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Id = producto.CodigoProducto;
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores = {};
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].ListaTallas = producto.ListaTalla
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].NombreProducto = producto.NombreProducto;
@@ -286,6 +285,83 @@ export const ProductosDevolucion = (props) => {
         }
     }
 
+    const construirEncabezado = () => {
+        return {
+            CodigoCliente: clienteSelected.Codigo,
+            Nombre: clienteSelected.Nombre,
+            DetalleDevolucion: [],
+            Moneda: clienteSelected.Moneda,
+            MotivoDevolucion: motivoDevolucion,
+            MotivoDevolucionDetalle: motivoDevolucionDetalle
+        };
+    }
+
+    const construirDetalleDevolucion = () => {
+        let detalleDevolucion = [];
+
+        for (let grupoTalla of Object.keys(tableValue)) {
+            for (let producto of Object.keys(tableValue[grupoTalla].Productos)) {
+                for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
+                    for (let talla of Object.keys(tableValue[grupoTalla].Productos[producto].Colores[color].Tallas)) {
+                        let cantidad = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Cantidad;
+
+                        if (cantidad > 0) {
+                            let productoDevolver = {
+                                IdProducto: tableValue[grupoTalla].Productos[producto].Id,
+                                CodigoProducto: producto,
+                                CodigoColor: color,
+                                Cantidad: cantidad,
+                                Unidad: "Und",
+                                PrecioUnitario: tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio,
+                                Talla: talla,
+                            }
+
+                            detalleDevolucion.push(productoDevolver);
+                        }
+                    }
+                }
+            }
+        }
+
+        return detalleDevolucion;
+    }
+
+    const finalizarDevolucion = () => {
+        let devolucion = construirEncabezado();
+        devolucion.DetalleDevolucion = construirDetalleDevolucion();
+
+        if (productosSinCantidad) {
+            Swal.fire({
+                title: 'Aviso',
+                text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Corregir',
+            }).then((result) => {
+                if (result.value) {
+                    enviarDevolucion(devolucion)
+                }
+            })
+        } else {
+            enviarDevolucion(devolucion)
+        }
+    }
+
+    const enviarDevolucion = async (devolucion) => {
+        try {
+            setTitle("Guardando devolución");
+            setOpen(true);
+            const request = await axios.post(`${APIURL}/api/devolucion`, devolucion);
+            console.log(request.data);
+            setOpen(false);
+        } catch (err) {
+            setOpen(false);
+        }
+    }
+
     return (
         <>
             <Loading open={open} title={title} />
@@ -359,7 +435,20 @@ export const ProductosDevolucion = (props) => {
                                     return productos.map((codigoProducto, index1) => {
                                         let producto = tableValue[grupoTalla].Productos[codigoProducto];
                                         let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
+                                        let productoConCantidad = false;
                                         let { totalCantidad } = obtenerTotales(producto);
+
+                                        Object.keys(producto.Colores).forEach((codigoColor) => {
+                                            let color = producto.Colores[codigoColor];
+                                            Object.keys(color.Tallas).forEach((codigoTalla) => {
+                                                let valorTalla = color.Tallas[codigoTalla];
+
+                                                let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+                                                productoConCantidad = productoConCantidad || (cantidadXTalla > 0);
+                                            });
+                                        });
+
+                                        productosSinCantidad = productosSinCantidad || (!productoConCantidad);
 
                                         return (
                                             <ExpandableDevolucion
@@ -378,6 +467,7 @@ export const ProductosDevolucion = (props) => {
                                     })
                                 })}
                             </form>
+                            <button onClick={finalizarDevolucion} className="btn btn-secondary" style={{ float: 'right', margin: '2em' }}>Finalizar devolución</button>
                         </>
                     }
                 </CardContent>
