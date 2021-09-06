@@ -18,14 +18,13 @@ export const ProductosDevolucion = (props) => {
     const clienteSelected = useSelector(e => e.Devolucion.clienteSelected);
     const devolucionCompleta = useSelector(e => e.Devolucion.devolucionCompleta);
     const motivosDevolucion = useSelector(e => e.Devolucion.motivosDevolucion);
-    const motivoDevolucion = useSelector(e => e.Devolucion.motivoDevolucion);
     const motivoDevolucionDetalle = useSelector(e => e.Devolucion.motivoDevolucionDetalle);
 
     const [codigo, setCodigo] = useState("");
     const [color, setColor] = useState("");
     const [codigoBarra, setCodigoBarra] = useState("");
     const [talla, setTalla] = useState("");
-    const [factura, setFactura] = useState("");
+    const [factura, setFactura] = useState({});
     const [facturas, setFacturas] = useState([]);
     const [motivosDevolucionMaestro, setMotivosDevolucionMaestro] = useState([]);
     const [motivosDevolucionDetalle, setMotivosDevolucionDetalle] = useState([]);
@@ -42,23 +41,32 @@ export const ProductosDevolucion = (props) => {
 
     const obtenerProductosFactura = async () => {
         try {
-            setTitle("Obteniendo productos de factura");
-            setOpen(true);
-            const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${factura}`);
-            let codigoProductos = [...new Set(data.data.map(x => x.IdProducto))];
-            let productosDevolver = [];
+            if (factura.factura) {
+                setTitle("Obteniendo productos de factura");
+                setOpen(true);
+                const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${factura.factura}`);
+                let codigoProductos = [...new Set(data.data.map(x => x.IdProducto))];
+                let productosDevolver = [];
 
-            for (let codigo of codigoProductos) {
-                let productos = data.data.filter(x => x.IdProducto === codigo);
-                let colores = [...new Set(productos.map(x => x.CodigoColor))];
-                let tallas = [...new Set(productos.map(x => x.CodigoTalla))];
+                for (let codigo of codigoProductos) {
+                    let productos = data.data.filter(x => x.IdProducto === codigo);
+                    let colores = [...new Set(productos.map(x => x.CodigoColor))];
+                    let tallas = [...new Set(productos.map(x => x.CodigoTalla))];
 
-                let nuevosProductos = await axios.get(`${APIURL}/api/productodevolucion/producto/${codigo}`, { params: { colores, tallas } });
-                productosDevolver.push(nuevosProductos.data)
+                    let nuevosProductos = await axios.get(`${APIURL}/api/productodevolucion/producto/${codigo}`, { params: { colores, tallas } });
+                    productosDevolver.push(nuevosProductos.data)
+                }
+
+                agregarDevolucionCompleta(productosDevolver, data.data);
+                setOpen(false);
+            } else {
+                Swal.fire({
+                    title: 'Factura',
+                    text: 'Seleccione una factura para poder realizar esta acción',
+                    type: 'error',
+                    confirmButtonText: 'OK',
+                });
             }
-
-            agregarDevolucionCompleta(productosDevolver, data.data);
-            setOpen(false);
         } catch (err) {
             setOpen(false);
         }
@@ -73,6 +81,21 @@ export const ProductosDevolucion = (props) => {
             setOpen(false);
         } catch (err) {
             setOpen(false);
+        }
+    }
+
+    const obtenerCorrelativoDevolucion = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/devolucion/correlativo/${localStorage.getItem('empresa')}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+
+            localStorage.setItem("CorrelativoDevolucion", request.data);
+        } catch (err) {
+
         }
     }
 
@@ -103,7 +126,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const dataFacturas = () => {
-        return facturas.map(x => ({ key: x.factura, value: x.factura, text: `${x.factura} - ${x.pedido}` }));
+        return facturas.map(x => ({ key: x.factura, value: x, text: `${x.factura} - ${x.pedido}` }));
     }
 
     const dataMotivos = () => {
@@ -111,12 +134,13 @@ export const ProductosDevolucion = (props) => {
     }
 
     const dataMotivosDetalle = () => {
-        return motivosDevolucionDetalle.map(x => ({ key: x.codigo, value: x.codigo, text: x.descripcion }));
+        return motivosDevolucionDetalle.map(x => ({ key: x.codigo, value: x.id, text: x.descripcion }));
     }
 
     useEffect(() => {
         obtenerFacturasCliente();
         obtenerMotivosDevolucion();
+        obtenerCorrelativoDevolucion();
         // eslint-disable-next-line
     }, []);
 
@@ -175,7 +199,7 @@ export const ProductosDevolucion = (props) => {
 
     const agregarDevolucionCompleta = (productos, productosDevolver) => {
         let miTableValue = {};
-        
+
         for (const producto of productos) {
 
             const productoDevolver = productosDevolver.filter(x => x.IdProducto === producto.CodigoProducto);
@@ -287,12 +311,15 @@ export const ProductosDevolucion = (props) => {
 
     const construirEncabezado = () => {
         return {
+            Correlativo: localStorage.getItem("CorrelativoDevolucion"),
             CodigoCliente: clienteSelected.Codigo,
-            Nombre: clienteSelected.Nombre,
             DetalleDevolucion: [],
             Moneda: clienteSelected.Moneda,
-            MotivoDevolucion: motivoDevolucion,
-            MotivoDevolucionDetalle: motivoDevolucionDetalle
+            MotivoDevolucionDetalle: motivoDevolucionDetalle,
+            FacturaOriginal: factura.factura,
+            PedidoOriginal: factura.pedido,
+            Linea: factura.linea,
+            Empresa: clienteSelected.EmpresaId
         };
     }
 
@@ -313,7 +340,7 @@ export const ProductosDevolucion = (props) => {
                                 Cantidad: cantidad,
                                 Unidad: "Und",
                                 PrecioUnitario: tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio,
-                                Talla: talla,
+                                CodigoTalla: talla,
                             }
 
                             detalleDevolucion.push(productoDevolver);
@@ -354,7 +381,12 @@ export const ProductosDevolucion = (props) => {
         try {
             setTitle("Guardando devolución");
             setOpen(true);
-            const request = await axios.post(`${APIURL}/api/devolucion`, devolucion);
+            const request = await axios.post(`${APIURL}/api/devolucion`, devolucion, {
+                headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token')
+                }
+            });
             console.log(request.data);
             setOpen(false);
         } catch (err) {
@@ -391,6 +423,7 @@ export const ProductosDevolucion = (props) => {
                                 style={{ zIndex: 999 }}
                                 multiple={false}
                                 onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
+                                value={motivoDevolucionDetalle}
                             />
                             <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
                         </div>
