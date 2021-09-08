@@ -785,7 +785,9 @@ const reducer = (state = initialState, action) => {
                 ...state.Devolucion,
                 clienteSelected: action.clienteSelected,
                 TableValue: {},
-                devolucionCompleta: false
+                devolucionCompleta: false,
+                motivoDevolucionDetalle: "",
+                motivoDevolucion: ""
             }
         }
     }

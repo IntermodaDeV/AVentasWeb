@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     ExpansionPanel,
     ExpansionPanelDetails,
@@ -9,10 +9,43 @@ import { Dropdown } from "semantic-ui-react";
 import { useSelector } from 'react-redux';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
 import ProductoTableDevolucion from './ProductoTableDevolucion';
+import axios from 'axios';
+import { APIURL } from 'utils/Enviroment';
 
-export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTalla, eliminarProducto, eliminarColor, ingresoCantidad, totalCantidad }) => {
+export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTalla, eliminarProducto, eliminarColor, ingresoCantidad, totalCantidad, actualizarProducto }) => {
     const [expandir, setExpandir] = useState(false);
+    const [facturas, setFacturas] = useState([]);
+    const clienteSelected = useSelector(e => e.Devolucion.clienteSelected);
     const devolucionCompleta = useSelector(e => e.Devolucion.devolucionCompleta);
+
+    const obtenerFacturasCliente = async () => {
+        try {
+            const data = await axios.get(`${APIURL}/api/factura/${clienteSelected.Codigo}`);
+            setFacturas(data.data);
+        } catch (err) {
+
+        }
+    }
+
+    const handleChangeFactura = async (value) => {
+        try {
+            const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${value.factura}/${codigoProducto}`);
+            actualizarProducto(data.data, codigoProducto, grupoTalla, value);
+        } catch (err) {
+
+        }
+    }
+
+    const dataFacturas = () => {
+        return facturas.map(x => ({ key: x.factura, value: x, text: x.factura }));
+    }
+
+    useEffect(() => {
+        if (!devolucionCompleta) {
+            obtenerFacturasCliente();
+        }
+        // eslint-disable-next-line
+    }, [devolucionCompleta])
 
     return (
         <div className="w-100 my-2 rounded">
@@ -42,11 +75,12 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
                                     placeholder="Seleccione Factura"
                                     search
                                     selection
-                                    options={[{ key: 1, value: 1, text: "uno" }]}
+                                    options={dataFacturas()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
                                     style={{ zIndex: 999 }}
                                     multiple={false}
+                                    onChange={(e, { value }) => { handleChangeFactura(value) }}
                                 />
                             </div>
                         }

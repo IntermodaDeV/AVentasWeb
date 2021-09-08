@@ -144,9 +144,40 @@ export const ProductosDevolucion = (props) => {
         // eslint-disable-next-line
     }, []);
 
+    const limpiarPreciosCantidades = (producto) => {
+        for (let color of Object.keys(producto.Colores)) {
+            for (let talla of Object.keys(producto.Colores[color].Tallas)) {
+                producto.Colores[color].Tallas[talla].Disponible = 0;
+                producto.Colores[color].Tallas[talla].Cantidad = 0;
+                producto.Colores[color].Tallas[talla].Precio = 0;
+            }
+        }
+    }
+
+    const actualizarProducto = (productos, codigoProducto, grupoTalla, factura) => {
+        let miTableValue = { ...tableValue };
+
+        if (productos.length === 0) {
+            miTableValue[grupoTalla]["Productos"][codigoProducto].Factura = {};
+            limpiarPreciosCantidades(miTableValue[grupoTalla]["Productos"][codigoProducto]);
+            dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
+            return;
+        }
+
+        miTableValue[grupoTalla]["Productos"][codigoProducto].Factura = factura;
+        for (let producto of productos) {
+            miTableValue[grupoTalla]["Productos"][codigoProducto].Id = producto.IdProducto;
+            limpiarPreciosCantidades(miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto]);
+            if (miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()]) {
+                miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
+                miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
+            }
+        }
+        dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
+    }
+
     const agregarProducto = (producto) => {
         let miTableValue = { ...tableValue };
-        let precio = { Precio: 0 };
 
         if (miTableValue[producto.GrupoTalla] === undefined) {
             miTableValue[producto.GrupoTalla] = {};
@@ -161,6 +192,8 @@ export const ProductosDevolucion = (props) => {
         if (miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] === undefined) {
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] = {};
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores = {};
+            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Factura = {};
+            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Id = 0;
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].ListaTallas = producto.ListaTalla
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].NombreProducto = producto.NombreProducto;
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Precio = producto.Precio;
@@ -309,7 +342,20 @@ export const ProductosDevolucion = (props) => {
         }
     }
 
-    const construirEncabezado = () => {
+    const construirEncabezado = (productoFactura) => {
+        if (productoFactura) {
+            return {
+                CodigoCliente: clienteSelected.Codigo,
+                DetalleDevolucion: [],
+                Moneda: clienteSelected.Moneda,
+                MotivoDevolucionDetalle: motivoDevolucionDetalle,
+                FacturaOriginal: productoFactura.factura,
+                PedidoOriginal: productoFactura.pedido,
+                Linea: productoFactura.linea,
+                Empresa: clienteSelected.EmpresaId
+            };
+        }
+
         return {
             Correlativo: localStorage.getItem("CorrelativoDevolucion"),
             CodigoCliente: clienteSelected.Codigo,
@@ -353,41 +399,163 @@ export const ProductosDevolucion = (props) => {
         return detalleDevolucion;
     }
 
-    const finalizarDevolucion = () => {
-        let devolucion = construirEncabezado();
-        devolucion.DetalleDevolucion = construirDetalleDevolucion();
+    const constuirDevolucionParcial = () => {
+        let devoluciones = [];
 
-        if (productosSinCantidad) {
-            Swal.fire({
-                title: 'Aviso',
-                text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Continuar',
-                cancelButtonText: 'Corregir',
-            }).then((result) => {
-                if (result.value) {
-                    enviarDevolucion(devolucion)
+        for (let grupoTalla of Object.keys(tableValue)) {
+            for (let producto of Object.keys(tableValue[grupoTalla].Productos)) {
+
+                const factura = tableValue[grupoTalla].Productos[producto].Factura;
+                const esFacturaVacia = Object.keys(factura).length === 0;
+
+                if (esFacturaVacia) {
+                    continue;
                 }
-            })
-        } else {
-            enviarDevolucion(devolucion)
+
+                const existeEncabezado = devoluciones.some(x => x.FacturaOriginal === factura.factura);
+                let indice = 0;
+
+                if (existeEncabezado) {
+                    indice = devoluciones.findIndex(x => x.FacturaOriginal === factura.factura);
+                } else {
+                    let nuevoEncabezado = construirEncabezado(factura);
+                    devoluciones.push(nuevoEncabezado);
+                    indice = devoluciones.length - 1;
+                }
+
+                for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
+                    for (let talla of Object.keys(tableValue[grupoTalla].Productos[producto].Colores[color].Tallas)) {
+                        let cantidad = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Cantidad;
+
+                        if (cantidad > 0) {
+                            let productoDevolver = {
+                                IdProducto: tableValue[grupoTalla].Productos[producto].Id,
+                                CodigoProducto: producto,
+                                CodigoColor: color,
+                                Cantidad: cantidad,
+                                Unidad: "Und",
+                                PrecioUnitario: tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio,
+                                CodigoTalla: talla,
+                            }
+
+                            devoluciones[indice].DetalleDevolucion.push(productoDevolver);
+                        }
+                    }
+                }
+            }
         }
+
+        return devoluciones;
+    }
+
+    const mostrarAdvertencia = (title, text, type) => {
+        Swal.fire({
+            title: title,
+            text: text,
+            type: type,
+            confirmButtonText: 'Ok',
+        })
+    }
+
+    const finalizarDevolucion = () => {
+        if (motivoDevolucionDetalle === "") {
+            Swal.fire({
+                title: 'Motivo Devolución',
+                text: 'Seleccione motivo de devolución.',
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
+
+            return;
+        }
+
+        if (devolucionCompleta) {
+            if (Object.keys(factura).length === 0) {
+                Swal.fire({
+                    title: 'Factura',
+                    text: 'Seleccione una factura a devolver.',
+                    type: 'error',
+                    confirmButtonText: 'OK',
+                });
+
+                return;
+            }
+
+            let devolucion = construirEncabezado();
+            devolucion.DetalleDevolucion = construirDetalleDevolucion();
+
+            if (productosSinCantidad) {
+                Swal.fire({
+                    title: 'Aviso',
+                    text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Continuar',
+                    cancelButtonText: 'Corregir',
+                }).then((result) => {
+                    if (result.value) {
+                        enviarDevolucion(devolucion)
+                    }
+                })
+            } else {
+                enviarDevolucion(devolucion)
+            }
+        } else {
+
+            if (productosSinCantidad) {
+                Swal.fire({
+                    title: 'Aviso',
+                    text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Continuar',
+                    cancelButtonText: 'Corregir',
+                }).then((result) => {
+                    if (result.value) {
+                        let devoluciones = constuirDevolucionParcial();
+                        enviarDevolucionParcial(devoluciones);
+                    }
+                })
+            } else {
+                let devoluciones = constuirDevolucionParcial();
+                enviarDevolucionParcial(devoluciones);
+            }
+        }
+
     }
 
     const enviarDevolucion = async (devolucion) => {
         try {
             setTitle("Guardando devolución");
             setOpen(true);
-            const request = await axios.post(`${APIURL}/api/devolucion`, devolucion, {
+            await axios.post(`${APIURL}/api/devolucion`, devolucion, {
                 headers: {
                     'Authorization':
                         'Bearer ' + localStorage.getItem('token')
                 }
             });
-            console.log(request.data);
+            mostrarAdvertencia("Devolución completa", "Se ha guardado la devolución con exito", "success");
+            setOpen(false);
+        } catch (err) {
+            setOpen(false);
+        }
+    }
+
+    const enviarDevolucionParcial = async (devoluciones) => {
+        try {
+            setTitle("Guardando devolución");
+            setOpen(true);
+            await axios.post(`${APIURL}/api/devolucion/parcial`, devoluciones, {
+                headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            mostrarAdvertencia("Devolución completa", "Se ha guardado la devolución con exito", "success");
             setOpen(false);
         } catch (err) {
             setOpen(false);
@@ -494,6 +662,7 @@ export const ProductosDevolucion = (props) => {
                                                 eliminarProducto={eliminarProducto}
                                                 eliminarColor={eliminarColor}
                                                 ingresoCantidad={ingresoCantidad}
+                                                actualizarProducto={actualizarProducto}
                                             />
                                         )
 
