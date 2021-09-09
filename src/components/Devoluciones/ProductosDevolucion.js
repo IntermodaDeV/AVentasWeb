@@ -3,14 +3,13 @@ import {
     Card,
     CardContent,
 } from '@material-ui/core';
-import Swal from 'sweetalert2/dist/sweetalert2.js'
-import 'sweetalert2/src/sweetalert2.scss';
 import { Dropdown } from "semantic-ui-react";
 import { useSelector, useDispatch } from 'react-redux';
 import { ExpandableDevolucion } from './ExpandableDevolucion';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { Loading } from 'components/Global/Loading';
+import { mostrarModal } from 'utils/common';
 
 export const ProductosDevolucion = (props) => {
     let tableValue = useSelector(e => e.Devolucion.TableValue);
@@ -60,12 +59,7 @@ export const ProductosDevolucion = (props) => {
                 agregarDevolucionCompleta(productosDevolver, data.data);
                 setOpen(false);
             } else {
-                Swal.fire({
-                    title: 'Factura',
-                    text: 'Seleccione una factura para poder realizar esta acción',
-                    type: 'error',
-                    confirmButtonText: 'OK',
-                });
+                mostrarModal('Factura', 'Seleccione una factura para poder realizar esta acción', "error");
             }
         } catch (err) {
             setOpen(false);
@@ -399,14 +393,14 @@ export const ProductosDevolucion = (props) => {
         return detalleDevolucion;
     }
 
-    const constuirDevolucionParcial = () => {
+    const construirDevolucionParcial = () => {
         let devoluciones = [];
 
         for (let grupoTalla of Object.keys(tableValue)) {
             for (let producto of Object.keys(tableValue[grupoTalla].Productos)) {
 
                 const factura = tableValue[grupoTalla].Productos[producto].Factura;
-                const esFacturaVacia = Object.keys(factura).length === 0;
+                const esFacturaVacia = factura === undefined || Object.keys(factura).length === 0;
 
                 if (esFacturaVacia) {
                     continue;
@@ -448,36 +442,24 @@ export const ProductosDevolucion = (props) => {
         return devoluciones;
     }
 
-    const mostrarAdvertencia = (title, text, type) => {
-        Swal.fire({
-            title: title,
-            text: text,
-            type: type,
-            confirmButtonText: 'Ok',
-        })
+    const validacionDevolucionParcial = () => {
+        let devoluciones = construirDevolucionParcial();
+        if (devoluciones.length === 0) {
+            mostrarModal("Aviso", "No se ha seleccionado factura para ningún producto.", "warning");
+        } else {
+            enviarDevolucionParcial(devoluciones);
+        }
     }
 
     const finalizarDevolucion = () => {
         if (motivoDevolucionDetalle === "") {
-            Swal.fire({
-                title: 'Motivo Devolución',
-                text: 'Seleccione motivo de devolución.',
-                type: 'error',
-                confirmButtonText: 'OK',
-            });
-
+            mostrarModal('Motivo Devolución', 'Seleccione motivo de devolución.', "error");
             return;
         }
 
         if (devolucionCompleta) {
             if (Object.keys(factura).length === 0) {
-                Swal.fire({
-                    title: 'Factura',
-                    text: 'Seleccione una factura a devolver.',
-                    type: 'error',
-                    confirmButtonText: 'OK',
-                });
-
+                mostrarModal("Factura", "Seleccione una factura a devolver.", "error");
                 return;
             }
 
@@ -485,45 +467,31 @@ export const ProductosDevolucion = (props) => {
             devolucion.DetalleDevolucion = construirDetalleDevolucion();
 
             if (productosSinCantidad) {
-                Swal.fire({
-                    title: 'Aviso',
-                    text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Continuar',
-                    cancelButtonText: 'Corregir',
-                }).then((result) => {
-                    if (result.value) {
-                        enviarDevolucion(devolucion)
-                    }
-                })
+                mostrarModal("Aviso", "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
+                    .then((result) => {
+                        if (result.value) {
+                            enviarDevolucion(devolucion)
+                        }
+                    })
             } else {
                 enviarDevolucion(devolucion)
             }
         } else {
-
-            if (productosSinCantidad) {
-                Swal.fire({
-                    title: 'Aviso',
-                    text: "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?",
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Continuar',
-                    cancelButtonText: 'Corregir',
-                }).then((result) => {
-                    if (result.value) {
-                        let devoluciones = constuirDevolucionParcial();
-                        enviarDevolucionParcial(devoluciones);
+            mostrarModal("Aviso", "Productos sin factura seleccionada no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
+                .then(e => {
+                    if (e.value) {
+                        if (productosSinCantidad) {
+                            mostrarModal("Aviso", "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
+                                .then((result) => {
+                                    if (result.value) {
+                                        validacionDevolucionParcial();
+                                    }
+                                });
+                        } else {
+                            validacionDevolucionParcial();
+                        }
                     }
-                })
-            } else {
-                let devoluciones = constuirDevolucionParcial();
-                enviarDevolucionParcial(devoluciones);
-            }
+                });
         }
 
     }
@@ -538,7 +506,7 @@ export const ProductosDevolucion = (props) => {
                         'Bearer ' + localStorage.getItem('token')
                 }
             });
-            mostrarAdvertencia("Devolución completa", "Se ha guardado la devolución con exito", "success");
+            mostrarModal("Devolución completa", "Se ha guardado la devolución con exito", "success");
             setOpen(false);
         } catch (err) {
             setOpen(false);
@@ -555,7 +523,7 @@ export const ProductosDevolucion = (props) => {
                         'Bearer ' + localStorage.getItem('token')
                 }
             });
-            mostrarAdvertencia("Devolución completa", "Se ha guardado la devolución con exito", "success");
+            mostrarModal("Devolución completa", "Se ha guardado la devolución con exito", "success");
             setOpen(false);
         } catch (err) {
             setOpen(false);
