@@ -44,6 +44,14 @@ export const ProductosDevolucion = (props) => {
                 setTitle("Obteniendo productos de factura");
                 setOpen(true);
                 const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${factura.factura}`);
+
+                if (data.data.length === 0) {
+                    setOpen(false);
+                    mostrarModal("Sin productos", `La factura ${factura.factura} no tiene pedidos asociados`, "warning");
+                    dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: {} });
+                    return;
+                }
+
                 let codigoProductos = [...new Set(data.data.map(x => x.IdProducto))];
                 let productosDevolver = [];
 
@@ -500,7 +508,7 @@ export const ProductosDevolucion = (props) => {
         try {
             setTitle("Guardando devolución");
             setOpen(true);
-            await axios.post(`${APIURL}/api/devolucion`, devolucion, {
+            await axios.post(`${APIURL}/api/devolucion/completa`, devolucion, {
                 headers: {
                     'Authorization':
                         'Bearer ' + localStorage.getItem('token')
