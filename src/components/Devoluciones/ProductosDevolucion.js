@@ -158,27 +158,41 @@ export const ProductosDevolucion = (props) => {
 
     const actualizarProducto = (productos, codigoProducto, grupoTalla, factura) => {
         let miTableValue = { ...tableValue };
+        const noExistenProductosEnFactura = productos.length === 0;
 
-        if (productos.length === 0) {
+        limpiarPreciosCantidades(miTableValue[grupoTalla]["Productos"][codigoProducto]);
+
+        if (noExistenProductosEnFactura) {
             miTableValue[grupoTalla]["Productos"][codigoProducto].Factura = {};
-            limpiarPreciosCantidades(miTableValue[grupoTalla]["Productos"][codigoProducto]);
             dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
             return;
         }
 
         miTableValue[grupoTalla]["Productos"][codigoProducto].Factura = factura;
-        for (let producto of productos) {
-            miTableValue[grupoTalla]["Productos"][codigoProducto].Id = producto.IdProducto;
+        miTableValue[grupoTalla]["Productos"][codigoProducto].Id = productos[0].IdProducto;
+        const colores = productos.map(c => c.CodigoColor);
+        const coloresUnicos = [...new Set(colores)];
 
-            if (producto.Factura !== factura.factura) {
-                limpiarPreciosCantidades(miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto]);
+        for (let color of coloresUnicos) {
+            const noExisteColorProducto = !miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[color];
+
+            if (noExisteColorProducto) {
+                continue;
             }
 
-            if (miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()]) {
-                miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
-                miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
+            const productosColor = productos.filter(p => p.CodigoColor === color);
+            for (let producto of productosColor) {
+                const noExisteTallaProducto = !miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[color].Tallas[' ' + producto.CodigoTalla.toUpperCase()];
+
+                if (noExisteTallaProducto) {
+                    continue;
+                }
+
+                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
+                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
             }
         }
+
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
     }
 
