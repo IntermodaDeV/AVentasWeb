@@ -169,7 +169,11 @@ export const ProductosDevolucion = (props) => {
         miTableValue[grupoTalla]["Productos"][codigoProducto].Factura = factura;
         for (let producto of productos) {
             miTableValue[grupoTalla]["Productos"][codigoProducto].Id = producto.IdProducto;
-            limpiarPreciosCantidades(miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto]);
+
+            if (producto.Factura !== factura.factura) {
+                limpiarPreciosCantidades(miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto]);
+            }
+
             if (miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()]) {
                 miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
                 miTableValue[producto.CodigoGrupoTalla]["Productos"][producto.CodigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
