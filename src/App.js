@@ -52,6 +52,7 @@ import { ListaReciboProforma } from 'containers/ListaRecibos/ListaRecibosProform
 import { Ubicaciones } from 'containers/Ubicaciones/Ubicaciones';
 import {Devoluciones} from 'containers/Devoluciones/Devoluciones';
 import {MotivosDevolucion} from 'components/Devoluciones/MotivosDevolucion/MotivosDevolucion';
+import {ListadoDevolucion} from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucion';
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -356,7 +357,12 @@ const App = props => {
               layout={MainLayout}
               component={MotivosDevolucion}
             />          
-            
+             <LayoutRoute
+              path='/listadoDevolucion'
+              layout={MainLayout}
+              component={ListadoDevolucion}
+            />
+
             <Redirect to='/home' />
           </Switch>
         </Router>
