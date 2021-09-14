@@ -22,7 +22,7 @@ export const ProductosDevolucion = (props) => {
     const [codigo, setCodigo] = useState("");
     const [color, setColor] = useState("");
     const [codigoBarra, setCodigoBarra] = useState("");
-    const [talla, setTalla] = useState("");
+    const [tallaTxt, setTalla] = useState("");
     const [factura, setFactura] = useState({});
     const [facturas, setFacturas] = useState([]);
     const [motivosDevolucionMaestro, setMotivosDevolucionMaestro] = useState([]);
@@ -35,7 +35,6 @@ export const ProductosDevolucion = (props) => {
     const añadir = async () => {
         const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${codigo}/${color}`)
         agregarProducto(data.data)
-        limpiarCampos();
     }
 
     const obtenerProductosFactura = async () => {
@@ -118,7 +117,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const handleChangeMotivo = (value) => {
-        const detalle = motivosDevolucion.find(x => x.codigo === value);
+        const detalle = motivosDevolucionMaestro.find(x => x.codigo === value);
         dispatch({ type: "SET_MOTIVODEVOLUCION", payload: value });
         setMotivosDevolucionDetalle(detalle.detalle);
     }
@@ -188,8 +187,10 @@ export const ProductosDevolucion = (props) => {
                     continue;
                 }
 
-                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
-                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
+                if (miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Marcado) {
+                    miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
+                    miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
+                }
             }
         }
 
@@ -218,36 +219,53 @@ export const ProductosDevolucion = (props) => {
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].NombreProducto = producto.NombreProducto;
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Precio = producto.Precio;
 
-            producto.ListaColores.forEach(color => {
+            for (const color of producto.ListaColores) {
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor] = {}
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].NombreColor = color.NombreColor;
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Color = color.Color;
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
-                producto.ListaTalla.map(talla => {
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 0;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = 0;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 0
-                    return false;
-                });
-            });
 
-        } else {
-            producto.ListaColores.forEach(color => {
-                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor] = {}
-                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].NombreColor = color.NombreColor;
-                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Color = color.Color;
-                miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
-                producto.ListaTalla.map(talla => {
+                for (const talla of producto.ListaTalla) {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 0;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = 0;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 0;
-                    return false;
-                });
-            });
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Marcado = talla.Talla === tallaTxt;
+                }
+            }
+
+        } else {
+            for (const color of producto.ListaColores) {
+                if (miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor]) {
+                    for (const talla of producto.ListaTalla) {
+                        if (miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Marcado) {
+                            continue;
+                        }
+
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Marcado = talla.Talla === tallaTxt;
+                    };
+                } else {
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor] = {}
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].NombreColor = color.NombreColor;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Color = color.Color;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
+
+                    for (const talla of producto.ListaTalla) {
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla] = {}
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Marcado = talla.Talla === tallaTxt;
+                    }
+                }
+            }
         }
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
+        limpiarCampos();
     }
 
     const agregarDevolucionCompleta = (productos, productosDevolver) => {
@@ -615,7 +633,7 @@ export const ProductosDevolucion = (props) => {
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <input type="text" className="mr-5 form-control" placeholder="Codigo Producto" value={codigo} onChange={(e) => { setCodigo(e.target.value) }} />
                                 <input type="text" className="mr-5 form-control" placeholder="Codigo Color" value={color} onChange={(e) => { setColor(e.target.value) }} />
-                                <input type="text" className="mr-5 form-control" placeholder="Talla" value={talla} onChange={(e) => { setTalla(e.target.value) }} />
+                                <input type="text" className="mr-5 form-control" placeholder="Talla" value={tallaTxt} onChange={(e) => { setTalla(e.target.value) }} />
                                 <input type="text" className="mr-5 form-control" placeholder="Codigo Barra" value={codigoBarra} onChange={(e) => { setCodigoBarra(e.target.value) }} onKeyPress={obtenerAtributosBarra} />
                                 <button className="btn btn-success" onClick={añadir}>Añadir</button>
                             </div>
