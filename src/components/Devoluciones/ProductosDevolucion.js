@@ -18,6 +18,7 @@ export const ProductosDevolucion = (props) => {
     const devolucionCompleta = useSelector(e => e.Devolucion.devolucionCompleta);
     const motivosDevolucion = useSelector(e => e.Devolucion.motivosDevolucion);
     const motivoDevolucionDetalle = useSelector(e => e.Devolucion.motivoDevolucionDetalle);
+    const motivoDevolucion = useSelector(e => e.Devolucion.motivoDevolucion);
 
     const [codigo, setCodigo] = useState("");
     const [color, setColor] = useState("");
@@ -117,7 +118,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const handleChangeMotivo = (value) => {
-        const detalle = motivosDevolucionMaestro.find(x => x.codigo === value);
+        const detalle = motivosDevolucionMaestro.find(x => x.id === value);
         dispatch({ type: "SET_MOTIVODEVOLUCION", payload: value });
         setMotivosDevolucionDetalle(detalle.detalle);
     }
@@ -131,7 +132,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const dataMotivos = () => {
-        return motivosDevolucionMaestro.map(x => ({ key: x.codigo, value: x.codigo, text: x.descripcion }));
+        return motivosDevolucionMaestro.map(x => ({ key: x.codigo, value: x.id, text: x.descripcion }));
     }
 
     const dataMotivosDetalle = () => {
@@ -376,6 +377,7 @@ export const ProductosDevolucion = (props) => {
                 setOpen(false);
             } catch (err) {
                 setOpen(false);
+                mostrarModal("Codigo barra", "No se encontro producto con el codigo de barra ingresado", "error");
             }
         }
     }
@@ -386,6 +388,7 @@ export const ProductosDevolucion = (props) => {
                 CodigoCliente: clienteSelected.Codigo,
                 DetalleDevolucion: [],
                 Moneda: clienteSelected.Moneda,
+                MotivoDevolucion: motivoDevolucion,
                 MotivoDevolucionDetalle: motivoDevolucionDetalle,
                 FacturaOriginal: productoFactura.factura,
                 PedidoOriginal: productoFactura.pedido,
@@ -399,6 +402,7 @@ export const ProductosDevolucion = (props) => {
             CodigoCliente: clienteSelected.Codigo,
             DetalleDevolucion: [],
             Moneda: clienteSelected.Moneda,
+            MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
             FacturaOriginal: factura.factura,
             PedidoOriginal: factura.pedido,
@@ -589,7 +593,7 @@ export const ProductosDevolucion = (props) => {
                                 options={dataMotivos()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
-                                style={{ zIndex: 999 , width: '40%'}}
+                                style={{ zIndex: 999, width: '40%' }}
                                 multiple={false}
                                 onChange={(e, { value }) => { handleChangeMotivo(value) }}
                             />
@@ -600,18 +604,18 @@ export const ProductosDevolucion = (props) => {
                                 options={dataMotivosDetalle()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
-                                style={{ zIndex: 999 , width: '40%'}}
+                                style={{ zIndex: 999, width: '40%' }}
                                 multiple={false}
                                 onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
                                 value={motivoDevolucionDetalle}
                             />
-                            <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta}  onChange={handleDevolucionCompleta} /> Devolución Completa </label>
+                            <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
                         </div>
                     </div>
                     {devolucionCompleta
                         ?
                         <div style={{ marginTop: 40 }}>
-                            <hr/>
+                            <hr />
                             <h5>Seleccione factura</h5>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Dropdown
@@ -642,7 +646,7 @@ export const ProductosDevolucion = (props) => {
                     }
                     {(Object.keys(tableValue).length > 0) &&
                         <>
-                         <hr/>
+                            <hr />
                             <form>
                                 {Object.keys(tableValue).map((grupoTalla, index) => {
                                     let productos = Object.keys(tableValue[grupoTalla].Productos);

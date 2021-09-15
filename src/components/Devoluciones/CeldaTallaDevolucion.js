@@ -4,12 +4,7 @@ import styles from "components/Pedidos/Global/CeldaTallas.module.css";
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 
 export const CeldaTallaDevolucion = (props) => {
-    const [Focused, setFocused] = React.useState(null);
 
-    const onFocus = () => {
-        setFocused(true);
-        props.onFocus();
-    }
 
     const alertaFisicoDisponible = () => {
         return Swal.fire({
@@ -45,7 +40,7 @@ export const CeldaTallaDevolucion = (props) => {
     }
 
     return (
-        <td className="p-1" style={{ backgroundColor: Focused ? '#D5EEE3' : 'unset', verticalAlign: "middle" }} >
+        <td className="p-1" style={{ backgroundColor: props.marcado ? '#D5EEE3' : 'unset', verticalAlign: "middle" }} >
             <div className={"row " + styles.Border}>
                 {
                     <>
@@ -75,7 +70,6 @@ export const CeldaTallaDevolucion = (props) => {
             <hr className="m-0 my-1" />
             <input
                 disabled={isDisabled()}
-                onFocusCapture={() => onFocus()}
                 onKeyDownCapture={(event) => props.handleArrowKeys(event)}
                 type="text"
                 ref={props.ref}

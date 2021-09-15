@@ -153,6 +153,7 @@ const ProductoTableDevolucion = (props) => {
                                         codigoTalla={codigoTalla}
                                         grupoTalla={props.grupoTalla}
                                         cantidad={valorTalla.Cantidad}
+                                        marcado={valorTalla.Marcado}
                                         onFocus={onFocus}
                                         onBlur={onBlur}
                                         onChange={props.onValueChange}
