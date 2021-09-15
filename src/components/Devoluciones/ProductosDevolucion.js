@@ -120,6 +120,7 @@ export const ProductosDevolucion = (props) => {
     const handleChangeMotivo = (value) => {
         const detalle = motivosDevolucionMaestro.find(x => x.id === value);
         dispatch({ type: "SET_MOTIVODEVOLUCION", payload: value });
+        dispatch({ type: "SET_MOTIVODEVOLUCIONDETALLE", payload: "" });
         setMotivosDevolucionDetalle(detalle.detalle);
     }
 
