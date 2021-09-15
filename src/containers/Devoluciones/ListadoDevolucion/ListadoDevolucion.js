@@ -16,7 +16,12 @@ export const ListadoDevolucion = (props) => {
 
     const ObtenerlistadoDevoluciones = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/devolucion/listado`)
+            const request = await axios.get(`${APIURL}/api/devolucion/listado`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
             return request.data;
         } catch (err) {
             console.log(err)
@@ -87,13 +92,6 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
-            label: "Cantidad",
-            name: "cantidad",
-            options: {
-                filter: true,
-            }
-        },
-        {
             label: "Estado",
             name: "estado",
             options: {
@@ -102,20 +100,16 @@ export const ListadoDevolucion = (props) => {
         }
     ]
 
-
-
     const Data = () => {
         let DataPacientes = [];
-        console.log("devoluciones",devoluciones)
         devoluciones.forEach(p => {
             let data = [
                 p.NumDevolucion,
                 p.NumeroRMA,
                 p.PedidoDevolucion,
                 p.CodigoCliente,
-                p.nombreCliente,
+                p.NombreCliente,
                 p.motivoDevolucion,
-                "",
                 p.Estado
             ]
             DataPacientes.push(data);

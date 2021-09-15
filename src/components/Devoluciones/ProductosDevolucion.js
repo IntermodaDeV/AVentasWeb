@@ -577,11 +577,11 @@ export const ProductosDevolucion = (props) => {
     return (
         <>
             <Loading open={open} title={title} />
-            <Card style={{ margin: '15px', minHeight: '100vh' }}>
+            <Card style={{ margin: '15px', minHeight: '50vh' }}>
                 <CardContent>
                     <div>
-                        <h3>Motivo devolución</h3>
-                        <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                        <h5>Motivo devolución</h5>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <Dropdown
                                 placeholder="Seleccione un motivo devolución"
                                 search
@@ -589,7 +589,7 @@ export const ProductosDevolucion = (props) => {
                                 options={dataMotivos()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
-                                style={{ zIndex: 999 }}
+                                style={{ zIndex: 999 , width: '40%'}}
                                 multiple={false}
                                 onChange={(e, { value }) => { handleChangeMotivo(value) }}
                             />
@@ -600,18 +600,19 @@ export const ProductosDevolucion = (props) => {
                                 options={dataMotivosDetalle()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
-                                style={{ zIndex: 999 }}
+                                style={{ zIndex: 999 , width: '40%'}}
                                 multiple={false}
                                 onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
                                 value={motivoDevolucionDetalle}
                             />
-                            <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
+                            <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta}  onChange={handleDevolucionCompleta} /> Devolución Completa </label>
                         </div>
                     </div>
                     {devolucionCompleta
                         ?
                         <div style={{ marginTop: 40 }}>
-                            <h3>Seleccione factura</h3>
+                            <hr/>
+                            <h5>Seleccione factura</h5>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Dropdown
                                     placeholder="Seleccione facturas"
@@ -629,7 +630,7 @@ export const ProductosDevolucion = (props) => {
                         </div>
                         :
                         <div style={{ marginTop: 40 }}>
-                            <h3>Agregar producto</h3>
+                            <h5>Agregar producto</h5>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <input type="text" className="mr-5 form-control" placeholder="Codigo Producto" value={codigo} onChange={(e) => { setCodigo(e.target.value) }} />
                                 <input type="text" className="mr-5 form-control" placeholder="Codigo Color" value={color} onChange={(e) => { setColor(e.target.value) }} />
@@ -641,7 +642,7 @@ export const ProductosDevolucion = (props) => {
                     }
                     {(Object.keys(tableValue).length > 0) &&
                         <>
-                            <h3 style={{ marginTop: '3em' }}>Productos a devolver</h3>
+                         <hr/>
                             <form>
                                 {Object.keys(tableValue).map((grupoTalla, index) => {
                                     let productos = Object.keys(tableValue[grupoTalla].Productos);

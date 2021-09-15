@@ -5,7 +5,7 @@ import 'moment/locale/es';
 import ClienteSelected from 'components/Devoluciones/ClienteSelected'
 import { ProductosDevolucion } from 'components/Devoluciones/ProductosDevolucion'
 import DevolucionesBreadCrumb from './DevolucionesBreadCrumb'
-import { Container } from 'reactstrap';
+import { StickyContainer, Sticky } from 'react-sticky';
 import { useDispatch, useSelector } from 'react-redux';
 moment.locale('es');
 
@@ -57,14 +57,24 @@ export const Devoluciones = (props) => {
 
         <Route path={props.match.url + "/productos"} exact render={() => (
           <>
-            <Container fluid={true}>
-              {BreadCrumb()}
-              <div className="row">
-                <div className="col-12">
-                  <ProductosDevolucion />
-                </div>
-              </div>
-            </Container>
+
+            {BreadCrumb()}
+            <section>
+              <StickyContainer>
+                <Sticky>
+                  {({
+                    style,
+                  }) => (
+                    <header style={style} className="Especial2 p-0 shadow">
+                      <div className="row align-items-center">
+                        <div className="col-12 pr-0">
+                          <ProductosDevolucion />
+                        </div>
+                      </div>
+                    </header>)}
+                </Sticky>
+              </StickyContainer>
+            </section>
           </>
         )} />
       </Switch>
