@@ -54,6 +54,7 @@ import { Devoluciones } from 'containers/Devoluciones/Devoluciones';
 import { MotivosDevolucion } from 'components/Devoluciones/MotivosDevolucion/MotivosDevolucion';
 import { ListadoDevolucion } from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucion';
 import { AprobacionDevolucion } from 'containers/Devoluciones/ListadoDevolucion/AprobacionDevoluciones';
+import { ListadoDevolucionPendiente } from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucionPendiente'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -362,6 +363,11 @@ const App = props => {
               path='/listadoDevolucion'
               layout={MainLayout}
               component={ListadoDevolucion}
+            />
+            <LayoutRoute
+              path='/listadoDevolucionPendiente'
+              layout={MainLayout}
+              component={ListadoDevolucionPendiente}
             />
             <LayoutRoute
               path='/aprobarDevoluciones'
