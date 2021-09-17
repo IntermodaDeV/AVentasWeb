@@ -141,7 +141,7 @@ export const ListadoDevolucion = (props) => {
         ),
         textLabels: {
             body: {
-                noMatch: "No se han encontrado Pacientes",
+                noMatch: "No se han encontrado devoluciones",
                 toolTip: "Ordenar",
             },
             pagination: {

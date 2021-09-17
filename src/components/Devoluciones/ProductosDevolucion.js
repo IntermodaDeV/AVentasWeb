@@ -620,13 +620,13 @@ export const ProductosDevolucion = (props) => {
                             <h5>Seleccione factura</h5>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <Dropdown
-                                    placeholder="Seleccione facturas"
+                                    placeholder="Seleccione factura"
                                     search
                                     selection
                                     options={dataFacturas()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
-                                    style={{ zIndex: 99, width: '90%' }}
+                                    style={{ zIndex: 99, width: '84%' }}
                                     multiple={false}
                                     onChange={(e, { value }) => { setFactura(value) }}
                                 />
@@ -635,6 +635,7 @@ export const ProductosDevolucion = (props) => {
                         </div>
                         :
                         <div style={{ marginTop: 40 }}>
+                             <hr />
                             <h5>Agregar producto</h5>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <input type="text" className="mr-5 form-control" placeholder="Codigo Producto" value={codigo} onChange={(e) => { setCodigo(e.target.value) }} />
