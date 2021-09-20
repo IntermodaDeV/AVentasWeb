@@ -26,21 +26,8 @@ export const CeldaTallaDevolucion = (props) => {
         props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);
     }
 
-
-    const isDisabled = () => {
-        if (!props.devolucionCompleta) {
-            return true;
-        }
-
-        if (props.precio === 0 || props.disponible === 0) {
-            return true;
-        }
-
-        return false;
-    }
-
     return (
-        <td className="p-1" style={{ backgroundColor: props.marcado ? '#D5EEE3' : 'unset', verticalAlign: "middle" }} >
+        <td className="p-1" style={{ backgroundColor: 'unset', verticalAlign: "middle" }} >
             <div className={"row " + styles.Border}>
                 {
                     <>
@@ -69,7 +56,6 @@ export const CeldaTallaDevolucion = (props) => {
             </div>
             <hr className="m-0 my-1" />
             <input
-                disabled={isDisabled()}
                 onKeyDownCapture={(event) => props.handleArrowKeys(event)}
                 type="text"
                 ref={props.ref}

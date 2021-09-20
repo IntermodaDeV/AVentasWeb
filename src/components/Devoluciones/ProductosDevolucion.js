@@ -189,10 +189,10 @@ export const ProductosDevolucion = (props) => {
                     continue;
                 }
 
-                if (miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Marcado) {
-                    miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
-                    miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
-                }
+                //if (miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Marcado) {
+                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
+                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
+                //}
             }
         }
 
@@ -307,6 +307,7 @@ export const ProductosDevolucion = (props) => {
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Disponible = productoValores ? productoValores.Cantidad : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Cantidad = productoValores ? productoValores.Cantidad : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = productoValores ? productoValores.PrecioUnitario : 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[' ' + talla.Talla].Marcado = true;
                     }
                 }
             }
@@ -635,7 +636,7 @@ export const ProductosDevolucion = (props) => {
                         </div>
                         :
                         <div style={{ marginTop: 40 }}>
-                             <hr />
+                            <hr />
                             <h5>Agregar producto</h5>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <input type="text" className="mr-5 form-control" placeholder="Codigo Producto" value={codigo} onChange={(e) => { setCodigo(e.target.value) }} />
