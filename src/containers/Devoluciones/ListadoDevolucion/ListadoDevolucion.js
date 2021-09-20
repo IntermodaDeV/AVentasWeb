@@ -5,13 +5,21 @@ import TableFooter from "@material-ui/core/TableFooter";
 import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
 import axios from 'axios';
+import Button from "@material-ui/core/Button";
+import Dialog from "@material-ui/core/Dialog";
+import PrintOutlined from '@material-ui/icons/PrintOutlined';
 import { APIURL } from 'utils/Enviroment';
+import { ImprimirPedidoDevolucion } from 'components/Devoluciones/ImprimirPedidoDevolucion';
+
 export const ListadoDevolucion = (props) => {
     const [devoluciones, setDevoluciones] = useState([]);
+    const [showDialog, setShowDialog] = useState(false);
+    const [devolucion, setDevolucion] = useState(null);
+    const [detalleDevolucion, setDetalleDevolucion] = useState([]);
 
     useEffect(() => {
         getDevoluciones();
-         // eslint-disable-next-line
+        // eslint-disable-next-line
     }, [])
 
     const ObtenerlistadoDevoluciones = async () => {
@@ -97,24 +105,48 @@ export const ListadoDevolucion = (props) => {
             options: {
                 filter: true,
             }
+        },
+        {
+            label: "Acciones",
+            name: "acciones",
+            options: {
+                filter: false,
+            }
         }
     ]
 
+    const hidePrint = () => {
+        setShowDialog(false);
+    }
+
+    const obtenerDetalleDevolucion = async (devolucionSeleccionada) => {
+        try {
+            const request = await axios.get(`${APIURL}/api//devolucion/detalle/${devolucionSeleccionada.NumDevolucion}`);
+            setDevolucion(devolucionSeleccionada);
+            setDetalleDevolucion(request.data);
+            setShowDialog(true);
+        } catch (err) {
+
+        }
+    }
+
     const Data = () => {
-        let DataPacientes = [];
-        devoluciones.forEach(p => {
-            let data = [
+        return devoluciones.map(p => (
+            [
                 p.NumDevolucion,
                 p.NumeroRMA,
                 p.PedidoDevolucion,
                 p.CodigoCliente,
                 p.NombreCliente,
                 p.motivoDevolucion,
-                p.Estado
+                p.Estado,
+                <span className="ml-1">
+                    <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerDetalleDevolucion(p) }} color={"primary"}>
+                        <PrintOutlined />
+                    </Button>
+                </span >
             ]
-            DataPacientes.push(data);
-        });
-        return DataPacientes;
+        ));
     }
 
     const DatatableOptions = {
@@ -185,6 +217,24 @@ export const ListadoDevolucion = (props) => {
                     />
                 </MuiThemeProvider>
             </div>
+
+            <Dialog
+                open={showDialog}
+                onClose={() => hidePrint()}
+                scroll={'paper'}
+                aria-labelledby="scroll-dialog-title"
+            >
+
+                {
+                    devolucion && detalleDevolucion &&
+                    <ImprimirPedidoDevolucion
+                        hidePrint={hidePrint}
+                        Pedido={devolucion}
+                        gruposXDetPed={detalleDevolucion}
+                    />
+                }
+            </Dialog >
+
         </div>
     );
 }
