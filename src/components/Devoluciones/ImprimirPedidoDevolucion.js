@@ -279,8 +279,9 @@ export const ImprimirPedidoDevolucion = (props) => {
                         )
                     })}
                     <div className="row" style={{ maxWidth: '100%' }}>
+                        <div className="col-6"></div>
 
-                        {/*<div className="col-6">
+                        <div className="col-6">
                             <div className="row">
                                 <div className="col-5 labelTotal text-left">
                                     Unidades:
@@ -290,7 +291,7 @@ export const ImprimirPedidoDevolucion = (props) => {
                                 </div>
                             </div>
 
-                            <div className="row TotalRow">
+                            {/*<div className="row TotalRow">
                                 <div className="col-5 labelTotal text-left">
                                     Subtotal:
                                 </div>
@@ -318,8 +319,8 @@ export const ImprimirPedidoDevolucion = (props) => {
                                 <div className="col-7 valueTotal">
                                     {moneda}{numberWithCommas((props.Pedido.TotalXPedido))}
                                 </div>
-                            </div>
                 </div>*/}
+                        </div>
                     </div>
 
                 </div>
