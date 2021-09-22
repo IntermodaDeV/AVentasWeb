@@ -8,6 +8,8 @@ import axios from 'axios';
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import PrintOutlined from '@material-ui/icons/PrintOutlined';
+import { Dropdown } from "semantic-ui-react";
+import { useSelector } from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
 import { ImprimirPedidoDevolucion } from 'components/Devoluciones/ImprimirPedidoDevolucion';
 
@@ -16,30 +18,40 @@ export const ListadoDevolucion = (props) => {
     const [showDialog, setShowDialog] = useState(false);
     const [devolucion, setDevolucion] = useState(null);
     const [detalleDevolucion, setDetalleDevolucion] = useState([]);
+    const [asesores, setAsesores] = useState([]);
+    const [AsesorSelected, setAsesorSelected] = useState(null);
+
+    const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
 
     useEffect(() => {
-        getDevoluciones();
+        setAsesorSelected(AsesoresUsuario[0].Usuario);
+        ObtenerlistadoDevoluciones();
+
+        let asesoresMap = AsesoresUsuario.map((Ase) => ({ key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }));
+        setAsesores(asesoresMap);
         // eslint-disable-next-line
     }, [])
 
+
     const ObtenerlistadoDevoluciones = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/devolucion/listado`, {
+            let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
+            const request = await axios.get(`${APIURL}/api/devolucion/listado/${asesor}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 }
             });
-            return request.data;
+            setDevoluciones(request.data);
         } catch (err) {
             console.log(err)
         }
     }
 
-    const getDevoluciones = async () => {
-        let lista = await ObtenerlistadoDevoluciones();
-        setDevoluciones(lista);
+    const handleOnChangeAsesor = (value) => {
+        setAsesorSelected(value);
     }
+
     const getMuiTheme = () => createMuiTheme({
         overrides: {
             MUIDataTable: {
@@ -207,6 +219,27 @@ export const ListadoDevolucion = (props) => {
     };
     return (
         <div className="px-3">
+            <div className="row mb-3">
+                <div className='col-lg-2 col-sm-4 col-6' style={{ paddingTop: 10 }}>
+                    <Dropdown
+                        placeholder="Asesor"
+                        selection
+                        style={{ zIndex: 999 }}
+                        onChange={(e, { value }) => handleOnChangeAsesor(value)}
+                        options={asesores}
+                        noResultsMessage={"No hay resultados"}
+                        closeOnChange={true}
+                        value={AsesorSelected}
+                    />
+                </div>
+                <div className="col-lg-2 col-sm-4 col-6" style={{ paddingTop: 10 }}>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => ObtenerlistadoDevoluciones()}>Obtener
+                    </Button>
+                </div>
+            </div>
             <div>
                 <MuiThemeProvider theme={getMuiTheme()}>
                     <MUIDataTable

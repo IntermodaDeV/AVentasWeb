@@ -395,7 +395,8 @@ export const ProductosDevolucion = (props) => {
                 FacturaOriginal: productoFactura.factura,
                 PedidoOriginal: productoFactura.pedido,
                 Linea: productoFactura.linea,
-                Empresa: clienteSelected.EmpresaId
+                Empresa: clienteSelected.EmpresaId,
+                SubTotal: 0
             };
         }
 
@@ -409,12 +410,14 @@ export const ProductosDevolucion = (props) => {
             FacturaOriginal: factura.factura,
             PedidoOriginal: factura.pedido,
             Linea: factura.linea,
-            Empresa: clienteSelected.EmpresaId
+            Empresa: clienteSelected.EmpresaId,
+            SubTotal: 0
         };
     }
 
     const construirDetalleDevolucion = () => {
         let detalleDevolucion = [];
+        let subTotal = 0;
 
         for (let grupoTalla of Object.keys(tableValue)) {
             for (let producto of Object.keys(tableValue[grupoTalla].Productos)) {
@@ -434,13 +437,14 @@ export const ProductosDevolucion = (props) => {
                             }
 
                             detalleDevolucion.push(productoDevolver);
+                            subTotal += cantidad * tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
                         }
                     }
                 }
             }
         }
 
-        return detalleDevolucion;
+        return [subTotal, detalleDevolucion];
     }
 
     const construirDevolucionParcial = () => {
@@ -483,6 +487,7 @@ export const ProductosDevolucion = (props) => {
                             }
 
                             devoluciones[indice].DetalleDevolucion.push(productoDevolver);
+                            devoluciones[indice].SubTotal += cantidad * tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
                         }
                     }
                 }
@@ -514,7 +519,9 @@ export const ProductosDevolucion = (props) => {
             }
 
             let devolucion = construirEncabezado();
-            devolucion.DetalleDevolucion = construirDetalleDevolucion();
+            const [subTotal, detalleDevolucion] = construirDetalleDevolucion();
+            devolucion.SubTotal = parseFloat(subTotal);
+            devolucion.DetalleDevolucion = detalleDevolucion;
 
             if (productosSinCantidad) {
                 mostrarModal("Aviso", "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")

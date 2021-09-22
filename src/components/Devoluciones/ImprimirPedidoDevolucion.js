@@ -291,17 +291,17 @@ export const ImprimirPedidoDevolucion = (props) => {
                                 </div>
                             </div>
 
-                            {/*<div className="row TotalRow">
+                            <div className="row TotalRow">
                                 <div className="col-5 labelTotal text-left">
-                                    Subtotal:
+                                    Total:
                                 </div>
 
                                 <div className="col-7 valueTotal">
-                                    {numberWithCommas(props.Pedido.SubTotalXPedido)}
+                                    {numberWithCommas(props.Pedido.SubTotal)}
                                 </div>
                             </div>
 
-                            <div className="row TotalRow">
+                            {/*<div className="row TotalRow">
                                 <div className="col-5 labelTotal text-left">
                                     Impuesto:
                                 </div>
