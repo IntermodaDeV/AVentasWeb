@@ -7,16 +7,19 @@ import { ProductosDevolucion } from 'components/Devoluciones/ProductosDevolucion
 import DevolucionesBreadCrumb from './DevolucionesBreadCrumb'
 import { StickyContainer, Sticky } from 'react-sticky';
 import { useDispatch, useSelector } from 'react-redux';
+import { ImprimirDevolucionOriginal } from 'components/Devoluciones/ImprimirDevolucionOriginal';
+
 moment.locale('es');
 
 export const Devoluciones = (props) => {
   const dispatch = useDispatch();
   const cliente = useSelector(e => e.Devolucion.clienteSelected);
+  const tableValue = useSelector(e => e.Devolucion.TableValue);
 
   const NavHome = () => {
     props.history.push(`/devolucion`);
   }
-  
+
   const BreadCrumb = () => {
     return (
       <DevolucionesBreadCrumb
@@ -40,6 +43,10 @@ export const Devoluciones = (props) => {
   const cargarProductoDevolucion = (cliente) => {
     props.history.push("/devolucion/productos");
     dispatch({ type: 'STORE_DEVOLUCION_CLIENTESELECTED', clienteSelected: JSON.parse(cliente) })
+  }
+
+  const finalizar = () => {
+    props.history.push("/devolucion");
   }
 
   return (
@@ -77,6 +84,21 @@ export const Devoluciones = (props) => {
             </section>
           </>
         )} />
+
+        <Route
+          exact
+          path={props.match.url + '/ImprimirDevolucion'}
+          render={(routeProps) => {
+            return (
+              <ImprimirDevolucionOriginal
+                tableValue={tableValue}
+                Cliente={cliente}
+                ValoresPedido={JSON.parse(routeProps.location.state)}
+                Finalizar={finalizar}
+              />
+            )
+          }}
+        />
       </Switch>
     </>
   )
