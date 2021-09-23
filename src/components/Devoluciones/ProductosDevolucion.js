@@ -390,6 +390,7 @@ export const ProductosDevolucion = (props) => {
     const construirEncabezado = (productoFactura) => {
         if (productoFactura) {
             return {
+                Correlativo: "",
                 CodigoCliente: clienteSelected.Codigo,
                 DetalleDevolucion: [],
                 Moneda: clienteSelected.Moneda,
@@ -567,7 +568,6 @@ export const ProductosDevolucion = (props) => {
                 }
             });
             mostrarModal("Devolución completa", "Se ha guardado la devolución con exito", "success");
-            console.log(props);
             history.push({ pathname: "/devolucion/ImprimirDevolucion", state: JSON.stringify(devolucion) });
             setOpen(false);
         } catch (err) {
@@ -579,7 +579,7 @@ export const ProductosDevolucion = (props) => {
         try {
             setTitle("Guardando devolución");
             setOpen(true);
-            await axios.post(`${APIURL}/api/devolucion/parcial`, devoluciones, {
+            const nuevasDevoluciones = await axios.post(`${APIURL}/api/devolucion/parcial`, devoluciones, {
                 headers: {
                     'Authorization':
                         'Bearer ' + localStorage.getItem('token')
@@ -587,6 +587,7 @@ export const ProductosDevolucion = (props) => {
             });
             mostrarModal("Devolución completa", "Se ha guardado la devolución con exito", "success");
             setOpen(false);
+            history.push({ pathname: "/devolucion/ImprimirDevolucion/Parcial", state: JSON.stringify({ devolucionesGeneradas: nuevasDevoluciones.data, devoluciones }) });
         } catch (err) {
             setOpen(false);
         }

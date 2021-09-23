@@ -8,6 +8,7 @@ import DevolucionesBreadCrumb from './DevolucionesBreadCrumb'
 import { StickyContainer, Sticky } from 'react-sticky';
 import { useDispatch, useSelector } from 'react-redux';
 import { ImprimirDevolucionOriginal } from 'components/Devoluciones/ImprimirDevolucionOriginal';
+import { DevolucionParcialReporte } from './DevolucionParcialReporte';
 
 moment.locale('es');
 
@@ -91,6 +92,21 @@ export const Devoluciones = (props) => {
           render={(routeProps) => {
             return (
               <ImprimirDevolucionOriginal
+                tableValue={tableValue}
+                Cliente={cliente}
+                ValoresPedido={JSON.parse(routeProps.location.state)}
+                Finalizar={finalizar}
+              />
+            )
+          }}
+        />
+
+        <Route
+          exact
+          path={props.match.url + '/ImprimirDevolucion/Parcial'}
+          render={(routeProps) => {
+            return (
+              <DevolucionParcialReporte
                 tableValue={tableValue}
                 Cliente={cliente}
                 ValoresPedido={JSON.parse(routeProps.location.state)}

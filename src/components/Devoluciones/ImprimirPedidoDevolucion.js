@@ -88,7 +88,7 @@ export const ImprimirPedidoDevolucion = (props) => {
                                 <div className="info">
                                     <h2>Devolución {props.Pedido.NumDevolucion}</h2>
                                     <p>
-                                        Fecha Devolucion : {moment(props.Pedido.FechaActual).format('DD/MM/YYYY hh:mm a')}<br />
+                                        Fecha Devolucion : {moment(props.Pedido.FechaCreacion).format('DD/MM/YYYY hh:mm a')}<br />
                                         Asesor: {props.Pedido.Usuario}<br />
                                     </p>
                                 </div>
