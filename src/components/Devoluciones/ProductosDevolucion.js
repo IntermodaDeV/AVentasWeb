@@ -160,6 +160,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const actualizarProducto = (productos, codigoProducto, grupoTalla, factura) => {
+        debugger;
         let miTableValue = { ...tableValue };
         const noExistenProductosEnFactura = productos.length === 0;
 
@@ -185,15 +186,15 @@ export const ProductosDevolucion = (props) => {
 
             const productosColor = productos.filter(p => p.CodigoColor === color);
             for (let producto of productosColor) {
-                const noExisteTallaProducto = !miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[color].Tallas[' ' + producto.CodigoTalla.toUpperCase()];
+                const noExisteTallaProducto = !miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[color].Tallas[producto.CodigoTalla.toUpperCase()];
 
                 if (noExisteTallaProducto) {
                     continue;
                 }
 
-                //if (miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Marcado) {
-                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
-                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[' ' + producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
+                //if (miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[producto.CodigoTalla.toUpperCase()].Marcado) {
+                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
+                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
                 //}
             }
         }

@@ -297,7 +297,7 @@ export const ImprimirPedidoDevolucion = (props) => {
                                 </div>
 
                                 <div className="col-7 valueTotal">
-                                    {numberWithCommas(props.Pedido.SubTotal)}
+                                  {moneda}  {numberWithCommas(props.Pedido.SubTotal)}
                                 </div>
                             </div>
 
