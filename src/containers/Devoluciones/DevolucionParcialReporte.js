@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Dropdown } from "semantic-ui-react";
 //import { ImprimirDevolucionOriginal } from 'components/Devoluciones/ImprimirDevolucionOriginal';
@@ -6,7 +6,7 @@ import { ImprimirPedidoDevolucion } from 'components/Devoluciones/ImprimirPedido
 import { APIURL } from 'utils/Enviroment';
 
 export const DevolucionParcialReporte = props => {
-    const { ValoresPedido } = props;
+    const { ValoresPedido, Finalizar } = props;
 
     /*const [nuevoTableValue, setNuevoTableValue] = useState({});
     const [valorPedido, setValorPedido] = useState({});*/
@@ -49,6 +49,19 @@ export const DevolucionParcialReporte = props => {
         setValorPedido(nuevoValorPedido);
     }*/
 
+    useEffect(() => {
+        if (ValoresPedido.devolucionesGeneradas.length === 1) {
+            obtenerDevolucionCompleta();
+        }
+
+        // eslint-disable-next-line
+    }, [])
+
+    const obtenerDevolucionCompleta = async () => {
+        await obtenerDevolucion(ValoresPedido.devolucionesGeneradas[0].referencia);
+        await obtenerDetalleDevolucion(ValoresPedido.devolucionesGeneradas[0].referencia);
+    }
+
     const handleChangeFactura = async (factura) => {
         const indiceDevolucionGenerada = ValoresPedido.devolucionesGeneradas.findIndex(x => x.factura === factura);
         await obtenerDevolucion(ValoresPedido.devolucionesGeneradas[indiceDevolucionGenerada].referencia);
@@ -75,17 +88,19 @@ export const DevolucionParcialReporte = props => {
 
     return (
         <div>
-            <Dropdown
-                placeholder="Seleccione Factura"
-                search
-                selection
-                options={generarOpciones()}
-                noResultsMessage={"No hay resultados"}
-                closeOnChange={true}
-                style={{ zIndex: 999 }}
-                multiple={false}
-                onChange={(e, { value }) => { handleChangeFactura(value) }}
-            />
+            {(ValoresPedido.devolucionesGeneradas.length > 1) &&
+                <Dropdown
+                    placeholder="Seleccione Factura"
+                    search
+                    selection
+                    options={generarOpciones()}
+                    noResultsMessage={"No hay resultados"}
+                    closeOnChange={true}
+                    style={{ zIndex: 999 }}
+                    multiple={false}
+                    onChange={(e, { value }) => { handleChangeFactura(value) }}
+                />
+            }
             <br />
 
             {/*(Object.keys(nuevoTableValue)).length !== 0 &&
@@ -97,7 +112,8 @@ export const DevolucionParcialReporte = props => {
 
             {devolucion && detalleDevolucion &&
                 <ImprimirPedidoDevolucion
-                    hidePrint={() => { }}
+                    hidePrint={Finalizar}
+                    esDevolucion={true}
                     Pedido={devolucion}
                     gruposXDetPed={detalleDevolucion}
                 />

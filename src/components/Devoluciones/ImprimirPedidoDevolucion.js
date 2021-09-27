@@ -5,6 +5,8 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import moment from "moment";
 import ReactToPrint from 'react-to-print';
+import { FiArrowRightCircle } from "react-icons/fi";
+import { FaPrint } from "react-icons/fa";
 import { useSelector } from 'react-redux';
 import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
@@ -52,7 +54,25 @@ export const ImprimirPedidoDevolucion = (props) => {
 
     return (
         <>
-            <DialogTitle id="scroll-dialog-title">Vista Previa Pedido</DialogTitle>
+            <DialogTitle id="scroll-dialog-title">
+                {(props.esDevolucion) ?
+                    <div style={{ float: 'right' }}>
+                        <ReactToPrint
+                            trigger={() =>
+                                <Button variant="contained" size="large" color="primary" endIcon={<FaPrint />}>
+                                    Imprimir
+                                </Button>
+                            }
+                            content={() => componentRef.current}
+                        />
+
+                        <Button onClick={props.hidePrint} variant="contained" size="large" color="primary" style={{ marginLeft: '10px' }} endIcon={<FiArrowRightCircle />}>
+                            Finalizar
+                        </Button>
+                    </div>
+                    : "Vista Previa Pedido"
+                }
+            </DialogTitle>
             <DialogContent dividers={true} ref={componentRef} style={{ width: '100%' }}>
                 <div id={"invoice-POS"} style={{ boxShadow: 'unset' }}>
                     <div id="top">
@@ -68,7 +88,7 @@ export const ImprimirPedidoDevolucion = (props) => {
                                 </h3>
                             </div>
                             <div className={"col p-0 text-right m-auto font-weight-bold " + styles.Rtn}>
-                                Copia
+                                {(!props.esDevolucion) && "Copia"}
                             </div>
                         </div>
                     </div>
@@ -297,7 +317,7 @@ export const ImprimirPedidoDevolucion = (props) => {
                                 </div>
 
                                 <div className="col-7 valueTotal">
-                                  {moneda}  {numberWithCommas(props.Pedido.SubTotal)}
+                                    {moneda}  {numberWithCommas(props.Pedido.SubTotal)}
                                 </div>
                             </div>
 
@@ -326,17 +346,18 @@ export const ImprimirPedidoDevolucion = (props) => {
                 </div>
             </DialogContent >
             <DialogActions>
-                <ReactToPrint
-                    trigger={() =>
-                        <Button color="primary">
-                            Imprimir
-                        </Button>
-                    }
-                    content={() => componentRef.current}
-                />
-                <Button onClick={() => props.hidePrint()} color="primary">
-                    Cerrar
-                </Button>
+                {(!props.esDevolucion) && <>
+                    <ReactToPrint
+                        trigger={() =>
+                            <Button color="primary">
+                                Imprimir
+                            </Button>
+                        }
+                        content={() => componentRef.current}
+                    />
+                    <Button onClick={() => props.hidePrint()} color="primary">
+                        Cerrar
+                    </Button></>}
             </DialogActions>
         </>
     )
