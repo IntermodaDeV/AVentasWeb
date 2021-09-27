@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Dropdown } from "semantic-ui-react";
-import { ImprimirDevolucionOriginal } from 'components/Devoluciones/ImprimirDevolucionOriginal';
+//import { ImprimirDevolucionOriginal } from 'components/Devoluciones/ImprimirDevolucionOriginal';
+import { ImprimirPedidoDevolucion } from 'components/Devoluciones/ImprimirPedidoDevolucion';
+import { APIURL } from 'utils/Enviroment';
 
 export const DevolucionParcialReporte = props => {
-    const { Cliente, tableValue, ValoresPedido, Finalizar } = props;
+    const { ValoresPedido } = props;
 
-    const [nuevoTableValue, setNuevoTableValue] = useState({});
-    const [valorPedido, setValorPedido] = useState({});
+    /*const [nuevoTableValue, setNuevoTableValue] = useState({});
+    const [valorPedido, setValorPedido] = useState({});*/
+
+    const [devolucion, setDevolucion] = useState(null);
+    const [detalleDevolucion, setDetalleDevolucion] = useState([]);
 
     const generarOpciones = () => {
         return ValoresPedido.devolucionesGeneradas.map(x => ({ key: x.factura, value: x.factura, text: x.factura }));
     }
 
-    const generarTableValue = (factura) => {
+    /*const generarTableValue = (factura) => {
         let tableValueGenerado = {};
         for (let grupoTalla of Object.keys(tableValue)) {
             for (let producto of Object.keys(tableValue[grupoTalla].Productos)) {
@@ -41,6 +47,30 @@ export const DevolucionParcialReporte = props => {
         const tableValueGenerado = generarTableValue(factura);
         setNuevoTableValue(tableValueGenerado);
         setValorPedido(nuevoValorPedido);
+    }*/
+
+    const handleChangeFactura = async (factura) => {
+        const indiceDevolucionGenerada = ValoresPedido.devolucionesGeneradas.findIndex(x => x.factura === factura);
+        await obtenerDevolucion(ValoresPedido.devolucionesGeneradas[indiceDevolucionGenerada].referencia);
+        await obtenerDetalleDevolucion(ValoresPedido.devolucionesGeneradas[indiceDevolucionGenerada].referencia);
+    }
+
+    const obtenerDevolucion = async (devolucion) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/devolucion/${devolucion}`);
+            setDevolucion(request.data);
+        } catch (err) {
+
+        }
+    }
+
+    const obtenerDetalleDevolucion = async (devolucion) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/devolucion/detalle/${devolucion}`);
+            setDetalleDevolucion(request.data);
+        } catch (err) {
+
+        }
     }
 
     return (
@@ -58,11 +88,20 @@ export const DevolucionParcialReporte = props => {
             />
             <br />
 
-            {(Object.keys(nuevoTableValue)).length !== 0 &&
+            {/*(Object.keys(nuevoTableValue)).length !== 0 &&
                 <ImprimirDevolucionOriginal tableValue={nuevoTableValue}
                     Cliente={Cliente}
                     ValoresPedido={valorPedido}
-                    Finalizar={Finalizar} />}
+            Finalizar={Finalizar} />*/}
+
+
+            {devolucion && detalleDevolucion &&
+                <ImprimirPedidoDevolucion
+                    hidePrint={() => { }}
+                    Pedido={devolucion}
+                    gruposXDetPed={detalleDevolucion}
+                />
+            }
         </div>
     )
 

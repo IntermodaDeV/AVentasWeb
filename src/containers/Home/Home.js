@@ -532,7 +532,7 @@ export const Home = (props) => {
     }
 
     const cargarMotivosDevolucion = async () => {
-        const { data } = await get(`${APIURL}/api/devolucion/motivos`, "Devolucion", "motivosDevolucion");
+        const { data } = await get(`${APIURL}/api/motivos/devolucion`, "Devolucion", "motivosDevolucion");
         dispatch({ type: "SET_MOTIVOSDEVOLUCION", payload: data });
     }
 
