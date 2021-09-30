@@ -20,7 +20,7 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
 
     const obtenerFacturasCliente = async () => {
         try {
-            const data = await axios.get(`${APIURL}/api/factura/${clienteSelected.Codigo}`);
+            const data = await axios.get(`${APIURL}/api/devolucion/obtencionFacturas/${codigoProducto}/${clienteSelected.Codigo}`);
             setFacturas(data.data);
         } catch (err) {
 
@@ -29,7 +29,7 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
 
     const handleChangeFactura = async (value) => {
         try {
-            const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${value.factura}/${codigoProducto}`);
+            const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${value.Factura}/${codigoProducto}`);
             actualizarProducto(data.data, codigoProducto, grupoTalla, value);
         } catch (err) {
 
@@ -37,7 +37,7 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
     }
 
     const dataFacturas = () => {
-        return facturas.map(x => ({ key: x.factura, value: x, text: x.factura }));
+        return facturas.map(x => ({ key: x.Factura, value: x, text: x.Factura }));
     }
 
     useEffect(() => {

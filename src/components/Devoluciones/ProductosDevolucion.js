@@ -396,8 +396,8 @@ export const ProductosDevolucion = (props) => {
                 Moneda: clienteSelected.Moneda,
                 MotivoDevolucion: motivoDevolucion,
                 MotivoDevolucionDetalle: motivoDevolucionDetalle,
-                FacturaOriginal: productoFactura.factura,
-                PedidoOriginal: productoFactura.pedido,
+                FacturaOriginal: productoFactura.Factura,
+                PedidoOriginal: productoFactura.NumeroPedido,
                 Linea: productoFactura.linea,
                 Empresa: clienteSelected.EmpresaId,
                 SubTotal: 0
@@ -538,9 +538,9 @@ export const ProductosDevolucion = (props) => {
                 enviarDevolucion(devolucion)
             }
         } else {
-            mostrarModal("Aviso", "Productos sin factura seleccionada no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
-                .then(e => {
-                    if (e.value) {
+            //mostrarModal("Aviso", "Productos sin factura seleccionada no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
+                //.then(e => {
+                    //if (e.value) {
                         if (productosSinCantidad) {
                             mostrarModal("Aviso", "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
                                 .then((result) => {
@@ -551,8 +551,8 @@ export const ProductosDevolucion = (props) => {
                         } else {
                             validacionDevolucionParcial();
                         }
-                    }
-                });
+                    //}
+               // });
         }
 
     }

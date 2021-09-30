@@ -32,7 +32,7 @@ export const AprobacionDevolucion = (props) => {
 
     const AprobarDevolucion = async (id) => {
         try {
-            const request = await axios.post(`${APIURL}/api/devolucion/aprobarDevoluciones/${id}`, {
+            const request = await axios.post(`${APIURL}/api/devolucion/aprobarDevoluciones/${id}`, {} ,{
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
