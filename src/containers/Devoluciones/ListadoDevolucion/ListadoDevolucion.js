@@ -8,6 +8,9 @@ import axios from 'axios';
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import PrintOutlined from '@material-ui/icons/PrintOutlined';
+import GridOnIcon from '@material-ui/icons/GridOn';
+import FileSaver from 'file-saver';
+import XLSX from 'xlsx';
 import { Dropdown } from "semantic-ui-react";
 import { useSelector } from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
@@ -142,6 +145,38 @@ export const ListadoDevolucion = (props) => {
         }
     }
 
+
+    const convertirData = (data) => {
+        return data.map((el) => {
+            const { $id, ...dev } = el;
+
+            return {
+                ...dev
+            }
+        })
+    }
+
+    const guardarExcel = (csvData, dev) => {
+        const fileName = `Productos Devolucion ${dev}`;
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const fileExtension = '.xlsx';
+        const ws = XLSX.utils.json_to_sheet(csvData);
+        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: fileType });
+        FileSaver.saveAs(data, fileName + fileExtension);
+    }
+
+    const obtenerReporteDevolucion = async (dev) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/devolucion/reporte/${dev}`);
+            const data = convertirData(request.data);
+            guardarExcel(data, dev);
+        } catch (err) {
+
+        }
+    }
+
     const Data = () => {
         return devoluciones.map(p => (
             [
@@ -152,11 +187,18 @@ export const ListadoDevolucion = (props) => {
                 p.NombreCliente,
                 p.motivoDevolucion,
                 p.Estado,
-                <span className="ml-1">
-                    <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerDetalleDevolucion(p) }} color={"primary"}>
-                        <PrintOutlined />
-                    </Button>
-                </span >
+                <div>
+                    <span className="ml-1">
+                        <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerDetalleDevolucion(p) }} color={"primary"}>
+                            <PrintOutlined />
+                        </Button>
+                    </span >
+                    <span className="ml-1">
+                        <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerReporteDevolucion(p.NumDevolucion) }} color={"primary"}>
+                            <GridOnIcon />
+                        </Button>
+                    </span >
+                </div>
             ]
         ));
     }
