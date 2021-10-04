@@ -158,6 +158,7 @@ const ProductoTableDevolucion = (props) => {
                                         onBlur={onBlur}
                                         onChange={props.onValueChange}
                                         devolucionCompleta={props.devolucionCompleta}
+                                        producto={props.producto}
                                     />
                                 )
                             })

@@ -19,8 +19,16 @@ export const CeldaTallaDevolucion = (props) => {
     const handleChange = (text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio) => {
         const cantidad = isNaN(parseInt(text.target.value)) ? 0 : parseInt(text.target.value);
 
-        if (props.disponible < cantidad) {
-            return alertaFisicoDisponible();
+        if (!props.devolucionCompleta) {
+            if (props.disponible < cantidad) {
+                return alertaFisicoDisponible();
+            }
+        }
+
+        if (props.producto.Factura && Object.keys(props.producto.Factura) > 0) {
+            if (props.disponible < cantidad) {
+                return alertaFisicoDisponible();
+            }
         }
 
         props.onChange(text, codigoProducto, codigoColor, grupoTalla, codigoTalla, precio);

@@ -218,7 +218,7 @@ export const ProductosDevolucion = (props) => {
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] = {};
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores = {};
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Factura = {};
-            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Id = 0;
+            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Id = producto.CodigoProducto;
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].ListaTallas = producto.ListaTalla
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].NombreProducto = producto.NombreProducto;
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Precio = producto.Precio;
