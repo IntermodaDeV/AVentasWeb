@@ -160,7 +160,6 @@ export const ProductosDevolucion = (props) => {
     }
 
     const actualizarProducto = (productos, codigoProducto, grupoTalla, factura) => {
-        debugger;
         let miTableValue = { ...tableValue };
         const noExistenProductosEnFactura = productos.length === 0;
 
@@ -454,6 +453,20 @@ export const ProductosDevolucion = (props) => {
     const construirDevolucionParcial = () => {
         let devoluciones = [];
 
+        let devolucionSinFactura = {
+            Correlativo: "",
+            CodigoCliente: clienteSelected.Codigo,
+            DetalleDevolucion: [],
+            Moneda: clienteSelected.Moneda,
+            MotivoDevolucion: motivoDevolucion,
+            MotivoDevolucionDetalle: motivoDevolucionDetalle,
+            FacturaOriginal: "",
+            PedidoOriginal: "",
+            Linea: "DEN",
+            Empresa: clienteSelected.EmpresaId,
+            SubTotal: 0
+        }
+
         for (let grupoTalla of Object.keys(tableValue)) {
             for (let producto of Object.keys(tableValue[grupoTalla].Productos)) {
 
@@ -461,41 +474,65 @@ export const ProductosDevolucion = (props) => {
                 const esFacturaVacia = factura === undefined || Object.keys(factura).length === 0;
 
                 if (esFacturaVacia) {
-                    continue;
-                }
+                    for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
+                        for (let talla of Object.keys(tableValue[grupoTalla].Productos[producto].Colores[color].Tallas)) {
+                            let cantidad = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Cantidad;
 
-                const existeEncabezado = devoluciones.some(x => x.FacturaOriginal === factura.factura);
-                let indice = 0;
+                            if (cantidad > 0) {
+                                let productoDevolver = {
+                                    IdProducto: tableValue[grupoTalla].Productos[producto].Id,
+                                    CodigoProducto: producto,
+                                    CodigoColor: color,
+                                    Cantidad: cantidad,
+                                    Unidad: "Und",
+                                    PrecioUnitario: tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio,
+                                    CodigoTalla: talla,
+                                }
 
-                if (existeEncabezado) {
-                    indice = devoluciones.findIndex(x => x.FacturaOriginal === factura.factura);
-                } else {
-                    let nuevoEncabezado = construirEncabezado(factura);
-                    devoluciones.push(nuevoEncabezado);
-                    indice = devoluciones.length - 1;
-                }
-
-                for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
-                    for (let talla of Object.keys(tableValue[grupoTalla].Productos[producto].Colores[color].Tallas)) {
-                        let cantidad = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Cantidad;
-
-                        if (cantidad > 0) {
-                            let productoDevolver = {
-                                IdProducto: tableValue[grupoTalla].Productos[producto].Id,
-                                CodigoProducto: producto,
-                                CodigoColor: color,
-                                Cantidad: cantidad,
-                                Unidad: "Und",
-                                PrecioUnitario: tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio,
-                                CodigoTalla: talla,
+                                devolucionSinFactura.DetalleDevolucion.push(productoDevolver);
+                                devolucionSinFactura.SubTotal += cantidad * tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
                             }
+                        }
+                    }
+                } else {
+                    const existeEncabezado = devoluciones.some(x => x.FacturaOriginal === factura.factura);
+                    let indice = 0;
 
-                            devoluciones[indice].DetalleDevolucion.push(productoDevolver);
-                            devoluciones[indice].SubTotal += cantidad * tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
+                    if (existeEncabezado) {
+                        indice = devoluciones.findIndex(x => x.FacturaOriginal === factura.factura);
+                    } else {
+                        let nuevoEncabezado = construirEncabezado(factura);
+                        devoluciones.push(nuevoEncabezado);
+                        indice = devoluciones.length - 1;
+                    }
+
+                    for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
+                        for (let talla of Object.keys(tableValue[grupoTalla].Productos[producto].Colores[color].Tallas)) {
+                            let cantidad = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Cantidad;
+
+                            if (cantidad > 0) {
+                                let productoDevolver = {
+                                    IdProducto: tableValue[grupoTalla].Productos[producto].Id,
+                                    CodigoProducto: producto,
+                                    CodigoColor: color,
+                                    Cantidad: cantidad,
+                                    Unidad: "Und",
+                                    PrecioUnitario: tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio,
+                                    CodigoTalla: talla,
+                                }
+
+                                devoluciones[indice].DetalleDevolucion.push(productoDevolver);
+                                devoluciones[indice].SubTotal += cantidad * tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
+                            }
                         }
                     }
                 }
+
             }
+        }
+
+        if (devolucionSinFactura.DetalleDevolucion.length > 0) {
+            devoluciones.push(devolucionSinFactura);
         }
 
         return devoluciones;
@@ -503,12 +540,10 @@ export const ProductosDevolucion = (props) => {
 
     const validacionDevolucionParcial = () => {
         let devoluciones = construirDevolucionParcial();
-        if (devoluciones.length === 0) {
-            mostrarModal("Aviso", "No se ha seleccionado factura para ningún producto.", "warning");
-        } else {
-            enviarDevolucionParcial(devoluciones);
-        }
+
+        enviarDevolucionParcial(devoluciones);
     }
+
 
     const finalizarDevolucion = () => {
         if (motivoDevolucionDetalle === "") {
@@ -539,20 +574,20 @@ export const ProductosDevolucion = (props) => {
             }
         } else {
             //mostrarModal("Aviso", "Productos sin factura seleccionada no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
-                //.then(e => {
-                    //if (e.value) {
-                        if (productosSinCantidad) {
-                            mostrarModal("Aviso", "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
-                                .then((result) => {
-                                    if (result.value) {
-                                        validacionDevolucionParcial();
-                                    }
-                                });
-                        } else {
+            //.then(e => {
+            //if (e.value) {
+            if (productosSinCantidad) {
+                mostrarModal("Aviso", "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
+                    .then((result) => {
+                        if (result.value) {
                             validacionDevolucionParcial();
                         }
-                    //}
-               // });
+                    });
+            } else {
+                validacionDevolucionParcial();
+            }
+            //}
+            // });
         }
 
     }
