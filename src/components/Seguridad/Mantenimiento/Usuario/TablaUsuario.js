@@ -101,7 +101,7 @@ export const TablaUsuario = props => {
                     className="btn btn-info"
                     onClick={() => { modificarEstado(rol.Id) }}>{rol.Status ? <span>Inactivar <MdCancel /></span> : <span>Activar <MdCheckCircle /></span>}</button>
                 <button style={{ marginLeft: '10px' }}
-                    className="btn btn-info" onClick={()=>{seleccionarUsuario(rol)}}>Editar</button>
+                    className="btn btn-info" onClick={()=>{seleccionarUsuario(rol)}}>Correo</button>
             </div>
         ]));
     }

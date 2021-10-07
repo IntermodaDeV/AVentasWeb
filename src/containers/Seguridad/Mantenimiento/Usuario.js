@@ -366,7 +366,7 @@ export const Usuario = props => {
                                     <div className="form-group">
                                         <label>
                                             <Field type="checkbox" name="CorreoDevolucion" />
-                                            Correo Devolucion
+                                            Enviar Correo Devolucion
                                         </label>
                                     </div>
 
