@@ -222,7 +222,8 @@ moment.locale('es')
               Cuota: cuot,
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              Facturaa:fact.Factura
+              Facturaa:fact.Factura,
+              DiasVencido
             })
           }
           else if (DiasVencido >= 0 && DiasVencido <= 15) {
@@ -243,7 +244,8 @@ moment.locale('es')
               Cuota: cuot,
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              Facturaa:fact.Factura
+              Facturaa:fact.Factura,
+              DiasVencido
             })
           }
           else {
@@ -264,7 +266,8 @@ moment.locale('es')
               Cuota: cuot,
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              Facturaa:fact.Factura
+              Facturaa:fact.Factura,
+              DiasVencido
               //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               //   Accion : (<Button
 
@@ -301,6 +304,19 @@ moment.locale('es')
         return -1;
       }
       if (a.Facturaa > b.Facturaa) {
+
+        return 1;
+      }
+
+      return 0;
+    });
+
+    data.sort((a, b) => {
+      if (a.DiasVencido < b.DiasVencido) {
+
+        return -1;
+      }
+      if (a.DiasVencido > b.DiasVencido) {
 
         return 1;
       }
