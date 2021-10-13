@@ -472,7 +472,6 @@ export const ProductosDevolucion = (props) => {
 
                 const factura = tableValue[grupoTalla].Productos[producto].Factura;
                 const esFacturaVacia = factura === undefined || Object.keys(factura).length === 0;
-
                 if (esFacturaVacia) {
                     for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
                         for (let talla of Object.keys(tableValue[grupoTalla].Productos[producto].Colores[color].Tallas)) {
@@ -495,11 +494,11 @@ export const ProductosDevolucion = (props) => {
                         }
                     }
                 } else {
-                    const existeEncabezado = devoluciones.some(x => x.FacturaOriginal === factura.factura);
+                    const existeEncabezado = devoluciones.some(x => x.FacturaOriginal === factura.Factura);
                     let indice = 0;
 
                     if (existeEncabezado) {
-                        indice = devoluciones.findIndex(x => x.FacturaOriginal === factura.factura);
+                        indice = devoluciones.findIndex(x => x.FacturaOriginal === factura.Factura);
                     } else {
                         let nuevoEncabezado = construirEncabezado(factura);
                         devoluciones.push(nuevoEncabezado);
@@ -540,6 +539,12 @@ export const ProductosDevolucion = (props) => {
 
     const validacionDevolucionParcial = () => {
         let devoluciones = construirDevolucionParcial();
+        let devolucionSinProducto = devoluciones.some(x => x.DetalleDevolucion.length === 0);
+
+        if (devolucionSinProducto) {
+            mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no se ha ingresado ningun producto.", "warning");
+            return;
+        }
 
         enviarDevolucionParcial(devoluciones);
     }
@@ -559,6 +564,12 @@ export const ProductosDevolucion = (props) => {
 
             let devolucion = construirEncabezado();
             const [subTotal, detalleDevolucion] = construirDetalleDevolucion();
+
+            if (detalleDevolucion.length === 0) {
+                mostrarModal("Aviso", "No se puede generar la devolucion ya que no se ha ingresado ningun producto.", "warning");
+                return;
+            }
+
             devolucion.SubTotal = parseFloat(subTotal);
             devolucion.DetalleDevolucion = detalleDevolucion;
 
@@ -573,9 +584,7 @@ export const ProductosDevolucion = (props) => {
                 enviarDevolucion(devolucion)
             }
         } else {
-            //mostrarModal("Aviso", "Productos sin factura seleccionada no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
-            //.then(e => {
-            //if (e.value) {
+
             if (productosSinCantidad) {
                 mostrarModal("Aviso", "Ha dejado productos con cantidades igual a 0 , los cuales no se tomaran en cuenta. Desea continuar?", "warning", true, "Continuar", "Corregir")
                     .then((result) => {
@@ -586,8 +595,6 @@ export const ProductosDevolucion = (props) => {
             } else {
                 validacionDevolucionParcial();
             }
-            //}
-            // });
         }
 
     }
