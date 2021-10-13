@@ -63,20 +63,6 @@ export const ListadoDevolucionPendiente = (props) => {
             }
         },
         {
-            label: "Numero RMA",
-            name: "numeroRMA",
-            options: {
-                filter: true,
-            }
-        },
-        {
-            label: "Pedido AX",
-            name: "pedidoAx",
-            options: {
-                filter: true,
-            }
-        },
-        {
             label: "Codigo Cliente",
             name: "codigoCliente",
             options: {
@@ -98,8 +84,22 @@ export const ListadoDevolucionPendiente = (props) => {
             }
         },
         {
+            label: "Linea",
+            name: "Linea",
+            options: {
+                filter: true,
+            }
+        },
+        {
             label: "Estado",
             name: "estado",
+            options: {
+                filter: true,
+            }
+        },
+        {
+            label: "Error AX",
+            name: "errorAX",
             options: {
                 filter: true,
             }
@@ -141,12 +141,12 @@ export const ListadoDevolucionPendiente = (props) => {
         return devoluciones.map(p => (
             [
                 p.NumDevolucion,
-                p.NumeroRMA,
-                p.PedidoDevolucion,
                 p.CodigoCliente,
                 p.NombreCliente,
                 p.motivoDevolucion,
+                p.Linea,
                 p.Estado,
+                p.ErrorAx,
                 <Button className='my-1' variant="outlined" size="small" color={"primary"} onClick={() => { sincronizarDevolucion(p.NumDevolucion) }}>Sincronizar</Button>
             ]
         ))
