@@ -115,6 +115,13 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
+            label: "Cantidad",
+            name: "Cantidad",
+            options: {
+                filter: true,
+            }
+        },
+        {
             label: "Estado",
             name: "estado",
             options: {
@@ -178,6 +185,7 @@ export const ListadoDevolucion = (props) => {
     }
 
     const Data = () => {
+        console.log("devoluciones",devoluciones)
         return devoluciones.map(p => (
             [
                 p.NumDevolucion,
@@ -186,6 +194,7 @@ export const ListadoDevolucion = (props) => {
                 p.CodigoCliente,
                 p.NombreCliente,
                 p.motivoDevolucion,
+                p.TotalUnidades,
                 p.Estado,
                 <div>
                     <span className="ml-1">

@@ -24,8 +24,7 @@ export const CeldaTallaDevolucion = (props) => {
                 return alertaFisicoDisponible();
             }
         }
-
-        if (props.producto.Factura && Object.keys(props.producto.Factura) > 0) {
+        if (props.producto.Factura) {
             if (props.disponible < cantidad) {
                 return alertaFisicoDisponible();
             }

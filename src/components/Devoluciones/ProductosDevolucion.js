@@ -623,6 +623,7 @@ export const ProductosDevolucion = (props) => {
             history.push({ pathname: "/devolucion/ImprimirDevolucion", state: JSON.stringify(devolucion) });
             setOpen(false);
         } catch (err) {
+            mostrarModal("Error", "No se pudo guardar la devolucion.", "error");
             setOpen(false);
         }
     }
