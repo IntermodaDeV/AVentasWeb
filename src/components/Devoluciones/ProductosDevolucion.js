@@ -21,7 +21,7 @@ export const ProductosDevolucion = (props) => {
     const motivosDevolucion = useSelector(e => e.Devolucion.motivosDevolucion);
     const motivoDevolucionDetalle = useSelector(e => e.Devolucion.motivoDevolucionDetalle);
     const motivoDevolucion = useSelector(e => e.Devolucion.motivoDevolucion);
-    const PaisesFactura = ["IMCR", "IMGT"];
+    //const PaisesFactura = ["IMCR", "IMGT"];
 
     const [codigo, setCodigo] = useState("");
     const [color, setColor] = useState("");
@@ -542,14 +542,14 @@ export const ProductosDevolucion = (props) => {
         let devoluciones = construirDevolucionParcial();
         let devolucionSinProducto = devoluciones.some(x => x.DetalleDevolucion.length === 0);
 
-        if (PaisesFactura.includes(clienteSelected.EmpresaId)) {
-            let devolucionSinFactura = devoluciones.some(x => x.FacturaOriginal === "");
+        //if (PaisesFactura.includes(clienteSelected.EmpresaId)) {
+        let devolucionSinFactura = devoluciones.some(x => x.FacturaOriginal === "");
 
-            if (devolucionSinFactura) {
-                mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no hay factura seleccionada.", "warning");
-                return;
-            }
+        if (devolucionSinFactura) {
+            mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no hay factura seleccionada.", "warning");
+            return;
         }
+        //}
 
         if (devolucionSinProducto) {
             mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no se ha ingresado ningun producto.", "warning");

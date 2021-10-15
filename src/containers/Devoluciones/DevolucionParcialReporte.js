@@ -20,8 +20,13 @@ export const DevolucionParcialReporte = props => {
     }, [])
 
     const obtenerDevolucionCompleta = async () => {
-        await obtenerDevolucion(ValoresPedido.devolucionesGeneradas[0].referencia);
-        await obtenerDetalleDevolucion(ValoresPedido.devolucionesGeneradas[0].referencia);
+        try{
+            await obtenerDevolucion(ValoresPedido.devolucionesGeneradas[0].referencia);
+            await obtenerDetalleDevolucion(ValoresPedido.devolucionesGeneradas[0].referencia);
+        }catch(err){
+            await obtenerDevolucion(ValoresPedido.devolucionesGeneradas[0].referencia);
+            await obtenerDetalleDevolucion(ValoresPedido.devolucionesGeneradas[0].referencia);
+        }
     }
 
     const handleChangeFactura = async (factura) => {
