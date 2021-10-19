@@ -36,6 +36,24 @@ export const ProductosDevolucion = (props) => {
 
     let productosSinCantidad = false;
 
+    const existeVariante = (pCodigo, pColor, pTalla) => {
+        const grupoTallas = Object.keys(tableValue);
+
+        for (let grupoTalla of grupoTallas) {
+            if (tableValue[grupoTalla].Productos[pCodigo].Colores[pColor].Tallas[pTalla]) {
+                return grupoTalla;
+            }
+        }
+
+        return null;
+    }
+
+    const aumentarCantidad = (grupoTalla, pCodigo, pColor, pTalla) => {
+        let miTableValue = { ...tableValue };
+        miTableValue[grupoTalla].Productos[pCodigo].Colores[pColor].Tallas[pTalla].Cantidad++;
+        dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
+    }
+
     const añadir = async () => {
         const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${codigo}/${color}`)
         agregarProducto(data.data)
@@ -202,7 +220,7 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
     }
 
-    const agregarProducto = (producto) => {
+    const agregarProducto = (producto, pTalla) => {
         let miTableValue = { ...tableValue };
 
         if (miTableValue[producto.GrupoTalla] === undefined) {
@@ -218,7 +236,6 @@ export const ProductosDevolucion = (props) => {
         if (miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] === undefined) {
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] = {};
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores = {};
-            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Factura = {};
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Id = producto.CodigoProducto;
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].ListaTallas = producto.ListaTalla
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].NombreProducto = producto.NombreProducto;
@@ -233,9 +250,9 @@ export const ProductosDevolucion = (props) => {
                 for (const talla of producto.ListaTalla) {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = 0;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla ? 1 : 0;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = 0;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === tallaTxt;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla;
                 }
             }
 
@@ -249,9 +266,9 @@ export const ProductosDevolucion = (props) => {
 
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla ? 1 : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === tallaTxt;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla;
                     };
                 } else {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor] = {}
@@ -262,9 +279,9 @@ export const ProductosDevolucion = (props) => {
                     for (const talla of producto.ListaTalla) {
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla ? 1 : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === tallaTxt;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla;
                     }
                 }
             }
@@ -370,19 +387,33 @@ export const ProductosDevolucion = (props) => {
         return totales;
     }
 
+    const añadirScanner = async (pCodigo, pColor, pTalla, productosAgregados) => {
+        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${pCodigo}/${pColor}`)
+        productosAgregados.push({ codigoBarra, codigo: pCodigo, color: pColor, talla: pTalla, grupoTalla: data.data.GrupoTalla });
+        localStorage.setItem("productosAgregados", JSON.stringify(productosAgregados));
+        agregarProducto(data.data, pTalla);
+    }
+
     const obtenerAtributosBarra = async (e) => {
         if (e.key === "Enter") {
-            try {
-                setTitle("Obteniendo atributos producto");
-                setOpen(true);
-                const data = await axios.get(`${APIURL}/api/productodevolucion/codigobarra/${codigoBarra}`)
-                setCodigo(data.data.productoId);
-                setTalla(data.data.tallaId);
-                setColor(data.data.colorId);
-                setOpen(false);
-            } catch (err) {
-                setOpen(false);
-                mostrarModal("Codigo barra", "No se encontro producto con el codigo de barra ingresado", "error");
+            const productosAgregados = JSON.parse(localStorage.getItem("productosAgregados")) || [];
+            const productoExiste = productosAgregados.find(x => x.codigoBarra === codigoBarra);
+
+            if (productoExiste) {
+                aumentarCantidad(productoExiste.grupoTalla, productoExiste.codigo, productoExiste.color, productoExiste.talla);
+                limpiarCampos();
+            } else {
+                try {
+                    setTitle("Obteniendo atributos producto");
+                    setOpen(true);
+                    const data = await axios.get(`${APIURL}/api/productodevolucion/codigobarra/${codigoBarra}`)
+
+                    añadirScanner(data.data.productoId, data.data.colorId, data.data.tallaId, productosAgregados);
+                    setOpen(false);
+                } catch (err) {
+                    setOpen(false);
+                    mostrarModal("Codigo barra", "No se encontro producto con el codigo de barra ingresado", "error");
+                }
             }
         }
     }
@@ -543,12 +574,12 @@ export const ProductosDevolucion = (props) => {
         let devolucionSinProducto = devoluciones.some(x => x.DetalleDevolucion.length === 0);
 
         //if (PaisesFactura.includes(clienteSelected.EmpresaId)) {
-        let devolucionSinFactura = devoluciones.some(x => x.FacturaOriginal === "");
+        //let devolucionSinFactura = devoluciones.some(x => x.FacturaOriginal === "");
 
-        if (devolucionSinFactura) {
-            mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no hay factura seleccionada.", "warning");
-            return;
-        }
+        //if (devolucionSinFactura) {
+            //mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no hay factura seleccionada.", "warning");
+            //return;
+        //}
         //}
 
         if (devolucionSinProducto) {
