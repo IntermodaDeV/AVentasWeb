@@ -56,7 +56,7 @@ export const ProductosDevolucion = (props) => {
 
     const añadir = async () => {
         const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
-        agregarProducto(data.data,tallaTxt)
+        agregarProducto(data.data, tallaTxt)
     }
 
     const obtenerProductosFactura = async () => {
@@ -224,7 +224,7 @@ export const ProductosDevolucion = (props) => {
         let miTableValue = { ...tableValue };
         let precioGeneral = 0;
 
-        if(producto.Precio.length>0){
+        if (producto.Precio.length > 0) {
             precioGeneral = producto.Precio[0].Precio;
         }
 
@@ -255,10 +255,10 @@ export const ProductosDevolucion = (props) => {
                 for (const talla of producto.ListaTalla) {
                     let precioEspecifico = precioGeneral;
 
-                    if(producto.fisicaDisponible.length>0){
-                        let variante = producto.fisicaDisponible.find(x=>x.CodigoColor ===color.CodigoColor && x.IdTalla ===talla.Talla );
-                        if(variante){
-                            precioEspecifico = variante.PreciosEspecificos.length>0 ? variante.PreciosEspecificos[0].Precio :precioEspecifico;
+                    if (producto.fisicaDisponible.length > 0) {
+                        let variante = producto.fisicaDisponible.find(x => x.CodigoColor === color.CodigoColor && x.IdTalla === talla.Talla);
+                        if (variante) {
+                            precioEspecifico = variante.PreciosEspecificos.length > 0 ? variante.PreciosEspecificos[0].Precio : precioEspecifico;
                         }
                     }
 
@@ -280,10 +280,10 @@ export const ProductosDevolucion = (props) => {
 
                         let precioEspecifico = precioGeneral;
 
-                        if(producto.fisicaDisponible.length>0){
-                            let variante = producto.fisicaDisponible.find(x=>x.CodigoColor ===color.CodigoColor && x.IdTalla ===talla.Talla );
-                            if(variante){
-                                precioEspecifico = variante.PreciosEspecificos.length>0 ? variante.PreciosEspecificos[0].Precio :precioEspecifico;
+                        if (producto.fisicaDisponible.length > 0) {
+                            let variante = producto.fisicaDisponible.find(x => x.CodigoColor === color.CodigoColor && x.IdTalla === talla.Talla);
+                            if (variante) {
+                                precioEspecifico = variante.PreciosEspecificos.length > 0 ? variante.PreciosEspecificos[0].Precio : precioEspecifico;
                             }
                         }
 
@@ -302,10 +302,10 @@ export const ProductosDevolucion = (props) => {
                     for (const talla of producto.ListaTalla) {
                         let precioEspecifico = precioGeneral;
 
-                        if(producto.fisicaDisponible.length>0){
-                            let variante = producto.fisicaDisponible.find(x=>x.CodigoColor ===color.CodigoColor && x.IdTalla ===talla.Talla );
-                            if(variante){
-                                precioEspecifico = variante.PreciosEspecificos.length>0 ? variante.PreciosEspecificos[0].Precio :precioEspecifico;
+                        if (producto.fisicaDisponible.length > 0) {
+                            let variante = producto.fisicaDisponible.find(x => x.CodigoColor === color.CodigoColor && x.IdTalla === talla.Talla);
+                            if (variante) {
+                                precioEspecifico = variante.PreciosEspecificos.length > 0 ? variante.PreciosEspecificos[0].Precio : precioEspecifico;
                             }
                         }
 
@@ -420,7 +420,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const añadirScanner = async (pCodigo, pColor, pTalla, productosAgregados) => {
-        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
+        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${pCodigo}/${pColor}`)
         productosAgregados.push({ codigoBarra, codigo: pCodigo, color: pColor, talla: pTalla, grupoTalla: data.data.GrupoTalla });
         localStorage.setItem("productosAgregados", JSON.stringify(productosAgregados));
         agregarProducto(data.data, pTalla);
@@ -609,8 +609,8 @@ export const ProductosDevolucion = (props) => {
         //let devolucionSinFactura = devoluciones.some(x => x.FacturaOriginal === "");
 
         //if (devolucionSinFactura) {
-            //mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no hay factura seleccionada.", "warning");
-            //return;
+        //mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no hay factura seleccionada.", "warning");
+        //return;
         //}
         //}
 

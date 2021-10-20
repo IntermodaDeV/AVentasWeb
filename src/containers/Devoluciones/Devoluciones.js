@@ -44,6 +44,7 @@ export const Devoluciones = (props) => {
   const cargarProductoDevolucion = (cliente) => {
     props.history.push("/devolucion/productos");
     dispatch({ type: 'STORE_DEVOLUCION_CLIENTESELECTED', clienteSelected: JSON.parse(cliente) })
+    localStorage.removeItem("productosAgregados");
   }
 
   const finalizar = () => {
