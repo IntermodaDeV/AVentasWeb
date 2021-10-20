@@ -55,8 +55,8 @@ export const ProductosDevolucion = (props) => {
     }
 
     const añadir = async () => {
-        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${codigo}/${color}`)
-        agregarProducto(data.data)
+        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
+        agregarProducto(data.data,tallaTxt)
     }
 
     const obtenerProductosFactura = async () => {
@@ -222,6 +222,11 @@ export const ProductosDevolucion = (props) => {
 
     const agregarProducto = (producto, pTalla) => {
         let miTableValue = { ...tableValue };
+        let precioGeneral = 0;
+
+        if(producto.Precio.length>0){
+            precioGeneral = producto.Precio[0].Precio;
+        }
 
         if (miTableValue[producto.GrupoTalla] === undefined) {
             miTableValue[producto.GrupoTalla] = {};
@@ -248,11 +253,20 @@ export const ProductosDevolucion = (props) => {
                 miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
 
                 for (const talla of producto.ListaTalla) {
+                    let precioEspecifico = precioGeneral;
+
+                    if(producto.fisicaDisponible.length>0){
+                        let variante = producto.fisicaDisponible.find(x=>x.CodigoColor ===color.CodigoColor && x.IdTalla ===talla.Talla );
+                        if(variante){
+                            precioEspecifico = variante.PreciosEspecificos.length>0 ? variante.PreciosEspecificos[0].Precio :precioEspecifico;
+                        }
+                    }
+
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla ? 1 : 0;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = 0;
-                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
                 }
             }
 
@@ -264,11 +278,20 @@ export const ProductosDevolucion = (props) => {
                             continue;
                         }
 
+                        let precioEspecifico = precioGeneral;
+
+                        if(producto.fisicaDisponible.length>0){
+                            let variante = producto.fisicaDisponible.find(x=>x.CodigoColor ===color.CodigoColor && x.IdTalla ===talla.Talla );
+                            if(variante){
+                                precioEspecifico = variante.PreciosEspecificos.length>0 ? variante.PreciosEspecificos[0].Precio :precioEspecifico;
+                            }
+                        }
+
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla ? 1 : 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
                     };
                 } else {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor] = {}
@@ -277,11 +300,20 @@ export const ProductosDevolucion = (props) => {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas = {}
 
                     for (const talla of producto.ListaTalla) {
+                        let precioEspecifico = precioGeneral;
+
+                        if(producto.fisicaDisponible.length>0){
+                            let variante = producto.fisicaDisponible.find(x=>x.CodigoColor ===color.CodigoColor && x.IdTalla ===talla.Talla );
+                            if(variante){
+                                precioEspecifico = variante.PreciosEspecificos.length>0 ? variante.PreciosEspecificos[0].Precio :precioEspecifico;
+                            }
+                        }
+
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla ? 1 : 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
                     }
                 }
             }
@@ -388,7 +420,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const añadirScanner = async (pCodigo, pColor, pTalla, productosAgregados) => {
-        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${pCodigo}/${pColor}`)
+        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
         productosAgregados.push({ codigoBarra, codigo: pCodigo, color: pColor, talla: pTalla, grupoTalla: data.data.GrupoTalla });
         localStorage.setItem("productosAgregados", JSON.stringify(productosAgregados));
         agregarProducto(data.data, pTalla);
