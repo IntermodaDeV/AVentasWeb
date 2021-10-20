@@ -55,8 +55,24 @@ export const ProductosDevolucion = (props) => {
     }
 
     const añadir = async () => {
-        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
-        agregarProducto(data.data, tallaTxt)
+        try {
+            if (codigo === "" || color === "" || tallaTxt === "") {
+                mostrarModal("Advertencia", "Debe ingresar codigo, color y talla.", "warning");
+                return;
+            }
+
+            const grupoTalla = existeVariante(codigo, color, tallaTxt);
+
+            if (grupoTalla) {
+                aumentarCantidad(grupoTalla, codigo, color, tallaTxt);
+                return;
+            }
+
+            const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
+            agregarProducto(data.data, tallaTxt)
+        } catch (err) {
+
+        }
     }
 
     const obtenerProductosFactura = async () => {
