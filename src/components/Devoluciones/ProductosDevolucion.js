@@ -40,8 +40,14 @@ export const ProductosDevolucion = (props) => {
         const grupoTallas = Object.keys(tableValue);
 
         for (let grupoTalla of grupoTallas) {
-            if (tableValue[grupoTalla].Productos[pCodigo].Colores[pColor].Tallas[pTalla]) {
-                return grupoTalla;
+            if (tableValue[grupoTalla]) {
+                if (tableValue[grupoTalla].Productos[pCodigo]) {
+                    if (tableValue[grupoTalla].Productos[pCodigo].Colores[pColor]) {
+                        if (tableValue[grupoTalla].Productos[pCodigo].Colores[pColor].Tallas[pTalla]) {
+                            return grupoTalla;
+                        }
+                    }
+                }
             }
         }
 
@@ -295,6 +301,7 @@ export const ProductosDevolucion = (props) => {
                         }
 
                         let precioEspecifico = precioGeneral;
+                        let cantidadTalla = miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad;
 
                         if (producto.fisicaDisponible.length > 0) {
                             let variante = producto.fisicaDisponible.find(x => x.CodigoColor === color.CodigoColor && x.IdTalla === talla.Talla);
@@ -303,9 +310,13 @@ export const ProductosDevolucion = (props) => {
                             }
                         }
 
+                        if (cantidadTalla === 0) {
+                            cantidadTalla = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
+                        }
+
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = cantidadTalla;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
                     };
@@ -317,6 +328,7 @@ export const ProductosDevolucion = (props) => {
 
                     for (const talla of producto.ListaTalla) {
                         let precioEspecifico = precioGeneral;
+                        let cantidadTalla = miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad;
 
                         if (producto.fisicaDisponible.length > 0) {
                             let variante = producto.fisicaDisponible.find(x => x.CodigoColor === color.CodigoColor && x.IdTalla === talla.Talla);
@@ -325,9 +337,13 @@ export const ProductosDevolucion = (props) => {
                             }
                         }
 
+                        if (cantidadTalla === 0) {
+                            cantidadTalla = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
+                        }
+
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = cantidadTalla;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
                     }
@@ -386,7 +402,12 @@ export const ProductosDevolucion = (props) => {
 
     const eliminarProducto = (grupoTalla, codigoProducto) => {
         let nuevoTableValue = { ...tableValue };
+        const productosAgregados = JSON.parse(localStorage.getItem("productosAgregados")) || [];
+
         delete nuevoTableValue[grupoTalla]["Productos"][codigoProducto];
+
+        let nuevosProductos = productosAgregados.filter(x => x.codigo !== codigoProducto);
+        localStorage.setItem("productosAgregados", JSON.stringify(nuevosProductos));
 
         if (Object.keys(nuevoTableValue[grupoTalla]["Productos"]).length === 0) {
             delete nuevoTableValue[grupoTalla];
@@ -397,10 +418,18 @@ export const ProductosDevolucion = (props) => {
 
     const eliminarColor = (grupoTalla, codigoProducto, color) => {
         let nuevoTableValue = { ...tableValue };
+        const productosAgregados = JSON.parse(localStorage.getItem("productosAgregados")) || [];
+
         delete nuevoTableValue[grupoTalla]["Productos"][codigoProducto]["Colores"][color];
+
+        let nuevosProductos = productosAgregados.filter(x => x.codigo !== codigoProducto && x.color !== color);
+        localStorage.setItem("productosAgregados", JSON.stringify(nuevosProductos));
 
         if (Object.keys(nuevoTableValue[grupoTalla]["Productos"][codigoProducto]["Colores"]).length === 0) {
             delete nuevoTableValue[grupoTalla]["Productos"][codigoProducto];
+
+            nuevosProductos = nuevosProductos.filter(x => x.codigo !== codigoProducto);
+            localStorage.setItem("productosAgregados", JSON.stringify(nuevosProductos));
         }
 
         if (Object.keys(nuevoTableValue[grupoTalla]["Productos"]).length === 0) {
