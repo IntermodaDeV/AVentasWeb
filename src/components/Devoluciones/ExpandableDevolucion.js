@@ -37,7 +37,7 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
     }
 
     const dataFacturas = () => {
-        return facturas.map(x => ({ key: x.Factura, value: x, text: x.Factura }));
+        return facturas.map(x => ({ key: x.Factura, value: x, text: <span style={{color: x.Abierta=== 1 ? 'green' :'black'}}>{x.Factura}</span> }));
     }
 
     useEffect(() => {
