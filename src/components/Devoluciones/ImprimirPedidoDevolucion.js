@@ -299,7 +299,9 @@ export const ImprimirPedidoDevolucion = (props) => {
                         )
                     })}
                     <div className="row" style={{ maxWidth: '100%' }}>
-                        <div className="col-6"></div>
+                        <div className="col-6">
+                            <h3 style={{ textAlign: 'center', fontWeight: 'bolder' }}>*No incluye impuesto</h3>
+                        </div>
 
                         <div className="col-6">
                             <div className="row">

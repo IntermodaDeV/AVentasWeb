@@ -506,7 +506,7 @@ export const ProductosDevolucion = (props) => {
                 MotivoDevolucionDetalle: motivoDevolucionDetalle,
                 FacturaOriginal: productoFactura.Factura,
                 PedidoOriginal: productoFactura.NumeroPedido,
-                Linea: productoFactura.linea,
+                Linea: productoFactura.Linea,
                 Empresa: clienteSelected.EmpresaId,
                 SubTotal: 0
             };
