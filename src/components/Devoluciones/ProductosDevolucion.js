@@ -74,10 +74,14 @@ export const ProductosDevolucion = (props) => {
                 return;
             }
 
+            setOpen(true);
+            setTitle("Obteniendo producto");
             const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
-            agregarProducto(data.data, tallaTxt)
+            agregarProducto(data.data, tallaTxt);
+            setOpen(false);
         } catch (err) {
-
+            setOpen(false);
+            mostrarModal("Error", "No se pudo obtener el producto.", "error");
         }
     }
 
@@ -202,12 +206,16 @@ export const ProductosDevolucion = (props) => {
 
     const actualizarProducto = (productos, codigoProducto, grupoTalla, factura) => {
         let miTableValue = { ...tableValue };
+        localStorage.setItem("TableValueOriginal", JSON.stringify(miTableValue));
+
         const noExistenProductosEnFactura = productos.length === 0;
 
         limpiarPreciosCantidades(miTableValue[grupoTalla]["Productos"][codigoProducto]);
 
+        let tableValueOriginal = JSON.parse(localStorage.getItem("TableValueOriginal"));
+
         if (noExistenProductosEnFactura) {
-            miTableValue[grupoTalla]["Productos"][codigoProducto].Factura = {};
+            delete miTableValue[grupoTalla]["Productos"][codigoProducto].Factura;
             dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
             return;
         }
@@ -232,10 +240,18 @@ export const ProductosDevolucion = (props) => {
                     continue;
                 }
 
-                //if (miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[producto.CodigoTalla.toUpperCase()].Marcado) {
+                let nuevaCantidad = 0;
+                let cantidadPrevia = tableValueOriginal[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[producto.CodigoTalla.toUpperCase()].Cantidad;
+
+                if (cantidadPrevia > producto.Cantidad) {
+                    nuevaCantidad = producto.Cantidad;
+                } else {
+                    nuevaCantidad = cantidadPrevia;
+                }
+
+                miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[producto.CodigoTalla.toUpperCase()].Cantidad = nuevaCantidad;
                 miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[producto.CodigoTalla.toUpperCase()].Disponible = producto.Cantidad;
                 miTableValue[grupoTalla]["Productos"][codigoProducto].Colores[producto.CodigoColor].Tallas[producto.CodigoTalla.toUpperCase()].Precio = producto.PrecioUnitario;
-                //}
             }
         }
 
