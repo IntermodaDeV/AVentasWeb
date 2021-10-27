@@ -29,6 +29,11 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
 
     const handleChangeFactura = async (value) => {
         try {
+            if (value === "SIN-FACTURA") {
+                actualizarProducto([], codigoProducto, grupoTalla, value);
+                return;
+            }
+
             const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${value.Factura}/${codigoProducto}`);
             actualizarProducto(data.data, codigoProducto, grupoTalla, value);
         } catch (err) {
@@ -37,7 +42,9 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
     }
 
     const dataFacturas = () => {
-        return facturas.map(x => ({ key: x.Factura, value: x, text: <span style={{color: x.Abierta=== 1 ? 'green' :'black'}}>{x.Factura}</span> }));
+        let arreglo = facturas.map(x => ({ key: x.Factura, value: x, text: <span style={{ color: x.Abierta === 1 ? 'green' : 'black' }}>{x.Factura}</span> }));
+        arreglo.unshift({ key: "SIN-FACTURA", value: "SIN-FACTURA", text: "SIN-FACTURA" });
+        return arreglo;
     }
 
     useEffect(() => {

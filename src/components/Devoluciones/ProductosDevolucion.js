@@ -204,8 +204,25 @@ export const ProductosDevolucion = (props) => {
         }
     }
 
+    const precioOriginalSinFactura = (producto) => {
+        for (let color of Object.keys(producto.Colores)) {
+            for (let talla of Object.keys(producto.Colores[color].Tallas)) {
+                producto.Colores[color].Tallas[talla].Disponible = 0;
+                producto.Colores[color].Tallas[talla].Cantidad = 0;
+                producto.Colores[color].Tallas[talla].Precio = producto.Colores[color].Tallas[talla].PrecioGeneral;
+            }
+        }
+    }
+
     const actualizarProducto = (productos, codigoProducto, grupoTalla, factura) => {
         let miTableValue = { ...tableValue };
+
+        if (factura === "SIN-FACTURA") {
+            precioOriginalSinFactura(miTableValue[grupoTalla]["Productos"][codigoProducto]);
+            dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
+            return;
+        }
+
         localStorage.setItem("TableValueOriginal", JSON.stringify(miTableValue));
 
         const noExistenProductosEnFactura = productos.length === 0;
@@ -304,6 +321,7 @@ export const ProductosDevolucion = (props) => {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
+                    miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].PrecioGeneral = precioEspecifico;
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
                 }
             }
@@ -334,6 +352,7 @@ export const ProductosDevolucion = (props) => {
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = cantidadTalla;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].PrecioGeneral = precioEspecifico;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
                     };
                 } else {
@@ -361,6 +380,7 @@ export const ProductosDevolucion = (props) => {
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = cantidadTalla;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].PrecioGeneral = precioEspecifico;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
                     }
                 }
@@ -407,6 +427,7 @@ export const ProductosDevolucion = (props) => {
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = productoValores ? productoValores.Cantidad : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = productoValores ? productoValores.Cantidad : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = productoValores ? productoValores.PrecioUnitario : 0;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].PrecioGeneral = productoValores ? productoValores.PrecioGeneral : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = true;
                     }
                 }
