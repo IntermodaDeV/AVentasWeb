@@ -219,6 +219,11 @@ export const ProductosDevolucion = (props) => {
 
         if (factura === "SIN-FACTURA") {
             precioOriginalSinFactura(miTableValue[grupoTalla]["Productos"][codigoProducto]);
+
+            if (miTableValue[grupoTalla]["Productos"][codigoProducto].Factura) {
+                delete miTableValue[grupoTalla]["Productos"][codigoProducto].Factura
+            }
+
             dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
             return;
         }
@@ -232,7 +237,9 @@ export const ProductosDevolucion = (props) => {
         let tableValueOriginal = JSON.parse(localStorage.getItem("TableValueOriginal"));
 
         if (noExistenProductosEnFactura) {
-            delete miTableValue[grupoTalla]["Productos"][codigoProducto].Factura;
+            if (miTableValue[grupoTalla]["Productos"][codigoProducto].Factura) {
+                delete miTableValue[grupoTalla]["Productos"][codigoProducto].Factura
+            }
             dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
             return;
         }
@@ -272,6 +279,7 @@ export const ProductosDevolucion = (props) => {
             }
         }
 
+        localStorage.removeItem("TableValueOriginal");
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
     }
 
