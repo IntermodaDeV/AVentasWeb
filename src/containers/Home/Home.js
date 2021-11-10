@@ -85,7 +85,7 @@ export const Home = (props) => {
         }
     }
 
-    
+
     const registrarLogSesion = (data) => {
         fetch(APIURL + "/api/logsesion", {
             headers: {
@@ -137,6 +137,7 @@ export const Home = (props) => {
         cargarClientesContado();
         cargarComunidadAutonoma();
         cargarMonedas();
+        cargarMotivosDevolucion();
 
         ////Configuracion De Pedido
         cargarMaestroLinea();
@@ -174,13 +175,13 @@ export const Home = (props) => {
         }
     }
     /*----------------------------------------------------MODULOS DE SINCRONIZACION-------------------------------- */
-    
+
     const ValoresModulos = [{ Nombre: "SincronizarPedidosPendiente", Valor: 0 },
-                            { Nombre: "SincronizarReciboPendiente", Valor: 1 },
-                            { Nombre: "SincronizarConfiguraciones", Valor: 2 },
-                            { Nombre: "SincronizarCartera", Valor: 3 },
-                            { Nombre: "SincronizarRecibo", Valor: 4 },
-                            { Nombre: "SincronizarPedidos", Valor: 5 }]
+    { Nombre: "SincronizarReciboPendiente", Valor: 1 },
+    { Nombre: "SincronizarConfiguraciones", Valor: 2 },
+    { Nombre: "SincronizarCartera", Valor: 3 },
+    { Nombre: "SincronizarRecibo", Valor: 4 },
+    { Nombre: "SincronizarPedidos", Valor: 5 }]
 
     const CargaModuloPedidosPendientes = async () => {
         setMensaje('Sincronizando Pedidos');
@@ -210,6 +211,7 @@ export const Home = (props) => {
         cargarClientesContado();
         cargarComunidadAutonoma();
         cargarMonedas();
+        cargarMotivosDevolucion();
 
         ////Configuracion De Pedido
         cargarMaestroLinea();
@@ -270,7 +272,7 @@ export const Home = (props) => {
     }
 
     const cargarEmpresas = async () => {
-        
+
         setMensaje('Cargando Empresas');
         const { data, error } = await get(`${APIURL}/api/empresa/empresas`, "Empresas");
         if (error) {
@@ -528,6 +530,12 @@ export const Home = (props) => {
             dispatch({ type: 'SET_BODEGAALMACENES', payload: data });
         }
     }
+
+    const cargarMotivosDevolucion = async () => {
+        const { data } = await get(`${APIURL}/api/motivos/devolucion`, "Devolucion", "motivosDevolucion");
+        dispatch({ type: "SET_MOTIVOSDEVOLUCION", payload: data });
+    }
+
     const cargarClientesPedidos = async () => {
         setMensaje('Cargando Cliente Pedidos')
         const { data, error } = await get(`${APIURL}/api/cliente/pedido`, "clientes");
@@ -657,13 +665,13 @@ export const Home = (props) => {
             })
         })
         //setTimeout(() => {
-            logSession();
-            dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
-            let fecha = moment(new Date()).format("YYYY-MM-DD");
-            localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
-            setActiveStep((prevActiveStep) => prevActiveStep + 1);
-            setSyncDiaria(true);
-            setloading(false);
+        logSession();
+        dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`));
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        setSyncDiaria(true);
+        setloading(false);
         //}, 40000)
     }
     /*const convertirBlob = async (url) => {
@@ -728,7 +736,7 @@ export const Home = (props) => {
                             SyncDiaria === false &&
                             <div style={{ textAlign: 'center', fontSize: '26px' }} className="alert alert-danger alert-dismissible fade show" role="alert">
                                 <FiAlertTriangle style={{ fontSize: '30px', color: 'red' }} /> ¡Necesita realizar la sincronización diaria obligatoria para acceder al sistema!
-                    </div>
+                            </div>
                         }
 
                         <SteperSync

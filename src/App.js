@@ -25,8 +25,8 @@ import SincronizacionListaMonitor from 'containers/Sincronizacion/Sincronizacion
 import './styles/reduction.scss'
 import './App.css'
 import { Mantenimiento } from 'containers/Seguridad/Mantenimiento/Mantenimiento'
-import {Relacional} from 'containers/Seguridad/Relacional/Relacional';
-import {Home} from 'containers/Home/Home';
+import { Relacional } from 'containers/Seguridad/Relacional/Relacional';
+import { Home } from 'containers/Home/Home';
 import { ListaPedidosPendientes } from 'containers/ListaPedidos/ListaPedidosPendientes';
 import { ListaPedidosFlotante } from 'containers/ListaPedidos/ListaPedidosFlotante';
 import { ListaReciboPendiente } from 'containers/ListaRecibos/ListaReciboPendiente';
@@ -40,15 +40,21 @@ import { SincronizacionColeccionEspecifica } from 'containers/Sincronizacion/Sin
 import { SincronizacionCliente } from 'containers/Sincronizacion/SincronizacionCliente'
 import { ReconstruccionRuta } from 'containers/ReconstruccionRuta/ReconstruccionRuta'
 import { getLocalStorage, verificarConexion } from 'utils/http';
-import {MantenimientoEncuesta} from 'containers/Encuestas/MantenimientoEncuesta/MantenimientoEncuesta'
+import { MantenimientoEncuesta } from 'containers/Encuestas/MantenimientoEncuesta/MantenimientoEncuesta'
 import Encuestas from 'containers/Encuestas/Encuestas'
 import axios from 'axios'
-import {APIURL,APP_VERSION} from 'utils/Enviroment'
-import {EncuestasResueltas} from 'containers/Encuestas/EncuestasResueltas'
+import { APIURL, APP_VERSION } from 'utils/Enviroment'
+import { EncuestasResueltas } from 'containers/Encuestas/EncuestasResueltas'
 import { PaqueteBodega } from 'containers/PaqueteBodega/PaqueteBodega'
 import { SitioBodega } from 'containers/SitioBodega/SitioBodega'
 import { AlmacenSitio } from 'containers/AlmacenSitio/AlmacenSitio'
 import { ListaReciboProforma } from 'containers/ListaRecibos/ListaRecibosProforma';
+import { Ubicaciones } from 'containers/Ubicaciones/Ubicaciones';
+import { Devoluciones } from 'containers/Devoluciones/Devoluciones';
+import { MotivosDevolucion } from 'components/Devoluciones/MotivosDevolucion/MotivosDevolucion';
+import { ListadoDevolucion } from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucion';
+import { AprobacionDevolucion } from 'containers/Devoluciones/ListadoDevolucion/AprobacionDevoluciones';
+import { ListadoDevolucionPendiente } from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucionPendiente'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -103,7 +109,7 @@ const App = props => {
 
     setInterval(() => {
       cargarConfiguraciones();
-    }, (5*60*1000))
+    }, (5 * 60 * 1000))
     return (
       <SnackbarProvider dense maxSnack={3}>
         <Router>
@@ -165,7 +171,7 @@ const App = props => {
               exact
               path='/DashBoard-Comercial'
               layout={MainLayout}
-              component={()=>( <iframe title="reporte" frameBorder="0" src="http://cubo-intermoda/tableros/powerbi/Comercial/Operativo%20Comercial?rs:Embed=true" position="relative" top="0" height="100%" width="100%" /> )}
+              component={() => (<iframe title="reporte" frameBorder="0" src="http://cubo-intermoda/tableros/powerbi/Comercial/Operativo%20Comercial?rs:Embed=true" position="relative" top="0" height="100%" width="100%" />)}
             />
             <LayoutRoute
               path='/lista-pedidos-BandejaSalida'
@@ -219,7 +225,7 @@ const App = props => {
               layout={MainLayout}
               component={ListaRecibos}
             />
-             <LayoutRoute
+            <LayoutRoute
               exact
               path='/lista-recibos-BandejaSalida'
               layout={MainLayout}
@@ -307,12 +313,12 @@ const App = props => {
               layout={MainLayout}
               component={Relacional}
             />
-             <LayoutRoute
+            <LayoutRoute
               path='/Mantenimiento/Encuesta'
               layout={MainLayout}
               component={MantenimientoEncuesta}
             />
-             <LayoutRoute
+            <LayoutRoute
               exact
               path='/home'
               layout={MainLayout}
@@ -333,11 +339,42 @@ const App = props => {
               layout={MainLayout}
               component={EncuestasResueltas}
             />
-             <LayoutRoute
+            <LayoutRoute
               path='/lista-recibos-proforma'
               layout={MainLayout}
               component={ListaReciboProforma}
             />
+            <LayoutRoute
+              path='/configuracion-ubicaciones'
+              layout={MainLayout}
+              component={Ubicaciones}
+            />
+            <LayoutRoute
+              path='/devolucion'
+              layout={MainLayout}
+              component={Devoluciones}
+            />
+            <LayoutRoute
+              path='/MotivosDevolucion'
+              layout={MainLayout}
+              component={MotivosDevolucion}
+            />
+            <LayoutRoute
+              path='/listadoDevolucion'
+              layout={MainLayout}
+              component={ListadoDevolucion}
+            />
+            <LayoutRoute
+              path='/listadoDevolucionPendiente'
+              layout={MainLayout}
+              component={ListadoDevolucionPendiente}
+            />
+            <LayoutRoute
+              path='/aprobarDevoluciones'
+              layout={MainLayout}
+              component={AprobacionDevolucion}
+            />
+
             <Redirect to='/home' />
           </Switch>
         </Router>

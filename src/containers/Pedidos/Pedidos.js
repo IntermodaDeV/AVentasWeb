@@ -1407,9 +1407,10 @@ class Pedidos extends React.Component {
   
     enviarPeticionPedido = async (location, correlativo) => {
         let isOnline = await verificarConexion();
+        let nuevoSubtotal = this.props.cliente.Codigo.IncluyeImpuesto ? this.props.TotalPedido-Number(localStorage.getItem('Impuesto')) : this.props.TotalPedido;
         let pedido = {
             NumeroReferencia: localStorage.getItem("CorrelativoPedido"),
-            //PedidoCache:localStorage.getItem("CorrelativoPedidoCache"),
+            //PedidoCache:localStorage.getItem("isOffline"),
             PedidoId: 100 + (Math.random() * (10000 - 100)),
             CodigoCliente: this.props.cliente.Codigo,
             Nombre: this.props.cliente.Nombre,
@@ -1428,7 +1429,7 @@ class Pedidos extends React.Component {
             Flete: this.props.flete,
             RequiereEntrega: this.props.requiereEntrega,
             Impuesto: Number(localStorage.getItem('Impuesto')),
-            subtotal: this.props.TotalPedido,
+            subtotal: nuevoSubtotal,
             Direccion: this.props.cliente.Direccion,
             MonedaCliente: this.props.cliente.Moneda,
             BodegaEspecifica: !this.props.BodegaSeleccionada.BodegaPrincipal,
@@ -1496,6 +1497,7 @@ class Pedidos extends React.Component {
             this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             this.props.onSetNumeroOrden(numPedido);
             this.reducirStockBackground(productosReducir);
+            localStorage.setItem("isOffline", true);
         }
         /*else if (pedido.NumeroReferencia === "") {
             const data = postPedidoStorage(pedido);
@@ -1505,7 +1507,7 @@ class Pedidos extends React.Component {
         }*/
         else {
             const { data, error } = await post(this.urlApi + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
-
+            localStorage.setItem("isOffline", false);
             if (error) {
                 if (error.response) {
                     let mensaje = error.response.data.Message;
@@ -1515,30 +1517,63 @@ class Pedidos extends React.Component {
                         text: mensaje,
                     })
                     this.setState({ loadingRecibo: false });
-                } else {
-                    let numPedido = localStorage.getItem("CorrelativoPedido");
+                }/*else {
+                    Swal.fire({
+                        type: 'warning',
+                        title: 'Error',
+                        text: "Ocurrió un error, el pedido se guardara en bandeja de salida.",
+                    });
+        
+                    const data = postPedidoStorage(pedido);
+                    let numPedido = data.EncabezadoPedido.PedidoId;
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
                     this.props.onSetNumeroOrden(numPedido);
-                }
+                    localStorage.setItem("isOffline", true);
+                }*/
+                let numPedido = pedido.NumeroReferencia;
+                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             } else {
-                if (data === null || data === undefined) {
-                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: localStorage.getItem("CorrelativoPedido") });
-                    this.props.onSetNumeroOrden(localStorage.getItem("CorrelativoPedido"));
+                if (!data) {
+                    Swal.fire({
+                        type: 'warning',
+                        title: 'Advertencia',
+                        text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+                    });
+        
+                    const data = postPedidoStorage(pedido);
+                    let numPedido = data.EncabezadoPedido.PedidoId;
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+                    this.props.onSetNumeroOrden(numPedido);
+                    localStorage.setItem("isOffline", true);
                     return;
                 }
 
                 const { correlativo, mensaje } = data;
-
-                if (mensaje.includes("flotante")) {
+                if(mensaje)
+                {
+                    if (mensaje.includes("flotante")) {
+                        Swal.fire({
+                            type: 'warning',
+                            title: 'Advertencia',
+                            text: mensaje,
+                        })
+                    }
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: correlativo });
+                    this.props.onSetNumeroOrden(correlativo);
+                }
+                else{
                     Swal.fire({
                         type: 'warning',
                         title: 'Advertencia',
-                        text: mensaje,
-                    })
+                        text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+                    });
+                    let numPedido = data.EncabezadoPedido.PedidoId;
+                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
+                    this.props.onSetNumeroOrden(numPedido);
+                    localStorage.setItem("isOffline", true);
                 }
-                this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: correlativo });
-                this.props.onSetNumeroOrden(correlativo);
             }
+            
         }
     }
 

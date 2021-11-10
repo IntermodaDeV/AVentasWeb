@@ -167,9 +167,7 @@ const ResumenPedido = (props) => {
                 let NumeroSiguiente = Number(NumeroActual) + 1;
                 localStorage.setItem("CorrelativoPedido", Iniciales + NumeroSiguiente);
             }
-            localStorage.setItem("CorrelativoPedidoCache", true);
         } else {
-            localStorage.setItem("CorrelativoPedidoCache", false);
             localStorage.setItem("CorrelativoPedido", correlativo)
         }
     }
@@ -618,7 +616,7 @@ const ResumenPedido = (props) => {
                                     Subtotal:
                                 </div>
                                 <div className="col-6">
-                                    {moneda} {numberWithCommas(totalGlobal)}
+                                    {moneda} {props.Cliente.IncluyeImpuesto ? numberWithCommas(totalGlobal-impuesto) : numberWithCommas(totalGlobal)}
                                 </div>
                             </div>
                             {(lineaSeleccionada.IdLinea === "BIO"
@@ -644,7 +642,7 @@ const ResumenPedido = (props) => {
                                     Total:
                                 </div>
                                 <div className="col-6">
-                                    {moneda} {numberWithCommas((totalGlobal + impuesto) + flete)}
+                                    {moneda} {props.Cliente.IncluyeImpuesto ? numberWithCommas(totalGlobal+flete) : numberWithCommas((totalGlobal + impuesto) + flete)}
                                 </div>
                             </div>
                         </div>

@@ -24,7 +24,7 @@ import 'containers/Agenda/Agenda.css';
 import moment from "moment";
 import {connect} from 'react-redux';
 import {IsAllow} from 'components/Seguridad/Permisos';
-import { FaEye } from "react-icons/fa";
+//import { FaEye } from "react-icons/fa";
 import { get,verificarConexion } from 'utils/http';
 import axios from 'axios';
 import { ObtenerCoordenadas } from 'utils/common';
@@ -41,7 +41,11 @@ class Agenda extends Component {
         isModalLoaded: false,
         ShowModalFacturas: false,
         DataModalFacturas: [],
-        Acciones: [],
+        Acciones: [
+            { Accion: "Pedidos", IdAccion: 1, Orden: 1, UrlRedirect: "/Pedidos", Estado: true },
+            { Accion: "Recibos", IdAccion: 2, Orden: 2, UrlRedirect: "/Recibos", Estado: true },
+            { Accion: "Devoluciones", IdAccion: 3, Orden: 3, UrlRedirect: "/Devoluciones", Estado: true }
+        ],
         map: null,
         maps: null,
         noAtendido: false,
@@ -438,7 +442,11 @@ class Agenda extends Component {
             clienteActivo: clienteActivo,
         });
 
-        fetch(this.urlApi + `/api/acciones`, {
+        this.setState({
+            isModalLoaded: true
+        });
+
+        /*fetch(this.urlApi + `/api/acciones`, {
             headers: {
                 'Authorization':
                     'Bearer ' + localStorage.getItem('token'),
@@ -488,7 +496,7 @@ class Agenda extends Component {
                         )
                 }
 
-            })
+            })*/
 
     }
 
@@ -1011,7 +1019,7 @@ class Agenda extends Component {
 
                                                             <td></td>
                                                         </tr>
-                                                        <tr>
+                                                       { /*<tr>
                                                             <td className="font-weight-bold">
                                                                 Facturas Vencidas:
                                                         </td>
@@ -1047,7 +1055,7 @@ class Agenda extends Component {
 
                                                                 />
                                                             </td>
-                                                        </tr>
+                                                        </tr>*/}
                                                         <tr>
                                                             <td className="font-weight-bold">
                                                                 Prioridad:

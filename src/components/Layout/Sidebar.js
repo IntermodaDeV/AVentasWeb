@@ -153,7 +153,16 @@ const navItems = [
             { to: '/seguridad-mantenimiento', name: 'Mantenimiento', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt, backgroundColor:''  },
         ]
     },
-    { to: '/devoluciones', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined },
+    {
+        to: '/devolucion', name: 'Devolucion', dataTut: 'DataTut_Devolucion', Icon: SwapHorizOutlined,
+        expanded: [
+            { to: '/devolucion', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
+            { to: '/listadoDevolucionPendiente', name: 'Pendientes AX', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:'#d49008'  },
+            { to: '/listadoDevolucion', name: 'Listado Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
+            { to: '/aprobarDevoluciones', name: 'Aprobar Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
+            { to: '/MotivosDevolucion', name: 'Motivos Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
+        ]
+    },
     { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
     { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
     { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
@@ -163,7 +172,9 @@ const navItems = [
         expanded: [
             { to: '/configuracion-paquete-bodega', name: 'Paquete bodega especifico', dataTut: 'DataTut_SincLista', Icon: AllInboxOutlined, backgroundColor:''  },
             { to: '/configuracion-sitio', name: 'Sitio', dataTut: 'DataTut_SincLista', Icon: HomeWork, backgroundColor:''  },
-            { to: '/configuracion-almacenes', name: 'Almacen', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  }
+            { to: '/configuracion-almacenes', name: 'Almacen', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  },
+            { to: '/configuracion-ubicaciones', name: 'Ubicacion', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  }
+
         ]
     }
 ];

@@ -7,7 +7,6 @@ import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-
 import { APIURL } from 'utils/Enviroment';
 import { IsAllow } from 'components/Seguridad/Permisos';
 
@@ -53,7 +52,7 @@ const DatatableOptions = {
     ),
     textLabels: {
         body: {
-            noMatch: "No se han encontrado pedidos",
+            noMatch: "No se han encontrado registros",
             toolTip: "Ordenar",
         },
         pagination: {
@@ -88,16 +87,16 @@ const DatatableOptions = {
 
 let HeaderSitios = [
     {
-        name: "sitio",
-        label: "Codigo Sitio",
+        name: "Ubicacion",
+        label: "Ubicación",
         options: {
             filter: true,
             sort: true,
         }
     },
     {
-        name: "nombre",
-        label: "Sitio",
+        name: "Almacen",
+        label: "Almacen",
         options: {
             filter: true,
             sort: true,
@@ -134,13 +133,13 @@ let HeaderSitios = [
     },
 ];
 
-export const SitioBodega = props => {
-    const [sitios, setSitios] = useState([]);
+export const Ubicaciones = props => {
+    const [ubicaciones, setUbicaciones] = useState([]);
 
-    const cargarSitios = async () => {
+    const cargarUbicaciones = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/sitios`);
-            setSitios(request.data);
+            const request = await axios.get(`${APIURL}/api/ubicacion`);
+            setUbicaciones(request.data);
         } catch (err) {
 
         }
@@ -148,11 +147,11 @@ export const SitioBodega = props => {
 
     const modificarEstado = async (id) => {
         try {
-            await axios.post(`${APIURL}/api/sitios/modificar/${localStorage.getItem('codigo')}/${id}`);
-            cargarSitios();
+            await axios.post(`${APIURL}/api/ubicacion/modificar/${localStorage.getItem('codigo')}/${id}`);
+            cargarUbicaciones();
             Swal.fire({
                 title: '¡Modificado con exito!',
-                text: "Se ha cambiado el estado del sitio con exito.",
+                text: "Se ha cambiado el estado de la ubicación con exito.",
                 type: 'success',
                 confirmButtonText: 'OK',
             });
@@ -173,30 +172,30 @@ export const SitioBodega = props => {
     }
 
     const obtenerData = () => {
-        return sitios.map((sitio) => ({
-            sitio: sitio.Sitio,
-            nombre: sitio.Nombre,
-            empresa: sitio.Empresa,
-            estatus: sitio.Estatus ? "Activo" : "Inactivo",
-            acciones: <button onClick={() => { modificarEstado(sitio.SitioId) }} className="btn btn-primary">{sitio.Estatus ? "Inactivar" : "Activar"}</button>
+        return ubicaciones.map((item) => ({
+            Ubicacion: item.CodigoUbicacion,
+            Almacen: item.Almacen + " - " + item.Etiqueta,
+            empresa: item.Empresa,
+            estatus: item.Estatus ? "Activo" : "Inactivo",
+            acciones: <button onClick={() => { modificarEstado(item.UbicacionId) }} className="btn btn-primary">{item.Estatus ? "Inactivar" : "Activar"}</button>
         }));
     }
 
     useEffect(() => {
-        if (!IsAllow("/configuracion-sitio")) {
+        if (!IsAllow("/configuracion-ubicaciones")) {
             props.history.push('/home');
         }
 
-        cargarSitios();
+        cargarUbicaciones();
         // eslint-disable-next-line
     }, []);
 
     return (
         <div className="container-fluid">
-            <h2 style={{ textAlign: 'center' }}>Mantenimiento sitios</h2>
+            <h2 style={{ textAlign: 'center' }}>Mantenimiento de Ubicaciones</h2>
             <MuiThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
-                    title={"Mantenimiento sitios"}
+                    title={"Mantenimiento de Ubicaciones"}
                     data={obtenerData()}
                     columns={HeaderSitios}
                     options={DatatableOptions}

@@ -32,6 +32,9 @@ import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
 import { verificarConexion } from 'utils/http';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import axios from 'axios';
+import FileSaver from 'file-saver';
+import XLSX from 'xlsx';
 
 moment.locale('es')
 const urlApi = APIURL
@@ -134,6 +137,14 @@ const columns = [
             sort: true
         }
     },
+    {
+        name: 'Reporte',
+        label: 'Reporte',
+        options: {
+            filter: false,
+            sort: false
+        }
+    },
 
 ]
 const EstadisticaVisita = (props) => {
@@ -146,6 +157,8 @@ const EstadisticaVisita = (props) => {
     const [Selected, setSelected] = useState(null);
     const [EmpresaSelected, setEmpresaSelected] = useState(null);
     const Paises = useSelector(e => e.Permisos[0].EmpresasUsuarios);
+    const Asesores = useSelector(e=>e.Permisos[0].AsesoresUsuario);
+
     useEffect(() => {
         if (!IsAllow("/estadistica-visita")) {
             props.history.push('/home');
@@ -184,6 +197,86 @@ const EstadisticaVisita = (props) => {
         setUsuarios(users);
     }
 
+    const mostrarAdvertencia = (title, text, type) => {
+        Swal.fire({
+            title: title,
+            text: text,
+            type: type,
+            confirmButtonText: 'Ok',
+        })
+    }
+
+    const guardarExcel = (csvData, asesor) => {
+        const fileName = asesor ? `Visitas-${asesor}` : "Reporte-Visitas";
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const fileExtension = '.xlsx';
+        const ws = XLSX.utils.json_to_sheet(csvData);
+        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: fileType });
+        FileSaver.saveAs(data, fileName + fileExtension);
+    }
+
+    const convertirHora = (time) => {
+        time = time.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+        if (time.length > 1) {
+            time = time.slice(1);
+            time[5] = +time[0] < 12 ? 'AM' : 'PM';
+            time[0] = +time[0] % 12 || 12;
+        }
+        return time.join('');
+    }
+
+    const convertirData = (data) => {
+        return data.map((el) => {
+            const { $id, ...asignacion } = el;
+
+            return {
+                ...asignacion,
+                Hora_Inicio: convertirHora(asignacion.Hora_Inicio),
+                Hora_Final: convertirHora(asignacion.Hora_Final)
+            }
+        })
+    }
+
+    const obtenerReporteAsignacionesAsesor = async (asesor) => {
+        try {
+            let inicio = moment(fechaInicio).format();
+            let final = moment(fechaFin).format();
+            const request = await axios.get(`${APIURL}/api/asignaciones/reporte/${asesor}`, { params: { inicio, final } });
+
+            if (request.data.length === 0) {
+                mostrarAdvertencia("Asignaciones", "No se han encontrado registros para este asesor", "warning")
+                return;
+            }
+
+            const dataTransformada = convertirData(request.data);
+            guardarExcel(dataTransformada, asesor);
+            mostrarAdvertencia("¡Documento Descargado!", "Revise su panel de notificaciones o su carpeta de descargas.", "success");
+        } catch (err) {
+            mostrarAdvertencia("Error", "No se pudo obtener las asignaciones", "error");
+        }
+    }
+
+    const obtenerReporteAsignacionesGlobal = async () => {
+        try {
+            let inicio = moment(fechaInicio).format();
+            let final = moment(fechaFin).format();
+            const request = await axios.get(`${APIURL}/api/asignaciones/reporte`, { params: { inicio, final } });
+
+            if (request.data.length === 0) {
+                mostrarAdvertencia("Asignaciones", "No se han encontrado registros para el rango de fechas", "warning")
+                return;
+            }
+
+            const dataTransformada = convertirData(request.data);
+            guardarExcel(dataTransformada);
+            mostrarAdvertencia("¡Documento Descargado!", "Revise su panel de notificaciones o su carpeta de descargas.", "success");
+        } catch (err) {
+            mostrarAdvertencia("Error", "No se pudo obtener las asignaciones", "error");
+        }
+    }
 
     const options = {
         responsive: "scrollMaxHeight",
@@ -291,7 +384,8 @@ const EstadisticaVisita = (props) => {
             Pedidos: estVis.Pedidos,
             Recibos: estVis.Recibos,
             ValorPedidos: numberWithCommas(Number(estVis.TotalPedidos)),
-            ValorRecibos: numberWithCommas(Number(estVis.TotalRecibos))
+            ValorRecibos: numberWithCommas(Number(estVis.TotalRecibos)),
+            Reporte:<button onClick={()=>{obtenerReporteAsignacionesAsesor(estVis.CodigoAsesor)}} className="btn btn-secondary">Reporte</button>
         });
     });
     return (
@@ -345,6 +439,12 @@ const EstadisticaVisita = (props) => {
                                                     loading={this.state.GuardarAsignacion} /> : 'Asignar'
                                             } */}
                     </Button>
+                    {(Asesores.length > 1) && <Button
+                        variant="outlined"
+                        color="primary"
+                        style={{ marginLeft: '10px' }}
+                        onClick={obtenerReporteAsignacionesGlobal}>Reporte
+                    </Button>}
                 </div>
                 {Paises.length > 1 &&
                     <div className="shadow-box-example hoverable" style={{ display: 'flex', marginBottom: '10px' }}>

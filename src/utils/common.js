@@ -1,3 +1,6 @@
+import Swal from 'sweetalert2/dist/sweetalert2.js'
+import 'sweetalert2/src/sweetalert2.scss';
+
 export const numberWithCommas = (value) => (value.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
 
 export const reduceNumberWithCommas = (value, key) => (value.reduce((acc, cur) => {
@@ -20,4 +23,27 @@ export const reemplazarUrl = (data, original, offline) => {
         return urlCopia.replace(original, offline);
     }
     return data;
+}
+
+export const mostrarModal = (title, text, type, step, textConfirmation, textCancelation) => {
+    if (step) {
+        return Swal.fire({
+            title,
+            text,
+            type,
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: textConfirmation,
+            cancelButtonText: textCancelation,
+        });
+    }
+
+
+    Swal.fire({
+        title,
+        text,
+        type,
+        confirmButtonText: 'Ok',
+    });
 }

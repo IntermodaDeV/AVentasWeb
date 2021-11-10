@@ -68,6 +68,14 @@ const initialState = {
     RespuestaDetalle: [],
     MaestroBodegaAlmacenes: [],
     BodegaSeleccionada: null,
+    Devolucion: {
+        clienteSelected: null,
+        TableValue: {},
+        devolucionCompleta: false,
+        motivosDevolucion: [],
+        motivoDevolucion: "",
+        motivoDevolucionDetalle: ""
+    },
 }
 
 const calcularLimite = (state) => {
@@ -767,6 +775,76 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             MaestroBodegaAlmacenes: action.payload
+        }
+    }
+
+    if (action.type === 'STORE_DEVOLUCION_CLIENTESELECTED') {
+        return {
+            ...state,
+            Devolucion: {
+                ...state.Devolucion,
+                clienteSelected: action.clienteSelected,
+                TableValue: {},
+                devolucionCompleta: false,
+                motivoDevolucionDetalle: "",
+                motivoDevolucion: ""
+            }
+        }
+    }
+
+    if (action.type === 'SET_TABLEVALUEDEVOLUCION') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                TableValue: action.payload 
+            }
+        }
+    }
+
+    if (action.type === 'SET_DEVOLUCIONCOMPLETA') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                devolucionCompleta: !state.Devolucion.devolucionCompleta
+            }
+        }
+    }
+
+    if (action.type === 'SET_MOTIVOSDEVOLUCION') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                motivosDevolucion: action.payload
+            }
+        }
+    }
+
+    if (action.type === 'SET_MOTIVODEVOLUCION') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                motivoDevolucion: action.payload,
+                motivoDevolucionDetalle: ""
+            }
+        }
+    }
+
+    if (action.type === 'SET_MOTIVODEVOLUCIONDETALLE') {
+        return {
+            ...state,
+
+            Devolucion: {
+                ...state.Devolucion,
+                motivoDevolucionDetalle: action.payload
+            }
         }
     }
     

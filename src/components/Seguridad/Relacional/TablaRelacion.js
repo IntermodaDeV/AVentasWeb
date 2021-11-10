@@ -32,6 +32,7 @@ const DatatableOptions = {
     print: false,
     download: false,
     selectableRows: 'none',
+    viewColumns:false,
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
         <TableFooter>
               <TableRow>
@@ -63,17 +64,12 @@ const DatatableOptions = {
             search: "Buscar",
             downloadCsv: "Descargar CSV",
             print: "Imprimir",
-            viewColumns: "Ver Columnas",
             filterTable: "Filtrar Tabla",
         },
         filter: {
             all: "Todos",
             title: "Filtros",
             reset: "Quitar",
-        },
-        viewColumns: {
-            title: "Mostrar Columnas",
-            titleAria: "Mostrar/Esconder Columnas",
         },
         selectedRows: {
             text: "Fila(s) seleccionadas",

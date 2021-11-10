@@ -326,7 +326,7 @@ const ImprimirPedidoOriginal = (props) => {
                                 Dirección : {(clienteContado !== null && clienteContado !== undefined) ? clienteContado.Direccion : props.Cliente.Direccion}<br />
                                 Código    : {props.Cliente.Codigo}<br />
                                    {
-                                       localStorage.getItem("CorrelativoPedidoCache") === "true" &&
+                                       localStorage.getItem("isOffline") === "true" &&
                                        <h4 style={{fontWeight:'bold'}}>
                                            {"Este documento ha sido generado fuera de linea."}
                                        </h4>
@@ -399,7 +399,7 @@ const ImprimirPedidoOriginal = (props) => {
                         </div>
 
                         <div className="col-7 valueTotal">
-                        {moneda} {numberWithCommas(props.ValoresPedido.totalGlobal)}
+                        {moneda} {props.Cliente.IncluyeImpuesto ? numberWithCommas(props.ValoresPedido.totalGlobal-impuesto) : numberWithCommas(props.ValoresPedido.totalGlobal)}
                         </div>
                     </div>
 
@@ -429,7 +429,7 @@ const ImprimirPedidoOriginal = (props) => {
                         </div>
 
                         <div className="col-7 valueTotal">
-                        {moneda} {numberWithCommas((props.ValoresPedido.totalGlobal + impuesto) + props.ValoresPedido.flete)}
+                        {moneda} {props.Cliente.IncluyeImpuesto ? numberWithCommas(props.ValoresPedido.totalGlobal  + props.ValoresPedido.flete) : numberWithCommas((props.ValoresPedido.totalGlobal + impuesto) + props.ValoresPedido.flete)}
                         </div>
                     </div>
                 </div>

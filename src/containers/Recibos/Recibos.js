@@ -524,7 +524,6 @@ const Recibos = (props) => {
     </div>
   );
   const SelectedCliente = cliente => {
-    //props.history.push('/Recibos/TipoCredito');
     props.onStoreReciboClienteSelected(cliente);
   }
   // if (clienteSelected && facturasXCliente && cuotasAPagar) {

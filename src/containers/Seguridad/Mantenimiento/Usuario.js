@@ -7,6 +7,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
+import {Formik,Field} from 'formik';
 
 import { TablaUsuario } from 'components/Seguridad/Mantenimiento/Usuario/TablaUsuario';
 import { APIURL } from 'utils/Enviroment';
@@ -16,6 +17,9 @@ export const Usuario = props => {
     const [mostrar,setMostar] = useState(false);
     const [usuario,setUsuario] = useState(null);
     const [codigo,setCodigo] = useState('');
+    const [mostrarEditar,setMostrarEditar] = useState(false);
+    const [usuarioEdit,setUsuarioEdit] = useState({});
+
     const myRef = useRef();
 
     const cargarUsuarios = async () => {
@@ -274,6 +278,40 @@ export const Usuario = props => {
         setUsuario(null);
     }
 
+    const seleccionarUsuario = (e) => {
+        console.log(e);
+        setUsuarioEdit(e);
+        setMostrarEditar(true);
+    }
+
+    const actualizarCorreo = async (data) => {
+        try {
+            await axios.post(`${APIURL}/api/usuario/correo/${data.Id}`, data);
+            Swal.fire({
+                title: 'Confirmado',
+                text: "Se ha cambiado el estado exitosamente.",
+                type: 'success',
+                confirmButtonText: 'Ok',
+            }).then(e => {
+                cargarUsuarios();
+            });
+
+        } catch (err) {
+            let mensaje = "Ha ocurrido un error y no se ha modificado el usuario.";
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
     useEffect(()=>{
         cargarUsuarios();
     },[])
@@ -312,16 +350,50 @@ export const Usuario = props => {
                     </DialogActions>
                 </DialogContent>
             </Dialog>
+
+            <Dialog open={mostrarEditar} aria-labelledby="form-dialog-title">
+                <DialogTitle style={{ textAlign: 'center' }} id="form-dialog-title">Editar Usuario: {usuarioEdit.Nombre}</DialogTitle>
+                <DialogContent>
+                    <div>
+                        <Formik initialValues={usuarioEdit} onSubmit={(e) => actualizarCorreo(e)}>
+                            {({ handleSubmit }) => (
+                                <div>
+                                    <div className="form-group">
+                                        <label>Correo</label>
+                                        <Field name="Correo" id="Correo" className="form-control" />
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>
+                                            <Field type="checkbox" name="CorreoDevolucion" />
+                                            Enviar Correo Devolucion
+                                        </label>
+                                    </div>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+                                        <button className="btn btn-primary" onClick={() => setMostrarEditar(false)}>Cerrar</button>
+                                        <button className="btn btn-success" onClick={handleSubmit}>Actualizar</button>
+                                    </div>
+                                </div>
+                            )}
+
+                        </Formik>
+                        
+                    </div>
+                </DialogContent>
+            </Dialog>
             
-            <TablaUsuario 
-            roles={usuarios} 
-            modificarAdministradorProducto={modificarAdministradorProducto} 
-            modificarEstado={modificarEstado} 
-            modificarBloqueoCredito={modificarBloqueoCredito} 
-            modificarTodosAsesores={modificarTodosAsesores} 
-            UpdateUsuarioOficina ={UpdateUsuarioOficina} 
-            setMostar= {setMostar}
-            modificarManejaBodegaEspecifico = {modificarManejaBodegaEspecifico}/>
+            <TablaUsuario
+                roles={usuarios}
+                modificarAdministradorProducto={modificarAdministradorProducto}
+                modificarEstado={modificarEstado}
+                modificarBloqueoCredito={modificarBloqueoCredito}
+                modificarTodosAsesores={modificarTodosAsesores}
+                UpdateUsuarioOficina={UpdateUsuarioOficina}
+                setMostar={setMostar}
+                modificarManejaBodegaEspecifico={modificarManejaBodegaEspecifico}
+                seleccionarUsuario={seleccionarUsuario}
+            />
         </div>
     )
 }

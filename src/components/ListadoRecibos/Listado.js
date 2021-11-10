@@ -77,7 +77,7 @@ const Listado = (props) => {
             <div>
                 <MuiThemeProvider theme={getMuiTheme()}>
                     <MUIDataTable
-                        title={"Listado de Recibos proforma"}
+                        title={"Listado de Recibos"}
                         data={props.DataRecibos()}
                         columns={props.HeadersListaRecibos}
                         options={props.DatatableOptions}

@@ -209,7 +209,7 @@ moment.locale('es')
               IdSubFactura: cuot.IdSubFactura,
               Dias: <span className="text-danger font-weight-bold">{isNaN(DiasVencido) ? "": DiasVencido}</span>,
               DiasDescuento: <span className="text-danger font-weight-bold"> {isNaN(diasDescuento) ? "": diasDescuento}</span>,
-              ValorDescuento: <span className="text-danger font-weight-bold">{ValorDescuento}</span>,
+              ValorDescuento: <span className="text-danger font-weight-bold">{ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Tipo: <span className="text-danger font-weight-bold"> {cuot.TipoDocumento}</span>,
               Factura: <span className="text-danger font-weight-bold"> {fact.Factura}</span>,
               NumeroFEL: <span className="text-danger font-weight-bold"> {fact.NumeroFEL}</span>,
@@ -222,7 +222,8 @@ moment.locale('es')
               Cuota: cuot,
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              Facturaa:fact.Factura
+              Facturaa:fact.Factura,
+              DiasVencido
             })
           }
           else if (DiasVencido >= 0 && DiasVencido <= 15) {
@@ -230,7 +231,7 @@ moment.locale('es')
               IdSubFactura: cuot.IdSubFactura,
               Dias: <span className={"font-weight-bold " + styles.WarnRecibo}>{isNaN(DiasVencido) ? "": DiasVencido}</span>,
               DiasDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {isNaN(diasDescuento) ? "": diasDescuento}</span>,
-              ValorDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {ValorDescuento}</span>,
+              ValorDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Tipo: <span className={"font-weight-bold " + styles.WarnRecibo}> {cuot.TipoDocumento}</span>,
               Factura: <span className={"font-weight-bold " + styles.WarnRecibo}> {fact.Factura}</span>,
               NumeroFEL: <span className={"font-weight-bold " + styles.WarnRecibo}> {fact.NumeroFEL}</span>,
@@ -243,7 +244,8 @@ moment.locale('es')
               Cuota: cuot,
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              Facturaa:fact.Factura
+              Facturaa:fact.Factura,
+              DiasVencido
             })
           }
           else {
@@ -251,7 +253,7 @@ moment.locale('es')
               IdSubFactura: cuot.IdSubFactura,
               Dias: isNaN(DiasVencido) ? "": DiasVencido,
               DiasDescuento: isNaN(diasDescuento) ? "": diasDescuento,
-              ValorDescuento: ValorDescuento,
+              ValorDescuento: ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Tipo: cuot.TipoDocumento,
               Factura: fact.Factura,
               NumeroFEL: fact.NumeroFEL,
@@ -264,7 +266,8 @@ moment.locale('es')
               Cuota: cuot,
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              Facturaa:fact.Factura
+              Facturaa:fact.Factura,
+              DiasVencido
               //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               //   Accion : (<Button
 
@@ -301,6 +304,19 @@ moment.locale('es')
         return -1;
       }
       if (a.Facturaa > b.Facturaa) {
+
+        return 1;
+      }
+
+      return 0;
+    });
+
+    data.sort((a, b) => {
+      if (a.DiasVencido < b.DiasVencido) {
+
+        return -1;
+      }
+      if (a.DiasVencido > b.DiasVencido) {
 
         return 1;
       }

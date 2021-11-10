@@ -36,6 +36,8 @@ import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
 import { ObtenerCoordenadas } from 'utils/common';
 import{ reemplazarUrl } from 'utils/common';
+import FileSaver from 'file-saver';
+import XLSX from 'xlsx';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -190,6 +192,57 @@ const SelectCliente = (props) => {
             return null;
         }
     }*/
+
+    const guardarExcel = csvData => {
+        const fileName = `Visitas-${props.autocompleteValue.Nombre}`;
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const fileExtension = '.xlsx';
+        const ws = XLSX.utils.json_to_sheet(csvData);
+        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: fileType });
+        FileSaver.saveAs(data, fileName + fileExtension);
+    }
+
+    const convertirHora = (time) => {
+        time = time.toString().match(/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+        if (time.length > 1) {
+            time = time.slice(1);
+            time[5] = +time[0] < 12 ? 'AM' : 'PM';
+            time[0] = +time[0] % 12 || 12;
+        }
+        return time.join('');
+    }
+
+    const convertirData = (data) => {
+        return data.map((el) => {
+            const { $id, ...asignacion } = el;
+
+            return {
+                ...asignacion,
+                Hora_Inicio: convertirHora(asignacion.Hora_Inicio),
+                Hora_Final: convertirHora(asignacion.Hora_Final)
+            }
+        })
+    }
+
+    const obtenerReporteAsignaciones = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/asignaciones/reporte/${props.autocompleteValue.Codigo}`);
+
+            if (request.data.length === 0) {
+                mostrarAdvertencia("Asignaciones", "No se han encontrado registros para este cliente", "warning")
+                return;
+            }
+
+            const dataTransformada = convertirData(request.data);
+            guardarExcel(dataTransformada);
+            mostrarAdvertencia("¡Documento Descargado!", "Revise su panel de notificaciones o su carpeta de descargas.", "success");
+        } catch (err) {
+            mostrarAdvertencia("Error", "No se pudo obtener las asignaciones", "error");
+        }
+    }
 
     const handleRecarga = ()=>{
         Swal.fire({
@@ -595,6 +648,12 @@ const SelectCliente = (props) => {
                                     </tr>
                                 </tbody>
                             </table>
+                            <div>
+                                <span className={styles["TCenterContainer"]}>
+                                    <h5 className={styles["TCenter"]}>Reporte visitas</h5>
+                                </span>
+                                <button onClick={obtenerReporteAsignaciones} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
+                            </div>
                         </div>}
 
                     </div>
