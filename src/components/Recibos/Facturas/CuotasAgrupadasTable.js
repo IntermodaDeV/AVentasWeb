@@ -163,7 +163,7 @@ const CuotasAgrupadasTable = props => {
           let cuotaAgrupada = cuotasAgrupadas.find(cuotAgr => cuotAgr.NumeroCuota === cuot.NumeroCuota && cuot.FechaVencimiento === cuotAgr.FechaVencimiento && cuot.FechaMaxDescuento === cuotAgr.FechaMaxDescuento);
           
           if (cuotaAgrupada) {
-            cuotaAgrupada.Valor += cuot.ValorCuota;
+            cuotaAgrupada.Valor = cuot.ValorCuota;
             cuotaAgrupada.Saldo += cuot.Saldo;
             cuotaAgrupada.IdsSubFactura.push(cuot.IdSubFactura);
             cuotaAgrupada.Cuotas.push({ ...cuot, Factura: fact });
