@@ -53,7 +53,6 @@ const CuentaCorrienteTable = props => {
     const clientesRecibo = useSelector(c=>c.Recibo);
     const permisos = useSelector(e=>e.Permisos[0]);
     const dispatch = useDispatch();
-    const [ocultar,setOcultar] = React.useState(false);
 
     let data = []
     const options = {
@@ -192,7 +191,6 @@ const CuentaCorrienteTable = props => {
                 longitud: coor.longitude
             }
             const request = await axios.post(`${APIURL}/api/cliente/coordenadas`, data);
-            setOcultar(true);
             actualizarData(request);
             Swal.fire({
                 title: 'Confirmado',
@@ -276,13 +274,12 @@ const CuentaCorrienteTable = props => {
     }
 
     React.useEffect(()=>{
-        setOcultar(false)
     },[props.clienteSelected])
 
     return (
         <MuiThemeProvider theme={getMuiTheme()}>
             {(!props.cartera) && (<>
-                {((props.clienteSelected.Latitud === null || props.clienteSelected.Longitud === null) && ocultar === false && permisos.AsesoresUsuario.length === 1) && <Button onClick={verificarObtencionCoordenadas} style={{ marginBottom: '10px', marginRight: 5 }} variant="contained" color="primary">Guardar coordenadas</Button>}
+                {(permisos.AsesoresUsuario.length === 1) && <Button onClick={verificarObtencionCoordenadas} style={{ marginBottom: '10px', marginRight: 5 }} variant="contained" color="primary">Guardar coordenadas</Button>}
             </>)}
             {(cuentaCorriente.length > 0) && (<div style={{ display: 'inline' }}>
                 <Button onClick={generatePDF} style={{ marginBottom: '10px' }} variant="contained" color="primary">Generar Reporte</Button>

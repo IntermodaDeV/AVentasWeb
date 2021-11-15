@@ -564,11 +564,11 @@ const SelectCliente = (props) => {
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.Direccion}</td>
                                     </tr>
-                                    {((props.autocompleteValue.Latitud === null || props.autocompleteValue.Longitud === null) && permisos.AsesoresUsuario.length === 1 ) &&
+                                    {(permisos.AsesoresUsuario.length === 1 ) &&
                                         <tr>
                                             <td className={styles.InfoLabel}>
-                                                Coordenadas no Disponibles
-                                        </td>
+                                                Pinear Coordenada
+                                            </td>
                                             <td className={styles.InfoLabelDetail}>
                                                 <Button style={{ marginLeft: 15 }} onClick={verificarObtencionCoordenadas} variant="contained" color="primary">Guardar <RoomIcon /></Button>
                                             </td>

@@ -126,7 +126,7 @@ export const CoordenadasAsesor = props => {
             </div>
             {ubicaciones.length === 0
                 ? <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <h1>Coordenadas no disponibles</h1>
+                    <h1>Pinear Coordenada</h1>
                 </div>
                 : <div className="col-md-9" style={{ height: '100vh', width: '100%' }}>
                     <MapaAsesor ubicaciones={ubicaciones} />
