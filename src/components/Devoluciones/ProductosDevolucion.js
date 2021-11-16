@@ -691,18 +691,25 @@ export const ProductosDevolucion = (props) => {
         return devoluciones;
     }
 
+    const generarCorrelativoParcial = (correlativo) => {
+        let parts = correlativo.split("-");
+        let parteNumerica = parseInt(parts[1]);
+        parteNumerica++;
+        return `${parts[0]}-${parteNumerica}`;
+    }
+
     const validacionDevolucionParcial = () => {
         let devoluciones = construirDevolucionParcial();
         let devolucionSinProducto = devoluciones.some(x => x.DetalleDevolucion.length === 0);
+        let correlativo = localStorage.getItem("CorrelativoDevolucion");
 
-        //if (PaisesFactura.includes(clienteSelected.EmpresaId)) {
-        //let devolucionSinFactura = devoluciones.some(x => x.FacturaOriginal === "");
-
-        //if (devolucionSinFactura) {
-        //mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no hay factura seleccionada.", "warning");
-        //return;
-        //}
-        //}
+        for (let i = 0; i < devoluciones.length; i++) {
+            if (i === 0) {
+                devoluciones[i].Correlativo = correlativo;
+            } else {
+                devoluciones[i].Correlativo = generarCorrelativoParcial(devoluciones[i - 1].Correlativo);
+            }
+        }
 
         if (devolucionSinProducto) {
             mostrarModal("Aviso", "No se puede generar devolucion parcial ya que no se ha ingresado ningun producto.", "warning");
