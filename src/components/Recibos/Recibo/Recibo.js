@@ -275,7 +275,8 @@ const Recibo = (props) => {
                                                                 {numberWithCommas(Number(factu.Parcial))}
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
-
+                                                                {/*Numero de cuota en acuerdo */}
+                                                                {factu.cuota ? "Cuota: " + factu.cuota : ""}
                                                             </td>
                                                         </tr>
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>

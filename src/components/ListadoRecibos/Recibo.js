@@ -223,7 +223,7 @@ const Recibo = (props) => {
                                                                 {numberWithCommas(Number(factu.ValorFactura))}
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
-
+                                                                  {factu.cuota ? "Cuota: " + factu.cuota : ""}
                                                             </td>
                                                         </tr>
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
