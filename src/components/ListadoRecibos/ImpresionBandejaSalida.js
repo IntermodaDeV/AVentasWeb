@@ -13,8 +13,9 @@ const ImpresionBandejaSalida = (props) => {
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const empresas = useSelector(e=>e.Empresas);
     let NombreCliente = props.recibo.NombreCliente;
-    let DireccionCliente=props.recibo.Direccion; 
-    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('EmpresaCliente').toUpperCase());
+    let DireccionCliente=props.recibo.Direccion;
+    const empresaCliente = props.recibo.CodigoCliente.split("-")[0]; 
+    const empresa = empresas.find(x=>x.COMPANY_CODE === empresaCliente.toUpperCase());
     const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Pagos[0].IdMoneda).Abreviacion;
     const RecibosEnCache = useSelector(e=>e.RecibosEnCache);
     const dispatch = useDispatch();
