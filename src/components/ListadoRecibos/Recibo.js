@@ -15,11 +15,12 @@ const Recibo = (props) => {
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const clientesContado = useSelector(e=>e.clientesContado);
     const empresas = useSelector(e=>e.Empresas);
+    const empresaCliente = props.recibo.Cliente.Codigo.split("-")[0];
     let NombreCliente = props.recibo.Cliente.Nombre;
     let DireccionCliente=props.recibo.Cliente.Direccion; 
     const clienteContado = props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
     let valor = props.recibo.Valor;
-    const empresa = empresas.find(x=>x.COMPANY_CODE === localStorage.getItem('empresa').toUpperCase());
+    const empresa = empresas.find(x=>x.COMPANY_CODE === empresaCliente.toUpperCase());
     const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Cliente.Moneda).Abreviacion;
     if(clienteContado!==null && clienteContado!==undefined)
     {
@@ -223,7 +224,7 @@ const Recibo = (props) => {
                                                                 {numberWithCommas(Number(factu.ValorFactura))}
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
-
+                                                                  {factu.cuota ? "Cuota: " + factu.cuota : ""}
                                                             </td>
                                                         </tr>
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
