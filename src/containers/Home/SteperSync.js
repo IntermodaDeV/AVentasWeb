@@ -108,7 +108,7 @@ const VerticalLinearStepper = (props) => {
                 loading={props.loadingRecibo} /> : "Sincronización Diaria"
             }
           </Button>
-
+          <a className='btn btn-primary' style={{marginTop:'7px'}} href='https://www.speedtest.net/' target='__blank'>Verificar conexión internet</a>
         </div>
       </div>
 
@@ -138,11 +138,11 @@ const VerticalLinearStepper = (props) => {
           )
         })}
       </Stepper>
-        {props.activeStep === steps.length && (
-         <Paper square elevation={0} className={classes.resetContainer}>
-           <Typography><h3 style={{color:props.ModulosError.length > 0 ? "red" : "green"}}>{props.ModulosError.length > 0 ? "¡Proceso de Sincronización ejecutado con errores!" : "¡Proceso de Sincronización ejecutado correctamente!"}</h3></Typography>
-         </Paper>
-        )}
+      {props.activeStep === steps.length && (
+        <Paper square elevation={0} className={classes.resetContainer}>
+          <Typography><h3 style={{ color: props.ModulosError.length > 0 ? "red" : "green" }}>{props.ModulosError.length > 0 ? "¡Proceso de Sincronización ejecutado con errores!" : "¡Proceso de Sincronización ejecutado correctamente!"}</h3></Typography>
+        </Paper>
+      )}
     </div>
   );
 }

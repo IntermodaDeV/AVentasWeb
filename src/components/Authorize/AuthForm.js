@@ -33,6 +33,23 @@ class AuthForm extends React.Component {
     this.props.onChangeAuthState(authState);
   };
 
+  cerrarSesion = async () => {
+    try {
+      await fetch(APIURL + "/api/cerrarSesion", {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',
+        body: JSON.stringify(this.state.username)
+      });
+
+      this.handleSubmit({ preventDefault: () => { } });
+
+    } catch (err) {
+
+    }
+  }
+
   handleSubmit = event => {
 
     this.setState({ loading: true });
@@ -55,6 +72,10 @@ class AuthForm extends React.Component {
             localStorage.setItem("SesionObligatorio",1);
             this.logSesion(this.state.username.toLowerCase());
           } else {
+            if(result.Message === "Usuario cuenta con una sesión activa, acceso denegado."){
+              alert("Actualmente cuenta con una sesión activa, ¿desea cerrarla para continuar?");
+              this.cerrarSesion();
+            }
             this.setState({ error: true, loading: false,message:result.Message });
 
           }
