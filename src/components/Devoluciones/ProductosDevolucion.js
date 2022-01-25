@@ -11,6 +11,7 @@ import { APIURL } from 'utils/Enviroment';
 import { Loading } from 'components/Global/Loading';
 import { mostrarModal } from 'utils/common';
 import { useHistory } from 'react-router';
+import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
 
 export const ProductosDevolucion = (props) => {
     const history = useHistory();
@@ -33,7 +34,7 @@ export const ProductosDevolucion = (props) => {
     const [motivosDevolucionDetalle, setMotivosDevolucionDetalle] = useState([]);
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
-
+    let totalCant = 0;
     let productosSinCantidad = false;
 
     const existeVariante = (pCodigo, pColor, pTalla) => {
@@ -884,7 +885,7 @@ export const ProductosDevolucion = (props) => {
                                         let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
                                         let productoConCantidad = false;
                                         let { totalCantidad } = obtenerTotales(producto);
-
+                                        totalCant +=totalCantidad;
                                         Object.keys(producto.Colores).forEach((codigoColor) => {
                                             let color = producto.Colores[codigoColor];
                                             Object.keys(color.Tallas).forEach((codigoTalla) => {
@@ -915,11 +916,27 @@ export const ProductosDevolucion = (props) => {
                                     })
                                 })}
                             </form>
-                            <button onClick={finalizarDevolucion} className="btn btn-secondary" style={{ float: 'right', margin: '2em' }}>Finalizar devolución</button>
+                            <div className={`row text-center ${styles['barra']}`} >
+                                <div className={`col ${styles['barraInner']}`}>
+                                   Total de Unidades: {numberWithCommasNoDec(totalCant)}
+                                </div>
+                                <div >
+                                    <button onClick={finalizarDevolucion} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Finalizar devolución</button>
+                                </div>
+                            </div>
                         </>
                     }
                 </CardContent>
             </Card>
+
+
         </>
     );
+}
+
+
+const numberWithCommasNoDec = (x) => {
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
 }
