@@ -409,6 +409,7 @@ export const Home = (props) => {
                 }
             });
             localStorage.setItem("CorrelativoReciboDiario", request.data)
+            dispatch({type:"SET_CORRELATIVORECIBODIARIO",payload:request.data});
         }
         catch (error) {
             let step = ValoresModulos.filter(v => v.Nombre === "SincronizarRecibo")

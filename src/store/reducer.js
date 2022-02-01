@@ -76,6 +76,8 @@ const initialState = {
         motivoDevolucion: "",
         motivoDevolucionDetalle: ""
     },
+    CorrelativoReciboDiario:null,
+    CorrelativoRecibo:null
 }
 
 const calcularLimite = (state) => {
@@ -845,6 +847,20 @@ const reducer = (state = initialState, action) => {
                 ...state.Devolucion,
                 motivoDevolucionDetalle: action.payload
             }
+        }
+    }
+
+    if (action.type === 'SET_CORRELATIVORECIBODIARIO') {
+        return {
+            ...state,
+            CorrelativoReciboDiario: action.payload
+        }
+    }
+
+    if (action.type === 'SET_CORRELATIVORECIBO') {
+        return {
+            ...state,
+            CorrelativoRecibo: action.payload
         }
     }
     
