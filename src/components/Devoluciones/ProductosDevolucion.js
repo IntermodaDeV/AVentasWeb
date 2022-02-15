@@ -32,6 +32,8 @@ export const ProductosDevolucion = (props) => {
     const [facturas, setFacturas] = useState([]);
     const [motivosDevolucionMaestro, setMotivosDevolucionMaestro] = useState([]);
     const [motivosDevolucionDetalle, setMotivosDevolucionDetalle] = useState([]);
+    const [almacenes, setAlmacenes] = useState([]);
+    const [almaceneSelected, setAlmaceneSelected] = useState("");
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
     let totalCant = 0;
@@ -134,6 +136,14 @@ export const ProductosDevolucion = (props) => {
         }
     }
 
+    const obtenerAlmacenes = async () => {
+        try {
+            const data = await axios.get(`${APIURL}/api/devolucion/almacenes/${clienteSelected.EmpresaId}`);
+            setAlmacenes(data.data);
+        } catch (err) {
+        }
+    }
+
     const obtenerCorrelativoDevolucion = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/devolucion/correlativo/${localStorage.getItem('empresa')}`, {
@@ -176,6 +186,10 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_MOTIVODEVOLUCIONDETALLE", payload: value });
     }
 
+    const handleChangeAlmacen = (value) => {
+        setAlmaceneSelected(value)
+    }
+
     const dataFacturas = () => {
         return facturas.map(x => ({ key: x.factura, value: x, text: `${x.factura} - ${x.pedido}` }));
     }
@@ -188,10 +202,15 @@ export const ProductosDevolucion = (props) => {
         return motivosDevolucionDetalle.map(x => ({ key: x.codigo, value: x.id, text: x.descripcion }));
     }
 
+    const dataAlmacen = () => {
+        return almacenes.map(x => ({ key: x.Almacen, value: x.Almacen, text: x.Almacen + " - "  + x.Nombre}));
+    }
+
     useEffect(() => {
         obtenerFacturasCliente();
         obtenerMotivosDevolucion();
         obtenerCorrelativoDevolucion();
+        obtenerAlmacenes();
         // eslint-disable-next-line
     }, []);
 
@@ -550,6 +569,7 @@ export const ProductosDevolucion = (props) => {
                 Moneda: clienteSelected.Moneda,
                 MotivoDevolucion: motivoDevolucion,
                 MotivoDevolucionDetalle: motivoDevolucionDetalle,
+                Almacen :almaceneSelected,
                 FacturaOriginal: productoFactura.Factura,
                 PedidoOriginal: productoFactura.NumeroPedido,
                 Linea: productoFactura.Linea,
@@ -565,6 +585,7 @@ export const ProductosDevolucion = (props) => {
             Moneda: clienteSelected.Moneda,
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
+            Almacen :almaceneSelected,
             FacturaOriginal: factura.factura,
             PedidoOriginal: factura.pedido,
             Linea: factura.linea,
@@ -615,6 +636,7 @@ export const ProductosDevolucion = (props) => {
             Moneda: clienteSelected.Moneda,
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
+            Almacen:almaceneSelected,
             FacturaOriginal: "",
             PedidoOriginal: "",
             Linea: "DEN",
@@ -710,6 +732,13 @@ export const ProductosDevolucion = (props) => {
             } else {
                 devoluciones[i].Correlativo = generarCorrelativoParcial(devoluciones[i - 1].Correlativo);
             }
+            
+            if (devoluciones[i].Empresa === "IMGT" || devoluciones[i].Empresa === "IMCR") {
+                if(devoluciones[i].FacturaOriginal === "" || devoluciones[i].FacturaOriginal === "SIN-FACTURA"){
+                    mostrarModal("Sin Factura", "No puede registrar devolucion sin seleccionar factura origen.", "error");
+                    return;
+                }  
+            }
         }
 
         if (devolucionSinProducto) {
@@ -726,7 +755,10 @@ export const ProductosDevolucion = (props) => {
             mostrarModal('Motivo Devolución', 'Seleccione motivo de devolución.', "error");
             return;
         }
-
+        if (almaceneSelected === "") {
+            mostrarModal('Almacen', 'Seleccione un almacen', "error");
+            return;
+        }
         if (devolucionCompleta) {
             if (Object.keys(factura).length === 0) {
                 mostrarModal("Factura", "Seleccione una factura a devolver.", "error");
@@ -822,7 +854,7 @@ export const ProductosDevolucion = (props) => {
                                 options={dataMotivos()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
-                                style={{ zIndex: 999, width: '40%' }}
+                                style={{ zIndex: 999, width: '28%' }}
                                 multiple={false}
                                 onChange={(e, { value }) => { handleChangeMotivo(value) }}
                             />
@@ -833,10 +865,22 @@ export const ProductosDevolucion = (props) => {
                                 options={dataMotivosDetalle()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
-                                style={{ zIndex: 999, width: '40%' }}
+                                style={{ zIndex: 999, width: '28%' }}
                                 multiple={false}
                                 onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
                                 value={motivoDevolucionDetalle}
+                            />
+                            <Dropdown
+                                placeholder="Seleccione almacen"
+                                search
+                                selection
+                                options={dataAlmacen()}
+                                noResultsMessage={"No hay resultados"}
+                                closeOnChange={true}
+                                style={{ zIndex: 999, width: '28%' }}
+                                multiple={false}
+                                onChange={(e, {          value }) => { handleChangeAlmacen(value) }}
+                                value={almaceneSelected}
                             />
                             <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
                         </div>
