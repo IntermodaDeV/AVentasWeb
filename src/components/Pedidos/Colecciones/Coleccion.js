@@ -44,6 +44,22 @@ const Coleccion = (props) => {
       .then(res => res.json())
       .then(data => {
         props.Click();
+        data.forEach(x => {
+          x.ProductosXEdad.forEach(producto => {
+            producto.ListaTalla.forEach(tallas => {
+              if (tallas.Distribucion.length > 0) {
+                producto.fisicaDisponible.forEach(disp => {
+                  if (disp.PreciosEspecificos.length === 0) {
+                    producto.Precio.forEach(precio => {
+                      precio.Precio = 0;
+                    })
+                  }
+                })
+              }
+            })
+          })
+        })
+
         dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: data });
         localStorage.setItem("ColeccionSeleccionada", props.coleccion.CodigoColeccion)
         localStorage.setItem("HoraIngreso", moment(new Date()).format('YYYY-MM-DDTHH:mm'))
