@@ -12,6 +12,7 @@ import {
   CardActions, 
 } from '@material-ui/core';
 import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
+import InventoryIcon from '@material-ui/icons/ArchiveSharp';
 import styles from "components/Pedidos/Colecciones/Coleccion.module.css";
 import {useSelector,useDispatch} from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
@@ -21,6 +22,8 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import 'moment/locale/es';
 import Button from '@material-ui/core/Button';
 import axios from 'axios';
+import FileSaver from 'file-saver';
+import XLSX from 'xlsx';
 moment.locale('es');
 
 const CardHeader = withStyles({
@@ -51,7 +54,7 @@ const Coleccion = (props) => {
                 producto.fisicaDisponible.forEach(disp => {
                   if (disp.PreciosEspecificos.length === 0) {
                     producto.Precio.forEach(precio => {
-                      precio.Precio = 0;
+                     // precio.Precio = 0;
                     })
                   }
                 })
@@ -139,6 +142,45 @@ const Coleccion = (props) => {
       }
     }
   }
+  const convertirData = (data) => {
+    return data.map((el) => {
+        const { $id, ...inventario } = el;
+
+        return {
+            ...inventario
+        }
+    })
+}
+  const mostrarAdvertencia = (title,text,type)=>{
+    Swal.fire({
+        title: title,
+        text: text,
+        type: type,
+        confirmButtonText: 'Ok',
+    })
+}
+  const obtenerInventario = async () => {
+    const request = await axios.get(`${APIURL}/api/colecciones/inventario/${props.coleccion.CodigoColeccion}`)
+
+    if (request.data.length === 0) {
+      mostrarAdvertencia("Sin Inventario", "No hay inventario disponible", "info")
+      return;
+    }
+    const InfoConFormato = convertirData(request.data);
+    console.log("request.data",InfoConFormato)
+    guardarExcel(InfoConFormato);
+
+  }
+  const guardarExcel = csvData => {
+        const fileName = `InventariosDisponibles-${props.coleccion.CodigoColeccion}`;
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const fileExtension = '.xlsx';
+        const ws = XLSX.utils.json_to_sheet(csvData);
+        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: fileType });
+        FileSaver.saveAs(data, fileName + fileExtension);
+    }
 
   return (
     <div className="col-lg-4 col-md-6 col-12 mb-3 mt-1">
@@ -222,6 +264,12 @@ const Coleccion = (props) => {
             Permisos.UsuarioOficina && Permisos.AdministradorProductos &&
             <Button variant="outlined" size="medium" color="primary" onClick = {() => {cargarImagen()}} style={{ textAlign: 'center', marginBottom: '10px' }} startIcon={<PhotoLibraryIcon />}>
               Cargar Imagen
+            </Button>
+          }
+          {
+            Permisos.UsuarioOficina && Permisos.AdministradorProductos &&
+            <Button variant="outlined" size="medium" color="primary" onClick = {() => {obtenerInventario()}} style={{ textAlign: 'center', marginBottom: '10px' }} startIcon={<InventoryIcon />}>
+              Inventario
             </Button>
           }
         </CardActions>

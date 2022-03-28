@@ -9,6 +9,7 @@ import { PedidoMarker } from './PedidoMarker';
 import { ReciboMarker } from './ReciboMarker';
 import inicio from 'assets/georecorrido/Inicia_dia.png';
 import final from 'assets/georecorrido/Finaliza_dia.png';
+import { ClientesMarker } from './ClientesMarker';
 
 const MapaReconstruccion = props => {
     const { coordenadas, recibos, pedidos } = props.recorrido;
@@ -104,6 +105,9 @@ const MapaReconstruccion = props => {
 
             {(pedidos && pedidos.length > 0)
                 && pedidos.map((x) => <PedidoMarker key={x.pedidoId} datos={x} />)}
+
+            {(props.clientesAgendado && props.clientesAgendado.length > 0)
+                && props.clientesAgendado.map((x) => <ClientesMarker key={x.cliente} datos={x} />)}
 
             <Polyline
                 onLoad={onLoadPolyline}

@@ -101,6 +101,7 @@ const navItems = [
             { to: '/recorrido-monitoreo', name: 'Recorrido', dataTut: 'DataTut_SincLista', Icon: DriveEta, backgroundColor:''  }
         ]
     },
+    { to: '/coordenadas-global', name: 'Coordenadas Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
     { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
     { to: '/cartera', name: 'Cartera Clientes', dataTut: 'DataTut_Agenda', Icon: AccountBox },
@@ -147,13 +148,6 @@ const navItems = [
         ]
     },
     {
-        to: '/seguridad', name: 'Seguridad', dataTut: 'DataTut_Seguridad', Icon: Security,
-        expanded: [
-            { to: '/seguridad-permisos', name: 'Asignar Permisos', dataTut: 'DataTut_AsignarPermisos', Icon: AddBoxOutlined, backgroundColor:''  },
-            { to: '/seguridad-mantenimiento', name: 'Mantenimiento', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt, backgroundColor:''  },
-        ]
-    },
-    {
         to: '/devolucion', name: 'Devolucion', dataTut: 'DataTut_Devolucion', Icon: SwapHorizOutlined,
         expanded: [
             { to: '/devolucion', name: 'Devoluciones', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
@@ -163,10 +157,17 @@ const navItems = [
             { to: '/MotivosDevolucion', name: 'Motivos Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
         ]
     },
+    {
+        to: '/seguridad', name: 'Seguridad', dataTut: 'DataTut_Seguridad', Icon: Security,
+        expanded: [
+            { to: '/seguridad-permisos', name: 'Asignar Permisos', dataTut: 'DataTut_AsignarPermisos', Icon: AddBoxOutlined, backgroundColor:''  },
+            { to: '/seguridad-mantenimiento', name: 'Mantenimiento', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt, backgroundColor:''  },
+        ]
+    },
     { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
     { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
     { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
-    { to: '/coordenadas-global', name: 'Coordenadas Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
+   
     {
         to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build,
         expanded: [
