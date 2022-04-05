@@ -8,13 +8,15 @@ import axios from 'axios';
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import PrintOutlined from '@material-ui/icons/PrintOutlined';
-import GridOnIcon from '@material-ui/icons/GridOn';
+//import GridOnIcon from '@material-ui/icons/GridOn';
+import { FaFileExcel } from "react-icons/fa";
 import FileSaver from 'file-saver';
 import XLSX from 'xlsx';
 import { Dropdown } from "semantic-ui-react";
 import { useSelector } from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
 import { ImprimirPedidoDevolucion } from 'components/Devoluciones/ImprimirPedidoDevolucion';
+import moment from 'moment';
 
 export const ListadoDevolucion = (props) => {
     const [devoluciones, setDevoluciones] = useState([]);
@@ -122,6 +124,13 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
+            label: "Fecha Creacion",
+            name: "FechaCreacion",
+            options: {
+                filter: true,
+            }
+        },
+        {
             label: "Estado",
             name: "estado",
             options: {
@@ -195,6 +204,7 @@ export const ListadoDevolucion = (props) => {
                 p.NombreCliente,
                 p.motivoDevolucion,
                 p.TotalUnidades,
+                moment(p.FechaCreacion).format("DD/MM/YYYY"),
                 p.Estado,
                 <div>
                     <span className="ml-1">
@@ -203,8 +213,8 @@ export const ListadoDevolucion = (props) => {
                         </Button>
                     </span >
                     <span className="ml-1">
-                        <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerReporteDevolucion(p.NumDevolucion) }} color={"primary"}>
-                            <GridOnIcon />
+                        <Button className='my-1' variant="outlined" size="large" onClick={() => { obtenerReporteDevolucion(p.NumDevolucion) }} color={"primary"}>
+                            <FaFileExcel />
                         </Button>
                     </span >
                 </div>
