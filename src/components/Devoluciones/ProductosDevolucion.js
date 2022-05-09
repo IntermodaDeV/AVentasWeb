@@ -391,7 +391,6 @@ export const ProductosDevolucion = (props) => {
 
                     for (const talla of producto.ListaTalla) {
                         let precioEspecifico = precioGeneral;
-                        let cantidadTalla = miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad;
 
                         if (producto.fisicaDisponible.length > 0) {
                             let variante = producto.fisicaDisponible.find(x => x.CodigoColor === color.CodigoColor && x.IdTalla === talla.Talla);
@@ -400,13 +399,10 @@ export const ProductosDevolucion = (props) => {
                             }
                         }
 
-                        if (cantidadTalla === 0) {
-                            cantidadTalla = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
-                        }
 
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = cantidadTalla;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla.toUpperCase() ? 1 : 0;;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].PrecioGeneral = precioEspecifico;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
