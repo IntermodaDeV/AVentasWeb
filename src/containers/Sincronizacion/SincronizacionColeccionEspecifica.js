@@ -37,7 +37,7 @@ export const SincronizacionColeccionEspecifica = props => {
     const limpiar = ()=>{
         setChecked(false);
         setForzar(false);
-        setEmpresa("IMHN");
+        setEmpresa(EMPRESAS_ASIGNADAS[0].EmpresaId);
     }
 
     const enviarSincronizacionEspecifica = async () => {
