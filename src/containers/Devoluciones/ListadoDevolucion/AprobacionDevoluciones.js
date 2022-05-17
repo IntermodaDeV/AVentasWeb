@@ -1,20 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import MUIDataTable from "mui-datatables";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import Dialog from "@material-ui/core/Dialog";
 import TableFooter from "@material-ui/core/TableFooter";
 import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
+import PrintOutlined from '@material-ui/icons/PrintOutlined';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { Button } from "@material-ui/core";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { ImprimirPedidoDevolucion } from 'components/Devoluciones/ImprimirPedidoDevolucion';
+
 export const AprobacionDevolucion = (props) => {
     const [devoluciones, setDevoluciones] = useState([]);
+    const [showDialog, setShowDialog] = useState(false);
+    const [devolucion, setDevolucion] = useState(null);
+    const [detalleDevolucion, setDetalleDevolucion] = useState([]);
 
     useEffect(() => {
         getDevoluciones();
         // eslint-disable-next-line
     }, [])
+
+    const hidePrint = () => {
+        setShowDialog(false);
+    }
+
+    const obtenerDetalleDevolucion = async (devolucionSeleccionada) => {
+        try {
+            const request = await axios.get(`${APIURL}/api//devolucion/detalle/${devolucionSeleccionada.NumDevolucion}`);
+            setDevolucion(devolucionSeleccionada);
+            setDetalleDevolucion(request.data);
+            setShowDialog(true);
+        } catch (err) {
+
+        }
+    }
 
     const ObtenerlistadoDevoluciones = async () => {
         try {
@@ -32,7 +54,7 @@ export const AprobacionDevolucion = (props) => {
 
     const AprobarDevolucion = async (id) => {
         try {
-            const request = await axios.post(`${APIURL}/api/devolucion/aprobarDevoluciones/${id}`, {} ,{
+            const request = await axios.post(`${APIURL}/api/devolucion/aprobarDevoluciones/${id}`, {}, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -123,6 +145,13 @@ export const AprobacionDevolucion = (props) => {
             }
         },
         {
+            label: "Cantidad",
+            name: "TotalUnidades",
+            options: {
+                filter: true,
+            }
+        },
+        {
             label: "Estado",
             name: "Estado",
             options: {
@@ -139,24 +168,28 @@ export const AprobacionDevolucion = (props) => {
     ]
 
     const Data = () => {
-       return devoluciones.map(p => (
-           [
-                p.NumeroDevolucion,
+        return devoluciones.map(p => (
+            [
+                p.NumDevolucion,
                 p.CodigoCliente,
                 p.NombreCliente,
                 p.MotivoDevolucion,
                 p.Linea,
                 p.FacturaOrigen,
                 p.PedidoOrigen,
+                p.TotalUnidades,
                 p.Estado,
                 <div>
                     <span className="mr-1">
                         <Button className='my-1' variant="outlined" onClick={() => AprobarDevolucion(p.IdDevAprobacion)} size="small" color={"primary"}>Aprobar</Button>
                     </span>
+                    <span className="mr-1">
+                        <Button className='my-1' variant="outlined" onClick={() => obtenerDetalleDevolucion(p)} size="small" color={"primary"}><PrintOutlined /></Button>
+                    </span>
                 </div>
             ]
-       ));
-        
+        ));
+
     }
 
     const DatatableOptions = {
@@ -226,6 +259,23 @@ export const AprobacionDevolucion = (props) => {
                         options={DatatableOptions}
                     />
                 </MuiThemeProvider>
+
+                <Dialog
+                    open={showDialog}
+                    onClose={() => hidePrint()}
+                    scroll={'paper'}
+                    aria-labelledby="scroll-dialog-title"
+                >
+
+                    {
+                        devolucion && detalleDevolucion &&
+                        <ImprimirPedidoDevolucion
+                            hidePrint={hidePrint}
+                            Pedido={devolucion}
+                            gruposXDetPed={detalleDevolucion}
+                        />
+                    }
+                </Dialog >
             </div>
         </div>
     );

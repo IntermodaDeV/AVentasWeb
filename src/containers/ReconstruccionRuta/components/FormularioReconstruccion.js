@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 
 const FormularioReconstruccion = props => {
-    const { asesoresFiltrados, filtroAsesoresPorPais, cargarRecorrido } = props;
+    const { asesoresFiltrados, filtroAsesoresPorPais, cargarRecorrido, cargarAsignaciones } = props;
     const fechaFinalInicial = moment(new Date()).format("YYYY-MM-DD");
     const [selectedDate, setSelectedDate] = useState(moment().format("YYYY-MM-DD"));
     const [asesor, setAsesor] = useState('');
@@ -45,6 +45,7 @@ const FormularioReconstruccion = props => {
         }
 
         cargarRecorrido(asesor, fechaInicio, fechaFinal);
+        cargarAsignaciones(asesor, fechaInicio, fechaFinal);
     }
 
     return (

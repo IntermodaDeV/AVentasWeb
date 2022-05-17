@@ -8,11 +8,13 @@ import MapaReconstruccion from './components/MapaReconstruccion';
 import FormularioReconstruccion from './components/FormularioReconstruccion';
 import inicio from 'assets/georecorrido/Inicia_dia.png';
 import final from 'assets/georecorrido/Finaliza_dia.png';
+import SinCoordenadas from 'assets/SinCoordenadas.png';
 
 export const ReconstruccionRuta = props => {
     const [asesores, setAsesores] = useState([]);
     const [asesoresFiltrados, setAsesoresFiltrados] = useState([]);
     const [recorrido, setRecorrido] = useState({});
+    const [clientesAgendado, setClientesAgendados] = useState([]);
     const [mostrarDescripcion, setMostrarDescripcion] = useState(false);
 
     const cargarAsesores = async () => {
@@ -43,6 +45,20 @@ export const ReconstruccionRuta = props => {
         }
     }
 
+    const cargarAsignaciones = async (asesor, fechaInicio, fechaFin) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Asignaciones`, {
+                params: { FechaInicio: fechaInicio, FechaFin: fechaFin, Asesor: asesor }, headers: {
+                    'Authorization':
+                        'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+           setClientesAgendados(request.data[0].asignaciones)
+        } catch (err) {
+
+        }
+    }
+
     const filtroAsesoresPorPais = (pais) => {
         let filtrados = asesores.filter(x => x.empresa.toUpperCase() === pais.toUpperCase());
         setAsesoresFiltrados(filtrados);
@@ -67,21 +83,26 @@ export const ReconstruccionRuta = props => {
 
     return (
         <div>
-            <FormularioReconstruccion handleMostrarDescripcion={handleMostrarDescripcion} asesoresFiltrados={asesoresFiltrados} filtroAsesoresPorPais={filtroAsesoresPorPais} cargarRecorrido={cargarRecorrido} />
+            <FormularioReconstruccion handleMostrarDescripcion={handleMostrarDescripcion} asesoresFiltrados={asesoresFiltrados} filtroAsesoresPorPais={filtroAsesoresPorPais} cargarRecorrido={cargarRecorrido} cargarAsignaciones={cargarAsignaciones} />
             {mostrarDescripcion && <Simbologia />}
             {validarCoordenadas() ?
                 <MapaReconstruccion
                     recorrido={recorrido}
+                    clientesAgendado={clientesAgendado}
                 />
                 :
-                <h1 style={{ textAlign: 'center' }}>No hay coordenadas disponibles.</h1>
+                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <img alt="SinCoordenadas" style={{ width: '35%' }} src={SinCoordenadas} />
+                   
+                    
+                </div>
             }
         </div>
     )
 }
 
 const Simbologia = () => {
-    return <div style={{ position: 'absolute', zIndex: 999, width: 300, height: 300 }} className="card">
+    return <div style={{ position: 'absolute', zIndex: 999, width: 300, height: 350 }} className="card">
         <h3 style={{ textAlign: 'center', marginBottom: 10 }}>Simbologia</h3>
         <div style={{ display: 'flex', justifyContent: 'space-around' }}>
             <img style={{ width: 20, height: 30 }} src="https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" alt="recibomarker" />
@@ -90,6 +111,10 @@ const Simbologia = () => {
         <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
             <img style={{ width: 20, height: 30 }} src="https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_green.png" alt="recibomarker" />
             <h5>Pedido</h5>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
+            <img style={{ width: 20, height: 30 }} src="https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png" alt="clientemarker" />
+            <h5>Cliente</h5>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
             <img src={inicio} alt="recibomarker" />

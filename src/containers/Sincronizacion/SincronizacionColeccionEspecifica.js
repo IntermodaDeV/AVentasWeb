@@ -20,10 +20,11 @@ export const SincronizacionColeccionEspecifica = props => {
     const [listaEspecifica, setListaEspecifica] = useState([]);
     const [checked, setChecked] = useState(false);
     const [forzar, setForzar] = useState(false);
+    const [bodegaEspecifico, setBodegaEspecifico] = useState(false);
     const [fechaSelected, setFechaSelected] = useState(new Date());
     const EMPRESAS_ASIGNADAS = useSelector(e => e.Permisos[0].EmpresasUsuarios);
     const GESTOR_ESPECIFICO = parseInt(useSelector(e => e.Configuraciones.SyncColeccion));
-
+    const GESTOR_BODEGAESPECIFICO = parseInt(useSelector(e => e.Configuraciones.SyncBodegaEspecifica));
     const mostrarAdvertencia = (title, text, type) => {
         Swal.fire({
             title: title,
@@ -36,12 +37,12 @@ export const SincronizacionColeccionEspecifica = props => {
     const limpiar = ()=>{
         setChecked(false);
         setForzar(false);
-        setEmpresa("IMHN");
+        setEmpresa(EMPRESAS_ASIGNADAS[0].EmpresaId);
     }
 
     const enviarSincronizacionEspecifica = async () => {
         try {
-            const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: empresa, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
+            const data = { IdGestor: bodegaEspecifico ? GESTOR_BODEGAESPECIFICO : GESTOR_ESPECIFICO, EmpresaId: empresa, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
             await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
             limpiar();
             cargarListaEspecifica();
@@ -86,7 +87,7 @@ export const SincronizacionColeccionEspecifica = props => {
     const enviarSincronizacionEspecificaEmpresas = async () => {
         for (let pais of EMPRESAS_ASIGNADAS) {
             try {
-                const data = { IdGestor: GESTOR_ESPECIFICO, EmpresaId: pais.EmpresaId, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
+                const data = { IdGestor: bodegaEspecifico ? GESTOR_BODEGAESPECIFICO : GESTOR_ESPECIFICO, EmpresaId: pais.EmpresaId, ColeccionId: coleccion, Usuario: localStorage.getItem('codigo'), Forzar: forzar ? "1" : "0" };
                 await axios.post(`${APIURL}/api/SincronizacionEspecifico/Coleccion/upload`, data);
                 limpiar();
                 cargarListaEspecifica();
@@ -109,7 +110,8 @@ export const SincronizacionColeccionEspecifica = props => {
     }
     const verificarColeccion = async () => {
         try {
-            const data = await axios.get(`${APIURL}/api/SincronizacionEspecifico/verificar/${empresa}/${coleccion}`);
+            let ruta = bodegaEspecifico ? "verificarBodegaLocal" : "verificar";
+            const data = await axios.get(`${APIURL}/api/SincronizacionEspecifico/${ruta}/${empresa}/${coleccion}`);
             let EsValida = data.data.CodigoPaquete !== null ? true : false;
             if (!EsValida) {
                 return mostrarAdvertencia("Paquete Incorrecto", "El código del paquete no existe, favor verifique", "warning");
@@ -235,6 +237,10 @@ export const SincronizacionColeccionEspecifica = props => {
                          <div class="mt-3 form-check">
                             <input type="checkbox" class="form-check-input" id="exampleCheck2" checked={forzar} onClick={() => { SincronizacionForzosa() }} />
                             <label class="form-check-label" for="exampleCheck2">Sincronización forzosa</label>
+                        </div>
+                        <div class="mt-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck3" checked={bodegaEspecifico} onClick={() => { setBodegaEspecifico(!bodegaEspecifico) }} />
+                            <label class="form-check-label" for="exampleCheck3">Bodega Local</label>
                         </div>
                         <input className="form-control form-control-lg" style={{ width: "15%" }} placeholder="Codigo colección" type="text" onChange={(e => { setColeccion(e.target.value.toUpperCase()) })} />
                         <button type="button" className="btn btn-primary" onClick={enviarSincronizacion}>Enviar</button>

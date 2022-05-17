@@ -11,6 +11,7 @@ import { APIURL } from 'utils/Enviroment';
 import { Loading } from 'components/Global/Loading';
 import { mostrarModal } from 'utils/common';
 import { useHistory } from 'react-router';
+import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
 
 export const ProductosDevolucion = (props) => {
     const history = useHistory();
@@ -31,9 +32,11 @@ export const ProductosDevolucion = (props) => {
     const [facturas, setFacturas] = useState([]);
     const [motivosDevolucionMaestro, setMotivosDevolucionMaestro] = useState([]);
     const [motivosDevolucionDetalle, setMotivosDevolucionDetalle] = useState([]);
+    const [almacenes, setAlmacenes] = useState([]);
+    const [almaceneSelected, setAlmaceneSelected] = useState("");
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
-
+    let totalCant = 0;
     let productosSinCantidad = false;
 
     const existeVariante = (pCodigo, pColor, pTalla) => {
@@ -133,6 +136,14 @@ export const ProductosDevolucion = (props) => {
         }
     }
 
+    const obtenerAlmacenes = async () => {
+        try {
+            const data = await axios.get(`${APIURL}/api/devolucion/almacenes/${clienteSelected.EmpresaId}`);
+            setAlmacenes(data.data);
+        } catch (err) {
+        }
+    }
+
     const obtenerCorrelativoDevolucion = async () => {
         try {
             const request = await axios.get(`${APIURL}/api/devolucion/correlativo/${localStorage.getItem('empresa')}`, {
@@ -175,6 +186,10 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_MOTIVODEVOLUCIONDETALLE", payload: value });
     }
 
+    const handleChangeAlmacen = (value) => {
+        setAlmaceneSelected(value)
+    }
+
     const dataFacturas = () => {
         return facturas.map(x => ({ key: x.factura, value: x, text: `${x.factura} - ${x.pedido}` }));
     }
@@ -187,10 +202,15 @@ export const ProductosDevolucion = (props) => {
         return motivosDevolucionDetalle.map(x => ({ key: x.codigo, value: x.id, text: x.descripcion }));
     }
 
+    const dataAlmacen = () => {
+        return almacenes.map(x => ({ key: x.Almacen, value: x.Almacen, text: x.Almacen + " - "  + x.Nombre}));
+    }
+
     useEffect(() => {
         obtenerFacturasCliente();
         obtenerMotivosDevolucion();
         obtenerCorrelativoDevolucion();
+        obtenerAlmacenes();
         // eslint-disable-next-line
     }, []);
 
@@ -371,7 +391,6 @@ export const ProductosDevolucion = (props) => {
 
                     for (const talla of producto.ListaTalla) {
                         let precioEspecifico = precioGeneral;
-                        let cantidadTalla = miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad;
 
                         if (producto.fisicaDisponible.length > 0) {
                             let variante = producto.fisicaDisponible.find(x => x.CodigoColor === color.CodigoColor && x.IdTalla === talla.Talla);
@@ -380,13 +399,10 @@ export const ProductosDevolucion = (props) => {
                             }
                         }
 
-                        if (cantidadTalla === 0) {
-                            cantidadTalla = talla.Talla === pTalla.toUpperCase() ? 1 : 0;
-                        }
 
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = 0;
-                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = cantidadTalla;
+                        miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = talla.Talla === pTalla.toUpperCase() ? 1 : 0;;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = precioEspecifico;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].PrecioGeneral = precioEspecifico;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = talla.Talla === pTalla.toUpperCase();
@@ -549,6 +565,7 @@ export const ProductosDevolucion = (props) => {
                 Moneda: clienteSelected.Moneda,
                 MotivoDevolucion: motivoDevolucion,
                 MotivoDevolucionDetalle: motivoDevolucionDetalle,
+                Almacen :almaceneSelected,
                 FacturaOriginal: productoFactura.Factura,
                 PedidoOriginal: productoFactura.NumeroPedido,
                 Linea: productoFactura.Linea,
@@ -564,6 +581,7 @@ export const ProductosDevolucion = (props) => {
             Moneda: clienteSelected.Moneda,
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
+            Almacen :almaceneSelected,
             FacturaOriginal: factura.factura,
             PedidoOriginal: factura.pedido,
             Linea: factura.linea,
@@ -614,6 +632,7 @@ export const ProductosDevolucion = (props) => {
             Moneda: clienteSelected.Moneda,
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
+            Almacen:almaceneSelected,
             FacturaOriginal: "",
             PedidoOriginal: "",
             Linea: "DEN",
@@ -709,6 +728,13 @@ export const ProductosDevolucion = (props) => {
             } else {
                 devoluciones[i].Correlativo = generarCorrelativoParcial(devoluciones[i - 1].Correlativo);
             }
+            
+            if (devoluciones[i].Empresa === "IMGT" || devoluciones[i].Empresa === "IMCR") {
+                if(devoluciones[i].FacturaOriginal === "" || devoluciones[i].FacturaOriginal === "SIN-FACTURA"){
+                    mostrarModal("Sin Factura", "No puede registrar devolucion sin seleccionar factura origen.", "error");
+                    return;
+                }  
+            }
         }
 
         if (devolucionSinProducto) {
@@ -725,7 +751,10 @@ export const ProductosDevolucion = (props) => {
             mostrarModal('Motivo Devolución', 'Seleccione motivo de devolución.', "error");
             return;
         }
-
+        if (almaceneSelected === "") {
+            mostrarModal('Almacen', 'Seleccione un almacen', "error");
+            return;
+        }
         if (devolucionCompleta) {
             if (Object.keys(factura).length === 0) {
                 mostrarModal("Factura", "Seleccione una factura a devolver.", "error");
@@ -821,7 +850,7 @@ export const ProductosDevolucion = (props) => {
                                 options={dataMotivos()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
-                                style={{ zIndex: 999, width: '40%' }}
+                                style={{ zIndex: 999, width: '28%' }}
                                 multiple={false}
                                 onChange={(e, { value }) => { handleChangeMotivo(value) }}
                             />
@@ -832,10 +861,22 @@ export const ProductosDevolucion = (props) => {
                                 options={dataMotivosDetalle()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
-                                style={{ zIndex: 999, width: '40%' }}
+                                style={{ zIndex: 999, width: '28%' }}
                                 multiple={false}
                                 onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
                                 value={motivoDevolucionDetalle}
+                            />
+                            <Dropdown
+                                placeholder="Seleccione almacen"
+                                search
+                                selection
+                                options={dataAlmacen()}
+                                noResultsMessage={"No hay resultados"}
+                                closeOnChange={true}
+                                style={{ zIndex: 999, width: '28%' }}
+                                multiple={false}
+                                onChange={(e, {          value }) => { handleChangeAlmacen(value) }}
+                                value={almaceneSelected}
                             />
                             <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
                         </div>
@@ -884,7 +925,7 @@ export const ProductosDevolucion = (props) => {
                                         let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
                                         let productoConCantidad = false;
                                         let { totalCantidad } = obtenerTotales(producto);
-
+                                        totalCant +=totalCantidad;
                                         Object.keys(producto.Colores).forEach((codigoColor) => {
                                             let color = producto.Colores[codigoColor];
                                             Object.keys(color.Tallas).forEach((codigoTalla) => {
@@ -915,11 +956,27 @@ export const ProductosDevolucion = (props) => {
                                     })
                                 })}
                             </form>
-                            <button onClick={finalizarDevolucion} className="btn btn-secondary" style={{ float: 'right', margin: '2em' }}>Finalizar devolución</button>
+                            <div className={`row text-center ${styles['barra']}`} >
+                                <div className={`col ${styles['barraInner']}`}>
+                                   Total de Unidades: {numberWithCommasNoDec(totalCant)}
+                                </div>
+                                <div >
+                                    <button onClick={finalizarDevolucion} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Finalizar devolución</button>
+                                </div>
+                            </div>
                         </>
                     }
                 </CardContent>
             </Card>
+
+
         </>
     );
+}
+
+
+const numberWithCommasNoDec = (x) => {
+    var parts = x.toString().split(".");
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.join(".");
 }

@@ -216,7 +216,8 @@ class Agenda extends Component {
                 Fecha: new Date(),
                 Asesor: localStorage.getItem('codigo'),
                 Inicio: fechas.Inicio,
-                Fin: fechas.Fin
+                Fin: fechas.Fin,
+                origen:"web"
             }
 
             fetch(`${this.urlApi}/api/Asignaciones/${check}`, {
