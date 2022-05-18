@@ -154,7 +154,7 @@ const Recibos = (props) => {
                 Saldo: <span className={colorFuente}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Saldo
                 FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900'? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
                 DiasV: <span className={colorFuente}>{isNaN(diasDescuento) ? "":diasDescuento}</span>, // DiasV
-                Descuento: <span className={colorFuente}>{cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
+                Descuento: <span className={colorFuente}>{cuot.Descuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
               });
@@ -193,7 +193,7 @@ const Recibos = (props) => {
                 Saldo: <span className={colorFuente}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Saldo
                 FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900'? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
                 DiasV: <span className={colorFuente}>{isNaN(diasDescuento) || moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") === '01/01/1900'? "":diasDescuento}</span>, // DiasV
-                Descuento: <span className={colorFuente}>{cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
+                Descuento: <span className={colorFuente}>{cuot.Descuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
               });
