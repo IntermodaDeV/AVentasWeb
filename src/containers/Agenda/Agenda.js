@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Fragment, Component } from 'react';
 import Calendar from 'components/Agenda/Calendar';
 import { ClipLoader } from 'react-spinners';
 import GoogleMapReact from 'google-map-react';
@@ -28,7 +28,7 @@ import {IsAllow} from 'components/Seguridad/Permisos';
 import { get,verificarConexion } from 'utils/http';
 import axios from 'axios';
 import { ObtenerCoordenadas } from 'utils/common';
-
+import { KeyboardDatePicker } from "@material-ui/pickers";
 moment.locale('es');
 class Agenda extends Component {
     urlApi = APIURL;
@@ -44,7 +44,8 @@ class Agenda extends Component {
         Acciones: [
             { Accion: "Pedidos", IdAccion: 1, Orden: 1, UrlRedirect: "/Pedidos", Estado: true },
             { Accion: "Recibos", IdAccion: 2, Orden: 2, UrlRedirect: "/Recibos", Estado: true },
-            { Accion: "Devoluciones", IdAccion: 3, Orden: 3, UrlRedirect: "/Devoluciones", Estado: true }
+            { Accion: "Devoluciones", IdAccion: 3, Orden: 3, UrlRedirect: "/devolucion", Estado: true },
+            { Accion: "Promesas de Pago", IdAccion: 4, Orden: 4, UrlRedirect: null, Estado: true },
         ],
         map: null,
         maps: null,
@@ -63,6 +64,10 @@ class Agenda extends Component {
         Asesores: [],
         AsesorSelected: null,
         OpenModalAsesor: false,
+        OpenModalPromesaPago : false,
+        date: new Date(),
+        valorPago:0
+
     }
 
     myRef = React.createRef();
@@ -255,6 +260,37 @@ class Agenda extends Component {
                             })
                         });
                 }
+            })
+        }
+    }
+
+
+    enviarPromesaPago = async () => {
+        try {
+            this.setState({ OpenModalPromesaPago: false, date: new Date(), valorPago: 0 })
+            let postBody = {
+                IdAsignacionXAsesor: this.state.IdAsignacion,
+                FechaPromesa: this.state.date,
+                Valor: this.state.valorPago,
+            }
+
+            await axios.post(`${APIURL}/api/promesaPago/crear`, postBody, {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            });
+            Swal.fire({
+                title: 'Registro Guardado',
+                type: 'success',
+                confirmButtonText: 'Ok',
+                target: this.myRef.current
+            })
+        } catch (err) {
+            console.log("err",err)
+            Swal.fire({
+                title: 'Error',
+                text: err.response.data.Message,
+                type: 'error',
+                confirmButtonText: 'Ok',
+                target: this.myRef.current
             })
         }
     }
@@ -653,6 +689,12 @@ class Agenda extends Component {
         })
     }
 
+    handleChangeValorPago = (event) => {
+        this.setState({
+            valorPago: event.target.value,
+        })
+    }
+
     guardarRazon = () => {
         this.setState({
             guardandoRazon: true,
@@ -913,7 +955,19 @@ class Agenda extends Component {
         })
     }
 
+    openModalPromesaPago = () => {
+        this.setState({ OpenModalPromesaPago: false, date: new Date(), valorPago: 0});
+    }
+
+    accesoPineo = () => {
+       var permisos =  this.props.Permisos[0].RolesUsuarios.filter(x => x.Nombre === "Registrar Pineo");
+       if(permisos.length > 0){
+           return true;
+       }
+       return false;
+    }
     render() {
+        this.accesoPineo();
         let tipoDisabled = false;
         let causaDisabled = false;
         //let observacionDisabled = false;
@@ -1091,7 +1145,7 @@ class Agenda extends Component {
                                                     </tbody>
                                                 </table>
                                                 <div>
-                                                {this.state.AsesorSelected === localStorage.getItem('codigo') && <FormGroup row className={"mb-1"}>                                                    
+                                                {this.accesoPineo() === true && <FormGroup row className={"mb-1"}>                                                    
                                                     <Button style={{marginRight:'10px'}}color="primary" variant="outlined" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))}  onClick={() => this.setState((prevState)=>({ ...prevState,noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Atendió</Button>
 
                                                     {!this.verifyBlock("checkin")
@@ -1108,7 +1162,7 @@ class Agenda extends Component {
                                             this.state.Acciones.map((accion, index) => {
                                                 if (accion.Estado) {
                                                     return (
-                                                        <Button key={index} variant="outlined" disabled={this.verifyBlock("bloqueo")} onClick={() => this.onClickModal(accion.UrlRedirect, this.state.clienteActivo.codigo)} color="primary">
+                                                        <Button key={index} variant="outlined" disabled={this.verifyBlock("bloqueo")} onClick={() => accion.UrlRedirect == null ? this.setState({ OpenModalPromesaPago: true}) : this.onClickModal(accion.UrlRedirect, this.state.clienteActivo.codigo)} color="primary">
                                                          {accion.Accion}
                                                         </Button>
                                                     )
@@ -1279,6 +1333,76 @@ class Agenda extends Component {
                                 style={{ height: '35px' }}
                                 onClick={() => this.onChangeAsesor()}>
                                 Aceptar
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                }
+
+                {
+                    <Dialog
+                        scroll={'paper'}
+                        open={this.state.OpenModalPromesaPago}
+                        className={styles.AtenderContainer}
+                        onClose={() => this.setState({ OpenModalPromesaPago: false, date: new Date(), valorPago: 0 })}
+                        aria-labelledby="No-Atendido-Modal">
+                        <DialogTitle
+                            className="text-center"
+                            id="scroll-dialog-title">
+                            <div
+                                style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                                Promesa de Pago
+                            </div>
+                        </DialogTitle>
+                        <DialogContent >
+                            {
+                                this.state.isModalLoaded &&
+                                <>
+                                    <div className="row">
+                                        <div className="col-12 py-1">
+                                            <h6>Fecha:</h6>
+                                            <Fragment>
+                                                <KeyboardDatePicker
+                                                    value={this.state.date}
+                                                    className="w-100"
+                                                    onChange={d => this.setState({ date: d })}
+                                                    format="DD/MM/YYYY"
+                                                    minDate={new Date()}
+                                                />
+                                            </Fragment>
+                                        </div>
+                                        <div className="col-12 py-1">
+                                            <TextField
+                                                type="number"
+                                                label="Valor Pago"
+                                                className="w-100"
+                                                value={this.state.valorPago}
+                                                onChange={this.handleChangeValorPago}
+                                                margin="normal"
+                                            />
+                                        </div>
+                                    </div>
+
+                                </>
+                            }
+                        </DialogContent>
+                        <DialogActions>
+                            <Button variant="outlined" onClick={() => this.setState({ OpenModalPromesaPago: false })} color="primary">
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                className={"py-1"}
+                                style={{ height: '35px' }}
+                                onClick={() => this.enviarPromesaPago()}>
+                                {
+                                    this.state.guardandoRazon ?
+                                        <ScaleLoader
+                                            css={{ height: '25px', bottom: '5px', position: 'relative', transform: 'scale(0.6)' }}
+                                            size={'20px'}
+                                            color={'#3f51b5'}
+                                            loading={this.state.GuardarAsignacion} /> : 'Guardar'
+                                }
                             </Button>
                         </DialogActions>
                     </Dialog>
