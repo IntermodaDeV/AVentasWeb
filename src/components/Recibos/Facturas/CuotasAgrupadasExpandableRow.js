@@ -107,7 +107,7 @@ const CuotasAgrupadasExpandableRow = (props) => {
                 Saldo: <span className="text-danger font-weight-bold">{Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>, 
                 Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,
             });
-            data.sort((a,b)=>(new Date(a.FechaDes) -new Date(b.FechaDes)));
+            data.sort((a,b)=>(a.Cuota - b.Cuota));
         }
         else if(Dias >= 0 && Dias <=15)
         {
@@ -126,7 +126,7 @@ const CuotasAgrupadasExpandableRow = (props) => {
                 Saldo: <span className={"text-warning font-weight-bold "}>{Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>, 
                 Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,
             });
-            data.sort((a,b)=>(new Date(a.FechaDes) -new Date(b.FechaDes)));
+            data.sort((a,b)=>(a.Cuota - b.Cuota));
         }
         else
         {
@@ -145,7 +145,7 @@ const CuotasAgrupadasExpandableRow = (props) => {
                 Saldo: Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
                 Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,
             });
-            data.sort((a,b)=>(new Date(a.FechaDes) -new Date(b.FechaDes)));
+            data.sort((a,b)=>(a.Cuota - b.Cuota));
         } 
     });
 

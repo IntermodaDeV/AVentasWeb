@@ -54,7 +54,8 @@ import {
     Assignment,
     Build,
     AllInboxOutlined,
-    HomeWork
+    HomeWork,
+    MonetizationOn
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
@@ -105,6 +106,7 @@ const navItems = [
     { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
     { to: '/cartera', name: 'Cartera Clientes', dataTut: 'DataTut_Agenda', Icon: AccountBox },
+    { to: '/acuerdosVenta', name: 'Acuerdos de Venta', dataTut: 'DataTut_Agenda', Icon: MonetizationOn },
     //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
     {
         to: '/encuesta', name: 'Encuesta', dataTut: 'DataTut_EncuetasGeneral', Icon: LibraryBooks,

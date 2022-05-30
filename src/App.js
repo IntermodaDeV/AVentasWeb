@@ -55,6 +55,7 @@ import { MotivosDevolucion } from 'components/Devoluciones/MotivosDevolucion/Mot
 import { ListadoDevolucion } from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucion';
 import { AprobacionDevolucion } from 'containers/Devoluciones/ListadoDevolucion/AprobacionDevoluciones';
 import { ListadoDevolucionPendiente } from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucionPendiente'
+import { AcuerdosVenta } from 'containers/AcuerdosVenta/AcuerdoVenta'
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -373,6 +374,11 @@ const App = props => {
               path='/aprobarDevoluciones'
               layout={MainLayout}
               component={AprobacionDevolucion}
+            />
+              <LayoutRoute
+              path='/acuerdosVenta'
+              layout={MainLayout}
+              component={AcuerdosVenta}
             />
 
             <Redirect to='/home' />
