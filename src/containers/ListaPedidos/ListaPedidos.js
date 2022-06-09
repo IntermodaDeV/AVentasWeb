@@ -202,7 +202,6 @@ const ListaPedidos = (props) => {
     const DataPedidos = () => {
         let DataPedidos = [];
         state.pedidos.filter(p => p.Asesor === AsesorSelected).map(pedido => {
-
             //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
             let data = [
                 [pedido.PedidoId, pedido.Sincronizado],
@@ -215,6 +214,7 @@ const ListaPedidos = (props) => {
                 [pedido.NombreColeccion, pedido.Sincronizado],
                 (pedido.BodegaEspecifica===null?"No":pedido.BodegaEspecifica?"Si":"No"),
                 [pedido.TotalUnidades, pedido.Sincronizado],
+                [pedido.TotalXPedido, pedido.TotalXPedido],
                 [moment(pedido.FechaEntrega).format('DD/MM/YYYY'), pedido.Sincronizado],
                 <div>
 
@@ -476,6 +476,17 @@ const HeadersListaPedidos = [
     },
     {
         name: "Total unidades",
+        options: {
+            filter: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
+        }
+    },
+    {
+        name: "Total Pedido",
         options: {
             filter: true,
             customBodyRender: (value, tableMeta, updateValue) => {
