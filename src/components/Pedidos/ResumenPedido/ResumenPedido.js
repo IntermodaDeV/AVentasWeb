@@ -76,6 +76,9 @@ const ResumenPedido = (props) => {
     }else if (localStorage.getItem('empresa')==='imcr'){
         pais = "CRI";
     }
+    else if (localStorage.getItem('empresa')==='imsl'){
+        pais = "SLV";
+    }
 
     const dispatch = useDispatch();
     const impuesto = Number(localStorage.getItem('Impuesto'));

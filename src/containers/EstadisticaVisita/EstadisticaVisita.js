@@ -30,6 +30,7 @@ import { useSelector } from 'react-redux';
 import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
+import salvador from 'utils/img/salvador.jpg';
 import { verificarConexion } from 'utils/http';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import axios from 'axios';
@@ -473,6 +474,13 @@ const EstadisticaVisita = (props) => {
                                             stylePaises = { width: '40px', height: '40px', marginLeft: '25px', outline: '5px solid green' };
                                         }
                                         return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={() => { PaisFiltrado(pais.EmpresaId) }} />
+                                    }
+                                    else if (pais.EmpresaId === "IMSL") {
+                                        let stylePaises = { width: '40px', height: '40px', marginLeft: '25px' }
+                                        if (EmpresaSelected === "IMSL") {
+                                            stylePaises = { width: '40px', height: '40px', marginLeft: '25px', outline: '5px solid green' };
+                                        }
+                                        return <img alt="salvador" src={salvador} style={stylePaises} onClick={() => { PaisFiltrado(pais.EmpresaId) }} />
                                     }
                                 })}
                         </div>

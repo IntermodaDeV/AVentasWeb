@@ -60,6 +60,7 @@ import FiltroChips from 'components/Pedidos/ProductoLista/FiltroChips';
 import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
+import salvador from 'utils/img/salvador.jpg';
 import { verificarConexion } from 'utils/http';
 import { ObtenerCoordenadas } from 'utils/common';
 
@@ -2635,6 +2636,12 @@ class Pedidos extends React.Component {
                                                 stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
                                             }
                                             return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
+                                        }else if(pais.EmpresaId==="IMSL"){
+                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'}
+                                            if(this.state.paisSeleccionado==="IMSL"){
+                                                stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
+                                            }
+                                            return <img alt="salvador" src={salvador} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
                                         }
                                     })}
                                 </div>

@@ -44,9 +44,10 @@ const BarChart = props => {
             const imhn = visitas.filter(x=>x.EMPRESA==="IMHN").map((visita)=>visita.VISITAS);
             const imcr = visitas.filter(x=>x.EMPRESA==="IMCR").map((visita)=>visita.VISITAS);
             const imgt = visitas.filter(x=>x.EMPRESA==="IMGT").map((visita)=>visita.VISITAS);
+            const imsl = visitas.filter(x=>x.EMPRESA==="IMSL").map((visita)=>visita.VISITAS);
 
             for(let i=0;i<imhn.length;i++){
-                let total = imhn[i]+imcr[i]+imgt[i];
+                let total = imhn[i]+imcr[i]+imgt[i]+imsl[i];
                 totales.push(total);
             }
 
