@@ -9,7 +9,8 @@ const paises =
         { id: 1, value: '*', pais: "Todos" },
         { id: 2, value: 'IMHN', pais: "Honduras" },
         { id: 3, value: 'IMGT', pais: "Guatemala" },
-        { id: 4, value: 'IMCR', pais: "Costa Rica" }
+        { id: 4, value: 'IMCR', pais: "Costa Rica" },
+        { id: 4, value: 'IMSL', pais: "El Salvador" }
     ]
 
 const CoordenadasGlobal = (props) => {

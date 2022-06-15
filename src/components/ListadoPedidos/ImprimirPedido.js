@@ -101,6 +101,7 @@ const ImprimirPedido = (props) => {
                                         Entrega Sugerida : {moment(props.Pedido.FechaEntrega).format('DD/MM/YYYY hh:mm a')}<br />
                                         Asesor: {props.Pedido.Usuario}<br />
                                         Modo Venta: {props.Pedido.ModoVenta}<br />
+                                        Coleccion: {props.Pedido.CodigoColeccion +"-"+ props.Pedido.NombreColeccion}<br />
                                     </p>
                                 </div>
                             </div >

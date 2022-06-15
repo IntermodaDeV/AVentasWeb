@@ -24,6 +24,7 @@ import {IsAllow} from 'components/Seguridad/Permisos';
 import honduras from 'utils/img/honduras.png';
 import costarica from 'utils/img/costarica.png';
 import guatemala from 'utils/img/guatemala.png';
+import salvador from 'utils/img/salvador.jpg';
 import { get } from 'utils/http';
 import axios from 'axios';
 import { verificarConexion } from 'utils/http';
@@ -634,6 +635,13 @@ const Recibos = (props) => {
                                 }
                                 return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={()=>{seleccionarPais(pais.EmpresaId)}}/>
                             }
+                            else if(pais.EmpresaId==="IMSL"){
+                              let stylePaises={width:'30px',height:'30px',marginLeft:'25px'}
+                              if(paisSeleccionado==="IMSL"){
+                                  stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
+                              }
+                              return <img alt="salvador" src={salvador} style={stylePaises} onClick={()=>{seleccionarPais(pais.EmpresaId)}}/>
+                          }
                         })}
                     </div>
                 </div>
