@@ -3,17 +3,37 @@ import axios from 'axios';
 import GoogleMapReact from 'google-map-react';
 import { APIURL, APIKEY } from 'utils/Enviroment';
 import { Dropdown } from "semantic-ui-react/";
+import { useSelector } from 'react-redux';
+import { IsAllow } from 'components/Seguridad/Permisos';
+import {
+    /*Button,*/
+    Col,
+    Container,
+    Row,
+} from 'reactstrap';
 
 const paises =
     [
         { id: 1, value: '*', pais: "Todos" },
         { id: 2, value: 'IMHN', pais: "Honduras" },
         { id: 3, value: 'IMGT', pais: "Guatemala" },
-        { id: 4, value: 'IMCR', pais: "Costa Rica" },
-        { id: 4, value: 'IMSL', pais: "El Salvador" }
+        { id: 4, value: 'IMCR', pais: "Costa Rica" }
     ]
 
+const getTodos= () => {
+    return [
+        { $id: "Todos",
+        codigo: "Todos",
+        empresa: "Todos",
+        nombre: "Todos"}
+    ]
+}
+
 const CoordenadasGlobal = (props) => {
+    const [AsesorSelected, setAsesorSelected] = useState(null);
+    const [paiseSelected, setpaiseSelected] = useState(null);
+    const [asesores, setAsesores] = useState([]);
+    const [asesoresFiltrados, setAsesoresFiltrados] = useState([]);
     const mapRef = useRef();
     const mapsRef = useRef();
     const [coordenadas, setCoordenadas] = useState([]);
@@ -21,6 +41,7 @@ const CoordenadasGlobal = (props) => {
     const [marcadores, setMarcadores] = useState([]);
     useEffect(() => {
         cargarRutas();
+        cargarAsesores();
     }, [])
 
     const cargarRutas = () => {
@@ -35,9 +56,17 @@ const CoordenadasGlobal = (props) => {
                 setCoordenadas(e.data);
             })
             .catch(err => console.warn(err));
+
     }
 
-   
+    const cargarAsesores = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Geoposicion/asesores`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` } });
+            setAsesores(request.data);
+        } catch (err) {
+            console.log(err);
+        }
+    }
 
     const renderMarkers = (clientes) => {
         if (marcadores.length > 0) {
@@ -71,12 +100,31 @@ const CoordenadasGlobal = (props) => {
     }
 
     const handleDropdownChange = (value) => {
-        if (value === '*') {
+        setpaiseSelected(value)  
+        if (value === '*') {      
             renderMarkers(coordenadas);
+            setAsesoresFiltrados([]);
             return;
         }
 
+        let filtrados = asesores.filter(x => x.empresa.toUpperCase() === value);
+        let todos = getTodos();
+        let newlist =[...todos,...filtrados]
+        setAsesoresFiltrados(newlist);
+
         const clientes = coordenadas.filter(x => x.COMPANY === value);
+        renderMarkers(clientes);
+    }
+
+    const handleDropdownChangeAsesor = (value) => {
+        setAsesorSelected(value)
+        if (value === 'Todos') {
+            const clientes = coordenadas.filter(x => x.COMPANY === paiseSelected);
+            renderMarkers(paiseSelected=== '*' ? coordenadas : clientes);
+            return;
+        }
+
+        const clientes = coordenadas.filter(x => x.ADVISER === value && x.COMPANY == paiseSelected);
         renderMarkers(clientes);
     }
 
@@ -99,19 +147,40 @@ const CoordenadasGlobal = (props) => {
 
     return (
         <div style={{ height: '100%', width: '100%' }}>
-            <Dropdown
-                placeholder="Seleccione pais"
-                fluid
-                search
-                selection
-                onChange={(e, { value }) => handleDropdownChange(value)}
-                options={paises.map(ruta => {
-                    return { key: ruta.id, value: ruta.value, text: ruta.pais }
-                })}
-                noResultsMessage={"No hay resultados"}
-                closeOnChange={true}
-                //value={paiseSelected.value}
-            />
+            <Row >
+                <Col>
+                    <Dropdown
+                        placeholder="Seleccione pais"
+                        fluid
+                        search
+                        selection
+                        onChange={(e, { value }) => handleDropdownChange(value)}
+                        options={paises.map(ruta => {
+                            return { key: ruta.id, value: ruta.value, text: ruta.pais }
+                        })}
+                        noResultsMessage={"No hay resultados"}
+                        closeOnChange={true}
+                    //value={paiseSelected.value}
+                    />
+                </Col>
+                <Col>
+                    <Dropdown
+                        placeholder="Seleccione asesor"
+                        fluid
+                        search
+                        selection
+                        onChange={(e, { value }) => handleDropdownChangeAsesor(value)}
+                        options={asesoresFiltrados.map(asesor => {
+                            return { key: asesor.id, value: asesor.codigo, text: asesor.nombre }
+                        })}
+                        noResultsMessage={"No hay resultados"}
+                        closeOnChange={true}
+                    //value={paiseSelected.value}
+                    />
+                </Col>
+            </Row>
+
+
             <GoogleMapReact
                 bootstrapURLKeys={{ key: APIKEY }}
 

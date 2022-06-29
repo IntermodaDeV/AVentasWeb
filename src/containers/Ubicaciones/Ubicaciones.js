@@ -112,25 +112,18 @@ let HeaderSitios = [
     },
     {
         name: "estatus",
-        label: "Estado",
+        label: "Activo Bodega Local",
         options: {
-            filter: true,
-            sort: true,
-            customBodyRender: (value) => {
-                return (
-                    <span style={{ color: (value === "Activo") ? 'green' : 'red', fontWeight: 'bolder' }}>{value}</span>
-                );
-            }
+            filter: false,
         }
     },
     {
-        name: "acciones",
-        label: "Acciones",
-        options: {
-            filter: false,
-            sort: false,
-        }
-    },
+        name: "estatusDevolucion",
+        label: "Activo Devolución",
+         options: {
+                filter: false,
+            }
+    }
 ];
 
 export const Ubicaciones = props => {
@@ -145,9 +138,35 @@ export const Ubicaciones = props => {
         }
     }
 
-    const modificarEstado = async (id) => {
+    const modificarEstadoBodegaLocal = async (id) => {
         try {
             await axios.post(`${APIURL}/api/ubicacion/modificar/${localStorage.getItem('codigo')}/${id}`);
+            cargarUbicaciones();
+            Swal.fire({
+                title: '¡Modificado con exito!',
+                text: "Se ha cambiado el estado de la ubicación con exito.",
+                type: 'success',
+                confirmButtonText: 'OK',
+            });
+        } catch (err) {
+            let mensaje = "Ha ocurrido un error y no se pudo modificar el estado.";
+
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                text: mensaje,
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
+        }
+    }
+
+    const modificarEstadoUbicacionDevolucion = async (id) => {
+        try {
+            await axios.post(`${APIURL}/api/ubicacion/modificarEstadoUbicacion/${localStorage.getItem('codigo')}/${id}`);
             cargarUbicaciones();
             Swal.fire({
                 title: '¡Modificado con exito!',
@@ -176,8 +195,8 @@ export const Ubicaciones = props => {
             Ubicacion: item.CodigoUbicacion,
             Almacen: item.Almacen + " - " + item.Etiqueta,
             empresa: item.Empresa,
-            estatus: item.Estatus ? "Activo" : "Inactivo",
-            acciones: <button onClick={() => { modificarEstado(item.UbicacionId) }} className="btn btn-primary">{item.Estatus ? "Inactivar" : "Activar"}</button>
+            estatus: <div style={{ textAlign: 'center' }}><input type="checkbox" checked={item.Estatus} onChange={(e) => modificarEstadoBodegaLocal(item.UbicacionId)} style={{ height: 20, width: 20, display: "flex","justify-content": "center", "align-items": "center"}} /></div>,
+            estatusDevolucion: <div style={{ textAlign: 'center' }}><input type="checkbox" checked={item.ActivoDevolucion} onChange={(e) => modificarEstadoUbicacionDevolucion(item.UbicacionId)} style={{ height: 20, width: 20, display: "flex","justify-content": "center", "align-items": "center"}} /></div>,
         }));
     }
 
