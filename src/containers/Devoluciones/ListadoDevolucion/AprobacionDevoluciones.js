@@ -7,6 +7,12 @@ import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
 import PrintOutlined from '@material-ui/icons/PrintOutlined';
 import axios from 'axios';
+import styles from 'containers/Agenda/Agenda.module.css';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogActions from '@material-ui/core/DialogActions';
+import TextField from '@material-ui/core/TextField';
+import { ScaleLoader } from 'react-spinners';
 import { APIURL } from 'utils/Enviroment';
 import { Button } from "@material-ui/core";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -15,7 +21,9 @@ import { ImprimirPedidoDevolucion } from 'components/Devoluciones/ImprimirPedido
 export const AprobacionDevolucion = (props) => {
     const [devoluciones, setDevoluciones] = useState([]);
     const [showDialog, setShowDialog] = useState(false);
+    const [showModalCancelar, setshowModalCancelar] = useState(false);
     const [devolucion, setDevolucion] = useState(null);
+    const [observacion, setobservacion] = useState("");
     const [detalleDevolucion, setDetalleDevolucion] = useState([]);
 
     useEffect(() => {
@@ -25,6 +33,16 @@ export const AprobacionDevolucion = (props) => {
 
     const hidePrint = () => {
         setShowDialog(false);
+    }
+
+    const showModalCancelado = (devolucionSeleccionada) => {
+        setshowModalCancelar(true);
+        setDevolucion(devolucionSeleccionada);
+        setobservacion("")
+    }
+
+    const obtenerObservaciones = (event) => {
+        setobservacion(event.target.value);
     }
 
     const obtenerDetalleDevolucion = async (devolucionSeleccionada) => {
@@ -49,6 +67,21 @@ export const AprobacionDevolucion = (props) => {
             return request.data;
         } catch (err) {
             console.log(err)
+        }
+    }
+
+    const CancelarDevolucion = async () => {
+        try {
+            await axios.post(`${APIURL}/api/devolucion/rechazarDevoluciones/${devolucion.NumDevolucion}/${observacion}`, {}, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            setshowModalCancelar(false);
+            getDevoluciones();
+        } catch (err) {
+
         }
     }
 
@@ -181,6 +214,9 @@ export const AprobacionDevolucion = (props) => {
                 p.Estado,
                 <div>
                     <span className="mr-1">
+                        <Button className='my-1' variant="outlined" onClick={() => showModalCancelado(p)} size="small" color={"primary"}>Cancelar</Button>
+                    </span>
+                    <span className="mr-1">
                         <Button className='my-1' variant="outlined" onClick={() => AprobarDevolucion(p.IdDevAprobacion)} size="small" color={"primary"}>Aprobar</Button>
                     </span>
                     <span className="mr-1">
@@ -276,7 +312,54 @@ export const AprobacionDevolucion = (props) => {
                         />
                     }
                 </Dialog >
+
+                <Dialog
+                    scroll={'paper'}
+                    open={showModalCancelar}
+                    className={styles.AtenderContainer}
+                    onClose={() => setshowModalCancelar(false)}
+                    aria-labelledby="No-Atendido-Modal">
+                    <DialogTitle
+                        className="text-center"
+                        id="scroll-dialog-title">
+                        <div
+                            style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif', padding: 2 }}>
+                            Cancelar Devolución
+                        </div>
+                    </DialogTitle>
+                    <DialogContent >
+                        {
+                            <div className="col-12 my-1">
+                                <TextField
+                                    label="Observación"
+                                    className="w-100"
+                                    multiline
+                                    rowsMax="8"
+                                    rows="2"
+                                    value={observacion}
+                                    onChange={(e) => { obtenerObservaciones(e) }}
+                                    margin="normal"
+                                />
+                            </div>
+                        }
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="outlined" onClick={() => setshowModalCancelar(false)} color="primary">
+                            Cancelar
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            className={"py-1"}
+                            style={{ height: '35px' }}
+                            onClick={() => CancelarDevolucion()}
+                        >
+                            Aceptar
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </div>
         </div>
     );
+
 }

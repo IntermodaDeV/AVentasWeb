@@ -138,6 +138,20 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
+            label: "Observación",
+            name: "observacion",
+            options: {
+                filter: false,
+            }
+        },
+        {
+            label: "Realizado por:",
+            name: "usuario",
+            options: {
+                filter: false,
+            }
+        },
+        {
             label: "Acciones",
             name: "acciones",
             options: {
@@ -206,6 +220,8 @@ export const ListadoDevolucion = (props) => {
                 p.TotalUnidades,
                 moment(p.FechaCreacion).format("DD/MM/YYYY"),
                 p.Estado,
+                p.Observacion,
+                p.Estado === "No autorizado" ? p.UsuarioModifica : "",
                 <div>
                     <span className="ml-1">
                         <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerDetalleDevolucion(p) }} color={"primary"}>
