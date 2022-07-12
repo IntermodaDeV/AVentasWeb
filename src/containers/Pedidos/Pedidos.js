@@ -896,6 +896,9 @@ class Pedidos extends React.Component {
 
 
     getColeccion = (coleccion) => {
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
+        borrador.coleccion = coleccion;
+        localStorage.setItem("borrador",JSON.stringify(borrador));
         this.props.onSetColeccion(coleccion);
         this.props.history.push("/Pedidos/Colecciones/" + coleccion.ColeccionTipo + "/" + coleccion.CodigoColeccion);
         localStorage.setItem('ProdEnCarrito', 0)
@@ -917,12 +920,19 @@ class Pedidos extends React.Component {
             this.cargarEmpresasTransporte(this.state.autocompleteValue.EmpresaId);
             this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
             //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
+            let cliente = this.state.autocompleteValue;
+            localStorage.setItem("borrador", JSON.stringify({ cliente }));
             this.props.onSetCliente(this.state.autocompleteValue);
             this.props.history.push("/Pedidos/Bodega");
         }
         localStorage.setItem('EmpresaCliente', this.state.autocompleteValue.EmpresaId);
     }
     seleccionarTipoPedido = (tipoPedido, acuerdoVenta) => {
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
+        borrador.tipoPedido = tipoPedido;
+        borrador.acuerdoVenta = acuerdoVenta;
+        localStorage.setItem("borrador",JSON.stringify(borrador));
+
         this.props.history.push("/Pedidos/Colecciones");
         this.props.onSetTipoPedido(tipoPedido, acuerdoVenta);
     }
@@ -933,6 +943,9 @@ class Pedidos extends React.Component {
     }
     
     seleccionarLinea = (linea) => {
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
+        borrador.linea = linea;
+        localStorage.setItem("borrador",JSON.stringify(borrador));
         this.props.onSetLineaSeleccionada(linea);
         this.props.history.push("/Pedidos/TipoPedido");
     }
