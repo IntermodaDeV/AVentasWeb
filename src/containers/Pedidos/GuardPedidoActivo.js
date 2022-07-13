@@ -34,6 +34,7 @@ const GuardPedidoActivo = (props) => {
                                 props.onSetTableValue({});
                                 props.onSetTotalPedido(0);
                                 props.onSetNumeroOrden(null);
+                                localStorage.removeItem("borrador");
                             }
                         });
                     } else {

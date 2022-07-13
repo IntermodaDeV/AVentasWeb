@@ -548,7 +548,7 @@ class Pedidos extends React.Component {
                         });
                         this.props.onSetTableValue({});
                         this.props.onResetProductosAgreagados();
-
+                        localStorage.removeItem("borrador");
                     }
                 })
             }
@@ -896,12 +896,8 @@ class Pedidos extends React.Component {
 
 
     getColeccion = (coleccion) => {
-        let borrador = JSON.parse(localStorage.getItem("borrador"));
-        borrador.coleccion = coleccion;
-        localStorage.setItem("borrador",JSON.stringify(borrador));
         this.props.onSetColeccion(coleccion);
         this.props.history.push("/Pedidos/Colecciones/" + coleccion.ColeccionTipo + "/" + coleccion.CodigoColeccion);
-        localStorage.setItem('ProdEnCarrito', 0)
     }
     seleccionarCliente = () => {
         if(this.state.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && this.props.clienteContado===null)
@@ -920,19 +916,12 @@ class Pedidos extends React.Component {
             this.cargarEmpresasTransporte(this.state.autocompleteValue.EmpresaId);
             this.cargarPrecioCajas(this.state.autocompleteValue.EmpresaId);
             //this.cargarComunidadAutonoma(this.state.autocompleteValue.EmpresaId);
-            let cliente = this.state.autocompleteValue;
-            localStorage.setItem("borrador", JSON.stringify({ cliente }));
             this.props.onSetCliente(this.state.autocompleteValue);
             this.props.history.push("/Pedidos/Bodega");
         }
         localStorage.setItem('EmpresaCliente', this.state.autocompleteValue.EmpresaId);
     }
     seleccionarTipoPedido = (tipoPedido, acuerdoVenta) => {
-        let borrador = JSON.parse(localStorage.getItem("borrador"));
-        borrador.tipoPedido = tipoPedido;
-        borrador.acuerdoVenta = acuerdoVenta;
-        localStorage.setItem("borrador",JSON.stringify(borrador));
-
         this.props.history.push("/Pedidos/Colecciones");
         this.props.onSetTipoPedido(tipoPedido, acuerdoVenta);
     }
@@ -943,9 +932,6 @@ class Pedidos extends React.Component {
     }
     
     seleccionarLinea = (linea) => {
-        let borrador = JSON.parse(localStorage.getItem("borrador"));
-        borrador.linea = linea;
-        localStorage.setItem("borrador",JSON.stringify(borrador));
         this.props.onSetLineaSeleccionada(linea);
         this.props.history.push("/Pedidos/TipoPedido");
     }
@@ -1052,6 +1038,7 @@ class Pedidos extends React.Component {
         let tableValue = { ...this.props.TableValue };
         let isSelected = true;
         let carrito = parseInt(localStorage.getItem('ProdEnCarrito'));
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
         try {
             let value = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId]
             value.Selected = isSelected = !value.Selected;
@@ -1154,6 +1141,7 @@ class Pedidos extends React.Component {
         let totalAcumulado = this.props.TotalPedido;
         if (isSelected) {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito + 1))
+            borrador.ProdEnCarrito = carrito + 1;
             let newProduct = {...producto,Selected:true};
             this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
@@ -1166,6 +1154,7 @@ class Pedidos extends React.Component {
             });
         } else {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito - 1))
+            borrador.ProdEnCarrito = carrito - 1;
             let newProduct = {...producto,Selected:false};
             this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
@@ -1179,6 +1168,10 @@ class Pedidos extends React.Component {
             });
         }
         this.props.onSetTotalPedido(totalAcumulado)
+
+        borrador.TableValue = tableValue;
+        borrador.TotalPedido = totalAcumulado;
+        localStorage.setItem("borrador",JSON.stringify(borrador));
 
         this.props.onSetTableValue(tableValue);
         // this.calcularTotal();
@@ -1293,6 +1286,12 @@ class Pedidos extends React.Component {
             });
         });
         this.props.onSetTotalPedido(totalAcumulado)
+
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
+        borrador.TableValue = tableValue;
+        borrador.TotalPedido = totalAcumulado;
+        localStorage.setItem("borrador",JSON.stringify(borrador));
+
         this.props.onSetTableValue(tableValue);
     }
 
@@ -2717,6 +2716,7 @@ class Pedidos extends React.Component {
 
     onchangeText(text, productoId, codigoColor, grupoTalla, talla, precio) {
         this.props.onSetBloqueo(false);
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
         let tableValue = { ...this.props.TableValue };
         const valor = (text.target.validity.valid) ? text.target.value : tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla].Cantidad;
         let valorPrevio = tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla];
@@ -2737,9 +2737,14 @@ class Pedidos extends React.Component {
         }
         valorPrevio.Cantidad = valor;
         if (tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Selected) {
-            this.props.onSetTotalPedido(totalAcumulado)
+            this.props.onSetTotalPedido(totalAcumulado);
+            borrador.TotalPedido = totalAcumulado;
             // this.CrearDetallePedidoOnline(productoId, codigoColor, talla.slice(1) , valor, precio);
         }
+
+        borrador.TableValue = tableValue;
+        localStorage.setItem("borrador",JSON.stringify(borrador));
+
         this.props.onSetTableValue(tableValue);
     }
 

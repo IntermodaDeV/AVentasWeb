@@ -47,21 +47,21 @@ const Coleccion = (props) => {
       .then(res => res.json())
       .then(data => {
         props.Click();
-        data.forEach(x => {
+        /*data.forEach(x => {
           x.ProductosXEdad.forEach(producto => {
             producto.ListaTalla.forEach(tallas => {
               if (tallas.Distribucion.length > 0) {
                 producto.fisicaDisponible.forEach(disp => {
                   if (disp.PreciosEspecificos.length === 0) {
                     producto.Precio.forEach(precio => {
-                     // precio.Precio = 0;
+                      precio.Precio = 0;
                     })
                   }
                 })
               }
             })
           })
-        })
+        })*/
 
         dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: data });
         localStorage.setItem("ColeccionSeleccionada", props.coleccion.CodigoColeccion)
@@ -113,15 +113,80 @@ const Coleccion = (props) => {
         });
       });
   }
+
+  const iniciarBorrador = () => {
+    let borrador = {};
+    borrador.cliente = cliente.Codigo;
+    borrador.coleccion = props.coleccion.CodigoColeccion;
+    borrador.empresa = cliente.EmpresaId;
+    borrador.TableValue = {};
+    borrador.TotalPedido = 0.0;
+    localStorage.setItem("borrador", JSON.stringify(borrador));
+    dispatch({ type: "RESET_TABLEVALUETOTALPEDIDO" });
+  }
   
   const selectColeccion = async () => {
     dispatch({type:"RESET_PRODUCTOAGREGADO"});
+    dispatch({ type: "RESET_TABLEVALUETOTALPEDIDO" });
     let HoraIngreso = localStorage.getItem('HoraIngreso');
     let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
+    localStorage.setItem('ProdEnCarrito', 0)
 
     if (Permisos.UsuarioOficina) {
       cargarProductos();
     } else {
+      let borrador = JSON.parse(localStorage.getItem("borrador"));
+
+      if (borrador) {
+        if (borrador.cliente === cliente.Codigo && borrador.coleccion === props.coleccion.CodigoColeccion && borrador.empresa === cliente.EmpresaId) {
+          const result = await Swal.fire({
+            title: 'Pedido Borrador',
+            text: `Actualmente existe un pedido de borrador para el cliente ${borrador.cliente}, coleccion ${borrador.coleccion}, empresa ${borrador.empresa}, ¿Desea continuar con el borrador o eliminarlo?`,
+            type: 'warning',
+            showCancelButton: true,
+            cancelButtonColor: '#3085d6',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Eliminar',
+            allowOutsideClick: false,
+          });
+
+
+          if (result.value) {
+            dispatch({ type: "SET_BORRADOR", payload: { TableValue: borrador.TableValue, TotalPedido: borrador.TotalPedido, listaProductosAgregados: borrador.listaProductosAgregados } })
+            if (borrador.ProdEnCarrito != undefined || borrador.ProdEnCarrito != null) {
+              localStorage.setItem("ProdEnCarrito", borrador.ProdEnCarrito);
+            }
+          } else {
+            localStorage.removeItem("borrador");
+            iniciarBorrador();
+          }
+        }else{
+          const result = await Swal.fire({
+            title: 'Pedido Borrador',
+            text: `Actualmente existe un pedido de borrador para el cliente ${borrador.cliente}, coleccion ${borrador.coleccion}, empresa ${borrador.empresa},Si continua se eliminara el pedido borrador, si elige mantener tendra que terminar el pedido borrador ¿Desea continuar o mantener el borrador?`,
+            type: 'warning',
+            showCancelButton: true,
+            cancelButtonColor: '#3085d6',
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Continuar',
+            cancelButtonText: 'Mantener',
+            allowOutsideClick: false,
+          });
+
+
+          if (result.value) {
+            localStorage.removeItem("borrador");
+            iniciarBorrador();
+          } else {
+            return;
+          }
+        }
+      } else {
+        localStorage.removeItem("borrador");
+        iniciarBorrador();
+      }
+
       if (localStorage.getItem("Conexion") === "Online") {
         setLoading(true);
         let isOnline = await verificarConexion();
