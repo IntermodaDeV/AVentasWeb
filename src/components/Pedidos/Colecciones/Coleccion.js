@@ -9,12 +9,12 @@ import {
   CardHeader as MuiCardHeader,
   CardContent,
   CardMedia,
-  CardActions, 
+  CardActions,
 } from '@material-ui/core';
 import PhotoLibraryIcon from '@material-ui/icons/PhotoLibrary';
 import InventoryIcon from '@material-ui/icons/ArchiveSharp';
 import styles from "components/Pedidos/Colecciones/Coleccion.module.css";
-import {useSelector,useDispatch} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
 import { Loading } from 'components/Global/Loading';
@@ -35,12 +35,12 @@ const CardHeader = withStyles({
 
 const Coleccion = (props) => {
   const [Raised, setRaised] = React.useState(false);
-  const cliente = useSelector(e=>e.cliente);
-  const Permisos = useSelector(e=>e.Permisos[0]);
+  const cliente = useSelector(e => e.cliente);
+  const Permisos = useSelector(e => e.Permisos[0]);
   const dispatch = useDispatch();
-  const coleccion = useSelector(e=>e.coleccion);
-  const [loading,setLoading] = React.useState(false);
-  const BodegaSeleccionada = useSelector(e=>e.BodegaSeleccionada);
+  const coleccion = useSelector(e => e.coleccion);
+  const [loading, setLoading] = React.useState(false);
+  const BodegaSeleccionada = useSelector(e => e.BodegaSeleccionada);
 
   const cargarProductos = () => {
     fetch(`${APIURL}/api/colecciones/productos/${props.coleccion.CodigoColeccion}/${cliente.GrupoPrecio}/${cliente.EmpresaId}/${BodegaSeleccionada.CodigoSitio}/${BodegaSeleccionada.Almacen}`)
@@ -68,7 +68,7 @@ const Coleccion = (props) => {
         localStorage.setItem("HoraIngreso", moment(new Date()).format('YYYY-MM-DDTHH:mm'))
       });
   }
-  
+
   const verficarPaquete = () => {
     if (Permisos.UsuarioOficina === false && props.coleccion.Estatus !== 1) {
       Swal.fire({
@@ -124,9 +124,9 @@ const Coleccion = (props) => {
     localStorage.setItem("borrador", JSON.stringify(borrador));
     dispatch({ type: "RESET_TABLEVALUETOTALPEDIDO" });
   }
-  
+
   const selectColeccion = async () => {
-    dispatch({type:"RESET_PRODUCTOAGREGADO"});
+    dispatch({ type: "RESET_PRODUCTOAGREGADO" });
     dispatch({ type: "RESET_TABLEVALUETOTALPEDIDO" });
     let HoraIngreso = localStorage.getItem('HoraIngreso');
     let HoraActual = moment().subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm');
@@ -136,51 +136,61 @@ const Coleccion = (props) => {
       cargarProductos();
     } else {
       let borrador = JSON.parse(localStorage.getItem("borrador"));
+      let productosEnCarrito = 0;
 
       if (borrador) {
-        if (borrador.cliente === cliente.Codigo && borrador.coleccion === props.coleccion.CodigoColeccion && borrador.empresa === cliente.EmpresaId) {
-          const result = await Swal.fire({
-            title: 'Pedido Borrador',
-            text: `Actualmente existe un pedido de borrador para el cliente ${borrador.cliente}, coleccion ${borrador.coleccion}, empresa ${borrador.empresa}, ¿Desea continuar con el borrador o eliminarlo?`,
-            type: 'warning',
-            showCancelButton: true,
-            cancelButtonColor: '#3085d6',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Continuar',
-            cancelButtonText: 'Eliminar',
-            allowOutsideClick: false,
-          });
+        if (borrador.ProdEnCarrito != undefined || borrador.ProdEnCarrito != null) {
+          productosEnCarrito = borrador.ProdEnCarrito;
+        }
 
+        if (productosEnCarrito > 0) {
+          if (borrador.cliente === cliente.Codigo && borrador.coleccion === props.coleccion.CodigoColeccion && borrador.empresa === cliente.EmpresaId) {
 
-          if (result.value) {
-            dispatch({ type: "SET_BORRADOR", payload: { TableValue: borrador.TableValue, TotalPedido: borrador.TotalPedido, listaProductosAgregados: borrador.listaProductosAgregados } })
-            if (borrador.ProdEnCarrito != undefined || borrador.ProdEnCarrito != null) {
-              localStorage.setItem("ProdEnCarrito", borrador.ProdEnCarrito);
+            const result = await Swal.fire({
+              title: 'Pedido Borrador',
+              text: `Actualmente existe un pedido de borrador para el cliente ${borrador.cliente}, coleccion ${borrador.coleccion}, empresa ${borrador.empresa}, con ${productosEnCarrito} estilos agregados. ¿Desea continuar con el borrador o eliminarlo?`,
+              type: 'warning',
+              showCancelButton: true,
+              cancelButtonColor: '#3085d6',
+              confirmButtonColor: '#d33',
+              confirmButtonText: 'Continuar',
+              cancelButtonText: 'Eliminar',
+              allowOutsideClick: false,
+            });
+
+            if (result.value) {
+              dispatch({ type: "SET_BORRADOR", payload: { TableValue: borrador.TableValue, TotalPedido: borrador.TotalPedido, listaProductosAgregados: borrador.listaProductosAgregados } })
+              if (borrador.ProdEnCarrito != undefined || borrador.ProdEnCarrito != null) {
+                localStorage.setItem("ProdEnCarrito", borrador.ProdEnCarrito);
+              }
+            } else {
+              localStorage.removeItem("borrador");
+              iniciarBorrador();
             }
           } else {
-            localStorage.removeItem("borrador");
-            iniciarBorrador();
-          }
-        }else{
-          const result = await Swal.fire({
-            title: 'Pedido Borrador',
-            text: `Actualmente existe un pedido de borrador para el cliente ${borrador.cliente}, coleccion ${borrador.coleccion}, empresa ${borrador.empresa},Si continua se eliminara el pedido borrador, si elige mantener tendra que terminar el pedido borrador ¿Desea continuar o mantener el borrador?`,
-            type: 'warning',
-            showCancelButton: true,
-            cancelButtonColor: '#3085d6',
-            confirmButtonColor: '#d33',
-            confirmButtonText: 'Continuar',
-            cancelButtonText: 'Mantener',
-            allowOutsideClick: false,
-          });
+            const result = await Swal.fire({
+              title: 'Pedido Borrador',
+              text: `Actualmente existe un pedido de borrador para el cliente ${borrador.cliente}, coleccion ${borrador.coleccion}, empresa ${borrador.empresa}, con ${productosEnCarrito} estilos agregados. Si continua se eliminara el pedido borrador, si elige mantener tendra que terminar el pedido borrador ¿Desea continuar o mantener el borrador?`,
+              type: 'warning',
+              showCancelButton: true,
+              cancelButtonColor: '#3085d6',
+              confirmButtonColor: '#d33',
+              confirmButtonText: 'Continuar',
+              cancelButtonText: 'Mantener',
+              allowOutsideClick: false,
+            });
 
 
-          if (result.value) {
-            localStorage.removeItem("borrador");
-            iniciarBorrador();
-          } else {
-            return;
+            if (result.value) {
+              localStorage.removeItem("borrador");
+              iniciarBorrador();
+            } else {
+              return;
+            }
           }
+        } else {
+          localStorage.removeItem("borrador");
+          iniciarBorrador();
         }
       } else {
         localStorage.removeItem("borrador");
@@ -199,7 +209,7 @@ const Coleccion = (props) => {
             dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: coleccion.Edades });
             props.Click();
           }
-        }else{
+        } else {
           props.Click();
         }
       } else {
@@ -209,21 +219,21 @@ const Coleccion = (props) => {
   }
   const convertirData = (data) => {
     return data.map((el) => {
-        const { $id, ...inventario } = el;
+      const { $id, ...inventario } = el;
 
-        return {
-            ...inventario
-        }
+      return {
+        ...inventario
+      }
     })
-}
-  const mostrarAdvertencia = (title,text,type)=>{
+  }
+  const mostrarAdvertencia = (title, text, type) => {
     Swal.fire({
-        title: title,
-        text: text,
-        type: type,
-        confirmButtonText: 'Ok',
+      title: title,
+      text: text,
+      type: type,
+      confirmButtonText: 'Ok',
     })
-}
+  }
   const obtenerInventario = async () => {
     const request = await axios.get(`${APIURL}/api/colecciones/inventario/${props.coleccion.CodigoColeccion}`)
 
@@ -232,24 +242,24 @@ const Coleccion = (props) => {
       return;
     }
     const InfoConFormato = convertirData(request.data);
-    console.log("request.data",InfoConFormato)
+    console.log("request.data", InfoConFormato)
     guardarExcel(InfoConFormato);
 
   }
   const guardarExcel = csvData => {
-        const fileName = `InventariosDisponibles-${props.coleccion.CodigoColeccion}`;
-        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-        const fileExtension = '.xlsx';
-        const ws = XLSX.utils.json_to_sheet(csvData);
-        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
-        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const data = new Blob([excelBuffer], { type: fileType });
-        FileSaver.saveAs(data, fileName + fileExtension);
-    }
+    const fileName = `InventariosDisponibles-${props.coleccion.CodigoColeccion}`;
+    const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    const fileExtension = '.xlsx';
+    const ws = XLSX.utils.json_to_sheet(csvData);
+    const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: fileType });
+    FileSaver.saveAs(data, fileName + fileExtension);
+  }
 
   return (
     <div className="col-lg-4 col-md-6 col-12 mb-3 mt-1">
-      <Loading open={loading} title={"Verificando conexión"}/>
+      <Loading open={loading} title={"Verificando conexión"} />
       <Card raised={Raised}
         onMouseEnter={() => setRaised(true)}
         onMouseLeave={() => setRaised(false)}>
@@ -282,8 +292,8 @@ const Coleccion = (props) => {
 
           <CardContent>
             <hr className={"mt-0 " + styles.BorderTop}></hr>
-            <h4 style={{textAlign:'center'}}>{props.coleccion.CodigoColeccion}</h4>
-            <h5 className={styles.TitleColeccion} style={{textAlign:'center', color: props.coleccion.Estatus === 1 ? 'green' : 'red'}}>Status AX: { props.coleccion.Estatus === 1 ? "Disponible para la venta" : "En Proceso"}</h5>
+            <h4 style={{ textAlign: 'center' }}>{props.coleccion.CodigoColeccion}</h4>
+            <h5 className={styles.TitleColeccion} style={{ textAlign: 'center', color: props.coleccion.Estatus === 1 ? 'green' : 'red' }}>Status AX: {props.coleccion.Estatus === 1 ? "Disponible para la venta" : "En Proceso"}</h5>
             <div className="row">
               <div className="col px-1">
                 <div className="row mb-2 text-center">
@@ -327,13 +337,13 @@ const Coleccion = (props) => {
         <CardActions>
           {
             Permisos.UsuarioOficina && Permisos.AdministradorProductos &&
-            <Button variant="outlined" size="medium" color="primary" onClick = {() => {cargarImagen()}} style={{ textAlign: 'center', marginBottom: '10px' }} startIcon={<PhotoLibraryIcon />}>
+            <Button variant="outlined" size="medium" color="primary" onClick={() => { cargarImagen() }} style={{ textAlign: 'center', marginBottom: '10px' }} startIcon={<PhotoLibraryIcon />}>
               Cargar Imagen
             </Button>
           }
           {
             Permisos.UsuarioOficina && Permisos.AdministradorProductos &&
-            <Button variant="outlined" size="medium" color="primary" onClick = {() => {obtenerInventario()}} style={{ textAlign: 'center', marginBottom: '10px' }} startIcon={<InventoryIcon />}>
+            <Button variant="outlined" size="medium" color="primary" onClick={() => { obtenerInventario() }} style={{ textAlign: 'center', marginBottom: '10px' }} startIcon={<InventoryIcon />}>
               Inventario
             </Button>
           }
