@@ -151,8 +151,8 @@ const Coleccion = (props) => {
               text: `Actualmente existe un pedido de borrador para el cliente ${borrador.cliente}, coleccion ${borrador.coleccion}, empresa ${borrador.empresa}, con ${productosEnCarrito} estilos agregados. ¿Desea continuar con el borrador o eliminarlo?`,
               type: 'warning',
               showCancelButton: true,
-              cancelButtonColor: '#3085d6',
-              confirmButtonColor: '#d33',
+              cancelButtonColor: '#d33',
+              confirmButtonColor: '#3085d6',
               confirmButtonText: 'Continuar',
               cancelButtonText: 'Eliminar',
               allowOutsideClick: false,
@@ -170,12 +170,12 @@ const Coleccion = (props) => {
           } else {
             const result = await Swal.fire({
               title: 'Pedido Borrador',
-              text: `Actualmente existe un pedido de borrador para el cliente ${borrador.cliente}, coleccion ${borrador.coleccion}, empresa ${borrador.empresa}, con ${productosEnCarrito} estilos agregados. Si continua se eliminara el pedido borrador, si elige mantener tendra que terminar el pedido borrador ¿Desea continuar o mantener el borrador?`,
+              text: `Actualmente existe un pedido de borrador para el cliente ${borrador.cliente}, coleccion ${borrador.coleccion}, empresa ${borrador.empresa}, con ${productosEnCarrito} estilos agregados. Si desea eliminar el pedido borrador y continuar con nuevo pedido presione borrar. Si elige mantener tendra que terminar el pedido borrador.`,
               type: 'warning',
               showCancelButton: true,
               cancelButtonColor: '#3085d6',
               confirmButtonColor: '#d33',
-              confirmButtonText: 'Continuar',
+              confirmButtonText: 'Borrar',
               cancelButtonText: 'Mantener',
               allowOutsideClick: false,
             });
