@@ -1,11 +1,11 @@
-import React, {Fragment, Component } from 'react';
+import React, { Fragment, Component } from 'react';
 import Calendar from 'components/Agenda/Calendar';
 import { ClipLoader } from 'react-spinners';
 import GoogleMapReact from 'google-map-react';
 import { ScaleLoader } from 'react-spinners';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import TextField from '@material-ui/core/TextField';
-import {APIURL,APIKEY} from 'utils/Enviroment';
+import { APIURL, APIKEY } from 'utils/Enviroment';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -22,10 +22,10 @@ import InputLabel from '@material-ui/core/InputLabel';
 import styles from 'containers/Agenda/Agenda.module.css';
 import 'containers/Agenda/Agenda.css';
 import moment from "moment";
-import {connect} from 'react-redux';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import { connect } from 'react-redux';
+import { IsAllow } from 'components/Seguridad/Permisos';
 //import { FaEye } from "react-icons/fa";
-import { get,verificarConexion } from 'utils/http';
+import { get, verificarConexion } from 'utils/http';
 import axios from 'axios';
 import { ObtenerCoordenadas } from 'utils/common';
 import { KeyboardDatePicker } from "@material-ui/pickers";
@@ -58,48 +58,51 @@ class Agenda extends Component {
         guardandoRazon: false,
         estadoFacturasClienteActivo: null,
         mostarNoAtendido: false,
-        IdAsignacion:0,
-        checkin:null,
-        checkout:null,
+        IdAsignacion: 0,
+        checkin: null,
+        checkout: null,
         Asesores: [],
         AsesorSelected: null,
         OpenModalAsesor: false,
-        OpenModalPromesaPago : false,
+        OpenModalPromesaPago: false,
         date: new Date(),
-        valorPago:0
-
+        valorPago: 0,
+        OpenModalNoVenta: false,
+        RazonNoVenta: [],
+        NoVentaSelected : null,
+        ComentarioRazonNoVenta : ''
     }
 
     myRef = React.createRef();
     refCoordenadas = React.createRef();
 
     cargarAsesores = () => {
-        let asesores = this.props.Permisos[0].AsesoresUsuario.map(s=> s.Usuario);
+        let asesores = this.props.Permisos[0].AsesoresUsuario.map(s => s.Usuario);
         this.setState({
             Asesores: asesores,
-            AsesorSelected : asesores[0],
+            AsesorSelected: asesores[0],
         });
     }
 
-    cargarEmpresas = ()=>{
+    cargarEmpresas = () => {
         fetch(`${this.urlApi}/api/empresa/empresas`)
-        .then(res=>res.json())
-        .then(data=>{this.props.onSaveEmpresas(data)})
-        .catch(error=>console.log(error))
+            .then(res => res.json())
+            .then(data => { this.props.onSaveEmpresas(data) })
+            .catch(error => console.log(error))
     }
 
-    cargarClientesContado = ()=>{
+    cargarClientesContado = () => {
         fetch(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`)
-        .then(res=>res.json())
-        .then(data=>{this.props.onSaveClientesContado(data)})
-        .catch(error=>console.log(error))
+            .then(res => res.json())
+            .then(data => { this.props.onSaveClientesContado(data) })
+            .catch(error => console.log(error))
     }
 
-    cargarMonedas = () =>{
+    cargarMonedas = () => {
         fetch(`${this.urlApi}/api/moneda`)
-        .then(res=>res.json())
-        .then(data=>{this.props.onSaveMonedas(data)})
-        .catch(error=>console.log(error))
+            .then(res => res.json())
+            .then(data => { this.props.onSaveMonedas(data) })
+            .catch(error => console.log(error))
     }
 
     obtenerClientesUnicos = data => {
@@ -203,6 +206,12 @@ class Agenda extends Component {
             })
     }
 
+    cargarListadoRazonNoVenta = async () => {
+        const { data/*, error*/ } = await get(`${this.urlApi}/api/razonnoventa/listado`);
+        this.setState({ RazonNoVenta: data });
+          
+    }
+
     enviarCheckinApi = async (location, check) => {
         const isOnline = await verificarConexion();
         if (!isOnline || localStorage.getItem("Conexion") === "offline") {
@@ -222,7 +231,7 @@ class Agenda extends Component {
                 Asesor: localStorage.getItem('codigo'),
                 Inicio: fechas.Inicio,
                 Fin: fechas.Fin,
-                origen:"web"
+                origen: "web"
             }
 
             fetch(`${this.urlApi}/api/Asignaciones/${check}`, {
@@ -284,7 +293,7 @@ class Agenda extends Component {
                 target: this.myRef.current
             })
         } catch (err) {
-            console.log("err",err)
+            console.log("err", err)
             Swal.fire({
                 title: 'Error',
                 text: err.response.data.Message,
@@ -295,14 +304,40 @@ class Agenda extends Component {
         }
     }
 
-    enviarCheckin = (check)=>{
+
+    enviarRazonesNoVenta = async () => {
+        try {
+            this.setState({ OpenModalNoVenta: false, NoVentaSelected: null, ComentarioRazonNoVenta: '' })
+            let postBody = {
+                IdAsignacionXAsesor: this.state.IdAsignacion,
+                IdRazonNoVenta: this.state.NoVentaSelected,
+                Comentarios: this.state.ComentarioRazonNoVenta,
+            }
+
+            await axios.post(`${APIURL}/api/bitacoraRazonNoVenta/crear`, postBody, {
+                headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            });
+            this.enviarCheckin("checkout")
+        } catch (err) {
+            console.log("err", err)
+            Swal.fire({
+                title: 'Error',
+                text: err.response.data.Message,
+                type: 'error',
+                confirmButtonText: 'Ok',
+                target: this.myRef.current
+            })
+        }
+    }
+
+    enviarCheckin = (check) => {
         ObtenerCoordenadas((position) => {
             this.enviarCheckinApi({
                 longitude: position.coords.longitude,
                 latitude: position.coords.latitude
-            },check)
+            }, check)
         }, (error) => {
-            this.enviarCheckinApi(null,check);
+            this.enviarCheckinApi(null, check);
         });
     }
 
@@ -354,71 +389,71 @@ class Agenda extends Component {
         asignaciones.map(dia => {
             // eslint-disable-next-line
             dia.asignaciones.map(asignacion => {
-            if(asignacion.Asesor === this.state.AsesorSelected){
-                let prioridad = asignacion.IdPrioridad;
-                let textColor = 'white';
-                let color = asignacion.ColorRelleno;
-                let fechainicio = moment(asignacion.HoraInicio).format();
-                let fechaFin = moment(asignacion.HoraFin).format();
-                let cliente = asignacion.cliente;
-                let latitud = 0;
-                let longitud = 0;
-                let IdAsignacion = asignacion.IdAsignacionxAsesor;
-                let objetoCliente = {};
-                let Checkin = asignacion.Checkin;
-                let Checkout = asignacion.Checkout;
+                if (asignacion.Asesor === this.state.AsesorSelected) {
+                    let prioridad = asignacion.IdPrioridad;
+                    let textColor = 'white';
+                    let color = asignacion.ColorRelleno;
+                    let fechainicio = moment(asignacion.HoraInicio).format();
+                    let fechaFin = moment(asignacion.HoraFin).format();
+                    let cliente = asignacion.cliente;
+                    let latitud = 0;
+                    let longitud = 0;
+                    let IdAsignacion = asignacion.IdAsignacionxAsesor;
+                    let objetoCliente = {};
+                    let Checkin = asignacion.Checkin;
+                    let Checkout = asignacion.Checkout;
 
 
-                this.state.clientes.some(clien => {
+                    this.state.clientes.some(clien => {
 
-                    if (clien.Codigo === asignacion.cliente) {
-                        if (!(clien.FacturacionEntrega === "No" || clien.FacturacionEntrega === "Nunca")) {
-                            cliente = "⚠ " + clien.Nombre;
+                        if (clien.Codigo === asignacion.cliente) {
+                            if (!(clien.FacturacionEntrega === "No" || clien.FacturacionEntrega === "Nunca")) {
+                                cliente = "⚠ " + clien.Nombre;
+                            }
+                            else {
+                                cliente = clien.Nombre;
+                            }
+                            objetoCliente = { ...clien }
+                            latitud = clien.Latitud;
+                            longitud = clien.Longitud;
+                            return true
                         }
-                        else {
-                            cliente = clien.Nombre;
-                        }
-                        objetoCliente = { ...clien }
-                        latitud = clien.Latitud;
-                        longitud = clien.Longitud;
-                        return true
+                        return false;
+                    })
+
+                    var evento = {
+                        title: cliente,
+                        start: fechainicio,
+                        end: fechaFin,
+                        textColor: textColor,
+                        color: color,
+                        extendedProps: {
+                            Codigo: asignacion.cliente,
+                            Longitud: longitud,
+                            Latitud: latitud,
+                            IdAsignacion: IdAsignacion,
+                            Prioridad: prioridad,
+                            Checkin,
+                            Checkout
+                        },
+                        cliente: objetoCliente
                     }
-                    return false;
-                })
 
-                var evento = {
-                    title: cliente,
-                    start: fechainicio,
-                    end: fechaFin,
-                    textColor: textColor,
-                    color: color,
-                    extendedProps: {
+                    let tarea = {
                         Codigo: asignacion.cliente,
-                        Longitud: longitud,
-                        Latitud: latitud,
                         IdAsignacion: IdAsignacion,
-                        Prioridad: prioridad,
                         Checkin,
-                        Checkout
-                    },
-                    cliente: objetoCliente
-                }
+                        Checkout,
+                        CheckinApi: Checkin,
+                        CheckoutApi: Checkout,
+                        Bloqueo: Checkout,
+                        fechaIngreso: fechainicio
+                    }
 
-                let tarea = {
-                    Codigo: asignacion.cliente,
-                    IdAsignacion: IdAsignacion,
-                    Checkin,
-                    Checkout,
-                    CheckinApi:Checkin,
-                    CheckoutApi:Checkout,
-                    Bloqueo:Checkout,
-                    fechaIngreso:fechainicio
+                    tareas.push(tarea);
+                    eventos.push(evento);
+                    return false;
                 }
-
-                tareas.push(tarea);
-                eventos.push(evento);
-                return false;
-            }
             })
             return false;
         })
@@ -445,10 +480,11 @@ class Agenda extends Component {
                 break;
         }
 
-        this.setState((prevState)=>({...prevState,
-            IdAsignacion:info.event.extendedProps.IdAsignacion,
-            checkin:info.event.extendedProps.Checkin,
-            checkout:info.event.extendedProps.Checkout
+        this.setState((prevState) => ({
+            ...prevState,
+            IdAsignacion: info.event.extendedProps.IdAsignacion,
+            checkin: info.event.extendedProps.Checkin,
+            checkout: info.event.extendedProps.Checkout
         }));
 
         let clienteActivo = {
@@ -477,64 +513,12 @@ class Agenda extends Component {
             razon: null,
             Observacion: '',
             clienteActivo: clienteActivo,
+            ComentarioRazonNoVenta : ''
         });
 
         this.setState({
             isModalLoaded: true
         });
-
-        /*fetch(this.urlApi + `/api/acciones`, {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token'),
-            }
-        })
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-
-                                this.setState({
-                                    Acciones: result,
-                                    isModalLoaded: true,
-                                });
-                            },
-                        )
-                }
-
-            })
-
-        fetch(this.urlApi + `/api/BitacoraVisitasCliente/${info.event.extendedProps.IdAsignacion}`, {
-            headers: {
-                'Authorization':
-                    'Bearer ' + localStorage.getItem('token'),
-            }
-        })
-            .then(res => {
-                if (res.status === 200) {
-
-                    res.json()
-                        .then(
-                            (result) => {
-                                if (result !== null) {
-
-                                    this.setState({
-                                        tipo: result.IdRazonNoVentaTipo,
-                                        razon: result.IdRazonNoVentaCausa,
-                                        Observacion: result.Observacion !== null ? result.Observacion : '',
-                                        tipoSelected: true,
-                                        razonSelected: true,
-                                        noAtendido: true,
-                                    })
-                                }
-                            },
-                        )
-                }
-
-            })*/
-
     }
 
     onClickModal = (route, codigo) => {
@@ -561,7 +545,7 @@ class Agenda extends Component {
                                 Vencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
                                 Dias: moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days'),
                                 FechaDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY"),
-                                DiasDescuento: moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') +1,
+                                DiasDescuento: moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1,
                                 Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
                                 Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
                             });
@@ -570,7 +554,7 @@ class Agenda extends Component {
                 });
             });
         });
-       
+
 
         this.setState({
             ShowModalFacturas: true,
@@ -588,7 +572,7 @@ class Agenda extends Component {
         this.props.history.push("/Asignacion");
     }
     onClickAsesores = () => {
-        this.setState({ OpenModalAsesor: true});
+        this.setState({ OpenModalAsesor: true });
     }
     onCloseModalAtendido = () => {
         let noAtendido = false;
@@ -609,6 +593,18 @@ class Agenda extends Component {
         this.state.CausaNoVenta.map((tipo) => {
             let opcion = (
                 <MenuItem key={tipo.IdRazonNoVentaTipo} value={tipo.IdRazonNoVentaTipo}>{tipo.Tipo}</MenuItem>
+            )
+            opciones.push(opcion);
+            return false;
+        });
+        return opciones
+    }
+
+    opcionRazonNoVenta = () => {
+        const opciones = [];
+        this.state.RazonNoVenta.filter(x=> x.Activo === true).map((razon) => {
+            let opcion = (
+                <MenuItem key={razon.razonId} value={razon.razonId}>{razon.RazonNoVenta}</MenuItem>
             )
             opciones.push(opcion);
             return false;
@@ -663,10 +659,10 @@ class Agenda extends Component {
     }
 
     handleOnChangeAsesor = (event) => {
-         this.setState({
-            AsesorSelected : event.target.value,
-         });
-     }
+        this.setState({
+            AsesorSelected: event.target.value,
+        });
+    }
 
     handleChangeTipo = (event) => {
         this.setState({
@@ -676,6 +672,13 @@ class Agenda extends Component {
             razonSelected: false,
         })
     }
+
+    handleRazonNoVenta = (event) => {
+        this.setState({
+            NoVentaSelected: event.target.value,
+        })
+    }
+    
     handleChangeCausa = (event) => {
         this.setState({
             razon: event.target.value,
@@ -686,6 +689,12 @@ class Agenda extends Component {
     handleChangeObservacion = (event) => {
         this.setState({
             Observacion: event.target.value,
+        })
+    }
+
+    handleChangeComentario = (event) => {
+        this.setState({
+            ComentarioRazonNoVenta: event.target.value,
         })
     }
 
@@ -787,60 +796,60 @@ class Agenda extends Component {
         if (error) {
             console.log(error);
         } else {
-           this.props.onSaveTipoVisita(data);
+            this.props.onSaveTipoVisita(data);
         }
     }
 
     async componentDidMount() {
-        if(!IsAllow("/agenda"))
-        {
+        if (!IsAllow("/agenda")) {
             this.props.history.push('/home');
         }
 
         const isOnline = await verificarConexion();
-        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
                 title: "Sin internet",
                 text: "Necesita internet para poder visualizar esta pagina.",
                 type: "warning",
                 confirmButtonText: 'Ok',
             });
-            this.setState((prevState)=>({...prevState,isLoaded:true}))
-        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+            this.setState((prevState) => ({ ...prevState, isLoaded: true }))
+        } else if (localStorage.getItem("Conexion") === "Online" && isOnline) {
             this.cargarAsesores()
             this.cargarAsignacionesConClientes();
             this.cargarRazonNoVenta();
+            this.cargarListadoRazonNoVenta();
             this.cargarTipoVisitas();
             this.cargarConfiguraciones();
-            this.setState((prevState)=>({...prevState,isLoaded:true}))
-        }else{
+            this.setState((prevState) => ({ ...prevState, isLoaded: true }))
+        } else {
             Swal.fire({
                 title: "Sin internet",
                 text: "Necesita internet para poder visualizar esta pagina.",
                 type: "warning",
                 confirmButtonText: 'Ok',
             });
-            this.setState((prevState)=>({...prevState,isLoaded:true}));
+            this.setState((prevState) => ({ ...prevState, isLoaded: true }));
         }
     }
 
-    verifyBlock = (action)=>{
-        const asignacion = this.props.asignaciones.find(x=>x.IdAsignacion===this.state.IdAsignacion);
+    verifyBlock = (action) => {
+        const asignacion = this.props.asignaciones.find(x => x.IdAsignacion === this.state.IdAsignacion);
 
-            if(action==="checkin"){
-                let fechaActual = moment(new Date()).format("DD-MM-YYYY");
-                let fechaAsignacion = moment(asignacion.fechaIngreso).format("DD-MM-YYYY");
-    
-                if(moment(fechaAsignacion).isBefore(fechaActual)){
-                    return true;
-                }
-    
-                return asignacion.Checkin;
+        if (action === "checkin") {
+            let fechaActual = moment(new Date()).format("DD-MM-YYYY");
+            let fechaAsignacion = moment(asignacion.fechaIngreso).format("DD-MM-YYYY");
+
+            if (moment(fechaAsignacion).isBefore(fechaActual)) {
+                return true;
             }
-    
-            if(action==="bloqueo"){
-                return asignacion.Bloqueo;
-            }
+
+            return asignacion.Checkin;
+        }
+
+        if (action === "bloqueo") {
+            return asignacion.Bloqueo;
+        }
 
         return asignacion.Checkout;
     }
@@ -955,16 +964,27 @@ class Agenda extends Component {
         })
     }
 
-    openModalPromesaPago = () => {
-        this.setState({ OpenModalPromesaPago: false, date: new Date(), valorPago: 0});
+    registrarCheckOut = async () => {
+        const request = await axios.get(`${APIURL}/api/asignaciones/reporte/${this.state.clienteActivo.codigo}`);
+        let visita = request.data.filter(x => moment(x.FechaAsignacion).format("DD/MM/YYYY") === moment().format("DD/MM/YYYY"))
+        if(visita[0].Cobros === 0 && visita[0].Promesa_de_Pago === 0 && visita[0].Ventas === 0){
+            this.openModalRazonNoVenta()
+        }
+        else{
+            this.enviarCheckin("checkout")
+        }
+    }
+
+    openModalRazonNoVenta = () => {
+        this.setState({ OpenModalNoVenta: true });
     }
 
     accesoPineo = () => {
-       var permisos =  this.props.Permisos[0].RolesUsuarios.filter(x => x.Nombre === "Registrar Pineo");
-       if(permisos.length > 0){
-           return true;
-       }
-       return false;
+        var permisos = this.props.Permisos[0].RolesUsuarios.filter(x => x.Nombre === "Registrar Pineo");
+        if (permisos.length > 0) {
+            return true;
+        }
+        return false;
     }
     render() {
         this.accesoPineo();
@@ -989,7 +1009,7 @@ class Agenda extends Component {
                         {
                             this.state.isLoaded ?
                                 <div className="col-12">
-                                    <Calendar onClickAgenda={this.onClickAgenda} asignaciones={this.state.Eventos} onClickEvento={this.onClickEvento} onClickAsignacion={this.onClickAsignacion} onClickAsesores={this.onClickAsesores} AsesorSelected = {this.state.AsesorSelected}/>
+                                    <Calendar onClickAgenda={this.onClickAgenda} asignaciones={this.state.Eventos} onClickEvento={this.onClickEvento} onClickAsignacion={this.onClickAsignacion} onClickAsesores={this.onClickAsesores} AsesorSelected={this.state.AsesorSelected} />
                                 </div>
                                 :
                                 <div style={{ marginTop: 15 }}>
@@ -1014,8 +1034,8 @@ class Agenda extends Component {
                         scroll={'paper'}
                         open={this.state.mostarEvento}
                         onClose={() => this.state.isModalLoaded && this.setState({ mostarEvento: false })}
-                        aria-labelledby="scroll-dialog-title" 
-                        ref={this.myRef}                   
+                        aria-labelledby="scroll-dialog-title"
+                        ref={this.myRef}
                     >
                         <DialogTitle
                             className="text-center"
@@ -1032,32 +1052,32 @@ class Agenda extends Component {
                                         <div className="row mb-1">
                                             <div className={'col-md-6 col-12 my-md-0 mb-3'}>
                                                 <h5 className="font-weight-light">Ubicación</h5>
-                                                <div style={{ height: '300px',display:'flex',alignItems:'center' }}>
-                                                {(this.state.clienteActivo.latitud === null && this.state.clienteActivo.longitud===null)
-                                                ?
+                                                <div style={{ height: '300px', display: 'flex', alignItems: 'center' }}>
+                                                    {(this.state.clienteActivo.latitud === null && this.state.clienteActivo.longitud === null)
+                                                        ?
                                                         <div ref={this.refCoordenadas}>
                                                             <h1 className="font-weight-light">No hay coordenadas disponibles</h1>
                                                             {this.state.AsesorSelected === localStorage.getItem('codigo') && <Button onClick={this.verificarObtencionCoordenadas} variant="contained" color="primary" style={{ display: 'block', margin: '0 auto' }}>Obtener coordenadas</Button>}
                                                         </div>
-                                                :
-                                                    <GoogleMapReact
-                                                        bootstrapURLKeys={{ key: APIKEY }}
-                                                        defaultCenter={
-                                                            {
+                                                        :
+                                                        <GoogleMapReact
+                                                            bootstrapURLKeys={{ key: APIKEY }}
+                                                            defaultCenter={
+                                                                {
+                                                                    lat: this.state.clienteActivo.latitud,
+                                                                    lng: this.state.clienteActivo.longitud,
+                                                                }
+                                                            }
+                                                            center={{
                                                                 lat: this.state.clienteActivo.latitud,
                                                                 lng: this.state.clienteActivo.longitud,
-                                                            }
-                                                        }
-                                                        center={{
-                                                            lat: this.state.clienteActivo.latitud,
-                                                            lng: this.state.clienteActivo.longitud,
-                                                        }}
-                                                        defaultZoom={16}
-                                                        onGoogleApiLoaded={({ map, maps }) => { this.setMapsApi(map, maps) }}
-                                                        yesIWantToUseGoogleMapApiInternals={true}
-                                                    >
-                                                    </GoogleMapReact>
-                                                }
+                                                            }}
+                                                            defaultZoom={16}
+                                                            onGoogleApiLoaded={({ map, maps }) => { this.setMapsApi(map, maps) }}
+                                                            yesIWantToUseGoogleMapApiInternals={true}
+                                                        >
+                                                        </GoogleMapReact>
+                                                    }
                                                 </div>
                                             </div>
                                             <div className={'col-md-6 col-12'}>
@@ -1074,7 +1094,7 @@ class Agenda extends Component {
 
                                                             <td></td>
                                                         </tr>
-                                                       { /*<tr>
+                                                        { /*<tr>
                                                             <td className="font-weight-bold">
                                                                 Facturas Vencidas:
                                                         </td>
@@ -1145,13 +1165,13 @@ class Agenda extends Component {
                                                     </tbody>
                                                 </table>
                                                 <div>
-                                                {this.accesoPineo() === true && <FormGroup row className={"mb-1"}>                                                    
-                                                    <Button style={{marginRight:'10px'}}color="primary" variant="outlined" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))}  onClick={() => this.setState((prevState)=>({ ...prevState,noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Atendió</Button>
+                                                    {this.accesoPineo() === true && <FormGroup row className={"mb-1"}>
+                                                        <Button style={{ marginRight: '10px' }} color="primary" variant="outlined" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))} onClick={() => this.setState((prevState) => ({ ...prevState, noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Visitó</Button>
 
-                                                    {!this.verifyBlock("checkin")
-                                                    ?<Button disabled={this.verifyBlock("checkin")}  variant="outlined" onClick={()=>{this.enviarCheckin("checkin")}} color="primary">Check In</Button>
-                                                    :<Button disabled={this.verifyBlock("checkout")} variant="outlined" onClick={()=>{this.enviarCheckin("checkout")}} color="primary">Check Out</Button>}
-                                                </FormGroup>}
+                                                        {!this.verifyBlock("checkin")
+                                                            ? <Button disabled={this.verifyBlock("checkin")} variant="outlined" onClick={() => { this.enviarCheckin("checkin") }} color="primary">Check In</Button>
+                                                            : <Button disabled={this.verifyBlock("checkout")} variant="outlined" onClick={() => { this.registrarCheckOut()}} color="primary">Check Out</Button>}
+                                                    </FormGroup>}
                                                 </div>
                                             </div>
                                         </div>
@@ -1162,8 +1182,8 @@ class Agenda extends Component {
                                             this.state.Acciones.map((accion, index) => {
                                                 if (accion.Estado) {
                                                     return (
-                                                        <Button key={index} variant="outlined" disabled={this.verifyBlock("bloqueo")} onClick={() => accion.UrlRedirect == null ? this.setState({ OpenModalPromesaPago: true}) : this.onClickModal(accion.UrlRedirect, this.state.clienteActivo.codigo)} color="primary">
-                                                         {accion.Accion}
+                                                        <Button key={index} variant="outlined" disabled={this.verifyBlock("bloqueo")} onClick={() => accion.UrlRedirect == null ? this.setState({ OpenModalPromesaPago: true }) : this.onClickModal(accion.UrlRedirect, this.state.clienteActivo.codigo)} color="primary">
+                                                            {accion.Accion}
                                                         </Button>
                                                     )
                                                 }
@@ -1196,6 +1216,124 @@ class Agenda extends Component {
                 {
                     <Dialog
                         scroll={'paper'}
+                        open={this.state.OpenModalNoVenta}
+                        className={styles.AtenderContainer}
+                        //onClose={() => this.onCloseModalAtendido()}
+                        aria-labelledby="No-Atendido-Modal">
+                        <DialogTitle
+                            className="text-center"
+                            id="scroll-dialog-title">
+                            <div
+                                style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                                Justificación de No Venta
+                            </div>
+                        </DialogTitle>
+                        <DialogContent >
+                            {
+                                this.state.isModalLoaded &&
+                                <>
+                                    <h6>Razón</h6>
+                                    <div className="row">
+                                        <div className="col-12 my-1">
+                                            <FormControl style={{ display: 'flex' }}>
+                                                <InputLabel htmlFor="demo-controlled-open-select">Tipo</InputLabel>
+                                                <Select
+                                                    value={(this.state.NoVentaSelected === null ? '' : this.state.NoVentaSelected)}
+                                                    onChange={this.handleRazonNoVenta}>
+                                                    {
+                                                        this.opcionRazonNoVenta()
+                                                    }
+
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                        <div className="col-12 my-1">
+                                            <TextField
+                                                label="Observación"
+                                                className="w-100"
+                                                multiline
+                                                rowsMax="6"
+                                                rows="2"
+                                                value={this.state.ComentarioRazonNoVenta}
+                                                onChange={this.handleChangeComentario}
+                                                margin="normal"
+                                            />
+                                        </div>
+                                    </div>
+                                </>
+                            }
+                        </DialogContent>
+                        <DialogActions>
+                            <Button variant="outlined" onClick={() => this.setState({ OpenModalNoVenta: false, NoVentaSelected: null, ComentarioRazonNoVenta: '' })} color="primary">
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                className={"py-1"}
+                                style={{ height: '35px' }}
+                                onClick={() => this.enviarRazonesNoVenta()}> 
+                                Guardar
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                }
+
+                {
+                    <Dialog
+                        scroll={'paper'}
+                        open={this.state.OpenModalAsesor}
+                        className={styles.AtenderContainer}
+                        onClose={() => this.setState({ OpenModalAsesor: false })}
+                        aria-labelledby="No-Atendido-Modal">
+                        <DialogTitle
+                            className="text-center"
+                            id="scroll-dialog-title">
+                            <div
+                                style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                                Asesores Disponibles
+                            </div>
+                        </DialogTitle>
+                        <DialogContent >
+                            {
+                                <>
+                                    <div className="row">
+                                        <div className="col-12 my-1">
+                                            <FormControl style={{ display: 'flex' }}>
+                                                <InputLabel htmlFor="demo-controlled-open-select">Asesor</InputLabel>
+                                                <Select
+                                                    value={(this.state.AsesorSelected === null ? '' : this.state.AsesorSelected)}
+                                                    onChange={this.handleOnChangeAsesor}>
+                                                    {
+                                                        this.opcionAsesores()
+                                                    }
+
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                    </div>
+                                </>
+                            }
+                        </DialogContent>
+                        <DialogActions>
+                            <Button variant="outlined" onClick={() => this.setState({ OpenModalAsesor: false })} color="primary">
+                                Cancelar
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                className={"py-1"}
+                                style={{ height: '35px' }}
+                                onClick={() => this.onChangeAsesor()}>
+                                Aceptar
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+                }
+
+                {
+                    <Dialog
+                        scroll={'paper'}
                         open={this.state.mostarNoAtendido}
                         className={styles.AtenderContainer}
                         onClose={() => this.onCloseModalAtendido()}
@@ -1205,7 +1343,7 @@ class Agenda extends Component {
                             id="scroll-dialog-title">
                             <div
                                 style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-                                No se Atendió
+                                No se Visitó
                             </div>
                         </DialogTitle>
                         <DialogContent >
@@ -1285,59 +1423,6 @@ class Agenda extends Component {
                         </DialogActions>
                     </Dialog>
                 }
-
-                {
-                    <Dialog
-                        scroll={'paper'}
-                        open={this.state.OpenModalAsesor}
-                        className={styles.AtenderContainer}
-                        onClose={() =>  this.setState({ OpenModalAsesor: false})}
-                        aria-labelledby="No-Atendido-Modal">
-                        <DialogTitle
-                            className="text-center"
-                            id="scroll-dialog-title">
-                            <div
-                                style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-                                Asesores Disponibles
-                            </div>
-                        </DialogTitle>
-                        <DialogContent >
-                            {
-                                <>
-                                    <div className="row">
-                                        <div className="col-12 my-1">
-                                            <FormControl style={{ display: 'flex' }}>
-                                                <InputLabel htmlFor="demo-controlled-open-select">Asesor</InputLabel>
-                                                <Select
-                                                    value={(this.state.AsesorSelected === null ? '' : this.state.AsesorSelected)}
-                                                    onChange={this.handleOnChangeAsesor}>
-                                                    {
-                                                        this.opcionAsesores()
-                                                    }
-
-                                                </Select>
-                                            </FormControl>
-                                        </div>
-                                    </div>
-                                </>
-                            }
-                        </DialogContent>
-                        <DialogActions>
-                            <Button variant="outlined" onClick={() =>  this.setState({ OpenModalAsesor: false})} color="primary">
-                                Cancelar
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                className={"py-1"}
-                                style={{ height: '35px' }}
-                                onClick={() => this.onChangeAsesor()}>
-                                Aceptar
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-                }
-
                 {
                     <Dialog
                         scroll={'paper'}
@@ -1415,22 +1500,22 @@ class Agenda extends Component {
 }
 
 const mapStateToProps = state => ({
-    empresas:state.empresas,
-    asignaciones:state.Asignaciones,
+    empresas: state.empresas,
+    asignaciones: state.Asignaciones,
     Permisos: state.Permisos,
-    clientesPedido:state.clientes,
-    clientesRecibo:state.Recibo.clientes
+    clientesPedido: state.clientes,
+    clientesRecibo: state.Recibo.clientes
 });
 
-const mapDispatchToProps = dispatch =>({
-    onSaveEmpresas:(empresas)=>{dispatch({type:'SET_EMPRESAS',payload:empresas})},
-    onSaveMonedas:(monedas)=>{dispatch({type:'SET_ABREVACIONMONEDAS',payload:monedas})},
-    onSaveClientesContado:(clientes)=>{dispatch({type:'SET_CLIENTESCONTADO',payload:clientes})},
-    onSaveAsignaciones:(asignaciones)=>{dispatch({type:'SET_ASIGNACIONES',payload:asignaciones})},
-    onSaveTipoVisita:(data)=>{dispatch({ type: "SET_TIPOVISITA", payload: data })},
-    onSaveConfiguraciones:(data)=>{dispatch({ type: "SET_CONFIGURACIONES", payload: data })},
-    onSaveClientesPedido:(data)=>{dispatch({ type: 'STORE_CLIENTES', clientes: data })},
-    onSaveClientesRecibo:(data)=>{dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data })}
+const mapDispatchToProps = dispatch => ({
+    onSaveEmpresas: (empresas) => { dispatch({ type: 'SET_EMPRESAS', payload: empresas }) },
+    onSaveMonedas: (monedas) => { dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: monedas }) },
+    onSaveClientesContado: (clientes) => { dispatch({ type: 'SET_CLIENTESCONTADO', payload: clientes }) },
+    onSaveAsignaciones: (asignaciones) => { dispatch({ type: 'SET_ASIGNACIONES', payload: asignaciones }) },
+    onSaveTipoVisita: (data) => { dispatch({ type: "SET_TIPOVISITA", payload: data }) },
+    onSaveConfiguraciones: (data) => { dispatch({ type: "SET_CONFIGURACIONES", payload: data }) },
+    onSaveClientesPedido: (data) => { dispatch({ type: 'STORE_CLIENTES', clientes: data }) },
+    onSaveClientesRecibo: (data) => { dispatch({ type: 'STORE_RECIBO_CLIENTES', clientes: data }) }
 })
 
-export default connect(mapStateToProps,mapDispatchToProps)(Agenda);
+export default connect(mapStateToProps, mapDispatchToProps)(Agenda);

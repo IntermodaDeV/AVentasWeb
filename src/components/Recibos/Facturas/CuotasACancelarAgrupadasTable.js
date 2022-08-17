@@ -35,7 +35,7 @@ const columns = [
     },
     {
         name: 'Valor',
-        label: 'Valor',
+        label: 'Valor Cuota',
     },
     {
         name: 'ValorDescuento',

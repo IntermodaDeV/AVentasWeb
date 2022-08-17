@@ -11,6 +11,7 @@ import { FaPrint } from "react-icons/fa";
 import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
 
 const ImprimirPedidoOriginal = (props) => {
+    localStorage.removeItem("borrador");
     const clientesContado = useSelector(e=>e.clientesContado);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const pedidoSelected = useSelector(k => k.pedidoSelected);

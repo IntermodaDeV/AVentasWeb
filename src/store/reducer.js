@@ -587,7 +587,7 @@ const reducer = (state = initialState, action) => {
 
         return {
             ...state,
-            TableValue:{},
+            //TableValue:{},
             colecciones,
             coleccion:{
                 ...state.coleccion,
@@ -711,6 +711,10 @@ const reducer = (state = initialState, action) => {
         } else {
             productos.push(action.payload);
         }
+
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
+        borrador.listaProductosAgregados = productos;
+        localStorage.setItem("borrador", JSON.stringify(borrador));
 
         return {
             ...state,
@@ -861,6 +865,23 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             CorrelativoRecibo: action.payload
+        }
+    }
+
+    if (action.type === "SET_BORRADOR") {
+        return {
+            ...state,
+            TableValue: action.payload.TableValue ? action.payload.TableValue : {},
+            TotalPedido: action.payload.TotalPedido,
+            listaProductosAgregados: action.payload.listaProductosAgregados ? action.payload.listaProductosAgregados : []
+        }
+    }
+
+    if (action.type === "RESET_TABLEVALUETOTALPEDIDO") {
+        return {
+            ...state,
+            TableValue:  {},
+            TotalPedido: 0.0,
         }
     }
     

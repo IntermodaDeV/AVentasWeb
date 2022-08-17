@@ -548,7 +548,7 @@ class Pedidos extends React.Component {
                         });
                         this.props.onSetTableValue({});
                         this.props.onResetProductosAgreagados();
-
+                        localStorage.removeItem("borrador");
                     }
                 })
             }
@@ -898,7 +898,6 @@ class Pedidos extends React.Component {
     getColeccion = (coleccion) => {
         this.props.onSetColeccion(coleccion);
         this.props.history.push("/Pedidos/Colecciones/" + coleccion.ColeccionTipo + "/" + coleccion.CodigoColeccion);
-        localStorage.setItem('ProdEnCarrito', 0)
     }
     seleccionarCliente = () => {
         if(this.state.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && this.props.clienteContado===null)
@@ -1039,6 +1038,7 @@ class Pedidos extends React.Component {
         let tableValue = { ...this.props.TableValue };
         let isSelected = true;
         let carrito = parseInt(localStorage.getItem('ProdEnCarrito'));
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
         try {
             let value = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId]
             value.Selected = isSelected = !value.Selected;
@@ -1141,6 +1141,7 @@ class Pedidos extends React.Component {
         let totalAcumulado = this.props.TotalPedido;
         if (isSelected) {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito + 1))
+            borrador.ProdEnCarrito = carrito + 1;
             let newProduct = {...producto,Selected:true};
             this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
@@ -1153,6 +1154,7 @@ class Pedidos extends React.Component {
             });
         } else {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito - 1))
+            borrador.ProdEnCarrito = carrito - 1;
             let newProduct = {...producto,Selected:false};
             this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
@@ -1166,6 +1168,10 @@ class Pedidos extends React.Component {
             });
         }
         this.props.onSetTotalPedido(totalAcumulado)
+
+        borrador.TableValue = tableValue;
+        borrador.TotalPedido = totalAcumulado;
+        localStorage.setItem("borrador",JSON.stringify(borrador));
 
         this.props.onSetTableValue(tableValue);
         // this.calcularTotal();
@@ -1280,6 +1286,12 @@ class Pedidos extends React.Component {
             });
         });
         this.props.onSetTotalPedido(totalAcumulado)
+
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
+        borrador.TableValue = tableValue;
+        borrador.TotalPedido = totalAcumulado;
+        localStorage.setItem("borrador",JSON.stringify(borrador));
+
         this.props.onSetTableValue(tableValue);
     }
 
@@ -2704,6 +2716,7 @@ class Pedidos extends React.Component {
 
     onchangeText(text, productoId, codigoColor, grupoTalla, talla, precio) {
         this.props.onSetBloqueo(false);
+        let borrador = JSON.parse(localStorage.getItem("borrador"));
         let tableValue = { ...this.props.TableValue };
         const valor = (text.target.validity.valid) ? text.target.value : tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla].Cantidad;
         let valorPrevio = tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla];
@@ -2724,9 +2737,14 @@ class Pedidos extends React.Component {
         }
         valorPrevio.Cantidad = valor;
         if (tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Selected) {
-            this.props.onSetTotalPedido(totalAcumulado)
+            this.props.onSetTotalPedido(totalAcumulado);
+            borrador.TotalPedido = totalAcumulado;
             // this.CrearDetallePedidoOnline(productoId, codigoColor, talla.slice(1) , valor, precio);
         }
+
+        borrador.TableValue = tableValue;
+        localStorage.setItem("borrador",JSON.stringify(borrador));
+
         this.props.onSetTableValue(tableValue);
     }
 
