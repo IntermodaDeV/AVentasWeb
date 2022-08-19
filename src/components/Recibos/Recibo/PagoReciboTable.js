@@ -208,11 +208,6 @@ const PagoReciboTable = (props) => {
                     return;
                 }
 
-                if(fechaRecibida<fechaActual)
-                {
-                    props.showAlert(true,'Tarjeta: La fecha de pago no puede ser menor que la fecha actual');
-                    return;
-                }
                 else if(indexBanco === null || indexBanco === undefined){                        
                     props.showAlert(true,'Tarjeta: El Campo Banco no debe ir vacio');
                     return;
@@ -255,6 +250,12 @@ const PagoReciboTable = (props) => {
                     if(fechaRecibida>fechaActual)
                     {
                         props.showAlert(true,'Cheque al dia: La fecha de pago no puede ser mayor que la fecha actual');
+                        return;
+                    }
+    
+                    if(fechaRecibida<fechaActual)
+                    {
+                        props.showAlert(true,'Cheque al dia: La fecha de pago no puede ser menor que la fecha actual');
                         return;
                     }
                     else if(indexBanco === null || indexBanco === undefined){                        
@@ -301,6 +302,18 @@ const PagoReciboTable = (props) => {
                 props.setHabilitado(false);
             }
             if(isLetraCambio){
+                if(fechaRecibida>fechaActual){
+                    props.showAlert(true,'Letra Cambio: La fecha de pago no debe ser mayor que la fecha actual');
+                    return;
+                }
+                else if(indexBanco === null || indexBanco === undefined){                        
+                    props.showAlert(true,'Letra Cambio: El Campo Banco no debe ir vacio');
+                    return;
+                }
+                else if(referencia === "" || referencia === undefined){                        
+                    props.showAlert(true,'Letra Cambio: La referencia no debe ir vacia');
+                    return;
+                }
                 props.ConfirmEditarPago(indexArray);
                 props.setHabilitado(false);
             }
