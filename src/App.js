@@ -57,6 +57,12 @@ import { AprobacionDevolucion } from 'containers/Devoluciones/ListadoDevolucion/
 import { ListadoDevolucionPendiente } from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucionPendiente'
 import { AcuerdosVenta } from 'containers/AcuerdosVenta/AcuerdoVenta'
 import { RazonesNoVenta } from 'containers/Agenda/RazonesNoVenta/RazonesNoVenta'
+import { MantenimientoGastosAsesores } from 'containers/GastosAsesores/MantenimientoGastos/MantenimientoGastosAsesores';
+import GastosPendientes from 'containers/GastosAsesores/GastosPendientes'
+import Gastos from 'containers/GastosAsesores/Gastos'
+import GastosNoSync from 'containers/GastosAsesores/GastosNoSync'
+import { CategoriaGasto } from 'components/GastoAsesores/CategoriaGasto/CategoriaGasto'
+
 const isLogged = () => {
   var token = localStorage.getItem('token')
   if (token !== null && token !== '') {
@@ -386,6 +392,31 @@ const App = props => {
               path='/acuerdosVenta'
               layout={MainLayout}
               component={AcuerdosVenta}
+            />
+            <LayoutRoute
+              path='/GiraAsesores/Mantenimiento'
+              layout={MainLayout}
+              component={MantenimientoGastosAsesores}
+            />
+            <LayoutRoute
+              path='/GiraAsesores/Mantenimiento/Categoria'
+              layout={MainLayout}
+              component={CategoriaGasto}
+            />
+            <LayoutRoute
+              path='/GiraAsesores/HistorialGasto'
+              layout={MainLayout}
+              component={Gastos}
+            />
+            <LayoutRoute
+              path='/GiraAsesores/GastosPendientes'
+              layout={MainLayout}
+              component={GastosPendientes}
+            />
+            <LayoutRoute
+              path='/GiraAsesores/GastosNoSincronizados'
+              layout={MainLayout}
+              component={GastosNoSync}
             />
 
             <Redirect to='/home' />

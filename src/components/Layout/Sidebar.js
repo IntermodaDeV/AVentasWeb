@@ -55,7 +55,10 @@ import {
     Build,
     AllInboxOutlined,
     HomeWork,
-    MonetizationOn
+    MonetizationOn,
+    History,
+    AirplanemodeActive,
+    Settings
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
@@ -178,6 +181,15 @@ const navItems = [
             { to: '/configuracion-almacenes', name: 'Almacen', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  },
             { to: '/configuracion-ubicaciones', name: 'Ubicacion', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  },
             { to: '/configuracion-RazonesNoVenta', name: 'Razones no venta', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  }
+        ]
+    },
+    {
+        to: '/GiraAsesores', name: 'Gira', dataTut: 'DataTut_GastosGira', Icon: AirplanemodeActive,
+        expanded: [
+            { to: '/GiraAsesores/Mantenimiento', name: 'Mantenimiento Gastos', dataTut: 'DataTut_mantenimientoGira', Icon: Settings, backgroundColor:''  },
+            { to: '/GiraAsesores/HistorialGasto', name: 'Historial Gastos', dataTut: 'DataTut_historialGastos', Icon: History, backgroundColor:''  },
+            { to: '/GiraAsesores/GastosPendientes', name: 'Aprobar Gastos', dataTut: 'DataTut_AprobarGasto', Icon: Description, backgroundColor:''  },
+            { to: '/GiraAsesores/GastosNoSincronizados', name: 'Gastos Pendientes Ax', dataTut: 'DataTut_pendientesSync', Icon: Sync, backgroundColor:''  },
         ]
     }
 ];

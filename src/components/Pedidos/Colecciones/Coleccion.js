@@ -139,7 +139,7 @@ const Coleccion = (props) => {
       let productosEnCarrito = 0;
 
       if (borrador) {
-        if (borrador.ProdEnCarrito != undefined || borrador.ProdEnCarrito != null) {
+        if (borrador.ProdEnCarrito !== undefined || borrador.ProdEnCarrito !== null) {
           productosEnCarrito = borrador.ProdEnCarrito;
         }
 
@@ -160,7 +160,7 @@ const Coleccion = (props) => {
 
             if (result.value) {
               dispatch({ type: "SET_BORRADOR", payload: { TableValue: borrador.TableValue, TotalPedido: borrador.TotalPedido, listaProductosAgregados: borrador.listaProductosAgregados } })
-              if (borrador.ProdEnCarrito != undefined || borrador.ProdEnCarrito != null) {
+              if (borrador.ProdEnCarrito !== undefined || borrador.ProdEnCarrito !== null) {
                 localStorage.setItem("ProdEnCarrito", borrador.ProdEnCarrito);
               }
             } else {
