@@ -20,6 +20,9 @@ import { Dropdown } from "semantic-ui-react";
 import { useSelector } from 'react-redux';
 import { verificarConexion } from 'utils/http';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import axios from 'axios';
+import FileSaver from 'file-saver';
+import XLSX from 'xlsx';
 moment.locale('es');
 
 const ListaPedidos = (props) => {
@@ -113,35 +116,6 @@ const ListaPedidos = (props) => {
         }
     }
 
-    // const cargarClientes = async () => {
-    //     fetch(urlApi + "/api/cliente", {
-    //         headers: {
-    //             'Authorization':
-    //                 'Bearer ' + localStorage.getItem('token')
-    //         }
-    //     })
-    //         .then(res => {
-    //             if (res.status === 401) {
-    //                 localStorage.setItem('token', '');
-    //                 window.location.reload();
-    //             }
-    //             if (res.status === 200) {
-
-    //                 res.json()
-    //                     .then(
-    //                         (result) => {
-    //                             setState({
-    //                                 ...state,
-    //                                 clientes: result,
-    //                             });
-    //                         }
-    //                     )
-    //             }
-
-    //         })
-    // }
-
-
     const handleFechaInicio = (fecha) => {
         setFechaInicio(fecha);
 
@@ -152,36 +126,6 @@ const ListaPedidos = (props) => {
     const handleFechaFin = (date) => {
         //var date = moment(fecha).toDate();
         setFechaFin(date);
-
-        /*const diffTime = new Date(date) - new Date(fechaInicio);
-
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        if (diffDays > 1) {
-            setState({
-                ...state,
-                endDate: date,
-            })
-        }
-        else {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top',
-                showConfirmButton: false,
-                timer: 3000
-            });
-
-            Toast.fire({
-                type: 'error',
-                title: 'Ingrese Fecha Válida',
-            })
-            var fech = new Date();
-            fech.setDate(fechaInicio.getDate() + 6);
-            setState({
-                ...state,
-                endDate: fech,
-            })
-        }*/
-
     }
     const getMuiTheme = () => createMuiTheme({
         overrides: {
@@ -280,6 +224,45 @@ const ListaPedidos = (props) => {
     const handleOnChangeAsesor = (value) => {
         setAsesorSelected(value);
     }
+    const guardarExcel = csvData => {
+        const fileName = `Reporte de pedidos`;
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const fileExtension = '.xlsx';
+        const ws = XLSX.utils.json_to_sheet(csvData);
+        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: fileType });
+        FileSaver.saveAs(data, fileName + fileExtension);
+    }
+
+    const mostrarAdvertencia = (title,text,type)=>{
+        Swal.fire({
+            title: title,
+            text: text,
+            type: type,
+            confirmButtonText: 'Ok',
+        })
+    }
+   
+    const obtenerReportePedidos = async () => {
+        try {
+            var Inicio = moment(fechaInicio).format("YYYY-MM-DD");
+            var Fin = moment(fechaFin).format("YYYY-MM-DD");
+            const request = await axios.get(`${APIURL}/api/reportePedidos/${AsesorSelected}/${Inicio}/${Fin}`);
+
+            if (request.data.length === 0) {
+                mostrarAdvertencia("Pedidos", "No se han encontrado registros para este rango de fechas", "warning")
+                return;
+            }
+
+            //guardarExcel(request.data);
+            //mostrarAdvertencia("¡Documento Descargado!", "Revise su panel de notificaciones o su carpeta de descargas.", "success");
+
+        } catch (err) {
+            mostrarAdvertencia("Error", "No se pudo obtener los registros", "error");
+        }
+    }
+
     if (!state.isLoaded) {
         return <Loader interval={1800} />;
     }
@@ -342,6 +325,11 @@ const ListaPedidos = (props) => {
                             onClick={() => cargarPedidos(fechaInicio, fechaFin)}>Obtener
                     </Button>
                     </div>
+                    <div>
+                    <div style={{ paddingTop: 10 }}>
+                        <button onClick={() => obtenerReportePedidos()} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
+                    </div>
+                </div>
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>
