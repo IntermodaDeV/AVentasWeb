@@ -255,8 +255,8 @@ const ListaPedidos = (props) => {
                 return;
             }
 
-            //guardarExcel(request.data);
-            //mostrarAdvertencia("¡Documento Descargado!", "Revise su panel de notificaciones o su carpeta de descargas.", "success");
+            guardarExcel(request.data);
+            mostrarAdvertencia("¡Documento Descargado!", "Revise su panel de notificaciones o su carpeta de descargas.", "success");
 
         } catch (err) {
             mostrarAdvertencia("Error", "No se pudo obtener los registros", "error");
