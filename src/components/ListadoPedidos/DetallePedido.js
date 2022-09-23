@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styles from 'components/ListadoPedidos/DetallePedido.module.css';
-// import PopupState, { bindToggle, bindPopper } from 'material-ui-popup-state';
-import GoogleMapReact from 'google-map-react';
+import { GoogleMap, useJsApiLoader, Marker, Circle } from '@react-google-maps/api';
 import { FaArrowLeft } from "react-icons/fa";
 import { Fab } from "@material-ui/core";
 import moment from "moment";
@@ -18,8 +17,13 @@ moment.locale('es');
 
 
 const DetallePedido = (props) => {
-
-    const [maps, setMaps] = useState({ map: null, maps: null })
+    let initialCoors = { lat: props.pedido.location.latitude,lng: props.pedido.location.longitude };
+    let longitudCliente = props.pedido.locationCliente.longitude;
+    let latitudCliente = props.pedido.locationCliente.latitude;
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: APIKEY
+    })
 
     const TotalPedido = () => {
         var total = 0;
@@ -29,62 +33,6 @@ const DetallePedido = (props) => {
             }
         });
         return total;
-    }
-
-    const renderMarkers = () => {
-        let cliente = { latitud: 0, longitud: 0 };
-
-        let clienteUbicacion = props.clientes.some(clien => {
-
-            if (clien.Codigo === props.pedido.CodigoCliente) {
-                cliente.latitud = clien.Latitud;
-                cliente.longitud = clien.Longitud;
-                return true
-            }
-            return false;
-        })
-
-        if (clienteUbicacion) {
-            addMarker(props.pedido.Cliente.Nombre, { lat: cliente.latitud, lng: cliente.longitud }, "blue", '')
-        }
-
-        addMarker(props.pedido.PedidoId, { lat: props.pedido.location.latitude, lng: props.pedido.location.longitude }, "red", '')
-
-
-    }
-
-    const addMarker = (title, latLng, color, pinText) => {
-        let map = maps.map;
-        //https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_[color][character].png
-        //color	red, black, blue, green, grey, orange, purple, white, yellow
-        //character	A-Z, 1-100, !, @, $, +, -, =, (%23 = #), (%25 = %), (%26 = &), (blank = •)
-        let url = `https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_${color}${pinText}.png`;
-
-        let infowindow = new maps.maps.InfoWindow({
-            content: title,
-        });
-        let marker = new maps.maps.Marker({
-            position: latLng,
-            map: map,
-            icon: {
-                url: url,
-            },
-            title: title,
-        });
-        marker.addListener('click', function () {
-            infowindow.open(map, marker);
-        });
-        map.addListener('click', function () {
-            infowindow.close();
-        });
-    }
-
-    const setMapsApi = (map, maps) => {
-        setMaps({ map: map, maps: maps });
-    }
-
-    if (maps.map !== null) {
-        renderMarkers();
     }
 
     const checkDist = (talla) => {
@@ -113,6 +61,20 @@ const DetallePedido = (props) => {
         )
     }
 
+    const rad = (x) => {
+        return x * Math.PI / 180;
+    }
+ 
+    const CalcularDistancia = (lat1, lon1, lat2, lon2) => {
+        var R = 6378.137;//Radio de la tierra en km
+        var dLat = rad(lat2 - lat1);
+        var dLong = rad(lon2 - lon1);
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLong / 2) * Math.sin(dLong / 2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var d = R * c;
+        return 1000 * d.toFixed(3);//Retorna valor en metros
+    }
+ 
     const TableBody = (array, cantidad,Precio) => {
         let CantDist = 0;
         let TotalCant= 0;
@@ -142,21 +104,42 @@ const DetallePedido = (props) => {
         )
     }
 
-    /*const TableDetails = (array) => {
-        return (
-            <tbody>
-                <tr>
-                    {
-                        array.map((dist, index) => {
-                            return (
-                                <td key={index} style={{ textAlign: 'center' }}>{dist.Cantidad}</td>
-                            )
-                        })
-                    }
-                </tr>
-            </tbody>
-        )
-    }*/
+    let options = null;
+    let color = "#FF0000";
+    let zoom = 11;
+    let LatitudpuntoMedio = 0;
+    let LongitudpuntoMedio = 0;
+    let PuntoMedio = null;
+    let distancia = 0;
+    if(latitudCliente && longitudCliente)
+    {
+        distancia = CalcularDistancia(props.pedido.location.latitude,props.pedido.location.longitude, latitudCliente, longitudCliente)
+        if(distancia <= 50){
+            color = "#1ECE39";
+            zoom = 19;
+        }else if(distancia <= 100){
+            color = "#F9EA06";
+            zoom = 15;
+        }
+        options = {
+            strokeColor: color,
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: color,
+            fillOpacity: 0.35,
+            clickable: false,
+            draggable: false,
+            editable: false,
+            visible: true,
+            radius: 30000,
+            zIndex: 1
+        }
+         LatitudpuntoMedio = (props.pedido.location.latitude + latitudCliente) / 2
+         LongitudpuntoMedio = (props.pedido.location.longitude + longitudCliente) / 2
+    
+         PuntoMedio = { lat: LatitudpuntoMedio,lng: LongitudpuntoMedio };
+    }
+
     return (
         <div className="px-3">
             <div>
@@ -177,31 +160,32 @@ const DetallePedido = (props) => {
                             Ubicación:
                                     </h5>
                         {
-                            props.pedido.location ?
+                           isLoaded && props.pedido.location ?
                                 <div style={{ height: '300px', width: '100%' }}>
-                                    <GoogleMapReact
-                                        bootstrapURLKeys={{ key: APIKEY }}
-                                        defaultCenter={
-                                            {
-                                                lat: props.pedido.location.latitude,
-                                                lng: props.pedido.location.longitude
-                                            }
-                                        }
-                                        center={{
-                                            lat: props.pedido.location.latitude,
-                                            lng: props.pedido.location.longitude
-                                        }}
-                                        defaultZoom={16}
-                                        onGoogleApiLoaded={({ map, maps }) => { setMapsApi(map, maps) }}
-                                        yesIWantToUseGoogleMapApiInternals={true}
-                                    >
-                                    </GoogleMapReact>
+                                    <GoogleMap zoom={zoom} center={PuntoMedio !== null ? PuntoMedio : initialCoors} mapContainerStyle={{ height: '60vh' }}>
+                                        <Marker clickable position={{ lat: props.pedido.location.latitude, lng: props.pedido.location.longitude}} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png" }}>
+                                        </Marker>
+                                        {
+                                            
+                                            latitudCliente !== null && longitudCliente !== null &&
+                                            <>
+                                            <Circle
+                                                center={initialCoors}
+                                                radius = {distancia}
+                                                options= {options}
+                                            />
 
+                                            <Marker clickable position={{ lat: latitudCliente, lng: longitudCliente}} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" }}>
+                                            </Marker>
+                                            </>
+                                        }
+                                     
+                                    </GoogleMap>
                                 </div>
                                 :
                                 <div>
                                     Ubicación no disponible
-                                        </div>
+                                </div>
                         }
 
                     </div>
@@ -350,48 +334,9 @@ const DetallePedido = (props) => {
                                             return (
                                                 <th className={styles.ThTest} key={index2} style={{ paddingBottom: (IsDist=== true) && '1.3%' }}>
                                                      <div className="text-center">
-                                                        {
-                                                            <div>{talla.Talla}</div>
-                                                           
-                                                         /*talla.Distribucion.length !== 0 &&
-                                                        <PopupState variant="popper" popupId={talla.Talla + index2}>
-                                                        {popupState => (
-                                                        <>
-                                                        <div variant="contained" className={"row"}>
-                                                            {talla.Talla}
-                                                            <InfoOutlined {...bindTrigger(popupState)} style={{ fontSize: '16px', cursor: 'pointer', margin: 'auto' }}> </InfoOutlined>
-                                                        </div>
-                                                            <Popover
-                                                            {...bindPopover(popupState)}
-                                                            style={{ zIndex: 900 }}
-                                                            anchorOrigin={{
-                                                            vertical: 'bottom',
-                                                            horizontal: 'center',
-                                                            }}
-                                                            transformOrigin={{
-                                                            vertical: 'top',
-                                                            horizontal: 'center',
-                                                            }}>
-                                                               <Box p={2}>
-                                                                    <div className="row mb-2">
-                                                                        <Typography component="h5" variant="h5">
-                                                                        {"Distribución de Tallas"}
-                                                                        </Typography>
-                                                                    </div>
-                                                                    <div style={{ maxWidth: '300px', overflow: 'auto' }}>
-                                                                        <table className="table table-striped table-bordered m-0">
-                                                                                {Headers(talla.Distribucion)}
-                                                                                {TableDetails(talla.Distribucion)}
-                                                                        </table>
-                                                                    </div>
-                                                                </Box>
-                                                                    
-                                                            </Popover>
-                                                            </>
-                                                        )}
-                                                        </PopupState>*/
+                                                    {
+                                                        <div>{talla.Talla}</div>
                                                     }
-
                                             </div> 
                                           </th>
                                             )
@@ -419,57 +364,6 @@ const DetallePedido = (props) => {
                                                                 </div>
                                                             </div>
 
-                                                            {/* <PopupState variant="popper" popupId={producto.NombreProducto + index2}>
-                                                                {popupState => (
-                                                                    <>
-                                                                        <div variant="contained" {...bindToggle(popupState)}>
-                                                                            <div className="row">
-                                                                                <div className="pl-1 pr-3">
-                                                                                    {producto.CodigoProducto}
-                                                                                </div>
-                                                                                <div>{producto.NombreProducto}</div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <Popper {...bindPopper(popupState)}
-                                                                            transition
-                                                                            placement="top"
-                                                                            modifiers={{
-                                                                                flip: {
-                                                                                    enabled: true
-                                                                                },
-                                                                                preventOverflow: {
-                                                                                    enabled: true,
-                                                                                    boundariesElement: "scrollParent"
-                                                                                },
-                                                                                arrow: {
-                                                                                    enabled: true
-                                                                                }
-                                                                            }}>
-                                                                            {({ TransitionProps }) => (
-                                                                                <Grow {...TransitionProps} timeout={350}>
-                                                                                    <Paper>
-                                                                                        <Card style={{ display: 'flex', }}>
-                                                                                            <CardMedia
-                                                                                                style={{ backgroundSize: 'contain', width: '100px' }}
-                                                                                                image={producto.Imagen ? producto.Imagen : "http://www.quesoselllanojaral.com/img/nodisponible.png"}
-                                                                                                title={producto.NombreProducto}
-                                                                                            />
-                                                                                            <CardContent>
-                                                                                                <Typography component="h5" variant="h5">
-                                                                                                    {producto.NombreProducto}
-                                                                                                </Typography>
-                                                                                                <Typography variant="subtitle1" color="textSecondary">
-                                                                                                    {producto.CodigoProducto}
-                                                                                                </Typography>
-                                                                                            </CardContent>
-                                                                                        </Card>
-                                                                                    </Paper>
-                                                                                </Grow>
-                                                                            )}
-                                                                     {}   </Popper>
-                                                                    </>
-                                                                )}
-                                                            </PopupState> */}
                                                         </div>
 
                                                     </td>

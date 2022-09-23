@@ -613,7 +613,7 @@ class Pedidos extends React.Component {
                         var PreciosEspecifico = fisicoDisponible.PreciosEspecificos.find(p => p.GrupoPrecio === this.props.cliente.GrupoPrecio)
                         value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = PreciosEspecifico.Precio
                     } else {
-                        value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = precio.Precio;
+                        value[color.CodigoColor].Tallas[' ' + talla.Talla].Precio = talla.Distribucion.length !== 0 ? 0 : precio.Precio;
                     }
                     return false;
                 });
