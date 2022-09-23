@@ -1,20 +1,21 @@
 import React, { useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { Fab } from "@material-ui/core";
-import GoogleMapReact from "google-map-react";
+import { GoogleMap, useJsApiLoader, Marker, Circle } from '@react-google-maps/api';
 import moment from "moment";
 import "moment/locale/es";
 import styles from "components/ListadoRecibos/DetalleRecibo.module.css";
-import { APIKEY } from 'utils/Enviroment';
-
+import {APIKEY} from 'utils/Enviroment';
 const DetalleRecibo = (props) => {
   const { recibo } = props;
   const [maps, setMaps] = useState({ map: null, maps: null });
-
-  const setMapsApi = (map, maps) => {
-    setMaps({ map: map, maps: maps });
-  };
-
+  let initialCoors = { lat: recibo.Latitude,lng: recibo.Longitude };
+  let longitudCliente = recibo.locationCliente.longitude;
+  let latitudCliente = recibo.locationCliente.latitude;
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: APIKEY
+})
   const renderMarkers = () => {
     if (recibo.Latitude !== null && recibo.Longitude !== null) {
       addMarker(
@@ -52,7 +53,55 @@ const DetalleRecibo = (props) => {
   if (maps.map !== null) {
     renderMarkers();
   }
+  const rad = (x) => {
+    return x * Math.PI / 180;
+  }
+  const CalcularDistancia = (lat1, lon1, lat2, lon2) => {
+    var R = 6378.137;//Radio de la tierra en km
+    var dLat = rad(lat2 - lat1);
+    var dLong = rad(lon2 - lon1);
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLong / 2) * Math.sin(dLong / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    return 1000 * d.toFixed(3);//Retorna valor en metros
+  }
+  let options = null;
+  let color = "#FF0000";
+  let zoom = 11;
+  let LatitudpuntoMedio = 0;
+  let LongitudpuntoMedio = 0;
+  let PuntoMedio = null;
+  let distancia = 0;
+  if(latitudCliente && longitudCliente)
+  {
+      distancia = CalcularDistancia(recibo.Latitude,recibo.Longitude, latitudCliente, longitudCliente)
+      if(distancia <= 50){
+          color = "#1ECE39";
+          zoom = 19;
+      }else if(distancia <= 100){
+          color = "#F9EA06";
+          zoom = 15;
+      }
+      options = {
+          strokeColor: color,
+          strokeOpacity: 0.8,
+          strokeWeight: 2,
+          fillColor: color,
+          fillOpacity: 0.35,
+          clickable: false,
+          draggable: false,
+          editable: false,
+          visible: true,
+          radius: 30000,
+          zIndex: 1
+      }
+       LatitudpuntoMedio = (recibo.Latitude + latitudCliente) / 2
+       LongitudpuntoMedio = (recibo.Longitude + longitudCliente) / 2
+  
+       PuntoMedio = { lat: LatitudpuntoMedio,lng: LongitudpuntoMedio };
+  }
 
+  console.log("recibo",recibo)
   return (
     <div className="px-3">
       <div>
@@ -77,26 +126,27 @@ const DetalleRecibo = (props) => {
         <div className="row">
           <div className="col-md-6 col-12 my-md-0 mb-3 p-0 pr-md-2">
             <h5 className={"font-weight-light"}>Ubicación:</h5>
-            {recibo.Latitude !== null && recibo.Longitude !== null ? (
+            {isLoaded && recibo.Latitude !== null && recibo.Longitude !== null ? (
               <div style={{ height: "300px", width: "100%" }}>
-                <GoogleMapReact
-                  bootstrapURLKeys={{
-                    key: APIKEY,
-                  }}
-                  defaultCenter={{
-                    lat: recibo.Latitude,
-                    lng: recibo.Longitude,
-                  }}
-                  center={{
-                    lat: recibo.Latitude,
-                    lng: recibo.Longitude,
-                  }}
-                  defaultZoom={16}
-                  onGoogleApiLoaded={({ map, maps }) => {
-                    setMapsApi(map, maps);
-                  }}
-                  yesIWantToUseGoogleMapApiInternals={true}
-                ></GoogleMapReact>
+                <GoogleMap zoom={zoom} center={PuntoMedio !== null ? PuntoMedio : initialCoors} mapContainerStyle={{ height: '40vh' }}>
+                  <Marker clickable position={{ lat: recibo.Latitude, lng: recibo.Longitude }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png" }}>
+                  </Marker>
+                  {
+
+                    latitudCliente !== null && longitudCliente !== null &&
+                    <>
+                      <Circle
+                        center={initialCoors}
+                        radius={distancia}
+                        options={options}
+                      />
+
+                      <Marker clickable position={{ lat: latitudCliente, lng: longitudCliente }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" }}>
+                      </Marker>
+                    </>
+                  }
+
+                </GoogleMap>
               </div>
             ) : (
               <div style={{ textAlign: "center", marginTop: "150px" }}>
