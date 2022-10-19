@@ -18,7 +18,8 @@ import DetalleGasto from 'components/GastoAsesores/DetalloGasto/DetalleGasto'
 import Dialog from "@material-ui/core/Dialog";
 import { IsAllow } from 'components/Seguridad/Permisos';
 import FileSaver from 'file-saver';
-import XLSX from 'xlsx';
+import XLSX, { write } from 'xlsx';
+import jsPDF from "jspdf";
 
 moment.locale('es');
 
@@ -32,8 +33,12 @@ const Gastos = (props) => {
     const [detalle, setDetalle] = useState(false);
     const [detalleGasto, setDetalleGasto] = useState([])
     const [idDetalle, setIdDetalle] = useState(null);
+    const [asesor, setAsesor] = useState('')
+    const numberWithCommas = (numero)=>(numero.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+
 
     useEffect(() => {
+        console.log(AsesoresUsuario)
         if (!IsAllow('/GiraAsesores/HistorialGasto')) {
             props.history.push('/home');
         }
@@ -41,7 +46,6 @@ const Gastos = (props) => {
         cargarHistorialGastos(startDate, endDate)
         let asesoresMap = AsesoresUsuario.map((Ase) => ({ key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }));
         setAsesores(asesoresMap);
-        // eslint-disable-next-line
     }, [])
 
     const getGastoDetalle = async (id, detalle) => {
@@ -89,11 +93,11 @@ const Gastos = (props) => {
     }
 
     const DataGastos = () => {
+        let DataGastos = [];
 
+        gastos.map(gasto => {
 
-        return gastos.map(gasto => {
-
-            return [
+            let data = [
                 gasto.tipo,
                 gasto.categoria,
                 gasto.serie,
@@ -108,31 +112,73 @@ const Gastos = (props) => {
                     <Button className='my-1' variant="outlined" onClick={() => getGastoDetalle(gasto.IdGastoViajeDetalle, gasto)} size="small" color={"primary"}>Detalle</Button>
                 </span>
             ]
-
+            DataGastos.push(data)
         })
-
+        return DataGastos;
     }
 
-    const guardarExcel = async () => {
+    const guardarPdf = async () =>{
+        const unit = "pt";
+        const size = "letter"; 
+        const orientation = "portrait";
+
+        const doc = new jsPDF(orientation, unit, size);
+        doc.setFontSize(10);
+        
+
+        
+
+        const headers = [['#', 'Tipo', 'Categoria', 'Descripcion', 'Fecha', 'Valor']];
+        
         let date = new Date();
         let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
         var Inicio = moment(startDate).format("YYYY-MM-DD");
         var Fin = moment(endDate).format("YYYY-MM-DD");
         const request = await axios.get(`${APIURL}/api/GastosExcel/${asesor}/${Inicio}/${Fin}`);
         let datos = request.data;
-        let datosEnviar = datos.map(element => {
-            element.fecha = moment(element.fecha).format("DD-MM-YYYY")
-            return element;
-        })
+        console.log(datos)
+        const title = `
+
+
+
+                                                                                Reporte Gastos de Viaje
+
+        Nombre Completo: ${datos[0].nombre}
         
-        const fileName = `Reporte Gastos de Viaje ${asesor} ${moment(date).format("DD-MM-YYYY")}`;
-        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-        const fileExtension = '.xlsx';
-        const ws = XLSX.utils.json_to_sheet(datosEnviar);
-        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
-        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const data = new Blob([excelBuffer], { type: fileType });
-        FileSaver.saveAs(data, fileName + fileExtension);
+        Desde: ${moment(startDate).format("DD/MM/YYYY")}
+        Hasta: ${moment(endDate).format("DD/MM/YYYY")}
+        `;
+
+        
+        const data= datos.map(e =>[
+            e.$id,
+            e.Tipo,
+            e.categoria,
+            e.descripcion,
+            moment(e.fecha).format("DD/MM/YYYY"),
+            numberWithCommas(e.valor)
+        ])
+
+        const total = datos.reduce((pre,curr)=>(pre+curr.valor),0);
+        data.push(['','','','','',numberWithCommas(total)]);
+
+        let content = {
+            styles:{fontSize:8},
+            startY: 120,
+            head: headers,
+            body: data
+        };
+        doc.text(title, 25, 0);
+        doc.autoTable(content);
+        doc.save(`Reporte Gastos de Viaje ${asesor} ${moment(date).format("DD-MM-YYYY")}.pdf`)
+
+        Swal.fire({
+            title: "¡Documento Descargado!",
+            text: "Revise su panel de notificaciones o su carpeta de descargas.",
+            type: 'success',
+            confirmButtonText: 'Ok',
+        });
+        
     }
 
     const handleFechaInicio = (fecha) => {
@@ -417,7 +463,7 @@ const Gastos = (props) => {
                     </Button>
                 </div>
                 <div>
-                    <button onClick={() => guardarExcel()} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
+                    <button onClick={() => guardarPdf()} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
                 </div>
             </div>
             <div>
