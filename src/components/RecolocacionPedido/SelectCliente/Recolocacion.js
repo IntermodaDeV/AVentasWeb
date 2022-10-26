@@ -7,6 +7,7 @@ import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { useSelector } from 'react-redux';
 
+import { Loading } from 'components/Global/Loading';
 
 export const Recolocacion = (props) => {
     const [rma, setRma] = useState("");
@@ -35,18 +36,23 @@ export const Recolocacion = (props) => {
     }
 
     return (
-        <Card style={{ margin: '15px' }}>
-            <CardContent>
-                <div style={{ marginTop: 20 }}>
-                    <h3>Recolocación de devolución</h3>
-                    <div style={{ display: 'flex', justifyContent: 'space-evenly', width: '100%', marginTop: 40 }}>
-                        <div style={{ display: 'flex', width: '90%' }}>
-                            <input type="text" className="mr-5 form-control" placeholder="RMA Devolución" onChange={(e) => { setRma(e.target.value) }} />
+        <>
+            <Loading open={open} title={title} />
+            <Card style={{ margin: '15px' }}>
+                <CardContent>
+                    <div style={{ marginTop: 20 }}>
+                        <h3 style={{ marginLeft: 30 }}>Recolocación de devolución</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-evenly', width: '100%', marginTop: 40 }}>
+                            <div style={{ display: 'flex', width: '90%' }}>
+                                <input type="text" className="mr-5 form-control" placeholder="RMA Devolución" onChange={(e) => { setRma(e.target.value) }} />
+                            </div>
+                            <button className="btn btn-success" onClick={obtenerProductoRma}>Registrar</button>
+
                         </div>
-                        <button className="btn btn-success" onClick={obtenerProductoRma}>Registrar</button>
                     </div>
-                </div>
-            </CardContent>
-        </Card>
+
+                </CardContent>
+            </Card>
+        </>
     );
 }
