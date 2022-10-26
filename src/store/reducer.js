@@ -77,7 +77,10 @@ const initialState = {
         motivoDevolucionDetalle: ""
     },
     CorrelativoReciboDiario:null,
-    CorrelativoRecibo:null
+    CorrelativoRecibo:null,
+    TrasladoPedido:{
+        clienteSeleccionado:null,
+    },
 }
 
 const calcularLimite = (state) => {
@@ -882,6 +885,16 @@ const reducer = (state = initialState, action) => {
             ...state,
             TableValue:  {},
             TotalPedido: 0.0,
+        }
+    }
+
+    if (action.type === 'SET_TRASLADO_CLIENTE') {
+        return {
+            ...state,
+            TrasladoPedido: {
+                ...state.TrasladoPedido,
+                clienteSeleccionado: action.payload
+            }
         }
     }
     

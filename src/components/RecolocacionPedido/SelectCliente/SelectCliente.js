@@ -8,11 +8,13 @@ import {
     Button,
 } from '@material-ui/core';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+
 
 const ClienteSelected = (props) => {
     const [value, setValue] = useState();
     const clientes = useSelector(e => e.Cartera);
+    const dispatch = useDispatch();
 
     const handleOnChange = (value) => {
         setValue(JSON.parse(value));
@@ -32,7 +34,7 @@ const ClienteSelected = (props) => {
             });
             return;
         }
-        
+        dispatch({ type: 'SET_TRASLADO_CLIENTE', payload: value })
         props.history.push("recolocacion-pedido/recolocacion")
     }
 
