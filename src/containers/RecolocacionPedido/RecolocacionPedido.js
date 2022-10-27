@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Switch } from "react-router-dom";
 import ClienteSelected from "components/RecolocacionPedido/SelectCliente/SelectCliente";
-import { Recolocacion } from 'components/RecolocacionPedido/SelectCliente/Recolocacion';
+import { Recolocacion } from 'components/RecolocacionPedido/Recolocacion';
 
 export const RecolocacionPedido = (props) => {
     return (

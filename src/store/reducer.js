@@ -80,6 +80,7 @@ const initialState = {
     CorrelativoRecibo:null,
     TrasladoPedido:{
         clienteSeleccionado:null,
+        TableValue: {}
     },
 }
 
@@ -893,7 +894,18 @@ const reducer = (state = initialState, action) => {
             ...state,
             TrasladoPedido: {
                 ...state.TrasladoPedido,
-                clienteSeleccionado: action.payload
+                clienteSeleccionado: action.payload,
+                TableValue: {}
+            }
+        }
+    }
+
+    if (action.type === 'SET_TABLEVALUERECOLOCACION') {
+        return {
+            ...state,
+            TrasladoPedido: {
+                ...state.TrasladoPedido,
+                TableValue: action.payload
             }
         }
     }
