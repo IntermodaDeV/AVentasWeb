@@ -221,7 +221,6 @@ export const Recolocacion = (props) => {
                                                         localStorage.setItem('Impuesto', impuesto);
                                                     } else {
                                                         impuesto = ((precio.Precio * cantidadXTalla) * productoImpuesto) + impuesto;
-                                                        console.log(impuesto)
                                                         localStorage.setItem('Impuesto', impuesto);
                                                     }
                                                 }
