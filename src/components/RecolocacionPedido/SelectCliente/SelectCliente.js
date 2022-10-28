@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 const ClienteSelected = (props) => {
     const [value, setValue] = useState();
-    const clientes = useSelector(e => e.Cartera);
+    const clientes = useSelector(e => e.clientes);
     const dispatch = useDispatch();
 
     const handleOnChange = (value) => {

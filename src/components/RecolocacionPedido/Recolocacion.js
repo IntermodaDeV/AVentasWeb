@@ -32,7 +32,7 @@ export const Recolocacion = (props) => {
     const clienteSeleccionado = useSelector(e => e.TrasladoPedido.clienteSeleccionado);
     const clienteImpuesto = clienteImpuestos.find(x => x.GRUPO === clienteSeleccionado.GrupoImpuesto);
     let moneda = (clienteSeleccionado !== null) ? ((clienteSeleccionado.Moneda !== null && clienteSeleccionado.Moneda !== '') ? clienteSeleccionado.Moneda : 'L.') : 'L.';
-
+    
     const numberWithCommasNoDec = (x) => {
         var parts = x.toString().split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -66,7 +66,7 @@ export const Recolocacion = (props) => {
                 }
 
                 agregarDevolucionCompleta(productosResult, data.data);
-                debugger
+           
                 setOpen(false);
             }
             else {
@@ -206,14 +206,24 @@ export const Recolocacion = (props) => {
                                             let color = producto.Colores[codigoColor];
                                             Object.keys(color.Tallas).forEach((codigoTalla) => {
                                                 let valorTalla = color.Tallas[codigoTalla];
+                                                let precio = { Precio: (valorTalla.Precio? valorTalla.Precio:0) };
                                                 let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
                                                 productoConCantidad = productoConCantidad || (cantidadXTalla > 0);
                                                 unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
-                                                totalGlobal = (1 * cantidadXTalla) + totalGlobal;
-
+                                                totalGlobal = (precio.Precio * cantidadXTalla) + totalGlobal;
+                                                //console.log(clienteSeleccionado.IncluyeImpuesto)
+                                                
                                                 if (clienteImpuesto.IMPUESTO !== 0) {
-                                                    impuesto = ((1 * cantidadXTalla) * productoImpuesto) + impuesto;
-                                                    localStorage.setItem('Impuesto', impuesto);
+                                                    if (clienteSeleccionado.IncluyeImpuesto) {
+                                                        let nuevoImpuesto = ((precio.Precio * cantidadXTalla) * productoImpuesto);
+                                                        totalGlobal -= nuevoImpuesto;
+                                                        impuesto = nuevoImpuesto + impuesto;
+                                                        localStorage.setItem('Impuesto', impuesto);
+                                                    } else {
+                                                        impuesto = ((precio.Precio * cantidadXTalla) * productoImpuesto) + impuesto;
+                                                        console.log(impuesto)
+                                                        localStorage.setItem('Impuesto', impuesto);
+                                                    }
                                                 }
                                             });
                                         });
