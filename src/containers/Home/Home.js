@@ -26,6 +26,7 @@ export const Home = (props) => {
     const Colecciones = useSelector(e => e.ListaPrecios);
     const [ModulosError, setModulosError] = useState([]);
     const Configuraciones = useSelector(e=>e.Configuraciones);
+    const [velocidad,setVelocidad] = useState(0);
 
     useEffect(() => {
         localStorage.setItem("Operando", "No");
@@ -63,6 +64,38 @@ export const Home = (props) => {
         }
         setModulosError([])
         inicioSesion();
+
+        const startCalculating = () => {
+            return window.setInterval(MeasureConnectionSpeed, 5000);
+        };
+
+        const MeasureConnectionSpeed = () => {
+            let startTime, endTime;
+            const download = new Image();
+            startTime = new Date().getTime();
+            const cacheBuster = '?nnn=' + startTime;
+            download.src = "https://www.sammobile.com/wp-content/uploads/2019/03/keyguard_default_wallpaper_silver.png" + cacheBuster;
+
+            download.onload = function (d) {
+                endTime = new Date().getTime();
+                showResults(startTime, endTime);
+            };
+        };
+
+        const showResults = (startTime, endTime) => {
+            const duration = (endTime - startTime) / 1000;
+            const bitsLoaded = 2550420 * 8;
+            const speedBps = (bitsLoaded / duration).toFixed(2);
+            const speedKbps = (speedBps / 1024).toFixed(2);
+            const speedMbps = (speedKbps / 1024).toFixed(2);
+            setVelocidad(speedMbps);
+        };
+
+        let intervalFun = startCalculating();
+
+        return () => {
+            window.clearInterval(intervalFun);
+        };
         // eslint-disable-next-line
     }, [])
     /*---------------------------INICIO SESION ---------------------------------------------------------*/
@@ -250,25 +283,30 @@ export const Home = (props) => {
         dispatch({ type: "SET_DOCUMENTOSPENDIENTES", payload: data });
 
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarCartera")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarCartera")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: "SET_DOCUMENTOSPENDIENTES", payload: data });
         }
 
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-DocumentosPendientes`, moment(`${fecha} 23:59:59`));
     }
 
     const cargarComunidadAutonoma = async () => {
         setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/transporte/comunidadautonoma`, "comunidadesAutonomas");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-comunidadesAutonomas`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarEmpresas = async () => {
@@ -276,36 +314,45 @@ export const Home = (props) => {
         setMensaje('Cargando Empresas');
         const { data, error } = await get(`${APIURL}/api/empresa/empresas`, "Empresas");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'SET_EMPRESAS', payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-Empresas`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarAbreviacionMonedas = async () => {
         setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/moneda`, "AbreviacionMonedas");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-AbreviacionMonedas`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarMonedas = async () => {
         setMensaje('Cargando Monedas');
         const { data, error } = await get(`${APIURL}/api/moneda/monedas`, "MonedasGlobal");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: "SET_MONEDASGLOBAL", payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-MonedasGlobal`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarConfiguraciones = async () => {
@@ -322,9 +369,9 @@ export const Home = (props) => {
         setMensaje('Cargando Tipo Visitas');
         const { data, error } = await get(`${APIURL}/api/TipoVisitaCliente`, "TipoVisita");
         if (error) {
-            console.log(error);
+            /*console.log(error);
             let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
-            setModulosError((prevState) => ([...prevState, step[0].Valor]));
+            setModulosError((prevState) => ([...prevState, step[0].Valor]));*/
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             ModuloCarteracliente();
         } else {
@@ -332,6 +379,9 @@ export const Home = (props) => {
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             ModuloCarteracliente();
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-TipoVisita`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarTipoVisitasOficina = async () => {
@@ -344,18 +394,24 @@ export const Home = (props) => {
             dispatch({ type: "SET_TIPOVISITA", payload: data });
             setloading(false);
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-TipoVisita`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarClientesContado = async () => {
         setMensaje('Cargando Clientes de Contado');
         const { data, error } = await get(`${APIURL}/api/clientecontado/${localStorage.getItem('codigo')}`, "clientesContado");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: "SET_CLIENTESCONTADO", payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-clientesContado`, moment(`${fecha} 23:59:59`))
     }
 
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE RECIBOS --------------------------------------*/
@@ -364,9 +420,9 @@ export const Home = (props) => {
         setMensaje('Cargando Clientes de Recibo');
         const { data, error } = await get(`${APIURL}/api/cliente/cuenta`, "Recibo", "clientes");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarRecibo")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarRecibo")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             CargaModuloPedidos();
         } else {
@@ -374,30 +430,39 @@ export const Home = (props) => {
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             CargaModuloPedidos();
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-Recibo`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarTipoPago = async () => {
         setMensaje('Cargando tipo de pago');
         const { data, error } = await get(`${APIURL}/api/tipopago`, "TipoPagoGlobal");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: "SET_TIPOPAGOGLOBAL", payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-TipoPagoGlobal`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarBancos = async () => {
         setMensaje('Cargando Bancos');
         const { data, error } = await get(`${APIURL}/api/banco`, "BancosGlobal");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: "SET_BANCOSGLOBAL", payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-BancosGlobal`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarCorrelativoRecibo = async () => {
@@ -412,9 +477,9 @@ export const Home = (props) => {
             dispatch({type:"SET_CORRELATIVORECIBODIARIO",payload:request.data});
         }
         catch (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarRecibo")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarRecibo")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         }
     }
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/
@@ -429,9 +494,9 @@ export const Home = (props) => {
             localStorage.setItem("CorrelativoPedidoDiario", request.data)
         }
         catch (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarPedidos")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarPedidos")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         }
     }
 
@@ -440,96 +505,120 @@ export const Home = (props) => {
         setMensaje('Cargando lineas');
         const { data, error } = await get(`${APIURL}/api/maestrolinea`, "MaestroLineas");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'STORE_MAESTROLINEA', maestroLineas: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-MaestroLineas`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarTiposColeccion = async () => {
         setMensaje('Cargando Tipos Coleccion');
         const { data, error } = await get(`${APIURL}/api/TiposColeccion`, "TiposColeccion");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-TiposColeccion`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarTiposPedido = async () => {
         setMensaje('Cargando Tipos de Pedidos');
         const { data, error } = await get(`${APIURL}/api/tipopedido`, "TiposPedido");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-TiposPedido`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarEmpresasTransporte = async () => {
         setMensaje('Cargando Empresas Transporte');
         const { data, error } = await get(`${APIURL}/api/transporte/empresas`, "EmpresaTransporteGlobal");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'SET_EMPRESASTRANSPORTEGLOBAL', payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-EmpresaTransporteGlobal`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarPrecioCajas = async () => {
         setMensaje('Cargando Precio Cajas');
         const { data, error } = await get(`${APIURL}/api/transporte/preciocaja`, "PrecioCajasGlobal");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'SET_PRECIOCAJASGLOBAL', payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-PrecioCajasGlobal`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarImpuestoClientes = async () => {
         setMensaje('Cargando Impuestos Clientes');
         const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Clientes`, "ClienteImpuestosGlobal");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'SET_CLIENTEIMPUESTOSGLOBAL', payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-ClienteImpuestosGlobal`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarImpuestoProductos = async () => {
         setMensaje('Cargando Impuestos Productos')
         const { data, error } = await get(`${APIURL}/api/gruposimpuestos/Articulos`, "ProductoImpuestosGlobal");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'SET_PRODUCTOIMPUESTOSGLOBAL', payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-ProductoImpuestosGlobal`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarMaestroBodega = async () => {
         setMensaje('Cargando Maestro de Bodega')
         const { data, error } = await get(`${APIURL}/api/MaestroBodegaAlmacenes`, "MaestroBodegaGlobal");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'SET_BODEGAALMACENES', payload: data });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-MaestroBodegaGlobal`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarMotivosDevolucion = async () => {
@@ -541,13 +630,16 @@ export const Home = (props) => {
         setMensaje('Cargando Cliente Pedidos')
         const { data, error } = await get(`${APIURL}/api/cliente/pedido`, "clientes");
         if (error) {
-            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarPedidos")
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarPedidos")
             setModulosError((prevState) => ([...prevState, step[0].Valor]))
-            console.log(error);
+            console.log(error);*/
         } else {
             dispatch({ type: 'STORE_CLIENTES', clientes: data });
             cargarListaPrecios(data);
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-clientes`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarListaPrecios = (clientes) => {
@@ -576,14 +668,17 @@ export const Home = (props) => {
                     CargaImagenes(res.data);
                 })
                 .catch(err => {
-                    let step = ValoresModulos.filter(v => v.Nombre === "SincronizarPedidos")
+                    /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarPedidos")
                     setModulosError((prevState) => ([...prevState, step[0].Valor]))
-                    console.log(err)
+                    console.log(err)*/
                     setActiveStep((prevActiveStep) => prevActiveStep + 1);
                     setSyncDiaria(true);
                     setloading(false);
                 });
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-ListaPrecios`, moment(`${fecha} 23:59:59`))
     }
     const CargaImagenes = async (data) => {
         let ColeccionOriginal = Colecciones;
@@ -702,8 +797,8 @@ export const Home = (props) => {
             const { data, error } = await get(`${APIURL}/api/cliente/${localStorage.getItem("codigo")}`, "Cartera");
             if (error) {
                 CargaModuloRecibo();
-                let step = ValoresModulos.filter(v => v.Nombre === "SincronizarCartera")
-                setModulosError((prevState) => ([...prevState, step[0].Valor]))
+                /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarCartera")
+                setModulosError((prevState) => ([...prevState, step[0].Valor]))*/
                 setActiveStep((prevActiveStep) => prevActiveStep + 1);
                 console.log(error);
             } else {
@@ -713,6 +808,9 @@ export const Home = (props) => {
                 CargaModuloRecibo();
             }
         }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-Cartera`, moment(`${fecha} 23:59:59`))
     }
 
     /*--------------------------------------------------------------------------------------------------------------------*/
@@ -721,6 +819,7 @@ export const Home = (props) => {
             <div class="card-body text-center">
                 <Loading open={loading} title={mensaje} />
                 <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
+                <h3 style={{color:velocidad<8?"red":"green"}}>Velocidad internet {velocidad} Mbps</h3>
                 <hr />
                 <div>
                     {update && (

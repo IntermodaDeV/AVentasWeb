@@ -27,7 +27,7 @@ export const EliminarModal = props => {
             }).then(() => {
                 localStorage.removeItem("ColeccionSeleccionada");
                 localStorage.removeItem("HoraIngreso");
-                props.navegar.history.push("/Pedidos/Colecciones")
+                //props.navegar.history.push("/Pedidos/Colecciones")
             });
 
         } catch (err) {
