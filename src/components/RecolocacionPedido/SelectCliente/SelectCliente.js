@@ -16,6 +16,14 @@ const ClienteSelected = (props) => {
     const clientes = useSelector(e => e.clientes);
     const dispatch = useDispatch();
 
+    
+
+    
+    const ClienteImpuestosGlobal = useSelector(e => e.ClienteImpuestosGlobal);
+    const ProductoImpuestosGlobal = useSelector(e => e.ProductoImpuestosGlobal);
+    
+
+
     const handleOnChange = (value) => {
         setValue(JSON.parse(value));
     }
@@ -35,6 +43,12 @@ const ClienteSelected = (props) => {
             return;
         }
         dispatch({ type: 'SET_TRASLADO_CLIENTE', payload: value })
+         let impuestosCliente = ClienteImpuestosGlobal.filter(x => x.EMPRESA === value.EmpresaId);
+         let impuestoProductosCliente = ProductoImpuestosGlobal.filter(x=>x.EMPRESA===value.EmpresaId);
+         dispatch({ type: 'SET_RECOLOCACIONCLIENTEIMPUESTO', payload: impuestosCliente })
+         dispatch({ type: 'SET_RECOLOCACIONPRODUCTOINMPUESTO', payload: impuestoProductosCliente })
+         
+
         props.history.push("recolocacion-pedido/recolocacion")
     }
 

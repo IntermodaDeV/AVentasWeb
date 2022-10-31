@@ -80,7 +80,10 @@ const initialState = {
     CorrelativoRecibo:null,
     TrasladoPedido:{
         clienteSeleccionado:null,
-        TableValue: {}
+        TableValue: {},
+        ClienteImpuestosRecolocacion:[],
+        ProductoImpuestosRecolocacion:[]
+
     },
 }
 
@@ -909,6 +912,29 @@ const reducer = (state = initialState, action) => {
             }
         }
     }
+
+   
+    if (action.type === 'SET_RECOLOCACIONCLIENTEIMPUESTO') {
+        return {
+            ...state,
+            TrasladoPedido: {
+                ...state.TrasladoPedido,
+                ClienteImpuestosRecolocacion: action.payload
+            }
+        }
+    }
+
+    if (action.type === 'SET_RECOLOCACIONPRODUCTOINMPUESTO') {
+        return {
+            ...state,
+            TrasladoPedido: {
+                ...state.TrasladoPedido,
+                ProductoImpuestosRecolocacion: action.payload
+            }
+        }
+    }
+
+     
     
     return state;
 };

@@ -26,11 +26,12 @@ export const Recolocacion = (props) => {
     let totalGlobal = 0.00;
     let impuesto = 0;
     let productosSinCantidad = false;
-    const clienteImpuestos = useSelector(e => e.ClienteImpuestos);
+
+    const clienteImpuestos = useSelector(e => e.TrasladoPedido.ClienteImpuestosRecolocacion);    
     let tableValue = useSelector(e => e.TrasladoPedido.TableValue);
-    const productoImpuestos = useSelector(e => e.ProductoImpuestos);
+    const productoImpuestos = useSelector(e => e.TrasladoPedido.ProductoImpuestosRecolocacion);
     const clienteSeleccionado = useSelector(e => e.TrasladoPedido.clienteSeleccionado);
-    const clienteImpuesto = clienteImpuestos.find(x => x.GRUPO === clienteSeleccionado.GrupoImpuesto);
+    const clienteImpuesto = clienteImpuestos.find(x => x.GRUPO === clienteSeleccionado.GrupoImpuesto);   
     let moneda = (clienteSeleccionado !== null) ? ((clienteSeleccionado.Moneda !== null && clienteSeleccionado.Moneda !== '') ? clienteSeleccionado.Moneda : 'L.') : 'L.';
     
     const numberWithCommasNoDec = (x) => {
