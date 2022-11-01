@@ -82,8 +82,9 @@ const initialState = {
         clienteSeleccionado:null,
         TableValue: {},
         ClienteImpuestosRecolocacion:[],
-        ProductoImpuestosRecolocacion:[]
-
+        ProductoImpuestosRecolocacion:[],
+        CodigoColeccionRecolocacion: "",
+        coleccion: {},
     },
 }
 
@@ -934,7 +935,28 @@ const reducer = (state = initialState, action) => {
         }
     }
 
-     
+    if (action.type === 'SET_CODIGOCOLECCIONTRECOLOCACION') {
+        return {
+            ...state,
+            TrasladoPedido: {
+                ...state.TrasladoPedido,
+                CodigoColeccionRecolocacion: action.payload
+            }
+        }
+    }
+
+    if (action.type === 'SET_LINEARECOLOCAION') {
+        return {
+            ...state,
+            TrasladoPedido: {
+                ...state.TrasladoPedido,
+                coleccion: action.payload
+            }
+        }
+    }
+
+    
+    
     
     return state;
 };
