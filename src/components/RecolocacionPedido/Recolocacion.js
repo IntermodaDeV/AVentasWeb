@@ -4,11 +4,20 @@ import {
     CardContent,
 } from '@material-ui/core';
 import axios from 'axios';
+import moment from "moment";
+import 'moment/locale/es';
 import { APIURL } from 'utils/Enviroment';
 import { mostrarModal } from 'utils/common';
-import { Loading } from 'components/Global/Loading';
 import { Dropdown } from "semantic-ui-react";
+import Dialog from '@material-ui/core/Dialog';
+import Button from '@material-ui/core/Button';
+import { DatePicker } from "@material-ui/pickers";
+import { Loading } from 'components/Global/Loading';
+import SignatureCanvas from 'react-signature-canvas';
 import { useSelector, useDispatch } from 'react-redux';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
 import { ExpandableRecolocacion } from './ExpandableRecolocacion';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
 import { ObtenerCoordenadas } from 'utils/common';
@@ -17,13 +26,18 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { post,postPedidoStorage } from 'utils/http';
 
 export const Recolocacion = (props) => {
+
+    let fechaInicioEntrega = moment().toDate();
+    let fechaMinimaEntrega = moment().toDate();
     const tiposPedido = useSelector(e => e.TiposPedido);
+    const [firma, setFirma] = React.useState(null);
     const [rma, setRma] = useState("");
     const [tipoCredito, settipoCredito] = useState("");
     const [productos, setproductos] = useState([]);
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
 
+    const Monedas = useSelector(e => e.AbreviacionMonedas);
 
     const dispatch = useDispatch();
     let unidadesTotales = 0;
@@ -33,14 +47,17 @@ export const Recolocacion = (props) => {
     let productosSinCantidad = false;
 
     const ColeccionRecolocacion = useSelector(e => e.TrasladoPedido.coleccion);
+    const [ErrorFirma, setErrorFirma] = React.useState(true);
+    const [mostrarFirma, setMostrarFirma] = React.useState(false);
     const clienteImpuestos = useSelector(e => e.TrasladoPedido.ClienteImpuestosRecolocacion);
     let tableValue = useSelector(e => e.TrasladoPedido.TableValue);
     const productoImpuestos = useSelector(e => e.TrasladoPedido.ProductoImpuestosRecolocacion);
+    const [ErrorFecha, setErrorFecha] = React.useState(false);
+    const [FechaEntrega, setFechaEntrega] = React.useState(fechaInicioEntrega);
     const clienteSeleccionado = useSelector(e => e.TrasladoPedido.clienteSeleccionado);
     const clienteImpuesto = clienteImpuestos.find(x => x.GRUPO === clienteSeleccionado.GrupoImpuesto);
-    let moneda = (clienteSeleccionado !== null) ? ((clienteSeleccionado.Moneda !== null && clienteSeleccionado.Moneda !== '') ? clienteSeleccionado.Moneda : 'L.') : 'L.';
-
-    //const Table
+    const moneda = Monedas.find(e => e.IdMoneda === clienteSeleccionado.Moneda).Abreviacion;
+    var sigPad = {};
 
     const numberWithCommasNoDec = (x) => {
         var parts = x.toString().split(".");
@@ -53,6 +70,34 @@ export const Recolocacion = (props) => {
         var parts = x.toString().split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         return parts.join(".");
+    }
+
+    const onAcceptDate = (date) => {
+        setErrorFecha(false);
+        props.guardarFecha(date);
+    }
+
+    const onChangeDate = (date) => {
+        setFechaEntrega(date);
+        props.guardarFecha(date);
+    }
+
+    const closeDialogFirma = () => {
+        if (sigPad.isEmpty()) {
+            setMostrarFirma(false);
+            setFirma(null);
+            props.guardarFirma(null);
+            setErrorFirma(true);
+        }
+        else {
+            setMostrarFirma(false);
+            setFirma(sigPad.getCanvas().toDataURL('image/png'));
+            //props.guardarFirma(sigPad.getCanvas().toDataURL('image/png'));
+            setErrorFirma(false);
+        }
+    }
+    const clearFirma = () => {
+        sigPad.clear();
     }
 
     const obtenerProductoRma = async () => {
@@ -126,7 +171,7 @@ export const Recolocacion = (props) => {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].CodigoColor = color.CodigoColor;
 
                     for (const talla of producto.ListaTalla) {
-                        let precio = 15;
+                        let precio = 100;
                         const productoValores = productoDevolver.find(x => x.color === color.CodigoColor && x.talla.toUpperCase() === talla.Talla);
 
                         if (producto.fisicaDisponible.length !== 0) {
@@ -391,7 +436,6 @@ export const Recolocacion = (props) => {
                                                 productoConCantidad = productoConCantidad || (cantidadXTalla > 0);
                                                 unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
                                                 totalGlobal = (precio.Precio * cantidadXTalla) + totalGlobal;
-                                       
                                                 if (clienteImpuesto.IMPUESTO !== 0) {
                                                     if (clienteSeleccionado.IncluyeImpuesto) {
                                                         let nuevoImpuesto = ((precio.Precio * cantidadXTalla) * productoImpuesto);
@@ -422,23 +466,120 @@ export const Recolocacion = (props) => {
                                     })
                                 })}
                             </form>
-                            <div className={`row text-center ${styles['barra']}`} >
-                                <div className={`col ${styles['barraInner']}`}>
-                                    Unidades: {numberWithCommasNoDec(totalCant)}
-                                </div>
-                                <div className={`col ${styles['barraInner']}`}>
-                                    Subtotal: {moneda} {numberWithCommas(totalGlobal)}
-                                </div>
-                                <div className={`col ${styles['barraInner']}`}>
-                                    ISV: {moneda} {numberWithCommas(impuesto)}
-                                </div>
-                                <div className={`col ${styles['barraInner']}`}>
-                                    Total: {moneda} {numberWithCommas(totalGlobal + impuesto)}
-                                </div>
-                                <div >
-                                    <button onClick={recolocaion} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Finalizar recolocación</button>
+                            <div>
+
+                                <div className="row" style={{ paddingTop: '15px' }}>
+                                    <div className="col-xl-9 col-lg-8 col-md-7 col-12">
+                                        <div className="row">
+                                            <div className="col-xl-6 col-lg-7 col-md-12 col-sm-9 p-0">
+                                                {
+                                                    (firma !== null) &&
+                                                    <div>
+
+                                                        <div className="row">
+                                                            <span>Firma:</span>
+                                                        </div>
+                                                        <div className="row">
+                                                            <img
+                                                                alt={"Firma"}
+                                                                src={firma}
+                                                                onClick={() => setMostrarFirma(true)}
+                                                                style={{
+                                                                    width: '350px',
+                                                                    height: '200px',
+                                                                }} />
+                                                        </div>
+
+                                                    </div>
+                                                }
+
+                                                {
+                                                    (!(firma !== null)) && <button className="btn btn-primary" style={{ marginBottom: 10 }} onClick={() => setMostrarFirma(true)}>Firmar</button>
+                                                }
+                                            </div>
+                                            <div className="col-xl-6 col-lg-5 col-md-12 col-sm-3 py-md-0 pt-sm-0  py-3 p-0">
+                                                <DatePicker
+                                                    autoOk
+                                                    label="Fecha Entrega"
+                                                    variant="inline"
+                                                    format={"DD/MM/YYYY"}
+                                                    invalidDateMessage={"Fecha no es válida"}
+                                                    shouldDisableDate={(e) => (e.day() === 0)}
+                                                    onAccept={(date) => onAcceptDate(date)}
+                                                    value={FechaEntrega}
+                                                    minDate={fechaMinimaEntrega}
+                                                    maxDate={moment('2100-01-01').toDate()}
+                                                    onChange={(date) => onChangeDate(date)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className='col-xl-3 col-lg-4 col-md-5 col-12'>
+                                        <div className="row">
+                                            <div className="col-6 text-right">
+                                                Unidades:
+                                            </div>
+                                            <div className="col-6">
+                                                {numberWithCommasNoDec(totalCant)}
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-6 text-right">
+                                                Subtotal:
+                                            </div>
+                                            <div className="col-6">
+                                                {moneda} {numberWithCommas(totalGlobal)}
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-6 text-right">
+                                                ISV:
+                                            </div>
+                                            <div className="col-6">
+                                                {moneda} {numberWithCommas(impuesto)}
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-6 text-right">
+                                                Total:
+                                            </div>
+                                            <div className="col-6">
+                                                {moneda} {numberWithCommas(totalGlobal + impuesto)}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
+                            <br />
+                            <div className={`row text-center ${styles['barra']}`} />
+                            <button className="btn btn-secondary" style={{ marginTop: 22, float: 'right', marginBottom: 10, }}>Finalizar recolocación</button>
+
+                            <Dialog
+                                open={mostrarFirma}
+                                onClose={() => setMostrarFirma(false)}
+                                scroll={'paper'}
+                                aria-labelledby="scroll-dialog-title"
+                            >
+                                <DialogTitle id="scroll-dialog-title">Firma del Cliente</DialogTitle>
+                                <DialogContent >
+                                    <div>
+                                        <SignatureCanvas
+                                            canvasProps={{ className: styles.sigCanvas }}
+                                            ref={(ref) => { sigPad = ref }} />
+                                    </div>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={() => setMostrarFirma(false)} color="primary">
+                                        Cancelar
+                                    </Button>
+                                    <Button onClick={() => clearFirma(false)} color="primary">
+                                        Limpiar
+                                    </Button>
+                                    <Button onClick={() => closeDialogFirma()} color="primary">
+                                        Guardar
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
                         </>
                     }
                 </CardContent>
