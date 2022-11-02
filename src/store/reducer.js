@@ -85,6 +85,7 @@ const initialState = {
         ProductoImpuestosRecolocacion:[],
         CodigoColeccionRecolocacion: "",
         coleccion: {},
+        tipoCreditoRecolocacion: ""
     },
 }
 
@@ -945,7 +946,7 @@ const reducer = (state = initialState, action) => {
         }
     }
 
-    if (action.type === 'SET_LINEARECOLOCAION') {
+    if (action.type === 'SET_COLECCIONRECOLOCACION') {
         return {
             ...state,
             TrasladoPedido: {
@@ -954,9 +955,16 @@ const reducer = (state = initialState, action) => {
             }
         }
     }
-
-    
-    
+        
+    if (action.type === 'SET_TIPOCREDITORECOLOCACION') {
+        return {
+            ...state,
+            TrasladoPedido: {
+                ...state.TrasladoPedido,
+                tipoCreditoRecolocacion: action.payload
+            }
+        }
+    }
     
     return state;
 };

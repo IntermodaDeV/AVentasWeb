@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Card,
     CardContent,
@@ -23,41 +23,47 @@ import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.mod
 import { ObtenerCoordenadas } from 'utils/common';
 import { verificarConexion } from 'utils/http';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import { post,postPedidoStorage } from 'utils/http';
+import { post, postPedidoStorage } from 'utils/http';
 
 export const Recolocacion = (props) => {
-
     let fechaInicioEntrega = moment().toDate();
     let fechaMinimaEntrega = moment().toDate();
-    const tiposPedido = useSelector(e => e.TiposPedido);
-    const [firma, setFirma] = React.useState(null);
+
+    const [firma, setFirma] = useState(null);
     const [rma, setRma] = useState("");
-    const [tipoCredito, settipoCredito] = useState("");
-    const [productos, setproductos] = useState([]);
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
+    const [ErrorFirma, setErrorFirma] = useState(true);
+    const [mostrarFirma, setMostrarFirma] = useState(false);
+    const [ErrorFecha, setErrorFecha] = useState(false);
+    const [FechaEntrega, setFechaEntrega] = useState(fechaInicioEntrega);
+    const [loading, setLoading] = useState(false);
 
     const Monedas = useSelector(e => e.AbreviacionMonedas);
-
+    const ColeccionRecolocacion = useSelector(e => e.TrasladoPedido.coleccion);
+    const clienteImpuestos = useSelector(e => e.TrasladoPedido.ClienteImpuestosRecolocacion);
+    let tableValue = useSelector(e => e.TrasladoPedido.TableValue);
+    const productoImpuestos = useSelector(e => e.TrasladoPedido.ProductoImpuestosRecolocacion);
+    const clienteSeleccionado = useSelector(e => e.TrasladoPedido.clienteSeleccionado);
+    const tiposPedido = useSelector(e => e.TiposPedido);
+    const bodegaMaestro = useSelector(e => e.MaestroBodegaAlmacenes);
+    const tipoCredito = useSelector(e => e.TrasladoPedido.tipoCreditoRecolocacion);
     const dispatch = useDispatch();
+
     let unidadesTotales = 0;
     let totalCant = 0;
     let totalGlobal = 0.00;
     let impuesto = 0;
     let productosSinCantidad = false;
+    let sigPad = {};
 
-    const ColeccionRecolocacion = useSelector(e => e.TrasladoPedido.coleccion);
-    const [ErrorFirma, setErrorFirma] = React.useState(true);
-    const [mostrarFirma, setMostrarFirma] = React.useState(false);
-    const clienteImpuestos = useSelector(e => e.TrasladoPedido.ClienteImpuestosRecolocacion);
-    let tableValue = useSelector(e => e.TrasladoPedido.TableValue);
-    const productoImpuestos = useSelector(e => e.TrasladoPedido.ProductoImpuestosRecolocacion);
-    const [ErrorFecha, setErrorFecha] = React.useState(false);
-    const [FechaEntrega, setFechaEntrega] = React.useState(fechaInicioEntrega);
-    const clienteSeleccionado = useSelector(e => e.TrasladoPedido.clienteSeleccionado);
+    const bodega = bodegaMaestro.find(x => x.BodegaPrincipal === true && x.Estatus === true);
     const clienteImpuesto = clienteImpuestos.find(x => x.GRUPO === clienteSeleccionado.GrupoImpuesto);
     const moneda = Monedas.find(e => e.IdMoneda === clienteSeleccionado.Moneda).Abreviacion;
-    var sigPad = {};
+
+    const tipoCreditoRecolocacion = (tcredit) => {
+        dispatch({ type: "SET_TIPOCREDITORECOLOCACION", payload: tcredit });
+    }
 
     const numberWithCommasNoDec = (x) => {
         var parts = x.toString().split(".");
@@ -105,15 +111,14 @@ export const Recolocacion = (props) => {
             if (rma != "") {
                 setTitle("Obteniendo productos de la devolución");
                 setOpen(true);
-                //setRma("RM-0023971")
                 const grupoPrecio = clienteSeleccionado.GrupoPrecio;
                 const data = await axios.get(`${APIURL}/api/trasladopedido/obtenerproductos/${rma}/${clienteSeleccionado.EmpresaId}`);
-                const Coleccion = await axios.get(`${APIURL}/api/trasladopedido/getcoleccioneById/${data.data.coleccionId}`);
-                dispatch({ type: "SET_LINEARECOLOCAION", payload: Coleccion });
+                const coleccion = await axios.get(`${APIURL}/api/trasladopedido/getcoleccioneById/${data.data.coleccionId}`);
+                dispatch({ type: "SET_COLECCIONRECOLOCACION", payload: coleccion.data });
 
                 let codigoProductos = [...new Set(data.data.productos.map(x => x.codigoProducto))];
                 let productosResult = [];
-                const total = 0;
+
                 for (let codigo of codigoProductos) {
                     let products = data.data.productos.filter(x => x.codigoProducto === codigo);
                     let colores = [...new Set(products.map(x => x.color))];
@@ -130,7 +135,7 @@ export const Recolocacion = (props) => {
                 mostrarModal('Recolocación', 'Debe llenar el campo del RMA para poder realizar esta acción.', "error");
             }
         } catch {
-            setproductos([]);
+
         }
     }
 
@@ -138,7 +143,7 @@ export const Recolocacion = (props) => {
         return tiposPedido.filter(x => x.Aplica_Todos).map(tipoPedido => ({ key: tipoPedido.TipoPedido, value: tipoPedido.TipoPedido, text: tipoPedido.TipoPedido }));
     }
 
-    const agregarDevolucionCompleta = (productos, productosAPI) => {    
+    const agregarDevolucionCompleta = (productos, productosAPI) => {
         let miTableValue = {};
         const productosDevolver = productosAPI.productos;
         for (const producto of productos) {
@@ -198,172 +203,193 @@ export const Recolocacion = (props) => {
         dispatch({ type: "SET_TABLEVALUERECOLOCACION", payload: miTableValue });
     }
 
-    const recolocaion = async (correlativo)=> {
-       
+    const calcularTipoVenta = () => {
+        let isMora = !(clienteSeleccionado.FacturacionEntrega === 'No' || clienteSeleccionado.FacturacionEntrega === 'Nunca');
+        if (isMora) {
+            return 0;
+        }
+        if (ColeccionRecolocacion.coleccionTipo === 'B') {
+            if (clienteSeleccionado.CuentaCorriente === null || clienteSeleccionado.CuentaCorriente.length === 0) {
+                return 0;
+            }
+        }
+        return 3;
+    }
+
+    useEffect(() => {
+        const obtenerUltimoCorrelativo = async () => {
+            try {
+                const request = await axios.get(`${APIURL}/api/PedidosXCliente/correlativo/${localStorage.getItem('empresa')}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+                localStorage.setItem("CorrelativoPedido", request.data)
+            }
+            catch (error) {
+                console.log(error);
+            }
+        }
+
+        obtenerUltimoCorrelativo();
+    }, []);
+
+    const recolocarPedido = () => {
         ObtenerCoordenadas((position) => {
             enviarRecolocacion({
                 longitude: position.coords.longitude,
                 latitude: position.coords.latitude
-            },correlativo)
+            })
         }, (error) => {
-            enviarRecolocacion(null,correlativo);
+            enviarRecolocacion(null);
         });
     }
 
-    const enviarRecolocacion = async (location, correlativo) => {
+    const enviarRecolocacion = async (location) => {
 
-        let isOnline = await verificarConexion();
-        let nuevoSubtotal = clienteSeleccionado.IncluyeImpuesto ? totalGlobal - Number(localStorage.getItem('Impuesto')) : totalGlobal;
-        let pedido = {
-            //    NumeroReferencia: localStorage.getItem("CorrelativoPedido"),
-            //     PedidoCache:localStorage.getItem("isOffline"),
-            PedidoId: 100 + (Math.random() * (10000 - 100)),
-            CodigoCliente: clienteSeleccionado.Codigo,
-            Nombre: clienteSeleccionado.Nombre,
-            //     Firma: this.state.firmaPedido,
-            //     FechaEntrega: this.state.fechaEntregaPedido,
-            //     AcuerdoVenta: this.props.AcuerdoVenta ? this.props.AcuerdoVenta.IdAcuerdoxCliente : '',
-            location: location,
-            EmpresaUsuario: localStorage.getItem('empresa'),
-            Linea: ColeccionRecolocacion.data.linea,
-            CodigoColeccion: ColeccionRecolocacion.data.codigoColeccion,
-            DetallePedido: [],
-            TipoPedido: tipoCredito,
-            //     TipoVenta: this.calcularTipoVenta(),
-            //     ClienteContadoId: (this.props.clienteContado !== null) ? this.props.clienteContado.id : null,
-            //     ModoVenta: (this.props.TipoPedido.TipoPedido === 'Contado') ? 'Contado' : 'Credito',
-            //     Flete: this.props.flete,
-            //     RequiereEntrega: this.props.requiereEntrega,
-            Impuesto: Number(localStorage.getItem('Impuesto')),
-            subtotal: totalGlobal,
-            Direccion: clienteSeleccionado.Direccion,
-            MonedaCliente: clienteSeleccionado.Moneda,
-            //     BodegaEspecifica: !this.props.BodegaSeleccionada.BodegaPrincipal,
-            //     Sitio: this.props.BodegaSeleccionada.CodigoSitio,
-            //     Almacen: this.props.BodegaSeleccionada.Almacen
-        };
+        if (firma === null || firma === "") {
+            Swal.fire({
+                type: 'warning',
+                title: 'Advertencia',
+                text: "Por favor ingrese la firma.",
+            });
+        } else {
+            setLoading(true);
 
-        Object.keys(tableValue).map((grupoTalla, index) => {
-            let productos = Object.keys(tableValue[grupoTalla].Productos);
-            return productos.map((codigoProducto, index1) => {
-                let producto = tableValue[grupoTalla].Productos[codigoProducto];
-                let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
-                const productoImpuesto = productoImpuestos.find(x => x.GRUPO === producto.GrupoImpuesto).IMPUESTO;
-                let productoConCantidad = false;
-                let { totalCantidad } = obtenerTotales(producto);
-                totalCant += totalCantidad;
+            let nuevoSubtotal = clienteSeleccionado.IncluyeImpuesto ? totalGlobal - Number(localStorage.getItem('Impuesto')) : totalGlobal;
+            let pedido = {
+                NumeroReferencia: localStorage.getItem("CorrelativoPedido"),
+                PedidoCache: localStorage.getItem("isOffline"),
+                PedidoId: 100 + (Math.random() * (10000 - 100)),
+                CodigoCliente: clienteSeleccionado.Codigo,
+                Nombre: clienteSeleccionado.Nombre,
+                Firma: firma,
+                FechaEntrega: FechaEntrega,
+                AcuerdoVenta: null,
+                location: location,
+                EmpresaUsuario: localStorage.getItem('empresa'),
+                Linea: ColeccionRecolocacion.linea,
+                CodigoColeccion: ColeccionRecolocacion.codigoColeccion,
+                DetallePedido: [],
+                TipoPedido: tipoCredito,
+                TipoVenta: calcularTipoVenta(),
+                ClienteContadoId: null,
+                ModoVenta: (tipoCredito === 'Contado') ? 'Contado' : 'Credito',
+                Flete: 0,
+                RequiereEntrega: false,
+                Impuesto: Number(localStorage.getItem('Impuesto')),
+                subtotal: nuevoSubtotal,
+                Direccion: clienteSeleccionado.Direccion,
+                MonedaCliente: clienteSeleccionado.Moneda,
+                BodegaEspecifica: false,
+                Sitio: bodega.CodigoSitio,
+                Almacen: bodega.Almacen
+            };
 
-                Object.keys(producto.Colores).forEach((codigoColor) => {
-                    let color = producto.Colores[codigoColor];
-                    Object.keys(color.Tallas).forEach((codigoTalla) => {
-                        let valorTalla = color.Tallas[codigoTalla];
+            Object.keys(tableValue).map((grupoTalla, index) => {
+                let productos = Object.keys(tableValue[grupoTalla].Productos);
+                return productos.map((codigoProducto, index1) => {
+                    let producto = tableValue[grupoTalla].Productos[codigoProducto];
 
-                        let precio = { Precio: (valorTalla.Precio ? valorTalla.Precio : 0) };
-                        let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-                        productoConCantidad = productoConCantidad || (cantidadXTalla > 0);
-                        unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
-                        totalGlobal = (precio.Precio * cantidadXTalla) + totalGlobal;
-                       
-                        let detalle = {
-                            IdProducto: producto.Id,
-                            CodigoProducto: codigoProducto,
-                            NombreProducto: producto.NombreProducto,
-                            CodigoColor: color.CodigoColor,
-                            NombreColor: color.NombreColor,
-                            Cantidad: cantidadXTalla,
-                            Unidad: "Und",
-                            PrecioUnitario: precio.Precio,
-                            Talla: valorTalla.Talla,
-                            CodigoColeccion: ColeccionRecolocacion.data.codigoColeccion,
-                            PorcentajeDescuento: "",
-                            // Edad:edad.IdEdad
-                        }
-                        
-                        pedido.DetallePedido.push(detalle);
-                        // 
+                    Object.keys(producto.Colores).forEach((codigoColor) => {
+                        let color = producto.Colores[codigoColor];
+                        Object.keys(color.Tallas).forEach((codigoTalla) => {
+                            let valorTalla = color.Tallas[codigoTalla];
+
+                            let precio = { Precio: (valorTalla.Precio ? valorTalla.Precio : 0) };
+                            let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+
+                            let detalle = {
+                                IdProducto: producto.Id,
+                                CodigoProducto: codigoProducto,
+                                NombreProducto: producto.NombreProducto,
+                                CodigoColor: color.CodigoColor,
+                                NombreColor: color.NombreColor,
+                                Cantidad: cantidadXTalla,
+                                Unidad: "Und",
+                                PrecioUnitario: precio.Precio,
+                                Talla: valorTalla.Talla,
+                                CodigoColeccion: ColeccionRecolocacion.codigoColeccion,
+                                PorcentajeDescuento: "",
+                            }
+
+                            pedido.DetallePedido.push(detalle);
+                        });
                     });
+
+                })
+            })
+            
+            const isOnline = await verificarConexion();
+            if (!isOnline || localStorage.getItem("Conexion") === "offline" || pedido.NumeroReferencia === "") {
+                Swal.fire({
+                    type: 'warning',
+                    title: 'Advertencia',
+                    text: "Actualmente no dispone de internet el pedido se guardara en cache.",
                 });
 
-            })
-        })
+                postPedidoStorage(pedido);
+                setLoading(false);
+            } else {
+                const { data, error } = await post(APIURL + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
+                console.log(data)
+                if (error) {
+                    if (error.response) {
+                        let mensaje = error.response.data.Message;
+                        Swal.fire({
+                            type: 'error',
+                            title: 'Error',
+                            text: mensaje,
+                        })
+                        this.setState({ loadingRecibo: false });
+                    }
 
-        
+                    setLoading(false);
+                } else {
+                    if (!data) {
+                        Swal.fire({
+                            type: 'warning',
+                            title: 'Advertencia',
+                            text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+                        });
 
-        //   let total = pedido.subtotal + pedido.Impuesto + pedido.Flete
-        //   this.reducirDisponibleAcuerdo(pedido.CodigoCliente, total, pedido.TipoPedido.TipoPedido, pedido.AcuerdoVenta);
-          if (!isOnline || localStorage.getItem("Conexion") === "offline" || pedido.NumeroReferencia === "") {
-              Swal.fire({
-                  type: 'warning',
-                  title: 'Advertencia',
-                  text: "Actualmente no dispone de internet el pedido se guardara en cache.",
-              });
+                        postPedidoStorage(pedido);
+                        setLoading(false);
+                        return;
+                    }
 
-              const data = postPedidoStorage(pedido);
-              let numPedido = data.EncabezadoPedido.PedidoId;
-              this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-              this.props.onSetNumeroOrden(numPedido);
-              //this.reducirStockBackground(productosReducir);
-              localStorage.setItem("isOffline", true);
-          }
-          else {
-            const  urlApi = APIURL;
-              const { data, error } = await post(urlApi + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
-              localStorage.setItem("isOffline", false);
-              if (error) {
-                  if (error.response) {
-                      let mensaje = error.response.data.Message;
-                      Swal.fire({
-                          type: 'error',
-                          title: 'Error',
-                          text: mensaje,
-                      })
-                      this.setState({ loadingRecibo: false });
-                  }
-                  let numPedido = pedido.NumeroReferencia;
-                  this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-              } else {
-                  if (!data) {
-                      Swal.fire({
-                          type: 'warning',
-                          title: 'Advertencia',
-                          text: "Actualmente no dispone de internet el pedido se guardara en cache.",
-                      });
+                    const { mensaje } = data;
+                    if (mensaje) {
+                        if (mensaje.includes("flotante")) {
+                            Swal.fire({
+                                type: 'warning',
+                                title: 'Advertencia',
+                                text: mensaje,
+                            })
+                        }
 
-                      const data = postPedidoStorage(pedido);
-                      let numPedido = data.EncabezadoPedido.PedidoId;
-                      this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-                      this.props.onSetNumeroOrden(numPedido);
-                      localStorage.setItem("isOffline", true);
-                      return;
-                  }
+                        if (mensaje.includes("exito")) {
+                            Swal.fire({
+                                type: 'success',
+                                title: 'Exito',
+                                text: mensaje,
+                            })
+                        }
 
-                  const { correlativo, mensaje } = data;
-                  if(mensaje)
-                  {
-                      if (mensaje.includes("flotante")) {
-                          Swal.fire({
-                              type: 'warning',
-                              title: 'Advertencia',
-                              text: mensaje,
-                          })
-                      }
-                    //   this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: correlativo });
-                    //   this.props.onSetNumeroOrden(correlativo);
-                  }
-                  else{
-                      Swal.fire({
-                          type: 'warning',
-                          title: 'Advertencia',
-                          text: "Actualmente no dispone de internet el pedido se guardara en cache.",
-                      });
-                      let numPedido = data.EncabezadoPedido.PedidoId;
-                      this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-                      this.props.onSetNumeroOrden(numPedido);
-                      localStorage.setItem("isOffline", true);
-                  }
-              }
-
-          }
+                        setLoading(false);
+                    }
+                    else {
+                        Swal.fire({
+                            type: 'warning',
+                            title: 'Advertencia',
+                            text: "Actualmente no dispone de internet el pedido se guardara en cache.",
+                        });
+                        setLoading(false);
+                    }
+                }
+            }
+        }
     }
 
 
@@ -397,11 +423,11 @@ export const Recolocacion = (props) => {
                             <hr />
                             <div style={{ display: 'flex', width: '40%', marginRight: 30 }}>
                                 <Dropdown
-                                    placeholder="Seleccione Cliente"
+                                    placeholder="Seleccione Tipo de Crédito"
                                     fluid
                                     search
                                     selection
-                                    onChange={(e, { value }) => { settipoCredito(value) }}
+                                    onChange={(e, { value }) => { tipoCreditoRecolocacion(value) }}
                                     options={dataTipoCredito()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
@@ -415,6 +441,8 @@ export const Recolocacion = (props) => {
                     </div>
                     {(Object.keys(tableValue).length > 0) &&
                         <>
+                            <hr />
+                            {moment(new Date(ColeccionRecolocacion.ventaFinal)).isBefore(moment(new Date())) && <h3 style={{ textAlign: "center", color: "red", fontWeight: "bold" }}>La venta final del paquete {ColeccionRecolocacion.codigoColeccion} fue {moment(new Date(ColeccionRecolocacion.ventaFinal)).format("DD/MM/YYYY")}</h3>}
                             <hr />
                             <form>
                                 {Object.keys(tableValue).map((grupoTalla, index) => {
@@ -552,7 +580,7 @@ export const Recolocacion = (props) => {
                             </div>
                             <br />
                             <div className={`row text-center ${styles['barra']}`} />
-                            <button className="btn btn-secondary" style={{ marginTop: 22, float: 'right', marginBottom: 10, }}>Finalizar recolocación</button>
+                            <button disabled={loading} onClick={recolocarPedido} className="btn btn-secondary" style={{ marginTop: 22, float: 'right', marginBottom: 10, }}>Finalizar recolocación</button>
 
                             <Dialog
                                 open={mostrarFirma}
