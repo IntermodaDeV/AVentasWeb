@@ -33,6 +33,7 @@ const ClienteSelected = (props) => {
     }
 
     const continuarDevolucion = (cliente) => {
+        console.log(cliente)
         if (cliente.FacturacionEntrega === "Todo") {
             Swal.fire({
                 title: 'Bloqueado',
@@ -40,15 +41,60 @@ const ClienteSelected = (props) => {
                 type: 'error',
                 confirmButtonText: 'OK',
             });
-            return;
+          return;
+        }else if (cliente.FacturacionEntrega === "No" && cliente.Credito[0].Disponible === 1) {
+            Swal.fire({
+                title: 'Aviso',
+                text: 'El cliente no tiene credito disponible, el pedido no sera autorizado automaticamente. Comunicarse con el departamento de créditos.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                ruta()
+            })
+        } else if (cliente.Credito[0].Disponible <= 1  && cliente.FacturacionEntrega === "Factura") {
+            Swal.fire({
+                title: 'Aviso',
+                text: 'El cliente actualmente se encuentra deshabilitado y sin credito disponible, su cuenta esta en mora. El pedido no sera autorizado automticamente.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                ruta()
+            })
+        }else if (cliente.Credito[0].Disponible > 1  && cliente.FacturacionEntrega === "Factura") {
+            Swal.fire({
+                title: 'Aviso',
+                text: 'El cliente actualmente se encuentra deshabilitado, su cuenta esta en mora. El pedido no sera autorizado automáticamente.',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Continuar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                ruta()
+            })
+        } else {
+            ruta()
         }
-        dispatch({ type: 'SET_TRASLADO_CLIENTE', payload: value })
-         let impuestosCliente = ClienteImpuestosGlobal.filter(x => x.EMPRESA === value.EmpresaId);
-         let impuestoProductosCliente = ProductoImpuestosGlobal.filter(x=>x.EMPRESA===value.EmpresaId);
-         dispatch({ type: 'SET_RECOLOCACIONCLIENTEIMPUESTO', payload: impuestosCliente })
-         dispatch({ type: 'SET_RECOLOCACIONPRODUCTOINMPUESTO', payload: impuestoProductosCliente })
-         
 
+
+        
+    }
+
+    const ruta = () =>{
+        dispatch({ type: 'SET_TRASLADO_CLIENTE', payload: value })
+        let impuestosCliente = ClienteImpuestosGlobal.filter(x => x.EMPRESA === value.EmpresaId);
+        let impuestoProductosCliente = ProductoImpuestosGlobal.filter(x=>x.EMPRESA===value.EmpresaId);
+        dispatch({ type: 'SET_RECOLOCACIONCLIENTEIMPUESTO', payload: impuestosCliente })
+        dispatch({ type: 'SET_RECOLOCACIONPRODUCTOINMPUESTO', payload: impuestoProductosCliente })
         props.history.push("recolocacion-pedido/recolocacion")
     }
 
