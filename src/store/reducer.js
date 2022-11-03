@@ -19,7 +19,7 @@ const initialState = {
     NumeroOrden: null,
     AsesorId: 80,
     TiposColeccion: [],
-    pedidoSelected:null,
+    pedidoSelected: null,
     Recibo: {
         clientes: [],
         clienteSelected: null,
@@ -28,43 +28,43 @@ const initialState = {
         facturasXCliente: null,
         cuotasCuentaCorriente: [],
     },
-    clienteContado:null,
-    clientesContado:[],
-    requiereEntrega:true,
-    asesor:'',
-    empresasTransporte:[],
-    precioCajas:[],
-    comunidadesAutonomas:[],
-    flete:0.0,
-    ClienteImpuestos:[],
-    ProductoImpuestos:[],
-    Empresas:[],
-    Monedas:[],
-    CuentaImprimir:[],
-    Bloqueo:false,
-    Asignaciones:[],
-    AbreviacionMonedas:[],
-    Permisos:[],
-    PedidoSincronizar:[],
-    ReciboSincronizar:[],
-    RecibosEnCache:[],
-    Cartera:[],
-    MonedasGlobal:[],
-    BancosGlobal:[],
-    TipoPagoGlobal:[],
-    Configuraciones:null,
-    EmpresaTransporteGlobal:[],
-    PrecioCajasGlobal:[],
-    ClienteImpuestosGlobal:[],
-    ProductoImpuestosGlobal:[],
-    TipoVisita:[],
-    ListaPrecios:[],
+    clienteContado: null,
+    clientesContado: [],
+    requiereEntrega: true,
+    asesor: '',
+    empresasTransporte: [],
+    precioCajas: [],
+    comunidadesAutonomas: [],
+    flete: 0.0,
+    ClienteImpuestos: [],
+    ProductoImpuestos: [],
+    Empresas: [],
+    Monedas: [],
+    CuentaImprimir: [],
+    Bloqueo: false,
+    Asignaciones: [],
+    AbreviacionMonedas: [],
+    Permisos: [],
+    PedidoSincronizar: [],
+    ReciboSincronizar: [],
+    RecibosEnCache: [],
+    Cartera: [],
+    MonedasGlobal: [],
+    BancosGlobal: [],
+    TipoPagoGlobal: [],
+    Configuraciones: null,
+    EmpresaTransporteGlobal: [],
+    PrecioCajasGlobal: [],
+    ClienteImpuestosGlobal: [],
+    ProductoImpuestosGlobal: [],
+    TipoVisita: [],
+    ListaPrecios: [],
     SeccionEncuesta: [],
     PreguntasEncuesta: [],
     TipoIngreso: [],
     GrupoOpciones: [],
-    EncuestaSelected : [],
-    DocumentosPendientes:[],
+    EncuestaSelected: [],
+    DocumentosPendientes: [],
     RespuestaDetalle: [],
     MaestroBodegaAlmacenes: [],
     BodegaSeleccionada: null,
@@ -76,16 +76,17 @@ const initialState = {
         motivoDevolucion: "",
         motivoDevolucionDetalle: ""
     },
-    CorrelativoReciboDiario:null,
-    CorrelativoRecibo:null,
-    TrasladoPedido:{
-        clienteSeleccionado:null,
+    CorrelativoReciboDiario: null,
+    CorrelativoRecibo: null,
+    TrasladoPedido: {
+        clienteSeleccionado: null,
         TableValue: {},
-        ClienteImpuestosRecolocacion:[],
-        ProductoImpuestosRecolocacion:[],
+        ClienteImpuestosRecolocacion: [],
+        ProductoImpuestosRecolocacion: [],
         CodigoColeccionRecolocacion: "",
         coleccion: {},
-        tipoCreditoRecolocacion: ""
+        tipoCreditoRecolocacion: "",
+        pedidoRecolocacion: {}
     },
 }
 
@@ -221,7 +222,7 @@ const reducer = (state = initialState, action) => {
             TableValue: {},
             TotalPedido: 0.0,
             NumeroOrden: null,
-            BodegaSeleccionada: null 
+            BodegaSeleccionada: null
         }
     }
     if (action.type === 'RESET_PRODUCTOS_AGREGADOS') {
@@ -292,57 +293,57 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
 
-            Recibo:{
+            Recibo: {
                 ...state.Recibo,
                 clientes: action.clientes
             }
         }
     }
-  if (action.type === 'STORE_RECIBO_CLIENTESELECTED') {
+    if (action.type === 'STORE_RECIBO_CLIENTESELECTED') {
         return {
             ...state,
 
-            Recibo:{
+            Recibo: {
                 ...state.Recibo,
                 clienteSelected: action.clienteSelected
             }
         }
     }
-  if (action.type === 'STORE_RECIBO_CUOTASXCLIENTE') {
+    if (action.type === 'STORE_RECIBO_CUOTASXCLIENTE') {
         return {
             ...state,
 
-            Recibo:{
+            Recibo: {
                 ...state.Recibo,
                 cuotasXCliente: action.cuotasXCliente
             }
         }
     }
-  if (action.type === 'STORE_RECIBO_CUOTASAPAGAR') {
+    if (action.type === 'STORE_RECIBO_CUOTASAPAGAR') {
         return {
             ...state,
 
-            Recibo:{
+            Recibo: {
                 ...state.Recibo,
                 cuotasAPagar: action.cuotasAPagar
             }
         }
     }
-  if (action.type === 'STORE_RECIBO_FACTURASXCLIENTE') {
+    if (action.type === 'STORE_RECIBO_FACTURASXCLIENTE') {
         return {
             ...state,
 
-            Recibo:{
+            Recibo: {
                 ...state.Recibo,
                 facturasXCliente: action.facturasXCliente
             }
         }
     }
-  if (action.type === 'STORE_RECIBO_CUOTASCUENTACORRIENTE') {
+    if (action.type === 'STORE_RECIBO_CUOTASCUENTACORRIENTE') {
         return {
             ...state,
 
-            Recibo:{
+            Recibo: {
                 ...state.Recibo,
                 cuotasCuentaCorriente: action.cuotasCuentaCorriente
             }
@@ -353,7 +354,7 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
 
-            Recibo:{
+            Recibo: {
                 ...state.Recibo,
                 cuotasCuentaCorriente: []
             }
@@ -364,232 +365,207 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
 
-            Recibo:{
+            Recibo: {
                 ...state.Recibo,
                 clienteSelected: null
             }
         }
     }
-    
-    if(action.type === "SET_CLIENTECONTADO")
-    {
+
+    if (action.type === "SET_CLIENTECONTADO") {
         return {
             ...state,
-            clienteContado:action.payload
+            clienteContado: action.payload
         }
     }
 
-    if(action.type === "DELETE_CLIENTECONTADO")
-    {
+    if (action.type === "DELETE_CLIENTECONTADO") {
         return {
             ...state,
-            clienteContado:null
+            clienteContado: null
         }
     }
 
-    if(action.type === "SET_CLIENTESCONTADO")
-    {
+    if (action.type === "SET_CLIENTESCONTADO") {
         return {
             ...state,
-            clientesContado:action.payload
+            clientesContado: action.payload
         }
     }
 
-    if(action.type === "SET_REQUIEREENTREGA")
-    {
+    if (action.type === "SET_REQUIEREENTREGA") {
         return {
             ...state,
-            requiereEntrega:action.payload
+            requiereEntrega: action.payload
         }
     }
 
-    if(action.type === "DELETE_REQUIEREENTREGA")
-    {
+    if (action.type === "DELETE_REQUIEREENTREGA") {
         return {
             ...state,
-            requiereEntrega:true
+            requiereEntrega: true
         }
     }
 
-    if(action.type === "SET_ASESOR")
-    {
+    if (action.type === "SET_ASESOR") {
         return {
             ...state,
-            asesor:action.payload
+            asesor: action.payload
         }
     }
-    if(action.type==='store_pedidoselected')
-    {
-        return{
-            ...state,
-            pedidoSelected:action.payload
-        }
-    }
-
-    if(action.type==='delete_pedidoselected')
-    {
-        return{
-            ...state,
-            pedidoSelected:null
-        }
-    }
-
-    if(action.type==='SET_EMPRESASTRANSPORTE')
-    {
-        return{
-            ...state,
-            empresasTransporte:action.payload
-        }
-    }
-
-    if(action.type==='SET_EMPRESASTRANSPORTEGLOBAL')
-    {
-        return{
-            ...state,
-            EmpresaTransporteGlobal:action.payload
-        }
-    }
-
-    if(action.type==='SET_PRECIOCAJAS')
-    {
-        return{
-            ...state,
-            precioCajas:action.payload
-        }
-    }
-
-    if(action.type==='SET_PRECIOCAJASGLOBAL')
-    {
-        return{
-            ...state,
-            PrecioCajasGlobal:action.payload
-        }
-    }
-
-    if(action.type==='SET_COMUNIDADAUTONOMA')
-    {
-        return{
-            ...state,
-            comunidadesAutonomas:action.payload
-        }
-    }
-
-    if(action.type==='SET_CLIENTEIMPUESTOS')
-    {
-        return{
-            ...state,
-            ClienteImpuestos:action.payload
-        }
-    }
-
-    if(action.type==='SET_CLIENTEIMPUESTOSGLOBAL')
-    {
-        return{
-            ...state,
-            ClienteImpuestosGlobal:action.payload
-        }
-    }
-
-    if(action.type==='SET_PRODUCTOIMPUESTOS')
-    {
-        return{
-            ...state,
-            ProductoImpuestos:action.payload
-        }
-    }
-
-    if(action.type==='SET_PRODUCTOIMPUESTOSGLOBAL')
-    {
-        return{
-            ...state,
-            ProductoImpuestosGlobal:action.payload
-        }
-    }
-
-    if(action.type==='SET_FLETE')
-    {
-        return{
-            ...state,
-            flete:action.payload
-        }
-    }
-
-    if(action.type==='DELETE_FLETE')
-    {
-        return{
-            ...state,
-            flete:0.0
-        }
-    }
-
-    if(action.type==='SET_EMPRESAS')
-    {
-        return{
-            ...state,
-            Empresas:action.payload
-        }
-    }
-
-    
-    if(action.type==='SET_MONEDAS')
-    {
-        return{
-            ...state,
-            Monedas:action.payload
-        }
-    }
-
-    if(action.type==='SET_MONEDASGLOBAL')
-    {
-        return{
-            ...state,
-            MonedasGlobal:action.payload
-        }
-    }
-
-    if(action.type==='SET_BANCOSGLOBAL')
-    {
-        return{
-            ...state,
-            BancosGlobal:action.payload
-        }
-    }
-
-    if(action.type==='SET_TIPOPAGOGLOBAL')
-    {
-        return{
-            ...state,
-            TipoPagoGlobal:action.payload
-        }
-    }
-
-    if(action.type==='SET_PERMISOS')
-    {
-        return{
-            ...state,
-            Permisos:action.payload
-        }
-    }
-    if(action.type==='SET_CUENTAIMPRIMIR'){
+    if (action.type === 'store_pedidoselected') {
         return {
             ...state,
-            CuentaImprimir:action.payload
+            pedidoSelected: action.payload
         }
     }
 
-    if(action.type==='SET_BLOQUEO'){
+    if (action.type === 'delete_pedidoselected') {
         return {
             ...state,
-            Bloqueo:action.payload
+            pedidoSelected: null
         }
     }
 
-    if(action.type==='SET_PRODUCTOSCOLECCION'){
+    if (action.type === 'SET_EMPRESASTRANSPORTE') {
+        return {
+            ...state,
+            empresasTransporte: action.payload
+        }
+    }
+
+    if (action.type === 'SET_EMPRESASTRANSPORTEGLOBAL') {
+        return {
+            ...state,
+            EmpresaTransporteGlobal: action.payload
+        }
+    }
+
+    if (action.type === 'SET_PRECIOCAJAS') {
+        return {
+            ...state,
+            precioCajas: action.payload
+        }
+    }
+
+    if (action.type === 'SET_PRECIOCAJASGLOBAL') {
+        return {
+            ...state,
+            PrecioCajasGlobal: action.payload
+        }
+    }
+
+    if (action.type === 'SET_COMUNIDADAUTONOMA') {
+        return {
+            ...state,
+            comunidadesAutonomas: action.payload
+        }
+    }
+
+    if (action.type === 'SET_CLIENTEIMPUESTOS') {
+        return {
+            ...state,
+            ClienteImpuestos: action.payload
+        }
+    }
+
+    if (action.type === 'SET_CLIENTEIMPUESTOSGLOBAL') {
+        return {
+            ...state,
+            ClienteImpuestosGlobal: action.payload
+        }
+    }
+
+    if (action.type === 'SET_PRODUCTOIMPUESTOS') {
+        return {
+            ...state,
+            ProductoImpuestos: action.payload
+        }
+    }
+
+    if (action.type === 'SET_PRODUCTOIMPUESTOSGLOBAL') {
+        return {
+            ...state,
+            ProductoImpuestosGlobal: action.payload
+        }
+    }
+
+    if (action.type === 'SET_FLETE') {
+        return {
+            ...state,
+            flete: action.payload
+        }
+    }
+
+    if (action.type === 'DELETE_FLETE') {
+        return {
+            ...state,
+            flete: 0.0
+        }
+    }
+
+    if (action.type === 'SET_EMPRESAS') {
+        return {
+            ...state,
+            Empresas: action.payload
+        }
+    }
+
+
+    if (action.type === 'SET_MONEDAS') {
+        return {
+            ...state,
+            Monedas: action.payload
+        }
+    }
+
+    if (action.type === 'SET_MONEDASGLOBAL') {
+        return {
+            ...state,
+            MonedasGlobal: action.payload
+        }
+    }
+
+    if (action.type === 'SET_BANCOSGLOBAL') {
+        return {
+            ...state,
+            BancosGlobal: action.payload
+        }
+    }
+
+    if (action.type === 'SET_TIPOPAGOGLOBAL') {
+        return {
+            ...state,
+            TipoPagoGlobal: action.payload
+        }
+    }
+
+    if (action.type === 'SET_PERMISOS') {
+        return {
+            ...state,
+            Permisos: action.payload
+        }
+    }
+    if (action.type === 'SET_CUENTAIMPRIMIR') {
+        return {
+            ...state,
+            CuentaImprimir: action.payload
+        }
+    }
+
+    if (action.type === 'SET_BLOQUEO') {
+        return {
+            ...state,
+            Bloqueo: action.payload
+        }
+    }
+
+    if (action.type === 'SET_PRODUCTOSCOLECCION') {
 
         let colecciones = state.colecciones;
 
-        colecciones.forEach((coleccion)=>{
-            if(coleccion.CodigoColeccion===state.coleccion.CodigoColeccion){
+        colecciones.forEach((coleccion) => {
+            if (coleccion.CodigoColeccion === state.coleccion.CodigoColeccion) {
                 coleccion.Edades = action.payload;
             }
         })
@@ -598,108 +574,99 @@ const reducer = (state = initialState, action) => {
             ...state,
             //TableValue:{},
             colecciones,
-            coleccion:{
+            coleccion: {
                 ...state.coleccion,
-                Edades:action.payload
+                Edades: action.payload
             }
         }
     }
 
-    if(action.type==='SET_ASIGNACIONES'){
+    if (action.type === 'SET_ASIGNACIONES') {
         return {
             ...state,
-            Asignaciones:action.payload
+            Asignaciones: action.payload
         }
     }
 
-    if(action.type==='SET_ABREVACIONMONEDAS')
-    {
-        return{
-            ...state,
-            AbreviacionMonedas:action.payload
-        }
-    }
-
-    if(action.type==='SET_PEDIDOSINCRONIZAR')
-    {
-        return{
-            ...state,
-            PedidoSincronizar:[...state.PedidoSincronizar,action.payload]
-        }
-    }
-
-    if(action.type==='SET_RECIBOSENCACHELOG')
-    {
-        return{
-            ...state,
-            RecibosEnCache:action.payload
-        }
-    }
-
-    if(action.type==='SET_RECIBOSENCACHE')
-    {
-        return{
-            ...state,
-            RecibosEnCache:[...state.RecibosEnCache,action.payload]
-        }
-    }
-
-    if(action.type==='SET_RECIBOSINCRONIZAR')
-    {
-        return{
-            ...state,
-            ReciboSincronizar:[...state.ReciboSincronizar,action.payload]
-        }
-    }
-
-    if(action.type==='SET_RESETPEDIDOSINCRONIZAR')
-    {
-        return{
-            ...state,
-            PedidoSincronizar:action.payload
-        }
-    }
-    if(action.type==='SET_RESETRECIBOSENCACHE')
-    {
-        return{
-            ...state,
-            RecibosEnCache:action.payload
-        }
-    }
-    if(action.type==='SET_RESETRECIBOSINCRONIZAR')
-    {
-        return{
-            ...state,
-            ReciboSincronizar:action.payload
-        }
-    }
-
-    if(action.type==='SET_CARTERA')
-    {
-        return{
-            ...state,
-            Cartera:action.payload
-        }
-    }
-
-    if(action.type === 'SET_CONFIGURACIONES'){
+    if (action.type === 'SET_ABREVACIONMONEDAS') {
         return {
             ...state,
-            Configuraciones:action.payload
+            AbreviacionMonedas: action.payload
         }
     }
 
-    if(action.type === 'SET_TIPOVISITA'){
+    if (action.type === 'SET_PEDIDOSINCRONIZAR') {
         return {
             ...state,
-            TipoVisita:action.payload
+            PedidoSincronizar: [...state.PedidoSincronizar, action.payload]
         }
     }
 
-    if(action.type === 'SET_LISTAPRECIOS'){
+    if (action.type === 'SET_RECIBOSENCACHELOG') {
         return {
             ...state,
-            ListaPrecios:action.payload
+            RecibosEnCache: action.payload
+        }
+    }
+
+    if (action.type === 'SET_RECIBOSENCACHE') {
+        return {
+            ...state,
+            RecibosEnCache: [...state.RecibosEnCache, action.payload]
+        }
+    }
+
+    if (action.type === 'SET_RECIBOSINCRONIZAR') {
+        return {
+            ...state,
+            ReciboSincronizar: [...state.ReciboSincronizar, action.payload]
+        }
+    }
+
+    if (action.type === 'SET_RESETPEDIDOSINCRONIZAR') {
+        return {
+            ...state,
+            PedidoSincronizar: action.payload
+        }
+    }
+    if (action.type === 'SET_RESETRECIBOSENCACHE') {
+        return {
+            ...state,
+            RecibosEnCache: action.payload
+        }
+    }
+    if (action.type === 'SET_RESETRECIBOSINCRONIZAR') {
+        return {
+            ...state,
+            ReciboSincronizar: action.payload
+        }
+    }
+
+    if (action.type === 'SET_CARTERA') {
+        return {
+            ...state,
+            Cartera: action.payload
+        }
+    }
+
+    if (action.type === 'SET_CONFIGURACIONES') {
+        return {
+            ...state,
+            Configuraciones: action.payload
+        }
+    }
+
+    if (action.type === 'SET_TIPOVISITA') {
+        return {
+            ...state,
+            TipoVisita: action.payload
+        }
+    }
+
+    if (action.type === 'SET_LISTAPRECIOS') {
+        return {
+            ...state,
+            ListaPrecios: action.payload
         }
     }
 
@@ -731,62 +698,62 @@ const reducer = (state = initialState, action) => {
         };
     }
 
-    if(action.type==="RESET_PRODUCTOAGREGADO"){
-        return {...state,listaProductosAgregados:[]}
+    if (action.type === "RESET_PRODUCTOAGREGADO") {
+        return { ...state, listaProductosAgregados: [] }
     }
 
-    
-    if(action.type === 'SET_SECCIONESENCUESTA'){
+
+    if (action.type === 'SET_SECCIONESENCUESTA') {
         return {
             ...state,
-            SeccionEncuesta:action.payload
+            SeccionEncuesta: action.payload
         }
     }
 
-    if(action.type === 'SET_PREGUNTASENCUESTA'){
+    if (action.type === 'SET_PREGUNTASENCUESTA') {
         return {
             ...state,
             PreguntasEncuesta: action.payload
         }
     }
 
-    if(action.type === 'SET_TIPOINGRESO'){
+    if (action.type === 'SET_TIPOINGRESO') {
         return {
             ...state,
             TipoIngreso: action.payload
         }
     }
 
-    if(action.type === 'SET_GRUPOOPCIONES'){
+    if (action.type === 'SET_GRUPOOPCIONES') {
         return {
             ...state,
             GrupoOpciones: action.payload
         }
     }
 
-    
-    if(action.type === 'SET_ENCUESTASELECTED'){
+
+    if (action.type === 'SET_ENCUESTASELECTED') {
         return {
             ...state,
             EncuestaSelected: action.payload
         }
     }
 
-    if(action.type === 'SET_DOCUMENTOSPENDIENTES'){
+    if (action.type === 'SET_DOCUMENTOSPENDIENTES') {
         return {
             ...state,
             DocumentosPendientes: action.payload
         }
     }
 
-    if(action.type === 'SET_RESPUESTADETALLE'){
+    if (action.type === 'SET_RESPUESTADETALLE') {
         return {
             ...state,
             RespuestaDetalle: action.payload
         }
     }
 
-    if(action.type === 'SET_BODEGAALMACENES'){
+    if (action.type === 'SET_BODEGAALMACENES') {
         return {
             ...state,
             MaestroBodegaAlmacenes: action.payload
@@ -813,7 +780,7 @@ const reducer = (state = initialState, action) => {
 
             Devolucion: {
                 ...state.Devolucion,
-                TableValue: action.payload 
+                TableValue: action.payload
             }
         }
     }
@@ -889,7 +856,7 @@ const reducer = (state = initialState, action) => {
     if (action.type === "RESET_TABLEVALUETOTALPEDIDO") {
         return {
             ...state,
-            TableValue:  {},
+            TableValue: {},
             TotalPedido: 0.0,
         }
     }
@@ -915,7 +882,7 @@ const reducer = (state = initialState, action) => {
         }
     }
 
-   
+
     if (action.type === 'SET_RECOLOCACIONCLIENTEIMPUESTO') {
         return {
             ...state,
@@ -955,7 +922,7 @@ const reducer = (state = initialState, action) => {
             }
         }
     }
-        
+
     if (action.type === 'SET_TIPOCREDITORECOLOCACION') {
         return {
             ...state,
@@ -965,7 +932,17 @@ const reducer = (state = initialState, action) => {
             }
         }
     }
-    
+
+    if (action.type === 'SET_PEDIDORECOLOCACION') {
+        return {
+            ...state,
+            TrasladoPedido: {
+                ...state.TrasladoPedido,
+                pedidoRecolocacion: action.payload
+            }
+        }
+    }
+
     return state;
 };
 

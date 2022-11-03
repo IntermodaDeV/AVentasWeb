@@ -16,12 +16,12 @@ const ClienteSelected = (props) => {
     const clientes = useSelector(e => e.clientes);
     const dispatch = useDispatch();
 
-    
 
-    
+
+
     const ClienteImpuestosGlobal = useSelector(e => e.ClienteImpuestosGlobal);
     const ProductoImpuestosGlobal = useSelector(e => e.ProductoImpuestosGlobal);
-    
+
 
 
     const handleOnChange = (value) => {
@@ -41,8 +41,8 @@ const ClienteSelected = (props) => {
                 type: 'error',
                 confirmButtonText: 'OK',
             });
-          return;
-        }else if (cliente.FacturacionEntrega === "No" && cliente.Credito[0].Disponible === 1) {
+            return;
+        } else if (cliente.FacturacionEntrega === "No" && cliente.Credito[0].Disponible === 1) {
             Swal.fire({
                 title: 'Aviso',
                 text: 'El cliente no tiene credito disponible, el pedido no sera autorizado automaticamente. Comunicarse con el departamento de créditos.',
@@ -53,9 +53,10 @@ const ClienteSelected = (props) => {
                 confirmButtonText: 'Continuar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
-                ruta()
+                if (result.value)
+                    ruta()
             })
-        } else if (cliente.Credito[0].Disponible <= 1  && cliente.FacturacionEntrega === "Factura") {
+        } else if (cliente.Credito[0].Disponible <= 1 && cliente.FacturacionEntrega === "Factura") {
             Swal.fire({
                 title: 'Aviso',
                 text: 'El cliente actualmente se encuentra deshabilitado y sin credito disponible, su cuenta esta en mora. El pedido no sera autorizado automticamente.',
@@ -66,9 +67,10 @@ const ClienteSelected = (props) => {
                 confirmButtonText: 'Continuar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
-                ruta()
+                if (result.value)
+                    ruta()
             })
-        }else if (cliente.Credito[0].Disponible > 1  && cliente.FacturacionEntrega === "Factura") {
+        } else if (cliente.Credito[0].Disponible > 1 && cliente.FacturacionEntrega === "Factura") {
             Swal.fire({
                 title: 'Aviso',
                 text: 'El cliente actualmente se encuentra deshabilitado, su cuenta esta en mora. El pedido no sera autorizado automáticamente.',
@@ -79,20 +81,21 @@ const ClienteSelected = (props) => {
                 confirmButtonText: 'Continuar',
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
-                ruta()
+                if (result.value)
+                    ruta()
             })
         } else {
             ruta()
         }
 
 
-        
+
     }
 
-    const ruta = () =>{
+    const ruta = () => {
         dispatch({ type: 'SET_TRASLADO_CLIENTE', payload: value })
         let impuestosCliente = ClienteImpuestosGlobal.filter(x => x.EMPRESA === value.EmpresaId);
-        let impuestoProductosCliente = ProductoImpuestosGlobal.filter(x=>x.EMPRESA===value.EmpresaId);
+        let impuestoProductosCliente = ProductoImpuestosGlobal.filter(x => x.EMPRESA === value.EmpresaId);
         dispatch({ type: 'SET_RECOLOCACIONCLIENTEIMPUESTO', payload: impuestosCliente })
         dispatch({ type: 'SET_RECOLOCACIONPRODUCTOINMPUESTO', payload: impuestoProductosCliente })
         props.history.push("recolocacion-pedido/recolocacion")

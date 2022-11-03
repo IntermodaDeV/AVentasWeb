@@ -38,6 +38,7 @@ export const Recolocacion = (props) => {
     const [ErrorFecha, setErrorFecha] = useState(false);
     const [FechaEntrega, setFechaEntrega] = useState(fechaInicioEntrega);
     const [loading, setLoading] = useState(false);
+    const [tipoCredito, setTipoCredito] = useState(null);
 
     const Monedas = useSelector(e => e.AbreviacionMonedas);
     const ColeccionRecolocacion = useSelector(e => e.TrasladoPedido.coleccion);
@@ -47,7 +48,6 @@ export const Recolocacion = (props) => {
     const clienteSeleccionado = useSelector(e => e.TrasladoPedido.clienteSeleccionado);
     const tiposPedido = useSelector(e => e.TiposPedido);
     const bodegaMaestro = useSelector(e => e.MaestroBodegaAlmacenes);
-    const tipoCredito = useSelector(e => e.TrasladoPedido.tipoCreditoRecolocacion);
     const dispatch = useDispatch();
 
     let unidadesTotales = 0;
@@ -254,6 +254,13 @@ export const Recolocacion = (props) => {
                 title: 'Advertencia',
                 text: "Por favor ingrese la firma.",
             });
+        }
+        else if (tipoCredito === null || tipoCredito === "") {
+            Swal.fire({
+                type: 'warning',
+                title: 'Advertencia',
+                text: "Por favor seleccione un tipo de crédito.",
+            });
         } else {
             setLoading(true);
 
@@ -320,7 +327,7 @@ export const Recolocacion = (props) => {
 
                 })
             })
-            
+
             const isOnline = await verificarConexion();
             if (!isOnline || localStorage.getItem("Conexion") === "offline" || pedido.NumeroReferencia === "") {
                 Swal.fire({
@@ -333,7 +340,7 @@ export const Recolocacion = (props) => {
                 setLoading(false);
             } else {
                 const { data, error } = await post(APIURL + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
-                console.log(data)
+
                 if (error) {
                     if (error.response) {
                         let mensaje = error.response.data.Message;
@@ -341,8 +348,7 @@ export const Recolocacion = (props) => {
                             type: 'error',
                             title: 'Error',
                             text: mensaje,
-                        })
-                        this.setState({ loadingRecibo: false });
+                        });
                     }
 
                     setLoading(false);
@@ -360,6 +366,7 @@ export const Recolocacion = (props) => {
                     }
 
                     const { mensaje } = data;
+                    const request = await axios.get(APIURL + "/api/trasladopedido/getpedido/" + localStorage.getItem("CorrelativoPedido"));
                     if (mensaje) {
                         if (mensaje.includes("flotante")) {
                             Swal.fire({
@@ -376,7 +383,8 @@ export const Recolocacion = (props) => {
                                 text: mensaje,
                             })
                         }
-
+                        dispatch({ type: "SET_PEDIDORECOLOCACION", payload: request.data });
+                        props.history.push("/recolocacion-pedido/ImprimirRecolocacionPedido");
                         setLoading(false);
                     }
                     else {
@@ -427,7 +435,7 @@ export const Recolocacion = (props) => {
                                     fluid
                                     search
                                     selection
-                                    onChange={(e, { value }) => { tipoCreditoRecolocacion(value) }}
+                                    onChange={(e, { value }) => { setTipoCredito(value) }}
                                     options={dataTipoCredito()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
