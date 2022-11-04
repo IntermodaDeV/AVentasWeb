@@ -367,18 +367,18 @@ export const Recolocacion = (props) => {
                     }
                     debugger
                     const { mensaje } = data;
-                   
+
                     if (mensaje) {
                         if (mensaje.includes("flotante")) {
                             Swal.fire({
                                 type: 'warning',
                                 title: 'Advertencia',
                                 text: mensaje,
-                                confirmButtonColor: '#3085d6',                                
-                                confirmButtonText: 'Continuar',                               
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Continuar',
                             }).then((result) => {
                                 if (result.value)
-                                imprimirPedido()
+                                    imprimirPedido()
                             })
                         }
 
@@ -387,13 +387,13 @@ export const Recolocacion = (props) => {
                                 type: 'success',
                                 title: 'Exito',
                                 text: mensaje,
-                                confirmButtonColor: '#3085d6',                                
+                                confirmButtonColor: '#3085d6',
                                 confirmButtonText: 'Continuar',
                             }).then((result) => {
                                 if (result.value)
-                                imprimirPedido()
+                                    imprimirPedido()
                             })
-                        }                       
+                        }
                         setLoading(false);
                     }
                     else {
@@ -411,8 +411,11 @@ export const Recolocacion = (props) => {
 
 
     const imprimirPedido = async () => {
+        setTitle("Generando Reporte");
+        setOpen(true);
         const request = await axios.get(APIURL + "/api/trasladopedido/getpedido/" + localStorage.getItem("CorrelativoPedido"));
         dispatch({ type: "SET_PEDIDORECOLOCACION", payload: request.data });
+        setOpen(false);
         props.history.push("/recolocacion-pedido/ImprimirRecolocacionPedido");
     }
 

@@ -1,13 +1,17 @@
-import React from 'react';
-import { DialogTitle, DialogContent, DialogActions, Button } from "@material-ui/core";
+import React, { useRef } from 'react';
+import { Button } from "@material-ui/core";
 import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import ReactToPrint from 'react-to-print';
 import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
+import { makeStyles } from '@material-ui/core/styles';
+import { FiArrowRightCircle } from "react-icons/fi";
+import { FaPrint } from "react-icons/fa";
 import moment from "moment";
 import { useSelector } from 'react-redux';
 import 'moment/locale/es';
 
 export const ImprimirRecolocacionPedido = (props) => {
+    const componentRef = useRef();
     const TrasladoPedido = useSelector(e => e.TrasladoPedido.pedidoRecolocacion);
     const Monedas = useSelector(e => e.AbreviacionMonedas);
     const empresas = useSelector(e => e.Empresas);
@@ -15,6 +19,13 @@ export const ImprimirRecolocacionPedido = (props) => {
     let NombreCliente = clienteSeleccionado.Nombre;
     const empresa = empresas.find(x => x.COMPANY_CODE === clienteSeleccionado.EmpresaId.toUpperCase());
     const moneda = Monedas.find(e => e.IdMoneda === clienteSeleccionado.Moneda).Abreviacion;
+    const useStyles = makeStyles((theme) => ({
+        button: {
+            marginLeft: theme.spacing(2),
+        },
+    }));
+
+    const classes = useStyles();
 
     let TotalUnidad = 0;
     const checkDist = (talla) => {
@@ -46,10 +57,29 @@ export const ImprimirRecolocacionPedido = (props) => {
         return tallasDist;
     }
 
-    const componentRef = React.useRef();
+    const redireccionarPedido = () => {
+        props.history.push("/recolocacion-pedido");
+    }
+
     return (
         <>
-            <div id={"invoice-POS"} style={{ boxShadow: 'unset' }}>
+            <div className="text-right">
+                <div className="col">
+                    <ReactToPrint
+                        trigger={() =>
+                            <Button className={classes.button} variant="contained" size="large" color="primary" endIcon={<FaPrint />}>
+                                Imprimir
+                            </Button>
+                        }
+                        content={() => componentRef.current}
+                    />
+                    <Button onClick={() => redireccionarPedido()} variant="contained" className={classes.button} size="large" color="primary" endIcon={<FiArrowRightCircle />}>
+                        Finalizar
+                    </Button>
+                </div>
+                <hr />
+            </div>
+            <div id={"invoice-POS"} ref={componentRef} style={{ boxShadow: 'unset' }}>
                 <div id="top">
                     <div className="row">
                         <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
