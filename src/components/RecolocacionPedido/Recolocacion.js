@@ -24,6 +24,7 @@ import { ObtenerCoordenadas } from 'utils/common';
 import { verificarConexion } from 'utils/http';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { post, postPedidoStorage } from 'utils/http';
+import { async } from 'rxjs/internal/scheduler/async';
 
 export const Recolocacion = (props) => {
     let fechaInicioEntrega = moment().toDate();
@@ -364,15 +365,20 @@ export const Recolocacion = (props) => {
                         setLoading(false);
                         return;
                     }
-
+                    debugger
                     const { mensaje } = data;
-                    const request = await axios.get(APIURL + "/api/trasladopedido/getpedido/" + localStorage.getItem("CorrelativoPedido"));
+                   
                     if (mensaje) {
                         if (mensaje.includes("flotante")) {
                             Swal.fire({
                                 type: 'warning',
                                 title: 'Advertencia',
                                 text: mensaje,
+                                confirmButtonColor: '#3085d6',                                
+                                confirmButtonText: 'Continuar',                               
+                            }).then((result) => {
+                                if (result.value)
+                                imprimirPedido()
                             })
                         }
 
@@ -381,10 +387,13 @@ export const Recolocacion = (props) => {
                                 type: 'success',
                                 title: 'Exito',
                                 text: mensaje,
+                                confirmButtonColor: '#3085d6',                                
+                                confirmButtonText: 'Continuar',
+                            }).then((result) => {
+                                if (result.value)
+                                imprimirPedido()
                             })
-                        }
-                        dispatch({ type: "SET_PEDIDORECOLOCACION", payload: request.data });
-                        props.history.push("/recolocacion-pedido/ImprimirRecolocacionPedido");
+                        }                       
                         setLoading(false);
                     }
                     else {
@@ -400,6 +409,12 @@ export const Recolocacion = (props) => {
         }
     }
 
+
+    const imprimirPedido = async () => {
+        const request = await axios.get(APIURL + "/api/trasladopedido/getpedido/" + localStorage.getItem("CorrelativoPedido"));
+        dispatch({ type: "SET_PEDIDORECOLOCACION", payload: request.data });
+        props.history.push("/recolocacion-pedido/ImprimirRecolocacionPedido");
+    }
 
     const obtenerTotales = producto => {
         let totales = { totalCantidad: 0 };
