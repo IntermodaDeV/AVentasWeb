@@ -177,17 +177,25 @@ export const Recolocacion = (props) => {
                     miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].CodigoColor = color.CodigoColor;
 
                     for (const talla of producto.ListaTalla) {
-                        let precio = 100;
+                        let precio = 0;
                         const productoValores = productoDevolver.find(x => x.color === color.CodigoColor && x.talla.toUpperCase() === talla.Talla);
 
                         if (producto.fisicaDisponible.length !== 0) {
                             if (productoValores) {
                                 const fisicoDisponible = producto.fisicaDisponible.find(x => x.IdTalla.toUpperCase() === productoValores.talla.toUpperCase() && productoValores.color.toUpperCase() === x.CodigoColor.toUpperCase());
                                 if (fisicoDisponible) {
-
+                                    if (fisicoDisponible.PreciosEspecificos.length > 0) {
+                                        precio = fisicoDisponible.PreciosEspecificos[0].Precio;
+                                    }
                                 }
                             }
 
+                        }
+
+                        if (precio === 0) {
+                            if (producto.Precio.length > 0) {
+                                precio = producto.Precio[0].Precio;
+                            }
                         }
 
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
