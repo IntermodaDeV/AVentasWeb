@@ -81,12 +81,10 @@ export const Recolocacion = (props) => {
 
     const onAcceptDate = (date) => {
         setErrorFecha(false);
-        props.guardarFecha(date);
     }
 
     const onChangeDate = (date) => {
         setFechaEntrega(date);
-        props.guardarFecha(date);
     }
 
     const closeDialogFirma = () => {
@@ -135,8 +133,19 @@ export const Recolocacion = (props) => {
             else {
                 mostrarModal('Recolocación', 'Debe llenar el campo del RMA para poder realizar esta acción.', "error");
             }
-        } catch {
+        } catch (err) {
+            setOpen(false);
+            let mensaje = "Ocurrio un error y no se pudo obtener los productos de la devolución.";
 
+            if (err.response) {
+                mensaje = err.response.data.Message;
+            }
+
+            Swal.fire({
+                type: 'error',
+                title: 'Error',
+                text: mensaje,
+            });
         }
     }
 
@@ -373,7 +382,7 @@ export const Recolocacion = (props) => {
                         setLoading(false);
                         return;
                     }
-                    debugger
+                    
                     const { mensaje } = data;
 
                     if (mensaje) {
@@ -478,6 +487,13 @@ export const Recolocacion = (props) => {
                             <hr />
                             {moment(new Date(ColeccionRecolocacion.ventaFinal)).isBefore(moment(new Date())) && <h3 style={{ textAlign: "center", color: "red", fontWeight: "bold" }}>La venta final del paquete {ColeccionRecolocacion.codigoColeccion} fue {moment(new Date(ColeccionRecolocacion.ventaFinal)).format("DD/MM/YYYY")}</h3>}
                             <hr />
+                            <div style={{ marginTop: 10, marginBottom: 10 }}>
+                                <h3 style={{ textAlign: "center" }}>Información cliente traslado</h3>
+                                <div style={{display:"flex",justifyContent:"space-around",alignItems:"center"}}>
+                                    <h4>Codigo: {clienteSeleccionado.Codigo}</h4>
+                                    <h4>Nombre: {clienteSeleccionado.Nombre}</h4>
+                                </div>
+                            </div>
                             <form>
                                 {Object.keys(tableValue).map((grupoTalla, index) => {
                                     let productos = Object.keys(tableValue[grupoTalla].Productos);
