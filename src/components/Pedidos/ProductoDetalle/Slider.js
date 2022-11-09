@@ -59,7 +59,7 @@ const SliderFunction = (props) => {
     };
 
     let SecondaryCarouselSettings = {
-        slidesToShow: 4,
+        slidesToShow: props.ListaImagenes.length,
         lazyLoad: true,
         slidesToScroll: 1,
         swipeToSlide: true,

@@ -664,7 +664,7 @@ const DetalleRecibo = (props) => {
                         "TipoPago" : tiposPago[pagXRecib.indexTiposPago].Descripcion,
                         "EspecificacionPago" : tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].Descripcion,
                         "TipoPagoDetalle": tiposPago[pagXRecib.indexTiposPago].TiposdePagoDetalle[pagXRecib.indexTiposdePagoDetalle].CodigoDetalle ,
-                        "IdBanco": pagXRecib.indexBanco ? bancos[pagXRecib.indexBanco].IdBanco : null,
+                        "IdBanco": pagXRecib.indexBanco !== null ? bancos[pagXRecib.indexBanco].IdBanco : null,
                         "Banco": pagXRecib.indexBanco!==null ? bancos[pagXRecib.indexBanco].NombreBanco : "",
                         "Orden": 1,
                         "Valor":Number(pagXRecib.valor),

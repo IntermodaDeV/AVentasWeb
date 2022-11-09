@@ -12,12 +12,12 @@ import {
 } from '@material-ui/core';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { InfoOutlined } from "@material-ui/icons";
-import {APIKEY} from 'utils/Enviroment';
+import { APIKEY } from 'utils/Enviroment';
 moment.locale('es');
 
 
 const DetallePedido = (props) => {
-    let initialCoors = { lat: props.pedido.location.latitude,lng: props.pedido.location.longitude };
+    let initialCoors = { lat: props.pedido.locationCliente.latitude, lng: props.pedido.locationCliente.longitude };
     let longitudCliente = props.pedido.locationCliente.longitude;
     let latitudCliente = props.pedido.locationCliente.latitude;
     const { isLoaded } = useJsApiLoader({
@@ -37,10 +37,10 @@ const DetallePedido = (props) => {
 
     const checkDist = (talla) => {
         let found = false;
-            talla.Distribucion.map(() => {
-                found = true;
-                return false;
-            })
+        talla.Distribucion.map(() => {
+            found = true;
+            return false;
+        })
         return found;
     }
 
@@ -64,8 +64,12 @@ const DetallePedido = (props) => {
     const rad = (x) => {
         return x * Math.PI / 180;
     }
- 
+
     const CalcularDistancia = (lat1, lon1, lat2, lon2) => {
+        if (lat1 === null || lon1 === null || lat2 === null || lon2 === null) {
+            return 0;
+        }
+
         var R = 6378.137;//Radio de la tierra en km
         var dLat = rad(lat2 - lat1);
         var dLong = rad(lon2 - lon1);
@@ -74,30 +78,30 @@ const DetallePedido = (props) => {
         var d = R * c;
         return 1000 * d.toFixed(3);//Retorna valor en metros
     }
- 
-    const TableBody = (array, cantidad,Precio) => {
+
+    const TableBody = (array, cantidad, Precio) => {
         let CantDist = 0;
-        let TotalCant= 0;
+        let TotalCant = 0;
         return (
             <tbody>
                 <tr>
-                {array.map((dist, index) => {
-                     CantDist += parseInt(dist.Cantidad)
-                            return (
-                                <td key={index} style={{ textAlign: 'center' }}>{dist.Cantidad * cantidad}</td>
-                               
-                            )
-                        })
-                }
-               </tr>
-               <tr>
-               {array.map((dist, index2) => {
-                   TotalCant = Precio / CantDist
-                            return (
-                                <td key={index2} style={{ textAlign: 'center' }}>{TotalCant}</td>
-                               
-                            )
-                        })
+                    {array.map((dist, index) => {
+                        CantDist += parseInt(dist.Cantidad)
+                        return (
+                            <td key={index} style={{ textAlign: 'center' }}>{dist.Cantidad * cantidad}</td>
+
+                        )
+                    })
+                    }
+                </tr>
+                <tr>
+                    {array.map((dist, index2) => {
+                        TotalCant = Precio / CantDist
+                        return (
+                            <td key={index2} style={{ textAlign: 'center' }}>{TotalCant}</td>
+
+                        )
+                    })
                     }
                 </tr>
             </tbody>
@@ -106,21 +110,26 @@ const DetallePedido = (props) => {
 
     let options = null;
     let color = "#FF0000";
-    let zoom = 11;
+    let zoom = 9;
     let LatitudpuntoMedio = 0;
     let LongitudpuntoMedio = 0;
     let PuntoMedio = null;
     let distancia = 0;
-    if(latitudCliente && longitudCliente)
-    {
-        distancia = CalcularDistancia(props.pedido.location.latitude,props.pedido.location.longitude, latitudCliente, longitudCliente)
-        if(distancia <= 50){
+    if (latitudCliente && longitudCliente) {
+        distancia = CalcularDistancia(props.pedido.location.latitude, props.pedido.location.longitude, latitudCliente, longitudCliente)
+        if (distancia <= 50) {
             color = "#1ECE39";
             zoom = 19;
-        }else if(distancia <= 100){
+        } else if (distancia <= 100) {
             color = "#F9EA06";
             zoom = 15;
-        }
+        }else if(distancia > 100 && distancia <1000){
+            zoom = 16;
+          }
+          else if(distancia > 1000){
+            zoom = 8;
+          }
+        
         options = {
             strokeColor: color,
             strokeOpacity: 0.8,
@@ -132,14 +141,15 @@ const DetallePedido = (props) => {
             editable: false,
             visible: true,
             radius: 30000,
-            zIndex: 1
+            zIndex: 1,
         }
-         LatitudpuntoMedio = (props.pedido.location.latitude + latitudCliente) / 2
-         LongitudpuntoMedio = (props.pedido.location.longitude + longitudCliente) / 2
-    
-         PuntoMedio = { lat: LatitudpuntoMedio,lng: LongitudpuntoMedio };
-    }
+        LatitudpuntoMedio = (props.pedido.location.latitude + latitudCliente) / 2
+        LongitudpuntoMedio = (props.pedido.location.longitude + longitudCliente) / 2
 
+        PuntoMedio = { lat: LatitudpuntoMedio, lng: LongitudpuntoMedio };
+   
+    }
+    
     return (
         <div className="px-3">
             <div>
@@ -158,28 +168,33 @@ const DetallePedido = (props) => {
 
                         <h5 className={"font-weight-light"}>
                             Ubicación:
-                                    </h5>
-                        {
-                           isLoaded && props.pedido.location ?
+                        </h5>
+                        {isLoaded && latitudCliente !== null && longitudCliente !== null ?
                                 <div style={{ height: '300px', width: '100%' }}>
-                                    <GoogleMap zoom={zoom} center={PuntoMedio !== null ? PuntoMedio : initialCoors} mapContainerStyle={{ height: '60vh' }}>
-                                        <Marker clickable position={{ lat: props.pedido.location.latitude, lng: props.pedido.location.longitude}} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png" }}>
-                                        </Marker>
-                                        {
-                                            
-                                            latitudCliente !== null && longitudCliente !== null &&
-                                            <>
+                                    <GoogleMap zoom={zoom} center={initialCoors} mapContainerStyle={{ height: '60vh' }}>
+                                        {(props.pedido.location.latitude !== null && props.pedido.location.longitude !== null) && <Marker label={{
+                                            text: "Pedido",
+                                            color: "black",
+                                            fontSize: "20px",
+                                            fontWeight: "bold",
+                                            display: "block"
+                                        }} clickable position={{ lat: props.pedido.location.latitude, lng: props.pedido.location.longitude }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png" }} />}
+
+                                        {(latitudCliente !== null && longitudCliente !== null) && (<>
                                             <Circle
                                                 center={initialCoors}
-                                                radius = {distancia}
-                                                options= {options}
+                                                radius={distancia}
+                                                options={options}
                                             />
-
-                                            <Marker clickable position={{ lat: latitudCliente, lng: longitudCliente}} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" }}>
-                                            </Marker>
-                                            </>
-                                        }
-                                     
+                                            <Marker label={{
+                                                text: "Cliente",
+                                                color: "black",
+                                                fontSize: "20px",
+                                                fontWeight: "bold",
+                                                display: "block"
+                                            }} clickable position={{ lat: latitudCliente, lng: longitudCliente }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" }} />
+                                        </>)}
+                                        
                                     </GoogleMap>
                                 </div>
                                 :
@@ -192,7 +207,7 @@ const DetallePedido = (props) => {
                     <div className="col-md-6 col-12 p-0 pl-md-2">
                         <h5 className={"font-weight-light"}>
                             Información:
-                                    </h5>
+                        </h5>
                         <table className="table table-xl-responsive table-striped" style={{ border: 'none' }}>
                             <tbody>
                                 <tr>
@@ -232,7 +247,7 @@ const DetallePedido = (props) => {
                                         {'Sincronizado: '}
                                     </td>
                                     <td className={styles.InfoLabelDetail}>
-                                        {(props.pedido.Sincronizado)?"Si":"No"}
+                                        {(props.pedido.Sincronizado) ? "Si" : "No"}
                                     </td>
                                 </tr>
                                 <tr>
@@ -242,7 +257,7 @@ const DetallePedido = (props) => {
                                         {'Num. Pedido Ax: '}
                                     </td>
                                     <td className={styles.InfoLabelDetail}>
-                                        {(props.pedido.NumeroPedido==="")?"No Disponible":props.pedido.NumeroPedido}
+                                        {(props.pedido.NumeroPedido === "") ? "No Disponible" : props.pedido.NumeroPedido}
                                     </td>
                                 </tr>
                                 <tr>
@@ -301,6 +316,14 @@ const DetallePedido = (props) => {
                                         {numberWithCommas((props.pedido.TotalXPedido))}
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td className={styles.InfoLabel}>
+                                        Distancia:
+                                    </td>
+                                    <td className={styles.InfoLabelDetail}>
+                                        {distancia + ' mtrs'}
+                                    </td>
+                                </tr>
                                 {
                                     (props.pedido.Firma !== "") &&
                                     <tr>
@@ -313,6 +336,7 @@ const DetallePedido = (props) => {
                                         </td>
                                     </tr>
                                 }
+
                             </tbody>
                         </table>
                     </div>
@@ -332,13 +356,13 @@ const DetallePedido = (props) => {
                                             IsDist = checkDist(talla);
                                             cantidad++;
                                             return (
-                                                <th className={styles.ThTest} key={index2} style={{ paddingBottom: (IsDist=== true) && '1.3%' }}>
-                                                     <div className="text-center">
-                                                    {
-                                                        <div>{talla.Talla}</div>
-                                                    }
-                                            </div> 
-                                          </th>
+                                                <th className={styles.ThTest} key={index2} style={{ paddingBottom: (IsDist === true) && '1.3%' }}>
+                                                    <div className="text-center">
+                                                        {
+                                                            <div>{talla.Talla}</div>
+                                                        }
+                                                    </div>
+                                                </th>
                                             )
                                         })}
                                         <th className={styles.ThTest} >Cantidad</th>
@@ -347,7 +371,7 @@ const DetallePedido = (props) => {
                                 </thead>
                                 <tbody>
                                     {grupoTalla.prodsXDetPed.map((producto, index2) => {
-                                        let ColoresProductos =  Object.keys(producto.coloresXProdXDetPed).map((key)=>(producto.coloresXProdXDetPed[key]));
+                                        let ColoresProductos = Object.keys(producto.coloresXProdXDetPed).map((key) => (producto.coloresXProdXDetPed[key]));
                                         ColoresProductos.sort((a, b) => a.NombreColor < b.NombreColor ? -1 : 1);
                                         return (
                                             <React.Fragment key={index2} >
@@ -369,10 +393,10 @@ const DetallePedido = (props) => {
                                                     </td>
                                                 </tr>
                                                 {ColoresProductos.map((color, index3) => {
-                                                    let detalles = Array(grupoTalla.ListaTalla.length).fill(null); 
+                                                    let detalles = Array(grupoTalla.ListaTalla.length).fill(null);
                                                     color.DetallesXPedido.forEach(detalleXPedido => {
                                                         detalles[grupoTalla.ListaTalla.findIndex(tall => tall.Talla === detalleXPedido.Talla)] = detalleXPedido;
-                                                    
+
                                                     });
                                                     let cellSize = 100 / cantidad;
                                                     return (
@@ -388,54 +412,54 @@ const DetallePedido = (props) => {
                                                             </td>
                                                             {detalles.map((det, index4) => {
                                                                 return (
-                                                                    <td key={index4} className="p-1 text-center" style={{ width: `${cellSize}%`}}>
+                                                                    <td key={index4} className="p-1 text-center" style={{ width: `${cellSize}%` }}>
                                                                         <div className="text-center">
-                                                                        {
-                                                                            
-                                                                                 IsDist === true && det !== null &&
-                                                                                 <PopupState variant="popper" popupId={det.Talla + index4}>
-                                                                                 {popupState => (
-                                                                                 <>
-                                                                                 <div variant="contained" className={"text-center"}>
-                                                                                 <label>{det ? det.Cantidad : 0}</label>
-                                                                                     <InfoOutlined {...bindTrigger(popupState)} style={{ fontSize: '18px', cursor: 'pointer', margin: 'auto' }}> </InfoOutlined>
-                                                                                 </div>
-                                                                                     <Popover
-                                                                                     {...bindPopover(popupState)}
-                                                                                     style={{ zIndex: 900 }}
-                                                                                     anchorOrigin={{
-                                                                                     vertical: 'bottom',
-                                                                                     horizontal: 'center',
-                                                                                     }}
-                                                                                     transformOrigin={{
-                                                                                     vertical: 'top',
-                                                                                     horizontal: 'center',
-                                                                                     }}>
-                                                                                        <Box p={2}>
-                                                                                             <div className="row mb-2">
-                                                                                                 <Typography component="h5" variant="h5">
-                                                                                                 {"Distribución de Tallas"}
-                                                                                                 </Typography>
-                                                                                             </div>
-                                                                                             <div style={{ maxWidth: '300px', overflow: 'auto' }}>
-                                                                                                 <table className="table table-striped table-bordered m-0">
-                                                                                                     
-                                                                                                 {Headers(det.TallaObject.Distribucion)}
-                                                                                                 {TableBody(det.TallaObject.Distribucion, det.Cantidad, det.PrecioUnitario)}
-                                                                                                 </table>
-                                                                                             </div>
-                                                                                         </Box>
-                                                                                             
-                                                                                     </Popover>
-                                                                                     </>
-                                                                                 )}
-                                                                                 </PopupState>
-                                                                            }
-                                                                           {
-                                                                             IsDist === true && det === null && <label>{0}</label>
+                                                                            {
+
+                                                                                IsDist === true && det !== null &&
+                                                                                <PopupState variant="popper" popupId={det.Talla + index4}>
+                                                                                    {popupState => (
+                                                                                        <>
+                                                                                            <div variant="contained" className={"text-center"}>
+                                                                                                <label>{det ? det.Cantidad : 0}</label>
+                                                                                                <InfoOutlined {...bindTrigger(popupState)} style={{ fontSize: '18px', cursor: 'pointer', margin: 'auto' }}> </InfoOutlined>
+                                                                                            </div>
+                                                                                            <Popover
+                                                                                                {...bindPopover(popupState)}
+                                                                                                style={{ zIndex: 900 }}
+                                                                                                anchorOrigin={{
+                                                                                                    vertical: 'bottom',
+                                                                                                    horizontal: 'center',
+                                                                                                }}
+                                                                                                transformOrigin={{
+                                                                                                    vertical: 'top',
+                                                                                                    horizontal: 'center',
+                                                                                                }}>
+                                                                                                <Box p={2}>
+                                                                                                    <div className="row mb-2">
+                                                                                                        <Typography component="h5" variant="h5">
+                                                                                                            {"Distribución de Tallas"}
+                                                                                                        </Typography>
+                                                                                                    </div>
+                                                                                                    <div style={{ maxWidth: '300px', overflow: 'auto' }}>
+                                                                                                        <table className="table table-striped table-bordered m-0">
+
+                                                                                                            {Headers(det.TallaObject.Distribucion)}
+                                                                                                            {TableBody(det.TallaObject.Distribucion, det.Cantidad, det.PrecioUnitario)}
+                                                                                                        </table>
+                                                                                                    </div>
+                                                                                                </Box>
+
+                                                                                            </Popover>
+                                                                                        </>
+                                                                                    )}
+                                                                                </PopupState>
                                                                             }
                                                                             {
-                                                                             IsDist === false && <label>{det ? det.Cantidad : 0}</label>
+                                                                                IsDist === true && det === null && <label>{0}</label>
+                                                                            }
+                                                                            {
+                                                                                IsDist === false && <label>{det ? det.Cantidad : 0}</label>
                                                                             }
                                                                         </div>
                                                                     </td>

@@ -142,7 +142,7 @@ const VistaProducto = (props) => {
             }).then(() => {
                 localStorage.removeItem("ColeccionSeleccionada");
                 localStorage.removeItem("HoraIngreso");
-                props.navegar.history.push("/Pedidos/Colecciones")
+                //props.navegar.history.push("/Pedidos/Colecciones")
             });
             console.log(request.data);
         } catch (err) {
