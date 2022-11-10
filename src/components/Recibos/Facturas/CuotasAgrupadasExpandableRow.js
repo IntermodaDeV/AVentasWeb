@@ -66,7 +66,7 @@ const columns = [
 const CuotasAgrupadasExpandableRow = (props) => {
     let selectedRowsIndex = [];
     const clienteSeleccionado = useSelector(e=>e.Recibo.clienteSelected);
-    const data = [];
+    let data = [];
     let IdsSubFactura = [];
     if (props.SelectedRowsIndexXAcuerdo) {
         if (props.SelectedRowsIndexXAcuerdo[props.NumeroAcuerdo]) {
@@ -148,6 +148,10 @@ const CuotasAgrupadasExpandableRow = (props) => {
             data.sort((a,b)=>(a.Cuota - b.Cuota));
         } 
     });
+
+    const cuotasConNumero = data.filter(x => x.Cuota !== 0);
+    const cuotasCero = data.filter(x => x.Cuota === 0);
+    data = [...cuotasConNumero, ...cuotasCero];
 
     const options = {
         filterType: 'multiselect',

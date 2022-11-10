@@ -9,7 +9,7 @@ import {APIKEY} from 'utils/Enviroment';
 const DetalleRecibo = (props) => {
   const { recibo } = props;
   const [maps, setMaps] = useState({ map: null, maps: null });
-  let initialCoors = { lat: recibo.Latitude,lng: recibo.Longitude };
+  let initialCoors = { lat: recibo.locationCliente.latitude,lng: recibo.locationCliente.longitude };
   let longitudCliente = recibo.locationCliente.longitude;
   let latitudCliente = recibo.locationCliente.latitude;
   const { isLoaded } = useJsApiLoader({
@@ -57,6 +57,10 @@ const DetalleRecibo = (props) => {
     return x * Math.PI / 180;
   }
   const CalcularDistancia = (lat1, lon1, lat2, lon2) => {
+    if (lat1 === null || lon1 === null || lat2 === null || lon2 === null) {
+      return 0;
+  }
+
     var R = 6378.137;//Radio de la tierra en km
     var dLat = rad(lat2 - lat1);
     var dLong = rad(lon2 - lon1);
@@ -67,10 +71,9 @@ const DetalleRecibo = (props) => {
   }
   let options = null;
   let color = "#FF0000";
-  let zoom = 11;
+  let zoom = 9;
   let LatitudpuntoMedio = 0;
   let LongitudpuntoMedio = 0;
-  let PuntoMedio = null;
   let distancia = 0;
   if(latitudCliente && longitudCliente)
   {
@@ -81,7 +84,14 @@ const DetalleRecibo = (props) => {
       }else if(distancia <= 100){
           color = "#F9EA06";
           zoom = 15;
+      }else if(distancia > 100 && distancia <1000){
+        zoom = 16;
       }
+      else if(distancia > 1000){
+        zoom = 8;
+      }
+
+      console.log("distncia " + distancia);
       options = {
           strokeColor: color,
           strokeOpacity: 0.8,
@@ -97,11 +107,8 @@ const DetalleRecibo = (props) => {
       }
        LatitudpuntoMedio = (recibo.Latitude + latitudCliente) / 2
        LongitudpuntoMedio = (recibo.Longitude + longitudCliente) / 2
-  
-       PuntoMedio = { lat: LatitudpuntoMedio,lng: LongitudpuntoMedio };
   }
 
-  console.log("recibo",recibo)
   return (
     <div className="px-3">
       <div>
@@ -126,14 +133,20 @@ const DetalleRecibo = (props) => {
         <div className="row">
           <div className="col-md-6 col-12 my-md-0 mb-3 p-0 pr-md-2">
             <h5 className={"font-weight-light"}>Ubicación:</h5>
-            {isLoaded && recibo.Latitude !== null && recibo.Longitude !== null ? (
+           
+            {isLoaded && latitudCliente !== null && longitudCliente !== null ? 
               <div style={{ height: "300px", width: "100%" }}>
-                <GoogleMap zoom={zoom} center={PuntoMedio !== null ? PuntoMedio : initialCoors} mapContainerStyle={{ height: '40vh' }}>
-                  <Marker clickable position={{ lat: recibo.Latitude, lng: recibo.Longitude }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png" }}>
-                  </Marker>
-                  {
+                <GoogleMap zoom={zoom} center={ initialCoors} mapContainerStyle={{ height: '50vh' }}>
+                
+                  {(recibo.Longitude !== null && recibo.Latitude !== null) && <Marker label={{
+                    text: "Recibo",
+                    color: "black",
+                    fontSize: "20px",
+                    fontWeight: "bold",
+                    display: "block"
+                  }} clickable position={{ lat: recibo.Latitude, lng: recibo.Longitude }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png" }} />}
 
-                    latitudCliente !== null && longitudCliente !== null &&
+                  {(latitudCliente !== null && longitudCliente !== null) && (
                     <>
                       <Circle
                         center={initialCoors}
@@ -141,18 +154,24 @@ const DetalleRecibo = (props) => {
                         options={options}
                       />
 
-                      <Marker clickable position={{ lat: latitudCliente, lng: longitudCliente }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" }}>
-                      </Marker>
+                      <Marker label={{
+                        text: "Cliente",
+                        color: "black",
+                        fontSize: "20px",
+                        fontWeight: "bold",
+                        display: "block"
+                      }} clickable position={{ lat: latitudCliente, lng: longitudCliente }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" }} />
+
                     </>
-                  }
+                  )}
 
                 </GoogleMap>
               </div>
-            ) : (
+             : 
               <div style={{ textAlign: "center", marginTop: "150px" }}>
                 Ubicación no disponible
               </div>
-            )}
+            }
           </div>
           <div className="col-md-6 col-12 p-0 pl-md-2">
             <h5 className={"font-weight-light"}>Información:</h5>
@@ -210,6 +229,15 @@ const DetalleRecibo = (props) => {
                     {numberWithCommas(recibo.Valor)}
                   </td>
                 </tr>
+                <tr>
+                    <td className={styles.InfoLabel}>
+                        Distancia:
+                    </td>
+                    <td className={styles.InfoLabelDetail}>
+                        {distancia + ' m'}
+                    </td>
+                </tr>
+                
               </tbody>
             </table>
           </div>

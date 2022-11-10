@@ -204,6 +204,10 @@ const CuotasAgrupadasTable = props => {
         }
         return 0;
       });
+
+      const cuotasConNumero = cuotasAgrupadas.filter(x => x.NumeroCuota !== 0);
+      const cuotasCero = cuotasAgrupadas.filter(x => x.NumeroCuota === 0);
+      cuotasAgrupadas = [...cuotasConNumero, ...cuotasCero];
     
       const Vencido = ValorVencido > 0? "text-danger font-weight-bold":"inline-block";
       //if (SaldoTotal > 0) {
