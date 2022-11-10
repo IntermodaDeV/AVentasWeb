@@ -25,7 +25,7 @@ const DetalleGasto = (props) => {
         getImagen()
         // eslint-disable-next-line
     }, [])
-
+    
     return (
         <div className="px-3">
             <div>
@@ -47,7 +47,7 @@ const DetalleGasto = (props) => {
                             imagen ?
                                 <div style={{ height: '300px', width: '80%', alignItems: "center" }} >
                                     <p style={{ textAlign: 'center' }}>
-                                        <img src={imagen} width="50%" height="auto" alt='documento'/>
+                                        <img src={imagen} width="50%" height="auto" />
                                         <br />
                                         <span className="mr-1">
                                             <a href={imagen} download="factura.png" style={{ textDecoration: 'none' }}>
@@ -122,7 +122,23 @@ const DetalleGasto = (props) => {
                                 </tr>
                                 <tr>
                                     <td className={styles.InfoLabel}>
-                                        {'Valor: '}
+                                        {'Importe Exento: '}
+                                    </td>
+                                    <td className={styles.InfoLabelDetail}>
+                                        {props.detalle.importeExento}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className={styles.InfoLabel}>
+                                        {'Importe Gravado: '}
+                                    </td>
+                                    <td className={styles.InfoLabelDetail}>
+                                        {props.detalle.importeGravado}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className={styles.InfoLabel}>
+                                        {'Total: '}
                                     </td>
                                     <td className={styles.InfoLabelDetail}>
                                         {props.detalle.ValorFactura}

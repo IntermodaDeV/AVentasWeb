@@ -143,10 +143,10 @@ const GastosNoSync = (props) => {
     }
 
     const DataGastos = () => {
+        let DataGastos = [];
 
-
-        return gastos.map(gasto => {
-            return [
+        gastos.map(gasto => {
+            let data = [
                 gasto.tipo,
                 gasto.categoria,
                 gasto.UsuarioAsesor,
@@ -154,6 +154,8 @@ const GastosNoSync = (props) => {
                 gasto.NoFactura,
                 gasto.Descripcion == null ? '-' : gasto.Descripcion,
                 gasto.MensajeAX,
+                gasto.importeGravado,
+                gasto.importeExento,
                 gasto.ValorFactura,
                 moment(gasto.FechaFactura).format("DD/MM/YYYY"),
                 moment(gasto.FechaCreacion).format("DD/MM/YYYY"),
@@ -166,9 +168,9 @@ const GastosNoSync = (props) => {
                     </span>
                 </div>
             ]
-
+            DataGastos.push(data)
         })
-;
+        return DataGastos;
     }
 
 
@@ -255,6 +257,32 @@ const GastosNoSync = (props) => {
         {
             name: "MensajeAX",
             label: "Mensaje AX",
+            Option: {
+                filter: true,
+                sort: true,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <p>{value[0]}</p>
+                    )
+                }
+            }
+        },
+        {
+            name: "importeExento",
+            label: "Importe Exento",
+            Option: {
+                filter: true,
+                sort: true,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <p>{value[0]}</p>
+                    )
+                }
+            }
+        },
+        {
+            name: "importeGravado",
+            label: "Importe Gravado",
             Option: {
                 filter: true,
                 sort: true,

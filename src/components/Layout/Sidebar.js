@@ -58,7 +58,8 @@ import {
     MonetizationOn,
     History,
     AirplanemodeActive,
-    Settings
+    Settings,
+    Cancel
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
@@ -172,7 +173,16 @@ const navItems = [
     { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },
     { to: '/fotografias', name: 'Fotografias', dataTut: 'DataTut_Fotografias', Icon: CameraAltOutlined },
     { to: '/coordenadas', name: 'Coordenadas', dataTut: 'DataTut_Coordenadas', Icon: LocationOnOutlined },
-   
+    {
+        to: '/GiraAsesores', name: 'Gira', dataTut: 'DataTut_GastosGira', Icon: AirplanemodeActive,
+        expanded: [
+            { to: '/GiraAsesores/Mantenimiento', name: 'Mantenimiento Gastos', dataTut: 'DataTut_mantenimientoGira', Icon: Settings, backgroundColor:''  },
+            { to: '/GiraAsesores/HistorialGasto', name: 'Historial Gastos', dataTut: 'DataTut_historialGastos', Icon: History, backgroundColor:''  },
+            { to: '/GiraAsesores/GastosPendientes', name: 'Aprobar Gastos', dataTut: 'DataTut_AprobarGasto', Icon: Description, backgroundColor:''  },
+            { to: '/GiraAsesores/GastosRechazar', name: 'Rechazar Gastos', dataTut: 'DataTut_pendientesSync', Icon: Cancel, backgroundColor:''  },
+            { to: '/GiraAsesores/GastosNoSincronizados', name: 'Gastos Pendientes Ax', dataTut: 'DataTut_pendientesSync', Icon: Sync, backgroundColor:''  },
+        ]
+    },
     {
         to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build,
         expanded: [
@@ -181,15 +191,6 @@ const navItems = [
             { to: '/configuracion-almacenes', name: 'Almacen', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  },
             { to: '/configuracion-ubicaciones', name: 'Ubicacion', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  },
             { to: '/configuracion-RazonesNoVenta', name: 'Razones no venta', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  }
-        ]
-    },
-    {
-        to: '/GiraAsesores', name: 'Gira', dataTut: 'DataTut_GastosGira', Icon: AirplanemodeActive,
-        expanded: [
-            { to: '/GiraAsesores/Mantenimiento', name: 'Mantenimiento Gastos', dataTut: 'DataTut_mantenimientoGira', Icon: Settings, backgroundColor:''  },
-            { to: '/GiraAsesores/HistorialGasto', name: 'Historial Gastos', dataTut: 'DataTut_historialGastos', Icon: History, backgroundColor:''  },
-            { to: '/GiraAsesores/GastosPendientes', name: 'Aprobar Gastos', dataTut: 'DataTut_AprobarGasto', Icon: Description, backgroundColor:''  },
-            { to: '/GiraAsesores/GastosNoSincronizados', name: 'Gastos Pendientes Ax', dataTut: 'DataTut_pendientesSync', Icon: Sync, backgroundColor:''  },
         ]
     }
 ];
@@ -442,6 +443,10 @@ const Sidebar = (props) => {
         {
             selector: '[data-tut="DataTut_HelperButton"]',
             content: `Obtener ayuda de la interfaz`
+        },
+        {
+            selector: '[data-tut="DataTut_GastosGira"]',
+            content: `Gastos de gira para asesores de venta.`
         },
     ];
 

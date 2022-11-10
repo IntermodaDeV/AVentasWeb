@@ -25,10 +25,10 @@ export const CategoriaGasto = props => {
     const [empresaSelected, setEmpresaSelected] = useState(null)
     const context = useRef();
 
-    const cargarEmpresas = async() =>{
-        try{
+    const cargarEmpresas = async () => {
+        try {
             const request = await axios.get(`${APIURL}/api/Empresas`)
-            let empresasList =[];
+            let empresasList = [];
             request.data.forEach(empresa => {
                 let valores = { key: empresa.Empresa, value: empresa.Empresa, text: empresa.Empresa }
                 empresasList.push(valores);
@@ -36,7 +36,7 @@ export const CategoriaGasto = props => {
             setEmpresas(empresasList);
             setEmpresaSelected(empresasList[0].value)
             setEmpresasData(request.data)
-        }catch(err){
+        } catch (err) {
             let mensaje = "Ha ocurrido un error y no se han cargado las empresas.";
 
             if (err.response) {
@@ -53,7 +53,7 @@ export const CategoriaGasto = props => {
     }
 
     const cargarTipoOpcionesDetalle = async () => {
-        let empresa =  empresaSelected ? empresaSelected : empresas[0].value;
+        let empresa = empresaSelected ? empresaSelected : empresas[0].value;
         console.log(empresasData[0].Empresa)
         try {
             const request = await axios.get(`${APIURL}/api/TipoGasto/${empresa}`);
@@ -64,7 +64,7 @@ export const CategoriaGasto = props => {
             });
             setTipoOpciones(TipoOpciones);
         } catch (err) {
-            let mensaje = "Ha ocurrido un error "+ err;
+            let mensaje = "Ha ocurrido un error " + err;
 
             if (err.response) {
                 mensaje = err.response.data.Message;
@@ -93,7 +93,7 @@ export const CategoriaGasto = props => {
             const request = await axios.get(`${APIURL}/api/CategoriaGasto/${empresa}`);
             setCategoriasGasto(request.data);
         } catch (err) {
-            let mensaje = "Ha ocurrido un error y no se han cargado los tipos de gastos." +err;
+            let mensaje = "Ha ocurrido un error y no se han cargado los tipos de gastos." + err;
 
             if (err.response) {
                 mensaje = err.response.data.Message;
@@ -150,7 +150,7 @@ export const CategoriaGasto = props => {
             });
         } catch (err) {
             setMostrar(false);
-            let mensaje = "Ha ocurrido un error y no se ha registrado la Categoria de gasto. "+err;
+            let mensaje = "Ha ocurrido un error y no se ha registrado la Categoria de gasto. " + err;
 
             if (err.response) {
                 mensaje = err.response.data.Message;
@@ -167,7 +167,7 @@ export const CategoriaGasto = props => {
     const modificar = async (data) => {
         setMostrar(false)
         try {
-            await axios.post(`${APIURL}/api/ActualizarCategoria/`,data);
+            await axios.post(`${APIURL}/api/ActualizarCategoria/`, data);
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha modificado el Tipo de Gastos exitosamente.",
@@ -231,13 +231,13 @@ export const CategoriaGasto = props => {
     useEffect(() => {
         cargarEmpresas();
     }, [])
-    useEffect(()=>{
-        if(empresasData.length > 0){
+    useEffect(() => {
+        if (empresasData.length > 0) {
             cargarTipoOpcionesDetalle();
             cargarCategoriaGasto();
         }
         // eslint-disable-next-line
-    },[empresasData, empresaSelected])
+    }, [empresasData, empresaSelected])
     return (
         <div>
             <Dialog open={mostrar} aria-labelledby="form-dialog-title">
@@ -256,7 +256,7 @@ export const CategoriaGasto = props => {
                                 <Form>
                                     <div className="form-group">
                                         <label htmlFor="TipoOpcion">Tipo</label>
-                                        <Field id="Opcion" name="idTipoGastoViaje" as="select" className="form-control" style={{ width: '450px', marginRight: '20px' }} disabled = {edit?true:false}>
+                                        <Field id="Opcion" name="idTipoGastoViaje" as="select" className="form-control" style={{ width: '450px', marginRight: '20px' }} disabled={edit ? true : false}>
                                             {
                                                 tipoOpciones.map(opcion => {
                                                     return (
@@ -277,7 +277,7 @@ export const CategoriaGasto = props => {
                                             as={TextField}
                                             className="form-control"
                                         />
-                                        <br/>
+                                        <br />
                                         <Field
                                             label="Proveedor Predefinido"
                                             name="ProveedorPredefinido"
@@ -287,7 +287,7 @@ export const CategoriaGasto = props => {
                                             as={TextField}
                                             className="form-control"
                                         />
-                                        <br/>
+                                        <br />
                                         <Field
                                             label="Cuenta ContraPartida"
                                             name="CuentaContrapartida"
@@ -300,7 +300,7 @@ export const CategoriaGasto = props => {
 
                                     </div>
                                     <label htmlFor="Obligatorios">Campos obligatorios</label>
-                                    <br/>
+                                    <br />
                                     <FormControlLabel
                                         control={
                                             <Field
@@ -350,21 +350,21 @@ export const CategoriaGasto = props => {
                 </DialogContent>
             </Dialog>
             <div className="px-3">
-                        <div className="row mb-3">
-                            <div className='col-lg-2 col-sm-4 col-6' style={{ paddingTop: 10 }}>
-                                <Dropdown
-                                    placeholder="Empresa"
-                                    selection
-                                    style={{ zIndex: 999 }}
-                                    onChange={(e, { value }) => setEmpresaSelected(value)}
-                                    options={empresas}
-                                    noResultsMessage={"No hay resultados"}
-                                    closeOnChange={true}
-                                    value={empresaSelected}
-                                />
-                            </div>
-                        </div>
+                <div className="row mb-3">
+                    <div className='col-lg-2 col-sm-4 col-6' style={{ paddingTop: 10 }}>
+                        <Dropdown
+                            placeholder="Empresa"
+                            selection
+                            style={{ zIndex: 999 }}
+                            onChange={(e, { value }) => setEmpresaSelected(value)}
+                            options={empresas}
+                            noResultsMessage={"No hay resultados"}
+                            closeOnChange={true}
+                            value={empresaSelected}
+                        />
                     </div>
+                </div>
+            </div>
             <TablacategoriasGasto CategoriasGastos={categoriasGasto} setMostrar={Mostrar} openEdit={openEdit} ModificarEstado={modificarEstado} empresas={empresas} empresaSelected={empresaSelected}></TablacategoriasGasto>
         </div>
 

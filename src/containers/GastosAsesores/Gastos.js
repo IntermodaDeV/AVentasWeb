@@ -17,8 +17,6 @@ import { DatePicker } from "@material-ui/pickers";
 import DetalleGasto from 'components/GastoAsesores/DetalloGasto/DetalleGasto'
 import Dialog from "@material-ui/core/Dialog";
 import { IsAllow } from 'components/Seguridad/Permisos';
-import FileSaver from 'file-saver';
-import XLSX, { write } from 'xlsx';
 import jsPDF from "jspdf";
 
 moment.locale('es');
@@ -33,12 +31,12 @@ const Gastos = (props) => {
     const [detalle, setDetalle] = useState(false);
     const [detalleGasto, setDetalleGasto] = useState([])
     const [idDetalle, setIdDetalle] = useState(null);
-    const [asesor, setAsesor] = useState('')
-    const numberWithCommas = (numero)=>(numero.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
-
+    const [tipoGasto, setTipoGasto] = useState([])
+    const numberWithCommas = (numero) => (numero.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+    const [tipoSelected, setTipoSelected] = useState(null);
+    const [tipoId, setTipoId] = useState('')
 
     useEffect(() => {
-        console.log(AsesoresUsuario)
         if (!IsAllow('/GiraAsesores/HistorialGasto')) {
             props.history.push('/home');
         }
@@ -46,7 +44,20 @@ const Gastos = (props) => {
         cargarHistorialGastos(startDate, endDate)
         let asesoresMap = AsesoresUsuario.map((Ase) => ({ key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }));
         setAsesores(asesoresMap);
+
+        getTipos();
     }, [])
+
+    const getTipos = async () => {
+        await axios.get(`${APIURL}/api/TipoGasto/${localStorage.getItem("empresa")}`).then(resp => {
+            let tipos = resp.data.map((tip) => ({ key: tip.Id, value: tip.Nombre, text: tip.Nombre }));
+            setTipoGasto(tipos);
+            setTipoSelected(tipos[0].text)
+            setTipoId(tipos[0].key)
+
+        })
+
+    }
 
     const getGastoDetalle = async (id, detalle) => {
         setIdDetalle(id)
@@ -63,7 +74,6 @@ const Gastos = (props) => {
             let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
             var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
             var Fin = moment(FechaFin).format("YYYY-MM-DD");
-            console.log(`${APIURL}/api/HistorialGastos/${asesor}/${Inicio}/${Fin}`)
             const request = await axios.get(`${APIURL}/api/HistorialGastos/${asesor}/${Inicio}/${Fin}`);
             setGastos(request.data)
         } catch (err) {
@@ -92,6 +102,16 @@ const Gastos = (props) => {
         setAsesorSelected(value);
     }
 
+    const handleOnChangeTipo = (value) => {
+        setTipoSelected(value);
+        tipoGasto.map(temp => {
+            if (value === temp.value) {
+                setTipoId(temp.key)
+            }
+        })
+
+    }
+
     const DataGastos = () => {
         let DataGastos = [];
 
@@ -104,6 +124,8 @@ const Gastos = (props) => {
                 gasto.NoFactura,
                 gasto.Descripcion == null ? '-' : gasto.Descripcion,
                 gasto.DescripcionAdmin == null ? '-' : gasto.DescripcionAdmin,
+                gasto.importeGravado,
+                gasto.importeExento,
                 gasto.ValorFactura,
                 moment(gasto.FechaFactura).format("DD/MM/YYYY"),
                 moment(gasto.FechaCreacion).format("DD/MM/YYYY HH:MM"),
@@ -117,31 +139,29 @@ const Gastos = (props) => {
         return DataGastos;
     }
 
-    const guardarPdf = async () =>{
+    const guardarPdf = async () => {
         const unit = "pt";
-        const size = "letter"; 
+        const size = "letter";
         const orientation = "portrait";
 
         const doc = new jsPDF(orientation, unit, size);
         doc.setFontSize(10);
-        
 
-        
 
-        const headers = [['#', 'Tipo', 'Categoria', 'Descripcion', 'Fecha', 'Valor']];
-        
+        const headers = [['#', 'Tipo', 'Categoria', 'Descripcion', 'Fecha', 'Importe Gravado', 'Importe Exento', 'Valor']];
+
         let date = new Date();
         let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
         var Inicio = moment(startDate).format("YYYY-MM-DD");
         var Fin = moment(endDate).format("YYYY-MM-DD");
-        const request = await axios.get(`${APIURL}/api/GastosExcel/${asesor}/${Inicio}/${Fin}`);
+        const request = await axios.get(`${APIURL}/api/GastosPDF/${asesor}/${Inicio}/${Fin}/${tipoId}`);
         let datos = request.data;
-        console.log(datos)
-        const title = `
+        if (datos.length > 0) {
+            const title = `
 
 
 
-                                                                                Reporte Gastos de Viaje
+                                                                                Reporte ${tipoSelected}
 
         Nombre Completo: ${datos[0].nombre}
         
@@ -149,36 +169,48 @@ const Gastos = (props) => {
         Hasta: ${moment(endDate).format("DD/MM/YYYY")}
         `;
 
-        
-        const data= datos.map(e =>[
-            e.$id,
-            e.Tipo,
-            e.categoria,
-            e.descripcion,
-            moment(e.fecha).format("DD/MM/YYYY"),
-            numberWithCommas(e.valor)
-        ])
 
-        const total = datos.reduce((pre,curr)=>(pre+curr.valor),0);
-        data.push(['','','','','',numberWithCommas(total)]);
+            const data = datos.map(e => [
+                e.$id,
+                e.Tipo,
+                e.categoria,
+                e.descripcion,
+                moment(e.fecha).format("DD/MM/YYYY"),
+                numberWithCommas(e.importeExento),
+                numberWithCommas(e.importeGravado),
+                numberWithCommas(e.valor)
+            ])
 
-        let content = {
-            styles:{fontSize:8},
-            startY: 120,
-            head: headers,
-            body: data
-        };
-        doc.text(title, 25, 0);
-        doc.autoTable(content);
-        doc.save(`Reporte Gastos de Viaje ${asesor} ${moment(date).format("DD-MM-YYYY")}.pdf`)
+            const total = datos.reduce((pre, curr) => (pre + curr.valor), 0);
+            data.push(['', '', '', '', '', '', '', numberWithCommas(total)]);
 
-        Swal.fire({
-            title: "¡Documento Descargado!",
-            text: "Revise su panel de notificaciones o su carpeta de descargas.",
-            type: 'success',
-            confirmButtonText: 'Ok',
-        });
-        
+            let content = {
+                styles: { fontSize: 8 },
+                startY: 120,
+                head: headers,
+                body: data
+            };
+            doc.text(title, 25, 0);
+            doc.autoTable(content);
+            doc.save(`Reporte ${tipoSelected} ${asesor} ${moment(date).format("DD-MM-YYYY")}.pdf`)
+
+            Swal.fire({
+                title: "¡Documento Descargado!",
+                text: "Revise su panel de notificaciones o su carpeta de descargas.",
+                type: 'success',
+                confirmButtonText: 'Ok',
+            });
+        } else {
+            Swal.fire({
+                title: "¡Documento no Descargado!",
+                text: "No se encontraron gastos aprobados en el rango de fechas.",
+                type: 'error',
+                confirmButtonText: 'Ok',
+            });
+        }
+        /*
+        */
+
     }
 
     const handleFechaInicio = (fecha) => {
@@ -299,6 +331,32 @@ const Gastos = (props) => {
             }
         },
         {
+            name: "importeExento",
+            label: "Importe Exento",
+            Option: {
+                filter: true,
+                sort: true,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <p>{value[0]}</p>
+                    )
+                }
+            }
+        },
+        {
+            name: "importeGravado",
+            label: "Importe Gravado",
+            Option: {
+                filter: true,
+                sort: true,
+                customBodyRender: (value, tableMeta, updateValue) => {
+                    return (
+                        <p>{value[0]}</p>
+                    )
+                }
+            }
+        },
+        {
             name: "ValorFactura",
             label: "Valor Factura",
             Option: {
@@ -366,6 +424,7 @@ const Gastos = (props) => {
         responsive: "scrollMaxHeight",
         print: false,
         download: false,
+        print: true,
         selectableRows: 'none',
         customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
             <TableFooter>
@@ -379,6 +438,7 @@ const Gastos = (props) => {
                         rowsPerPageOptions={[10, 15, 100]}
                         ActionsComponent={CustomFooter}
                         labelRowsPerPage="Filas por página:"
+
                     />
                 </TableRow>
             </TableFooter>
@@ -465,6 +525,18 @@ const Gastos = (props) => {
                 <div>
                     <button onClick={() => guardarPdf()} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
                 </div>
+                <div className='col-lg-2 col-sm-4 col-6' style={{ paddingTop: 10 }}>
+                    <Dropdown
+                        placeholder="Tipo Gasto"
+                        selection
+                        style={{ zIndex: 999 }}
+                        onChange={(e, { value }) => handleOnChangeTipo(value)}
+                        options={tipoGasto}
+                        noResultsMessage={"No hay resultados"}
+                        closeOnChange={true}
+                        value={tipoSelected}
+                    />
+                </div>
             </div>
             <div>
                 <MuiThemeProvider theme={getMuiTheme()}>
@@ -473,13 +545,14 @@ const Gastos = (props) => {
                         data={DataGastos()}
                         columns={HeaderHistorialGastos}
                         options={DatatableOptions}
+
                     />
                 </MuiThemeProvider>
             </div>
             <Dialog open={detalle} fullScreen={true}>
                 <DetalleGasto id={idDetalle} detalle={detalleGasto} RegresarGastosPendientes={RegresarGastosPendientes}></DetalleGasto>
             </Dialog>
-                
+
         </div>
     )
 };

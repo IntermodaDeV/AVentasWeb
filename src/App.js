@@ -62,6 +62,8 @@ import GastosPendientes from 'containers/GastosAsesores/GastosPendientes'
 import Gastos from 'containers/GastosAsesores/Gastos'
 import GastosNoSync from 'containers/GastosAsesores/GastosNoSync'
 import { CategoriaGasto } from 'components/GastoAsesores/CategoriaGasto/CategoriaGasto'
+import { GrupoImpuesto } from 'components/GastoAsesores/GrupoImpuestos/GrupoImpuesto'
+import GastosRechazar from 'containers/GastosAsesores/GastosRechazar'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -388,7 +390,7 @@ const App = props => {
               layout={MainLayout}
               component={AprobacionDevolucion}
             />
-              <LayoutRoute
+            <LayoutRoute
               path='/acuerdosVenta'
               layout={MainLayout}
               component={AcuerdosVenta}
@@ -404,6 +406,11 @@ const App = props => {
               component={CategoriaGasto}
             />
             <LayoutRoute
+              path='/GiraAsesores/Mantenimiento/GrupoImpuestos'
+              layout={MainLayout}
+              component={GrupoImpuesto}
+            />
+            <LayoutRoute
               path='/GiraAsesores/HistorialGasto'
               layout={MainLayout}
               component={Gastos}
@@ -414,11 +421,15 @@ const App = props => {
               component={GastosPendientes}
             />
             <LayoutRoute
+              path='/GiraAsesores/GastosRechazar'
+              layout={MainLayout}
+              component={GastosRechazar}
+            />
+            <LayoutRoute
               path='/GiraAsesores/GastosNoSincronizados'
               layout={MainLayout}
               component={GastosNoSync}
             />
-
             <Redirect to='/home' />
           </Switch>
         </Router>

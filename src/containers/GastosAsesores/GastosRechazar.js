@@ -20,28 +20,69 @@ import * as yup from 'yup';
 import { Formik, Form, Field } from 'formik';
 import DetalleGasto from 'components/GastoAsesores/DetalloGasto/DetalleGasto'
 import { IsAllow } from 'components/Seguridad/Permisos';
+import { DatePicker } from "@material-ui/pickers";
 
 moment.locale('es');
 
-const GastosPendientes = (props) => {
+const GastosRechazar = (props) => {
+    const [asesores, setAsesores] = useState([]);
     const [gastos, setGastos] = useState([]);
     const [showModalCancelar, setshowModalCancelar] = useState(false);
     const [IdRechazado, setIdRechazado] = useState("");
     const [detalle, setDetalle] = useState(false);
     const [detalleGasto, setDetalleGasto] = useState([])
     const [idDetalle, setIdDetalle] = useState(null);
+    const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 30));
+    const [endDate, setEndDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
+
     const context = useRef();
 
     useEffect(() => {
-        if (!IsAllow('/GiraAsesores/GastosPendientes')) {
+        if (!IsAllow('/GiraAsesores/GastosRechazar')) {
             props.history.push('/home');
         }
         cargarHistorialGastos()
-         // eslint-disable-next-line
     }, [])
 
+    const handleFechaInicio = (fecha) => {
+
+        var date = moment(fecha).toDate();
+
+        var fech = moment(fecha).toDate();
+        fech.setMonth(date.getMonth() + 1);
+
+        setStartDate(date);
+        setEndDate(fech);
+    }
+
+    const handleFechaFin = (fecha) => {
+        var date = moment(fecha).toDate();
+
+        const diffTime = new Date(date) - new Date(startDate);
+
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (diffDays > 1) {
+            setEndDate(date);
+        }
+        else {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top',
+                showConfirmButton: false,
+                timer: 3000
+            });
+
+            Toast.fire({
+                type: 'error',
+                title: 'Ingrese Fecha Válida',
+            })
+            var fech = new Date();
+            fech.setDate(startDate.getDate() + 6);
+            setEndDate(fech);
+        }
+    }
+
     const getGastoDetalle = async (id, detalle) => {
-        console.log('ID:' + id)
         setIdDetalle(id)
         setDetalleGasto(detalle)
         setDetalle(true)
@@ -64,7 +105,9 @@ const GastosPendientes = (props) => {
 
     const cargarHistorialGastos = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/GastosPendientes/${localStorage.getItem("empresa")}`);
+            var Inicio = moment(startDate).format("YYYY-MM-DD");
+            var Fin = moment(endDate).format("YYYY-MM-DD");
+            const request = await axios.get(`${APIURL}/api/GastosAprobados/${localStorage.getItem("empresa")}/${Inicio}/${Fin}`);
             setGastos(request.data)
         } catch (err) {
             console.log(err)
@@ -87,52 +130,6 @@ const GastosPendientes = (props) => {
             },
         }
     })
-
-    const aprobarGasto = async (id) => {
-        const enviarAX = await axios.get(`${APIURL}/api/DatosEnviarAX/${id}`)
-        console.log(enviarAX.data.Content)
-        if (enviarAX.data.Content === '"OK"') {
-            const request = await axios.post(`${APIURL}/api/ActualizarEstadoGasto/${id}/2/-/${localStorage.getItem("codigo")}/-`);
-            if (request.data === 1) {
-                Swal.fire({
-                    title: 'Confirmado',
-                    text: "Gasto Aprobado y enviado a AX Existosamente",
-                    type: 'success',
-                    confirmButtonText: 'Ok',
-                }).then(e => {
-                    cargarHistorialGastos();
-                });
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Gasto Enviado a AX pweo no ACTUALIZADO en la base de datos',
-                    type: 'error',
-                    confirmButtonText: 'Ok',
-                });
-            }
-        } else {
-            const request = await axios.post(`${APIURL}/api/ActualizarEstadoGasto/${id}/4/-/${localStorage.getItem("codigo")}/${enviarAX.data.Content}`);
-            if (request.data === 1) {
-                Swal.fire({
-                    title: 'Error',
-                    text: "Gasto Aprobado y enviado a Pendiente de AX por: " + enviarAX.data.Content,
-                    type: 'error',
-                    confirmButtonText: 'Ok',
-                }).then(e => {
-                    cargarHistorialGastos();
-                });
-            } else {
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Error al actualizar el estado del gasto',
-                    type: 'error',
-                    confirmButtonText: 'Ok',
-                });
-            }
-        }
-
-
-    }
 
     const rechazarGasto = async (value) => {
         console.log('cancelando')
@@ -157,10 +154,12 @@ const GastosPendientes = (props) => {
         setshowModalCancelar(false)
     }
 
+
     const DataGastos = () => {
         let DataGastos = [];
 
         gastos.map(gasto => {
+            console.log(gasto)
             let data = [
                 gasto.tipo,
                 gasto.categoria,
@@ -175,9 +174,6 @@ const GastosPendientes = (props) => {
                 <div>
                     <span className="mr-1">
                         <Button className='my-1' variant="outlined" onClick={() => getGastoDetalle(gasto.IdGastoViajeDetalle, gasto)} size="small" color={"primary"}>Detalle</Button>
-                    </span>
-                    <span className="mr-1">
-                        <Button className='my-1' variant="outlined" onClick={() => aprobarGasto(gasto.IdGastoViajeDetalle)} size="small" color={"primary"}>Aprobar</Button>
                     </span>
                     <span className="mr-1">
                         <Button className='my-1' variant="outlined" onClick={() => showModalCancelado(gasto.IdGastoViajeDetalle)} size="small" color={"primary"}>Rechazar</Button>
@@ -333,13 +329,13 @@ const GastosPendientes = (props) => {
     ];
 
     const DatatableOptions = {
-        filter: false,
+        filter: true,
         filterType: "dropdown",
         responsive: "scrollMaxHeight",
         print: false,
         download: false,
         selectableRows: 'none',
-        search: false,
+        search: true,
         viewColumns: false,
         customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
             <TableFooter>
@@ -359,7 +355,7 @@ const GastosPendientes = (props) => {
         ),
         textLabels: {
             body: {
-                noMatch: "No se han encontrado gastos pendientes",
+                noMatch: "No se han encontrado gastos aprobados",
                 toolTip: "Ordenar",
             },
             pagination: {
@@ -395,9 +391,34 @@ const GastosPendientes = (props) => {
     let initialValues = { Observacion: "" };
     return (
         <div className="px-3">
+            <div class="row mb-3">
+                <div className='col-lg-2 my-lg-0 col-6 my-1'>
+                    <DatePicker
+                        disableToolbar
+                        autoOk
+                        label={"Fecha Inicio"}
+                        variant="inline"
+                        format={"DD/MM/YYYY"}
+                        value={startDate}
+                        onChange={(date) => handleFechaInicio(date)}
+                    />
+                </div>
+                <div className='col-lg-2 my-lg-0 col-6 my-1'>
+                    <DatePicker
+                        disableToolbar
+                        autoOk
+                        label={"Fecha Fin"}
+                        variant="inline"
+                        minDate={startDate}
+                        format={"DD/MM/YYYY"}
+                        value={endDate}
+                        onChange={(date) => handleFechaFin(date)}
+                    />
+                </div>
+            </div>
             <MuiThemeProvider theme={getMuiTheme()}>
                 <MUIDataTable
-                    title={"Gastos Pendientes"}
+                    title={"Gastos Aprobados"}
                     data={DataGastos()}
                     columns={HeaderHistorialGastos}
                     options={DatatableOptions}
@@ -452,4 +473,4 @@ const GastosPendientes = (props) => {
 
 };
 
-export default GastosPendientes;
+export default GastosRechazar;
