@@ -157,6 +157,7 @@ const navItems = [
             { to: '/listadoDevolucion', name: 'Listado Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
             { to: '/aprobarDevoluciones', name: 'Aprobar Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
             { to: '/MotivosDevolucion', name: 'Motivos Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
+            { to: '/seguimientoCalidad', name: 'Seguimiento Calidad', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
         ]
     },
     {

@@ -145,6 +145,13 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
+            label: "Estado Bodega",
+            name: "EstadoBodega",
+            options: {
+                filter: false,
+            }
+        },
+        {
             label: "Realizado por:",
             name: "usuario",
             options: {
@@ -221,6 +228,7 @@ export const ListadoDevolucion = (props) => {
                 moment(p.FechaCreacion).format("DD/MM/YYYY"),
                 p.Estado,
                 p.Observacion,
+                p.EstadoBodega === 0 ? "Sin recibir" : p.EstadoBodega === 1 ? "Procesando" : p.EstadoBodega === 2 ? "Trasferido" : p.EstadoBodega === 3 ? "Aprobado" : p.EstadoBodega === 4 ? "Rechazado" : "-",
                 p.Estado === "No autorizado" ? p.UsuarioModifica : "",
                 <div>
                     <span className="ml-1">
