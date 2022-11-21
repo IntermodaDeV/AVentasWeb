@@ -108,25 +108,28 @@ export const SeguimientoCalidad = props => {
                 devolucion.EstadoBodega === 0 ? "Sin recibir" : devolucion.EstadoBodega === 1 ? "Procesando" : devolucion.EstadoBodega === 2 ? "Trasferido" : devolucion.EstadoBodega === 3 ? "Aprobado" : devolucion.EstadoBodega === 4 ? "Rechazado" : "-",
                 <div>
                     <span className="mr-1">
-                        <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion, 0)} size="small" color={"primary"}>Sin Recibir</Button>
+                        {
+                            (devolucion.EstadoBodega === null) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 0)} size="small" color={"primary"}>Sin Recibir</Button>
+                        }
+                        {
+                            (devolucion.EstadoBodega === 0) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 1)} size="small" color={"primary"}>Procesar</Button>
+                        }
+                        {
+                            (devolucion.EstadoBodega === 1) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 2)} size="small" color={"primary"}>Transferir</Button>
+                        }
+                        {
+                            (devolucion.EstadoBodega === 2) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 3)} size="small" color={"primary"}>Aprobar</Button>
+                        }
+                        {
+                            (devolucion.EstadoBodega === 3) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 4)} size="small" color={"primary"}>Rechazar</Button>
+                        }
                     </span>
-                    <span className="ml-1">
-                        <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion, 1)} size="small" color={"primary"}>Procesar</Button>
-                    </span >
-                    <span className="ml-1">
-                        <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion, 2)} size="small" color={"primary"}>Transferir</Button>
-                    </span >
-                    <span className="ml-1">
-                        <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion, 3)} size="small" color={"primary"}>Aprobar</Button>
-                    </span >
-                    <span className="ml-1">
-                        <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion, 4)} size="small" color={"primary"}>Rechazar</Button>
-                    </span >
+
                     <span className="ml-1">
                         <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerDetalleDevolucion(devolucion) }} color={"primary"}>
                             <PrintOutlined />
                         </Button>
-                    </span >                  
+                    </span >
                     <span className="ml-1">
                         <Button className='my-1' variant="outlined" size="large" onClick={() => { obtenerReporteDevolucionTracking(devolucion.NumDevolucion) }} color={"primary"}>
                             <FaFileExcel />
