@@ -56,14 +56,29 @@ export const SeguimientoCalidad = props => {
             let Fin = moment(fechafin).format("YYYY-MM-DD");
             let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
             let ruta = todos ? `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadas/${Inicio}/${Fin}/${estado}` : `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadas/${Inicio}/${Fin}/${estado}/${Asesor}`;
-            const request = await axios.get(ruta, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).catch(function (error) {
-                if (error.response) {
-                    setState({
-                        ...state,
-                        isLoaded: true,
-                        devoluciones: []
-                    });
+            const request = await axios.get(ruta, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).catch(function (err) {
+
+                setState({
+                    ...state,
+                    isLoaded: true,
+                    devoluciones: []
+                });
+
+                let mensaje = "Ha ocurrido un error y no se pudo actualizar el estado de la devolución.";
+
+                if (err.response) {
+                    mensaje = err.response.data.Message;
                 }
+
+                Swal.fire({
+                    title: 'Advertencia',
+                    text: mensaje,
+                    type: 'warning',
+                    confirmButtonText: 'Ok'
+                });
+
+
+
             });
 
             setState({
@@ -203,7 +218,7 @@ export const SeguimientoCalidad = props => {
                 type: 'success',
             })
         } catch (err) {
-            let mensaje = "Ha ocurrido un error y no se pudo cancelar el pedido.";
+            let mensaje = "Ha ocurrido un error y no se pudo actualizar el estado de la devolución.";
 
             if (err.response) {
                 mensaje = err.response.data.Message;
@@ -268,7 +283,7 @@ export const SeguimientoCalidad = props => {
             props.history.push('/home');
         }
         setAsesorSelected(AsesoresUsuario[0].Usuario);
-        cargarDevoluvionesAprobadas("1900-01-01", "1900-01-01");
+        //cargarDevoluvionesAprobadas("1900-01-01", "1900-01-01");
 
         window.addEventListener('keydown', cancelarReinicio);
         return () => {
