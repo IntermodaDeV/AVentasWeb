@@ -403,12 +403,12 @@ export const SeguimientoCalidad = props => {
 
 const HeadersListaDevoluviones = [
     "Num. Devolucion",
-    "Pedido Devoluvion",
+    "Pedido Devolucion",
     "Num. RMA",
     "Codigo Cliente",
     "Nombre CLiente",
-    "Motivo Devoluvion",
-    "Assesor",
+    "Motivo Devolucion",
+    "Asesor",
     "Fecha",
     "Total Unidades",
     "Subtotal",
