@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TableFooter from "@material-ui/core/TableFooter";
@@ -64,7 +62,7 @@ export const SeguimientoCalidad = props => {
                     devoluciones: []
                 });
 
-                let mensaje = "Ha ocurrido un error y no se pudo actualizar el estado de la devolución.";
+                let mensaje = "Ha ocurrido un error verifique su conexion a internet.";
 
                 if (err.response) {
                     mensaje = err.response.data.Message;
@@ -76,9 +74,6 @@ export const SeguimientoCalidad = props => {
                     type: 'warning',
                     confirmButtonText: 'Ok'
                 });
-
-
-
             });
 
             setState({
@@ -97,9 +92,6 @@ export const SeguimientoCalidad = props => {
 
     const handleFechaInicio = (fecha) => {
         setFechaInicio(fecha);
-
-        // var fech = moment(fecha).add(30, 'days')
-        // setFechaFin(fech);
     }
 
     const handleFechaFin = (date) => {
@@ -120,23 +112,29 @@ export const SeguimientoCalidad = props => {
                 moment(devolucion.FechaCreacion).format('DD/MM/YYYY') !== "Invalid date" ? moment(devolucion.FechaCreacion).format('DD/MM/YYYY') : "",
                 devolucion.TotalUnidades,
                 devolucion.SubTotal,
-                devolucion.EstadoBodega === 0 ? "Sin recibir" : devolucion.EstadoBodega === 1 ? "Procesando" : devolucion.EstadoBodega === 2 ? "Trasferido" : devolucion.EstadoBodega === 3 ? "Aprobado" : devolucion.EstadoBodega === 4 ? "Rechazado" : "-",
+                //devolucion.EstadoBodega === 0 ? "Sin Recibir en calidad" : devolucion.EstadoBodega === 1 ? "Recepcionada en calidad" : devolucion.EstadoBodega === 2 ? "Transferido a bodega" : devolucion.EstadoBodega === 3 ? "Aprobada en calidad" : devolucion.EstadoBodega === 4 ? "Rechazada en calidad" : "-",
+                devolucion.EstadoBodega === 0 ? <span style={{color: '#FFA114' }}> <strong> Sin Recibir en calidad</strong></span>  : 
+                devolucion.EstadoBodega === 1 ? <span style={{color: '#2977F2'}}><strong>Recepcionada en calidad</strong></span> : 
+                devolucion.EstadoBodega === 2 ? <span style={{color: '#E6DE10'}}><strong>Transferida a bodega</strong></span> : 
+                devolucion.EstadoBodega === 3 ? <span style={{color: '#42DB5F', borderRadius: 50 }}><strong>Aprobada en calidad</strong></span> : 
+                devolucion.EstadoBodega === 4 ? <span style={{color: '#EB7364'}}><strong>Rechazada en calidad</strong></span> : 
+                                                <span style={{color: 'black'}}><strong>-</strong></span> ,
                 <div>
                     <span className="mr-1">
                         {
-                            (devolucion.EstadoBodega === null) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 0)} size="small" color={"primary"}>Sin Recibir</Button>
+                            (devolucion.EstadoBodega === null) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 0)} size="small" color={"primary"}>Sin Recibir en calidad</Button>
                         }
                         {
-                            (devolucion.EstadoBodega === 0) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 1)} size="small" color={"primary"}>Procesar</Button>
+                            (devolucion.EstadoBodega === 0) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 1)} size="small" color={"primary"}>Recepcionada en calidad</Button>
                         }
                         {
-                            (devolucion.EstadoBodega === 1) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 2)} size="small" color={"primary"}>Transferir</Button>
+                            (devolucion.EstadoBodega === 1) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 2)} size="small" color={"primary"}>Transferida a bodega</Button>
                         }
                         {
-                            (devolucion.EstadoBodega === 2) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 3)} size="small" color={"primary"}>Aprobar</Button>
+                            (devolucion.EstadoBodega === 2) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 3)} size="small" color={"primary"}>Aprobada en calidad</Button>
                         }
                         {
-                            (devolucion.EstadoBodega === 3) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 4)} size="small" color={"primary"}>Rechazar</Button>
+                            (devolucion.EstadoBodega === 2) && <Button className='my-1' variant="outlined" onClick={() => actualizarEstadoDevoluvion(devolucion.NumDevolucion, 4)} size="small" color={"primary"}>Rechazada en calidad</Button>
                         }
                     </span>
 
@@ -150,15 +148,11 @@ export const SeguimientoCalidad = props => {
                             <FaFileExcel />
                         </Button>
                     </span >
-
-
                 </div>
-
             ]
             DataDevoluciones.push(data);
             return false;
         });
-
         return DataDevoluciones;
     }
 
@@ -189,7 +183,6 @@ export const SeguimientoCalidad = props => {
         }
     }
 
-
     const actualizarEstadoDevoluvion = (NumDevolucion, newEstadoBodega) => {
         Swal.fire({
             title: 'Aviso',
@@ -214,7 +207,7 @@ export const SeguimientoCalidad = props => {
             cargarDevoluvionesAprobadas(fechaInicio, fechaFin);
             Swal.fire({
                 title: 'Confirmado',
-                text: 'Pedido cancelado con exito.',
+                text: 'Se cambio el estado exitosamente.',
                 type: 'success',
             })
         } catch (err) {
@@ -282,14 +275,12 @@ export const SeguimientoCalidad = props => {
         if (!IsAllow("/seguimientoCalidad")) {
             props.history.push('/home');
         }
-        setAsesorSelected(AsesoresUsuario[0].Usuario);
-        //cargarDevoluvionesAprobadas("1900-01-01", "1900-01-01");
+        setAsesorSelected(AsesoresUsuario[0].Usuario);      
 
         window.addEventListener('keydown', cancelarReinicio);
         return () => {
             window.removeEventListener('keydown', cancelarReinicio);
         }
-        // eslint-disable-next-line
     }, [])
 
 
@@ -308,7 +299,6 @@ export const SeguimientoCalidad = props => {
                         value={fechaInicio}
                         onChange={(date) => handleFechaInicio(date)}
                     />
-
                 </div>
                 <div className='col-lg-2 col-sm-4 col-12'>
                     <DatePicker
@@ -332,11 +322,12 @@ export const SeguimientoCalidad = props => {
                             setEstado(value);
                         }}
                         options={[
-                            { key: 0, value: 0, text: "Sin Recibir" },
-                            { key: 1, value: 1, text: "Procesado" },
-                            { key: 2, value: 2, text: "Transferido" },
-                            { key: 3, value: 3, text: "Aprobado" },
-                            { key: 4, value: 4, text: "Rechazado" },
+                            { key: 0, value: 0, text: "Sin Recibir en calidad" },
+                            { key: 1, value: 1, text: "Recepcionada en calidad" },
+                            { key: 2, value: 2, text: "Transferido a bodega" },
+                            { key: 3, value: 3, text: "Aprobada en calidad" },
+                            { key: 4, value: 4, text: "Rechazada en calidad" },
+                            { key: 5, value: 5, text: "Sin Seguimiento" },
                         ]}
                         noResultsMessage={"No hay resultados"}
                         closeOnChange={true}
@@ -412,7 +403,7 @@ const HeadersListaDevoluviones = [
     "Fecha",
     "Total Unidades",
     "Subtotal",
-    "Estado Bodega",
+    "Estado",
     {
         label: "Acciones",
         options: {
