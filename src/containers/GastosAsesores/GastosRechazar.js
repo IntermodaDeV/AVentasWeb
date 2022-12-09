@@ -25,7 +25,6 @@ import { DatePicker } from "@material-ui/pickers";
 moment.locale('es');
 
 const GastosRechazar = (props) => {
-    const [asesores, setAsesores] = useState([]);
     const [gastos, setGastos] = useState([]);
     const [showModalCancelar, setshowModalCancelar] = useState(false);
     const [IdRechazado, setIdRechazado] = useState("");
@@ -34,6 +33,7 @@ const GastosRechazar = (props) => {
     const [idDetalle, setIdDetalle] = useState(null);
     const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 30));
     const [endDate, setEndDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
+    const [buttonsEnabled, setButtonsEnabled] = useState(false);
 
     const context = useRef();
 
@@ -107,7 +107,7 @@ const GastosRechazar = (props) => {
         try {
             var Inicio = moment(startDate).format("YYYY-MM-DD");
             var Fin = moment(endDate).format("YYYY-MM-DD");
-            const request = await axios.get(`${APIURL}/api/GastosAprobados/${localStorage.getItem("empresa")}/${Inicio}/${Fin}`);
+            const request = await axios.get(`${APIURL}/api/Gira/GastosAprobados/${localStorage.getItem("empresa")}/${Inicio}/${Fin}`);
             setGastos(request.data)
         } catch (err) {
             console.log(err)
@@ -132,8 +132,9 @@ const GastosRechazar = (props) => {
     })
 
     const rechazarGasto = async (value) => {
+        setButtonsEnabled(true)
         console.log('cancelando')
-        const request = await axios.post(`${APIURL}/api/ActualizarEstadoGasto/${IdRechazado}/3/${value.Observacion}/${localStorage.getItem("codigo")}/-`)
+        const request = await axios.post(`${APIURL}/api/Gira/ActualizarEstadoGasto/${IdRechazado}/3/${value.Observacion}/${localStorage.getItem("codigo")}/-`)
         if (request.data === 1) {
             Swal.fire({
                 title: 'Confirmado',
@@ -152,6 +153,7 @@ const GastosRechazar = (props) => {
             });
         }
         setshowModalCancelar(false)
+        setButtonsEnabled(false)
     }
 
 
@@ -173,10 +175,10 @@ const GastosRechazar = (props) => {
                 moment(gasto.FechaCreacion).format("DD/MM/YYYY HH:MM"),
                 <div>
                     <span className="mr-1">
-                        <Button className='my-1' variant="outlined" onClick={() => getGastoDetalle(gasto.IdGastoViajeDetalle, gasto)} size="small" color={"primary"}>Detalle</Button>
+                        <Button className='my-1' variant="outlined" onClick={() => getGastoDetalle(gasto.IdGastoViajeDetalle, gasto)} size="small" color={"primary"} disabled={buttonsEnabled}>Detalle</Button>
                     </span>
                     <span className="mr-1">
-                        <Button className='my-1' variant="outlined" onClick={() => showModalCancelado(gasto.IdGastoViajeDetalle)} size="small" color={"primary"}>Rechazar</Button>
+                        <Button className='my-1' variant="outlined" onClick={() => showModalCancelado(gasto.IdGastoViajeDetalle)} size="small" color={"primary"} disabled={buttonsEnabled}>Rechazar</Button>
                     </span>
                 </div>
             ]

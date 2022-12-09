@@ -13,7 +13,7 @@ import TablacategoriasGasto from './TablaCategoriaGasto';
 import { APIURL } from 'utils/Enviroment';
 import CheckBox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { Dropdown } from "semantic-ui-react"
+import { Dropdown } from "semantic-ui-react";
 
 export const CategoriaGasto = props => {
     const [categoriasGasto, setCategoriasGasto] = useState([]);
@@ -27,7 +27,7 @@ export const CategoriaGasto = props => {
 
     const cargarEmpresas = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/Empresas`)
+            const request = await axios.get(`${APIURL}/api/Gira/Empresas`)
             let empresasList = [];
             request.data.forEach(empresa => {
                 let valores = { key: empresa.Empresa, value: empresa.Empresa, text: empresa.Empresa }
@@ -56,7 +56,7 @@ export const CategoriaGasto = props => {
         let empresa = empresaSelected ? empresaSelected : empresas[0].value;
         console.log(empresasData[0].Empresa)
         try {
-            const request = await axios.get(`${APIURL}/api/TipoGasto/${empresa}`);
+            const request = await axios.get(`${APIURL}/api/Gira/TipoGasto/${empresa}`);
             let TipoOpciones = [];
             request.data.forEach(tipo => {
                 let valores = { key: tipo.Nombre, value: tipo.Id }
@@ -90,7 +90,7 @@ export const CategoriaGasto = props => {
     const cargarCategoriaGasto = async () => {
         try {
             let empresa = empresaSelected ? empresaSelected : empresas[0].value;
-            const request = await axios.get(`${APIURL}/api/CategoriaGasto/${empresa}`);
+            const request = await axios.get(`${APIURL}/api/Gira/CategoriaGasto/${empresa}`);
             setCategoriasGasto(request.data);
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se han cargado los tipos de gastos." + err;
@@ -110,7 +110,7 @@ export const CategoriaGasto = props => {
 
     const modificarEstado = async (id) => {
         try {
-            await axios.post(`${APIURL}/api/ActualizarEstadoCategoria/${id}`);
+            await axios.post(`${APIURL}/api/Gira/ActualizarEstadoCategoria/${id}`);
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha cambiado el estado exitosamente.",
@@ -138,7 +138,7 @@ export const CategoriaGasto = props => {
         console.log("enviando...")
         console.log(data)
         try {
-            await axios.post(`${APIURL}/api/RegistrarCategoriaGasto`, data);
+            await axios.post(`${APIURL}/api/Gira/RegistrarCategoriaGasto`, data);
             setMostrar(false);
             Swal.fire({
                 title: 'Confirmado',
@@ -167,7 +167,7 @@ export const CategoriaGasto = props => {
     const modificar = async (data) => {
         setMostrar(false)
         try {
-            await axios.post(`${APIURL}/api/ActualizarCategoria/`, data);
+            await axios.post(`${APIURL}/api/Gira/ActualizarCategoria/`, data);
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha modificado el Tipo de Gastos exitosamente.",

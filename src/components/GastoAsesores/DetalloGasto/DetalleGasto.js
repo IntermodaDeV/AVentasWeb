@@ -14,7 +14,7 @@ const DetalleGasto = (props) => {
 
     const getImagen = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/GastoFotografia/${props.id}`);
+            const request = await axios.get(`${APIURL}/api/Gira/GastoFotografia/${props.id}`);
             setImagen('data:image/png;base64,' + request.data)
         } catch (err) {
             console.log('error IMG: ' + err)

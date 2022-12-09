@@ -30,6 +30,7 @@ const GastosPendientes = (props) => {
     const [detalle, setDetalle] = useState(false);
     const [detalleGasto, setDetalleGasto] = useState([])
     const [idDetalle, setIdDetalle] = useState(null);
+    const [buttonsEnabled, setButtonsEnabled] = useState(false);
     const context = useRef();
 
     useEffect(() => {
@@ -37,11 +38,10 @@ const GastosPendientes = (props) => {
             props.history.push('/home');
         }
         cargarHistorialGastos()
-         // eslint-disable-next-line
+        // eslint-disable-next-line
     }, [])
 
     const getGastoDetalle = async (id, detalle) => {
-        console.log('ID:' + id)
         setIdDetalle(id)
         setDetalleGasto(detalle)
         setDetalle(true)
@@ -64,7 +64,7 @@ const GastosPendientes = (props) => {
 
     const cargarHistorialGastos = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/GastosPendientes/${localStorage.getItem("empresa")}`);
+            const request = await axios.get(`${APIURL}/api/Gira/GastosPendientes/${localStorage.getItem("empresa")}`);
             setGastos(request.data)
         } catch (err) {
             console.log(err)
@@ -89,10 +89,11 @@ const GastosPendientes = (props) => {
     })
 
     const aprobarGasto = async (id) => {
-        const enviarAX = await axios.get(`${APIURL}/api/DatosEnviarAX/${id}`)
+        setButtonsEnabled(true)
+        const enviarAX = await axios.get(`${APIURL}/api/Gira/DatosEnviarAX/${id}`)
         console.log(enviarAX.data.Content)
         if (enviarAX.data.Content === '"OK"') {
-            const request = await axios.post(`${APIURL}/api/ActualizarEstadoGasto/${id}/2/-/${localStorage.getItem("codigo")}/-`);
+            const request = await axios.post(`${APIURL}/api/Gira/ActualizarEstadoGasto/${id}/2/-/${localStorage.getItem("codigo")}/-`);
             if (request.data === 1) {
                 Swal.fire({
                     title: 'Confirmado',
@@ -111,7 +112,7 @@ const GastosPendientes = (props) => {
                 });
             }
         } else {
-            const request = await axios.post(`${APIURL}/api/ActualizarEstadoGasto/${id}/4/-/${localStorage.getItem("codigo")}/${enviarAX.data.Content}`);
+            const request = await axios.post(`${APIURL}/api/Gira/ActualizarEstadoGasto/${id}/4/-/${localStorage.getItem("codigo")}/${enviarAX.data.Content}`);
             if (request.data === 1) {
                 Swal.fire({
                     title: 'Error',
@@ -131,12 +132,13 @@ const GastosPendientes = (props) => {
             }
         }
 
-
+        setButtonsEnabled(false)
     }
 
     const rechazarGasto = async (value) => {
+        setButtonsEnabled(true)
         console.log('cancelando')
-        const request = await axios.post(`${APIURL}/api/ActualizarEstadoGasto/${IdRechazado}/3/${value.Observacion}/${localStorage.getItem("codigo")}/-`)
+        const request = await axios.post(`${APIURL}/api/Gira/ActualizarEstadoGasto/${IdRechazado}/3/${value.Observacion}/${localStorage.getItem("codigo")}/-`)
         if (request.data === 1) {
             Swal.fire({
                 title: 'Confirmado',
@@ -155,6 +157,7 @@ const GastosPendientes = (props) => {
             });
         }
         setshowModalCancelar(false)
+        setButtonsEnabled(false)
     }
 
     const DataGastos = () => {
@@ -174,13 +177,13 @@ const GastosPendientes = (props) => {
                 moment(gasto.FechaCreacion).format("DD/MM/YYYY HH:MM"),
                 <div>
                     <span className="mr-1">
-                        <Button className='my-1' variant="outlined" onClick={() => getGastoDetalle(gasto.IdGastoViajeDetalle, gasto)} size="small" color={"primary"}>Detalle</Button>
+                        <Button className='my-1' variant="outlined" onClick={() => getGastoDetalle(gasto.IdGastoViajeDetalle, gasto)} size="small" color={"primary"} disabled={buttonsEnabled}>Detalle</Button>
                     </span>
                     <span className="mr-1">
-                        <Button className='my-1' variant="outlined" onClick={() => aprobarGasto(gasto.IdGastoViajeDetalle)} size="small" color={"primary"}>Aprobar</Button>
+                        <Button className='my-1' variant="outlined" onClick={() => aprobarGasto(gasto.IdGastoViajeDetalle)} size="small" color={"primary"} disabled={buttonsEnabled}>Aprobar</Button>
                     </span>
                     <span className="mr-1">
-                        <Button className='my-1' variant="outlined" onClick={() => showModalCancelado(gasto.IdGastoViajeDetalle)} size="small" color={"primary"}>Rechazar</Button>
+                        <Button className='my-1' variant="outlined" onClick={() => showModalCancelado(gasto.IdGastoViajeDetalle)} size="small" color={"primary"} disabled={buttonsEnabled}>Rechazar</Button>
                     </span>
                 </div>
             ]

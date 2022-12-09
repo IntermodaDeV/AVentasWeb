@@ -49,7 +49,7 @@ const Gastos = (props) => {
     }, [])
 
     const getTipos = async () => {
-        await axios.get(`${APIURL}/api/TipoGasto/${localStorage.getItem("empresa")}`).then(resp => {
+        await axios.get(`${APIURL}/api/Gira/TipoGasto/${localStorage.getItem("empresa")}`).then(resp => {
             let tipos = resp.data.map((tip) => ({ key: tip.Id, value: tip.Nombre, text: tip.Nombre }));
             setTipoGasto(tipos);
             setTipoSelected(tipos[0].text)
@@ -74,7 +74,7 @@ const Gastos = (props) => {
             let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
             var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
             var Fin = moment(FechaFin).format("YYYY-MM-DD");
-            const request = await axios.get(`${APIURL}/api/HistorialGastos/${asesor}/${Inicio}/${Fin}`);
+            const request = await axios.get(`${APIURL}/api/Gira/HistorialGastos/${asesor}/${Inicio}/${Fin}`);
             setGastos(request.data)
         } catch (err) {
             console.log(err)
@@ -154,7 +154,7 @@ const Gastos = (props) => {
         let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
         var Inicio = moment(startDate).format("YYYY-MM-DD");
         var Fin = moment(endDate).format("YYYY-MM-DD");
-        const request = await axios.get(`${APIURL}/api/GastosPDF/${asesor}/${Inicio}/${Fin}/${tipoId}`);
+        const request = await axios.get(`${APIURL}/api/Gira/GastosPDF/${asesor}/${Inicio}/${Fin}/${tipoId}`);
         let datos = request.data;
         if (datos.length > 0) {
             const title = `
@@ -176,8 +176,8 @@ const Gastos = (props) => {
                 e.categoria,
                 e.descripcion,
                 moment(e.fecha).format("DD/MM/YYYY"),
-                numberWithCommas(e.importeExento),
                 numberWithCommas(e.importeGravado),
+                numberWithCommas(e.importeExento),
                 numberWithCommas(e.valor)
             ])
 
