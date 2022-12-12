@@ -19,7 +19,7 @@ export const GrupoImpuesto = props => {
     const context = useRef();
     const cargarGrupoImpuestos = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/GrupoImpuesto`);
+            const request = await axios.get(`${APIURL}/api/Gira/GrupoImpuesto`);
             setGrupoImpuestos(request.data);
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se han cargado los tipos de gastos.";
@@ -40,7 +40,7 @@ export const GrupoImpuesto = props => {
     const modificar = async (data) => {
         setMostrar(false)
         try {
-            await axios.post(`${APIURL}/api/ActualizarGrupoImpuesto`, data).then(resp => {
+            await axios.post(`${APIURL}/api/Gira/ActualizarGrupoImpuesto`, data).then(resp => {
                 Swal.fire({
                     title: 'Confirmado',
                     text: "Se ha Actualizado el grupo de impuesto exitosamente.",

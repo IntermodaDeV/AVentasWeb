@@ -23,7 +23,7 @@ export const MantenimientoGastosAsesores = props => {
     const redirectCategoriaGasto = () => {
         props.history.push('/GiraAsesores/Mantenimiento/Categoria');
     }
-
+    
     const redirectGrupoImpuesto = () => {
         props.history.push('/GiraAsesores/Mantenimiento/GrupoImpuesto');
     }

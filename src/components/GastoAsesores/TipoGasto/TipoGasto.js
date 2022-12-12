@@ -27,7 +27,7 @@ export const TipoGasto = props => {
 
     const cargarEmpresas = async() =>{
         try{
-            const request = await axios.get(`${APIURL}/api/Empresas`)
+            const request = await axios.get(`${APIURL}/api/Gira/Empresas`)
             let empresasList =[];
             request.data.forEach(empresa => {
                 let valores = { key: empresa.Empresa, value: empresa.Empresa }
@@ -53,7 +53,7 @@ export const TipoGasto = props => {
 
     const cargarTipoGasto = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/TipoGasto`);
+            const request = await axios.get(`${APIURL}/api/Gira/TipoGasto`);
             setTiposGasto(request.data);
         } catch (err) {
             let mensaje = "Ha ocurrido un error y no se han cargado los tipos de gastos.";
@@ -73,7 +73,7 @@ export const TipoGasto = props => {
 
     const modificarEstado = async (id) => {
         try {
-            await axios.post(`${APIURL}/api/ActualizarEstadoTipo/${id}`);
+            await axios.post(`${APIURL}/api/Gira/ActualizarEstadoTipo/${id}`);
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha cambiado el estado exitosamente.",
@@ -99,7 +99,7 @@ export const TipoGasto = props => {
 
     const registrarTipoGasto = async (data) => {
         try {
-            await axios.post(`${APIURL}/api/RegistrarTipoGasto`, data);
+            await axios.post(`${APIURL}/api/Gira/RegistrarTipoGasto`, data);
             setMostrar(false);
             Swal.fire({
                 title: 'Confirmado',
@@ -128,7 +128,7 @@ export const TipoGasto = props => {
     const modificar = async (data) => {
         setMostrar(false)
         try {
-            await axios.post(`${APIURL}/api/ActualizarNombreTipo/${data.Id}/${data.Nombre}`);
+            await axios.post(`${APIURL}/api/Gira/ActualizarNombreTipo/${data.Id}/${data.Nombre}`);
             Swal.fire({
                 title: 'Confirmado',
                 text: "Se ha modificado el Tipo de Gastos exitosamente.",
@@ -184,7 +184,7 @@ export const TipoGasto = props => {
 
     useEffect(() => {
         cargarEmpresas()
-        // eslint-disable-next-line
+        
     }, [])
     return (
         <div>
