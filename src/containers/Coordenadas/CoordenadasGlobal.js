@@ -3,12 +3,10 @@ import axios from 'axios';
 import GoogleMapReact from 'google-map-react';
 import { APIURL, APIKEY } from 'utils/Enviroment';
 import { Dropdown } from "semantic-ui-react/";
-import { useSelector } from 'react-redux';
-import { IsAllow } from 'components/Seguridad/Permisos';
+
 import {
     /*Button,*/
     Col,
-    Container,
     Row,
 } from 'reactstrap';
 
@@ -30,7 +28,6 @@ const getTodos= () => {
 }
 
 const CoordenadasGlobal = (props) => {
-    const [AsesorSelected, setAsesorSelected] = useState(null);
     const [paiseSelected, setpaiseSelected] = useState(null);
     const [asesores, setAsesores] = useState([]);
     const [asesoresFiltrados, setAsesoresFiltrados] = useState([]);
@@ -117,14 +114,14 @@ const CoordenadasGlobal = (props) => {
     }
 
     const handleDropdownChangeAsesor = (value) => {
-        setAsesorSelected(value)
+
         if (value === 'Todos') {
             const clientes = coordenadas.filter(x => x.COMPANY === paiseSelected);
             renderMarkers(paiseSelected=== '*' ? coordenadas : clientes);
             return;
         }
 
-        const clientes = coordenadas.filter(x => x.ADVISER === value && x.COMPANY == paiseSelected);
+        const clientes = coordenadas.filter(x => x.ADVISER === value && x.COMPANY === paiseSelected);
         renderMarkers(clientes);
     }
 

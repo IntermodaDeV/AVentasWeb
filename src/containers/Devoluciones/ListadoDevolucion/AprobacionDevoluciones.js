@@ -12,7 +12,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogActions from '@material-ui/core/DialogActions';
 import TextField from '@material-ui/core/TextField';
-import { ScaleLoader } from 'react-spinners';
 import { APIURL } from 'utils/Enviroment';
 import { Button } from "@material-ui/core";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
