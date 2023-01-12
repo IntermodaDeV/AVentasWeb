@@ -115,6 +115,11 @@ export const Recolocacion = (props) => {
                 const coleccion = await axios.get(`${APIURL}/api/trasladopedido/getcoleccioneById/${data.data.coleccionId}`);
                 dispatch({ type: "SET_COLECCIONRECOLOCACION", payload: coleccion.data });
 
+                if (data.data.productos.length === 0) {
+                    mostrarModal('Recolocación', 'La devolución ya no tiene inventario para recolocar.', "error");
+                    return;
+                }
+
                 let codigoProductos = [...new Set(data.data.productos.map(x => x.codigoProducto))];
                 let productosResult = [];
 
@@ -325,26 +330,34 @@ export const Recolocacion = (props) => {
                             let precio = { Precio: (valorTalla.Precio ? valorTalla.Precio : 0) };
                             let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
 
-                            let detalle = {
-                                IdProducto: producto.Id,
-                                CodigoProducto: codigoProducto,
-                                NombreProducto: producto.NombreProducto,
-                                CodigoColor: color.CodigoColor,
-                                NombreColor: color.NombreColor,
-                                Cantidad: cantidadXTalla,
-                                Unidad: "Und",
-                                PrecioUnitario: precio.Precio,
-                                Talla: valorTalla.Talla,
-                                CodigoColeccion: ColeccionRecolocacion.codigoColeccion,
-                                PorcentajeDescuento: "",
+                            if (precio.Precio !== 0 && cantidadXTalla !== 0) {
+                                let detalle = {
+                                    IdProducto: producto.Id,
+                                    CodigoProducto: codigoProducto,
+                                    NombreProducto: producto.NombreProducto,
+                                    CodigoColor: color.CodigoColor,
+                                    NombreColor: color.NombreColor,
+                                    Cantidad: cantidadXTalla,
+                                    Unidad: "Und",
+                                    PrecioUnitario: precio.Precio,
+                                    Talla: valorTalla.Talla,
+                                    CodigoColeccion: ColeccionRecolocacion.codigoColeccion,
+                                    PorcentajeDescuento: "",
+                                }
+
+                                pedido.DetallePedido.push(detalle);
                             }
 
-                            pedido.DetallePedido.push(detalle);
                         });
                     });
 
                 })
             })
+
+            if (pedido.DetallePedido.length === 0) {
+                mostrarModal('Recolocación', 'No puede generar recolocación con productos sin precio.', "error");
+                return;
+            }
 
             const isOnline = await verificarConexion();
             if (!isOnline || localStorage.getItem("Conexion") === "offline" || pedido.NumeroReferencia === "") {
