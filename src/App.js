@@ -9,7 +9,8 @@ import { getGeopostion } from './utils/geopostioning'
 import { EmptyLayout, LayoutRoute, MainLayout } from 'components/Layout'
 import AuthModalPage from 'containers/Authorize/AuthModalPage'
 import AuthPage from 'containers/Authorize/AuthPage'
-import Pedidos from 'containers/Pedidos/Pedidos'
+import Pedidos from 'containers/Pedidos/Pedidos' 
+import {RecolocacionPedido} from 'containers/RecolocacionPedido/RecolocacionPedido' 
 import Recibos from 'containers/Recibos/Recibos'
 import Fotografia from 'containers/Fotografias/Fotografias'
 import CuentaCorriente from 'containers/CuentaCorriente/CuentaCorriente'
@@ -134,6 +135,11 @@ const App = props => {
               path='/pedidos'
               layout={MainLayout}
               component={Pedidos}
+            />
+            <LayoutRoute
+              path='/recolocacion-pedido'
+              layout={MainLayout}
+              component={RecolocacionPedido}
             />
             <LayoutRoute
               exact
