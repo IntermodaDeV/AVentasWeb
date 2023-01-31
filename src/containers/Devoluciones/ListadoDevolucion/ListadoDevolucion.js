@@ -131,8 +131,8 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
-            label: "Estado Devolucion",
-            name: "estadoDevolucion",
+            label: "Estado AX",
+            name: "EstadoAX",
             options: {
                 filter: true,
             }
@@ -145,8 +145,8 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
-            label: "Estado",
-            name: "Estado",
+            label: "Seguimiento Calidad",
+            name: "SeguimientoCalidad",
             options: {
                 filter: false,
             }
@@ -228,12 +228,10 @@ export const ListadoDevolucion = (props) => {
                 moment(p.FechaCreacion).format("DD/MM/YYYY"),
                 p.Estado,
                 p.Observacion,
-                p.EstadoBodega === 0 ? <span style={{color: '#FFA114' }}> <strong> Sin Recibir en calidad</strong></span>  : 
-                p.EstadoBodega === 1 ? <span style={{color: '#2977F2'}}><strong>Recepcionada en calidad</strong></span> : 
-                p.EstadoBodega === 2 ? <span style={{color: '#E6DE10'}}><strong>Transferida a bodega</strong></span> : 
-                p.EstadoBodega === 3 ? <span style={{color: '#42DB5F', borderRadius: 50 }}><strong>Aprobada en calidad</strong></span> : 
-                p.EstadoBodega === 4 ? <span style={{color: '#EB7364'}}><strong>Rechazada en calidad</strong></span> : 
-                                       <span style={{color: 'black'}}><strong>-</strong></span> ,
+                p.EstadoBodega === 0 ? <span style={{ color: '#FA2016' }}> <strong> Rechazado </strong></span> :
+                p.EstadoBodega === 1 ? <span style={{ color: '#2977F2' }}><strong>Recepcionado </strong></span> :
+                p.EstadoBodega === 2 ? <span style={{ color: '#14DE19' }}><strong>Transferido a bodega</strong></span> :
+                <span style={{color: 'black'}}><strong>-</strong></span> ,
                 p.Estado === "No autorizado" ? p.UsuarioModifica : "",
                 <div>
                     <span className="ml-1">
