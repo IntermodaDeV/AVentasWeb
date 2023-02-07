@@ -27,6 +27,7 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import { FacturasReservadas } from 'components/Cartera/FacturasReservadas';
 import moment from 'moment';
+import { ExcepcionDescuento } from 'components/Cartera/ExcepcionDescuento';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
@@ -196,6 +197,10 @@ export const Cartera = props => {
         props.history.push('/cartera/facturas-reservadas');
     }
 
+    const redirectExcepcionDescuento = () => {
+        props.history.push('/cartera/excepcion-descuento');
+    }
+
     const handleChangeBusqueda = (busqueda) => {
         if (busqueda === "") {
             setFiltrados(clientes);
@@ -265,6 +270,7 @@ export const Cartera = props => {
                                 <Tab onClick={redirectCartera} icon={<PersonIcon />} label="Informacion" />
                                 <Tab onClick={redirectRoles} icon={<ContactMailIcon />} label="Cuenta Corriente" />
                                 <Tab onClick={redirectDocumentosPendientes} icon={<ContactMailIcon />} label="Facturas Reservadas" />
+                                <Tab onClick={redirectExcepcionDescuento} icon={<ContactMailIcon />} label="Excepción Descuento" />
                             </Tabs>
                         </Paper>
                         <div style={{ height: '90%' }} className="card">
@@ -272,6 +278,7 @@ export const Cartera = props => {
                                 <Route exact path={`${props.match.url}`} render={(props) => <InformacionGeneral cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/cuenta`} render={(props) => <CuentaCorriente cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/facturas-reservadas`} render={(props) => <FacturasReservadas cliente={cliente} />} />
+                                <Route exact path={`${props.match.url}/excepcion-descuento`} render={(props) => <ExcepcionDescuento cliente={cliente} />} />
                             </Switch>
                         </div>
                     </div></>)
