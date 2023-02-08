@@ -45,3 +45,19 @@ export const IsAllow = (Ruta, expanded) => {
         }
     return false;
 };
+
+export const PermisoExcepcionDescuento = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+    const UsuarioElevadoOficinaCreditos = 83;
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Id === UsuarioElevadoOficinaCreditos) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

@@ -17,7 +17,7 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import SearchIcon from "@material-ui/icons/Search";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { IsAllow } from 'components/Seguridad/Permisos';
+import { IsAllow, PermisoExcepcionDescuento } from 'components/Seguridad/Permisos';
 import CachedIcon from '@material-ui/icons/Cached';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import axios from 'axios';
@@ -270,7 +270,7 @@ export const Cartera = props => {
                                 <Tab onClick={redirectCartera} icon={<PersonIcon />} label="Informacion" />
                                 <Tab onClick={redirectRoles} icon={<ContactMailIcon />} label="Cuenta Corriente" />
                                 <Tab onClick={redirectDocumentosPendientes} icon={<ContactMailIcon />} label="Facturas Reservadas" />
-                                <Tab onClick={redirectExcepcionDescuento} icon={<ContactMailIcon />} label="Excepción Descuento" />
+                                {PermisoExcepcionDescuento() && <Tab onClick={redirectExcepcionDescuento} icon={<ContactMailIcon />} label="Excepción Descuento" />}
                             </Tabs>
                         </Paper>
                         <div style={{ height: '90%' }} className="card">
@@ -278,7 +278,7 @@ export const Cartera = props => {
                                 <Route exact path={`${props.match.url}`} render={(props) => <InformacionGeneral cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/cuenta`} render={(props) => <CuentaCorriente cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/facturas-reservadas`} render={(props) => <FacturasReservadas cliente={cliente} />} />
-                                <Route exact path={`${props.match.url}/excepcion-descuento`} render={(props) => <ExcepcionDescuento cliente={cliente} />} />
+                                {PermisoExcepcionDescuento() && <Route exact path={`${props.match.url}/excepcion-descuento`} render={(props) => <ExcepcionDescuento cliente={cliente} />} />}
                             </Switch>
                         </div>
                     </div></>)
