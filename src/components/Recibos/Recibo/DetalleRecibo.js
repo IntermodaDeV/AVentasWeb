@@ -349,8 +349,9 @@ const DetalleRecibo = (props) => {
             let fechaPago = pago.fecha;
             if (PagoAcumulado >= 0) {
                 cuotasAProcesar.sort( (a,b)=> a.Fecha).forEach(cuotProc => {
+                    const excepcionDescuento = cuotProc.ExcepcionDescuento;
                     let isChequePosFechado = pago.indexTiposPago === 0 && pago.indexTiposdePagoDetalle === 1;
-                    let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days') && !isChequePosFechado;
+                    let aplicaADescuento = (moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days') || excepcionDescuento) && !isChequePosFechado;
                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
                     
                     //if(calculo.current===2){
@@ -441,7 +442,8 @@ const DetalleRecibo = (props) => {
                                 PagoAplicado: 0,
                                 DescuentoAplicado: 0,
                                 Saldo: cuot.Saldo, //Saldo  
-                                APagar: cuot.Saldo, //APagar  
+                                APagar: cuot.Saldo, //APagar
+                                ExcepcionDescuento: cuot.ExcepcionDescuento  
                             });
                         }
                     });

@@ -525,6 +525,7 @@ const Recibos = (props) => {
     </div>
   );
   const SelectedCliente = cliente => {
+    debugger;
     for (let AcuerdosXTipoPedido of cliente.AcuerdosXTipoPedido) {
 
       for (let Acuerdos of AcuerdosXTipoPedido.Acuerdos) {
@@ -550,7 +551,7 @@ const Recibos = (props) => {
               let valordescuento = 0;
               if (AcuerdosXTipoPedido.AgrupaPorCuota === true) {
                 if (Acuerdos.DescuentoEnAcuerdos !== null) {
-                  if (Cuotas.completaCuota === true) {
+                  /*if (Cuotas.completaCuota === true) {
 
                     let DocumentoCuota = 0;
                     let Flete = 0;
@@ -567,7 +568,22 @@ const Recibos = (props) => {
                   }
                   else {
                     Cuotas.Descuento = 0;
+                  }*/
+
+                  let Flete = 0;
+
+                  let DocumentoCuota = cliente.DocumentosAplicadosxCuotas.find(x => x.IdAcuerdoxCliente === Acuerdos.Acuerdo && x.NumeroCuota === Cuotas.NumeroCuota);
+                  if (DocumentoCuota !== undefined) {
+                    totalDocumentosAplicados = DocumentoCuota.Valor;
+                    Flete = DocumentoCuota.Flete;
                   }
+
+                  if (Acuerdos.DescuentoEnAcuerdos != null) {
+                    let consumidoCuota = Cuotas.SaldoCuota - Cuotas.DisponibleCuota;
+                    let totalfactura = consumidoCuota > 0 ? (consumidoCuota - totalDocumentosAplicados - Flete) : (Cuotas.SaldoCuota - totalDocumentosAplicados - Flete);
+                    valordescuento = totalfactura * (Acuerdos.DescuentoEnAcuerdos.Porcentaje / 100);
+                  }
+                  Cuotas.Descuento = valordescuento.toFixed(2);
                 }
               }
               else {

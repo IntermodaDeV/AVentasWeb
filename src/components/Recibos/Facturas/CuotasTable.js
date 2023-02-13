@@ -198,6 +198,7 @@ moment.locale('es')
           let DiasVencido = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
           let ValorDescuento = cuot.Descuento;
           let isVencida = DiasVencido<0;
+          const excepcionDescuento = cuot.ExcepcionDescuento;
 
           Apagar = diasDescuento < 0 ? cuot.Saldo : cuot.Saldo - ValorDescuento;
           Saldo = Saldo + Apagar;
@@ -223,7 +224,8 @@ moment.locale('es')
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
               Facturaa:fact.Factura,
-              DiasVencido
+              DiasVencido,
+              excepcionDescuento
             })
           }
           else if (DiasVencido >= 0 && DiasVencido <= 15) {
@@ -245,7 +247,8 @@ moment.locale('es')
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
               Facturaa:fact.Factura,
-              DiasVencido
+              DiasVencido,
+              excepcionDescuento
             })
           }
           else {
@@ -267,15 +270,8 @@ moment.locale('es')
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
               Facturaa:fact.Factura,
-              DiasVencido
-              //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-              //   Accion : (<Button
-
-              //     onClick={()=>{}}
-              //     variant="contained"
-              //     color="primary">
-              //     Pagar
-              // </Button>)
+              DiasVencido,
+              excepcionDescuento
             })
           }
         });
@@ -283,7 +279,7 @@ moment.locale('es')
     });
   })
   localStorage.setItem("totalCredito", (Saldo).toFixed(2));
-
+  console.log(data);
     data.sort((a, b) => {
       if (moment(a.Fechaa, "DD/MM/YYYY").isAfter(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
         return 1;
