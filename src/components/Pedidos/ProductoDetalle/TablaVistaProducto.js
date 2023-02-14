@@ -15,20 +15,26 @@ import Checkbox from '@material-ui/core/Checkbox';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { useSelector } from 'react-redux';
+import { async } from 'rxjs/internal/scheduler/async';
 const TablaVistaProducto = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
     const [imagenes, setImagenes] = useState([]);
     const [IsOpen, setIsOpen] = useState(false);
-    const [colorSeleccionado,setColorSeleccionado] = useState("");
-    const [colorFiltrado,setColorFiltrado] = useState([]);
-    const [showFiltro,setShowFiltro] = useState(false);
-    const [listaColoresCopia,setListaColoresCopia] = useState(props.producto.ListaColores);
-    const [openColores,setOpenColores] = useState(false);
+    const [colorSeleccionado, setColorSeleccionado] = useState("");
+    const [colorFiltrado, setColorFiltrado] = useState([]);
+    const [showFiltro, setShowFiltro] = useState(false);
+    const [listaColoresCopia, setListaColoresCopia] = useState(props.producto.ListaColores);
+    const [openColores, setOpenColores] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
+    const [isInOut, setIsInOut] = useState(false);
+    const [isDeshabilitado, setisDeshabilitado] = useState(false);
     const permisos = useSelector(e => e.Permisos[0]);
     const Coleccion = useSelector(e => e.coleccion);
+
     useEffect(() => {
         setIsChecked(props.producto.StockVisible);
+        setIsInOut(props.producto.InOut);
+        setisDeshabilitado(props.producto.Deshabilitado);
         // eslint-disable-next-line
     }, []);
     const onFocus = () => {
@@ -54,6 +60,43 @@ const TablaVistaProducto = (props) => {
         } catch (err) {
             console.log("Ha ocurrido un error: " + err)
         }
+    }
+
+    const inOut = async () => {
+        try {
+            let request = await axios.post(`${APIURL}/api/Product/actualizarInOutProducto/${props.producto.ProductoId}/${Coleccion.CodigoColeccion}`);
+            if (request.status == 200) {
+                Coleccion.Edades.forEach(edad => {
+                    let producto = edad.ProductosXEdad.find(p => p.CodigoProducto === props.producto.CodigoProducto);
+                    if (producto) {
+                        producto.InOut = !props.producto.InOut;
+                    }
+                })
+                setIsInOut(!isInOut);
+            }
+        } catch (err) {
+            console.log("Ha ocurrido un error: " + err)
+        }
+    }
+
+    const deshabilitar = async () => {
+        try {
+            let request = await axios.post(`${APIURL}/api/Product/activarDeshabilitarPrducto/${props.producto.ProductoId}/${Coleccion.CodigoColeccion}`);
+
+            if (request.status == 200) {                
+                Coleccion.Edades.forEach(edad => {
+                    let producto = edad.ProductosXEdad.find(p => p.CodigoProducto === props.producto.CodigoProducto);
+                    if (producto) {
+                        producto.Deshabilitado = !props.producto.Deshabilitado;
+                    }
+                })
+                setisDeshabilitado(!isDeshabilitado);
+            }
+
+        } catch (err) {
+            console.log("Ha ocurrido un error: " + err)
+        }
+
     }
 
     const handleArrowKeys = (event) => {
@@ -151,41 +194,55 @@ const TablaVistaProducto = (props) => {
         }
     }
 
-    const handleClickShowFiltro = ()=>{
+    const handleClickShowFiltro = () => {
         setShowFiltro(!showFiltro)
     }
 
-    const handleClickDeleteFiltro = ()=>{
+    const handleClickDeleteFiltro = () => {
         setColorFiltrado([]);
         setListaColoresCopia(props.producto.ListaColores);
     }
 
-    const handleClickColores = ()=>{
+    const handleClickColores = () => {
         setOpenColores(!openColores);
     }
     return (
         <div>
-            {props.producto.ListaColoresSinStock.length>0 && <p style={{marginRight:10}} className="btn btn-secondary" onClick={handleClickColores}>Otros Colores</p>}
+            {props.producto.ListaColoresSinStock.length > 0 && <p style={{ marginRight: 10 }} className="btn btn-secondary" onClick={handleClickColores}>Otros Colores</p>}
             {props.producto.ListaColores.length > 1 && <p className="btn btn-primary" onClick={handleClickShowFiltro}>{showFiltro ? "Ocultar Filtro -" : "Filtrar colores +"}</p>}
             {colorFiltrado.length > 0 && <Chip
-                style={{ marginBottom: 10,marginLeft:10 }}
+                style={{ marginBottom: 10, marginLeft: 10 }}
                 variant="outlined" color="secondary" size="small"
                 label={"Todos"}
                 onDelete={handleClickDeleteFiltro}
                 icon={<FiTrash2 />}
             />}
             {showFiltro && <ListaColores colores={props.producto.ListaColores} handleColorFiltrado={handleClickColorFiltrado} colorFiltrado={colorFiltrado} />}
-            <ColorSinStockModal open={openColores} colores={props.producto.ListaColoresSinStock} close={handleClickColores}/>
+            <ColorSinStockModal open={openColores} colores={props.producto.ListaColoresSinStock} close={handleClickColores} />
             {
-                permisos.AdministradorProductos &&
-                <FormControlLabel
-                label="Mostrar Stock"
-                style={{marginLeft: '5px'}}
-                hidden = {props.futuro }
-                control={<Checkbox checked={isChecked} onChange={onMostrar} />}
-            />
+                permisos.AdministradorProductos && (
+                    <>
+                        <FormControlLabel
+                            label="Mostrar Stock"
+                            style={{ marginLeft: '5px' }}
+                            hidden={props.futuro}
+                            control={<Checkbox checked={isChecked} onChange={onMostrar} />}
+                        />
+                        <FormControlLabel
+                            label="InOut"
+                            style={{ marginLeft: '5px' }}
+                            control={<Checkbox checked={isInOut} onChange={inOut} />}
+                        />
+                        <FormControlLabel
+                            label="Deshabilitar"
+                            style={{ marginLeft: '5px' }}
+                            control={<Checkbox checked={isDeshabilitado} onChange={deshabilitar} />}
+                        />
+                    </>
+                )
+
             }
-            
+
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
                 <thead>
                     <tr className={styles.TrTest}>
@@ -248,7 +305,7 @@ const TablaVistaProducto = (props) => {
                 </thead>
                 <tbody >
                     {listaColoresCopia.map((color, index1) => {
-                        const hasImages = color.ListaImagenes.length > 0;                      
+                        const hasImages = color.ListaImagenes.length > 0;
                         let totalXColor = 0;
                         let cantidadTotalXColor = 0;
 
@@ -259,11 +316,11 @@ const TablaVistaProducto = (props) => {
                                     alignItems: 'center',
                                     verticalAlign: 'middle',
                                     fontWeight: 600,
-                                    background:colorSeleccionado===color.NombreColor?"green":"white",
-                                    color:colorSeleccionado===color.NombreColor?"white":"black"
+                                    background: colorSeleccionado === color.NombreColor ? "green" : "white",
+                                    color: colorSeleccionado === color.NombreColor ? "white" : "black"
                                 }}
-                                    onClick={()=>{
-                                        if(hasImages){
+                                    onClick={() => {
+                                        if (hasImages) {
                                             props.setListaImagenes(color.NombreColor);
                                         }
                                         setColorSeleccionado(color.NombreColor);
@@ -284,9 +341,9 @@ const TablaVistaProducto = (props) => {
                                         var valorTalla = props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Colores[color.CodigoColor].Tallas[talla];
                                         var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
                                         let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-                                        cantidadTotalXColor+=cantidadXTalla;
-                                        let totalXTalla = cantidadXTalla*valorTalla.Precio;
-                                        totalXColor =  parseInt(totalXColor, 10) +totalXTalla;
+                                        cantidadTotalXColor += cantidadXTalla;
+                                        let totalXTalla = cantidadXTalla * valorTalla.Precio;
+                                        totalXColor = parseInt(totalXColor, 10) + totalXTalla;
                                         return (
 
                                             <CeldaTallas
@@ -306,7 +363,7 @@ const TablaVistaProducto = (props) => {
                                                 onFocus={onFocus}
                                                 onBlur={onBlur}
                                                 color={color.NombreColor}
-                                                setListaImagenesPrincipal={hasImages?props.setListaImagenes:null}
+                                                setListaImagenesPrincipal={hasImages ? props.setListaImagenes : null}
                                                 onChange={props.onchangeText}
                                                 CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
                                                 cantidadMinima={props.producto.CantidadMinima}
@@ -328,7 +385,7 @@ const TablaVistaProducto = (props) => {
                                     alignItems: 'center',
                                     verticalAlign: 'middle',
                                     fontWeight: 600,
-                                }}>{numberWithCommas( totalXColor )}</td>
+                                }}>{numberWithCommas(totalXColor)}</td>
                             </tr>
 
                         )
@@ -373,7 +430,7 @@ const ListaColores = props => {
 
 const ListItem = props => {
 
-    const handleClick = ()=>{
+    const handleClick = () => {
         props.handleColorFiltrado(props.color)
     }
 

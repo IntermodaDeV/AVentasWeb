@@ -187,6 +187,11 @@ const Productos = (props) => {
         }
     }
 
+    let productosInOut = productosList.filter(x => x.InOut);
+    let productosRegulares = productosList.filter(x => !x.InOut);
+
+    productosList = [...productosInOut,...productosRegulares];
+
     let productos = (
         <div style={{ height: "80vh" }}>
             <AutoSizer>
