@@ -188,7 +188,10 @@ const Productos = (props) => {
     }
 
     let productosInOut = productosList.filter(x => x.InOut);
+    productosInOut.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
+
     let productosRegulares = productosList.filter(x => !x.InOut);
+    productosRegulares.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
 
     productosList = [...productosInOut,...productosRegulares];
 

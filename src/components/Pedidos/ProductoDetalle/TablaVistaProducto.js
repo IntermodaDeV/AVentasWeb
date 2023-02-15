@@ -16,6 +16,8 @@ import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { useSelector } from 'react-redux';
 import { async } from 'rxjs/internal/scheduler/async';
+import { Dropdown } from "semantic-ui-react";
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 const TablaVistaProducto = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
     const [imagenes, setImagenes] = useState([]);
@@ -23,11 +25,12 @@ const TablaVistaProducto = (props) => {
     const [colorSeleccionado, setColorSeleccionado] = useState("");
     const [colorFiltrado, setColorFiltrado] = useState([]);
     const [showFiltro, setShowFiltro] = useState(false);
-    const [listaColoresCopia, setListaColoresCopia] = useState(props.producto.ListaColores);
+    const [listaColoresCopia, setListaColoresCopia] = useState([]);
     const [openColores, setOpenColores] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
     const [isInOut, setIsInOut] = useState(false);
     const [isDeshabilitado, setisDeshabilitado] = useState(false);
+    const [prioridadProducto, setPrioridadProducto] = useState(0);
     const permisos = useSelector(e => e.Permisos[0]);
     const Coleccion = useSelector(e => e.coleccion);
 
@@ -35,8 +38,25 @@ const TablaVistaProducto = (props) => {
         setIsChecked(props.producto.StockVisible);
         setIsInOut(props.producto.InOut);
         setisDeshabilitado(props.producto.Deshabilitado);
+        setPrioridadProducto(props.producto.Prioridad);
+
+        ordenarColores()
+
         // eslint-disable-next-line
     }, []);
+
+    const ordenarColores = () => {
+        let listaColores = props.producto.ListaColores;
+        listaColores.sort((a, b) => (a.NombreColor.localeCompare(b.NombreColor)));
+        listaColores.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
+
+        let productosList = [...listaColores]
+
+        setListaColoresCopia(productosList)
+    }
+    
+
+
     const onFocus = () => {
 
     }
@@ -83,7 +103,7 @@ const TablaVistaProducto = (props) => {
         try {
             let request = await axios.post(`${APIURL}/api/Product/activarDeshabilitarPrducto/${props.producto.ProductoId}/${Coleccion.CodigoColeccion}`);
 
-            if (request.status == 200) {                
+            if (request.status == 200) {
                 Coleccion.Edades.forEach(edad => {
                     let producto = edad.ProductosXEdad.find(p => p.CodigoProducto === props.producto.CodigoProducto);
                     if (producto) {
@@ -91,6 +111,74 @@ const TablaVistaProducto = (props) => {
                     }
                 })
                 setisDeshabilitado(!isDeshabilitado);
+            }
+
+        } catch (err) {
+            console.log("Ha ocurrido un error: " + err)
+        }
+
+    }
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        timer: 3000
+    });
+
+    const actualizarPrioridad = async (prioridad) => {
+        try {
+            let request = await axios.post(`${APIURL}/api/Product/actualizarPrioridadProducto/${props.producto.ProductoId}/${Coleccion.CodigoColeccion}/${prioridad}`);
+
+            if (request.status == 200) {
+                Coleccion.Edades.forEach(edad => {
+                    let producto = edad.ProductosXEdad.find(p => p.CodigoProducto === props.producto.CodigoProducto);
+                    if (producto) {
+                        producto.Prioridad = prioridad;
+                    }
+                })
+                setPrioridadProducto(prioridad);
+                Toast.fire({
+                    type: 'success',
+                    title: 'Se Actualizo la prioridad del producto a ' + prioridad + ' con exito',
+                    customClass: {
+                        container: styles.ToastOnTopModal,
+                    }
+                });
+            }
+
+        } catch (err) {
+            console.log("Ha ocurrido un error: " + err)
+        }
+
+    }
+
+    const actualizarPrioridadColor = async (prioridad, IdColorxProducto) => {
+        try {
+            console.log(prioridad)
+            console.log(IdColorxProducto)
+            let request = await axios.post(`${APIURL}/api/Product/actualizarPrioridadColorProducto/${IdColorxProducto}/${prioridad}`);
+
+            if (request.status == 200) {
+                console.log(listaColoresCopia)
+
+                let color = listaColoresCopia.find(p => p.IdColorxProducto == IdColorxProducto);
+                color.Prioridad = prioridad;
+
+                let colorOriginal = props.producto.ListaColores.find(p => p.IdColorxProducto == IdColorxProducto);
+                colorOriginal.Prioridad = prioridad;
+
+                setListaColoresCopia(listaColoresCopia);
+
+                ordenarColores()
+
+                Toast.fire({
+                    type: 'success',
+                    title: 'Se Actualizo la prioridad del color a ' + prioridad + ' con exito',
+                    customClass: {
+                        container: styles.ToastOnTopModal,
+                    }
+                });
             }
 
         } catch (err) {
@@ -175,6 +263,7 @@ const TablaVistaProducto = (props) => {
     }
 
     const handleClickColorFiltrado = (color) => {
+        debugger
         if (colorFiltrado.includes(color)) {
             let colorFiltradoCopia = colorFiltrado;
             let index = colorFiltradoCopia.indexOf(color);
@@ -199,6 +288,7 @@ const TablaVistaProducto = (props) => {
     }
 
     const handleClickDeleteFiltro = () => {
+        debugger
         setColorFiltrado([]);
         setListaColoresCopia(props.producto.ListaColores);
     }
@@ -238,6 +328,27 @@ const TablaVistaProducto = (props) => {
                             style={{ marginLeft: '5px' }}
                             control={<Checkbox checked={isDeshabilitado} onChange={deshabilitar} />}
                         />
+
+                        <Dropdown
+                            placeholder="Seleccione Prioridad"
+                            selection
+                            style={{ zIndex: 999 }}
+                            onChange={(e, { value }) => {
+                                actualizarPrioridad(value)
+                            }}
+                            options={[
+                                { key: 1, value: 1, text: "1" },
+                                { key: 2, value: 2, text: "2" },
+                                { key: 3, value: 3, text: "3" },
+                                { key: 4, value: 4, text: "4" },
+                                { key: 5, value: 5, text: "5" },
+                            ]}
+                            noResultsMessage={"No hay resultados"}
+                            closeOnChange={true}
+                            value={prioridadProducto}
+                        />
+
+
                     </>
                 )
 
@@ -246,7 +357,9 @@ const TablaVistaProducto = (props) => {
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
                 <thead>
                     <tr className={styles.TrTest}>
-
+                        {
+                            permisos.AdministradorProductos && <th className={styles.ThTest} >Prioridad</th>
+                        }
                         <th className={styles.ThTest} >Color</th>
                         {props.producto.ListaTalla.map((talla, index) => {
                             return (
@@ -304,92 +417,131 @@ const TablaVistaProducto = (props) => {
                     </tr>
                 </thead>
                 <tbody >
-                    {listaColoresCopia.map((color, index1) => {
-                        const hasImages = color.ListaImagenes.length > 0;
-                        let totalXColor = 0;
-                        let cantidadTotalXColor = 0;
+                    {
 
-                        return (
-                            <tr key={index1}>
-                                <td style={{
-                                    textAlign: 'center',
-                                    alignItems: 'center',
-                                    verticalAlign: 'middle',
-                                    fontWeight: 600,
-                                    background: colorSeleccionado === color.NombreColor ? "green" : "white",
-                                    color: colorSeleccionado === color.NombreColor ? "white" : "black"
-                                }}
-                                    onClick={() => {
-                                        if (hasImages) {
-                                            props.setListaImagenes(color.NombreColor);
-                                        }
-                                        setColorSeleccionado(color.NombreColor);
+                        listaColoresCopia.map((color, index1) => {
+                            const hasImages = color.ListaImagenes.length > 0;
+                            let totalXColor = 0;
+                            let cantidadTotalXColor = 0;
+                            let i = color.length;
+
+                            return (
+                                <tr key={index1}>
+
+                                    {
+                                        permisos.AdministradorProductos &&
+                                        <td style={{
+                                            textAlign: 'center',
+                                            alignItems: 'center',
+                                            verticalAlign: 'middle',
+                                            fontWeight: 50,
+
+                                        }}
+
+                                        >
+                                            <div styles={{ position: 'absolute' }} >
+                                                <Dropdown
+                                                    placeholder="Seleccione Prioridad"
+                                                    selection
+                                                    //style={{ zIndex: (listaColoresCopia.length - index1) }}
+                                                    onChange={(e, { value }) => {
+                                                        actualizarPrioridadColor(value, color.IdColorxProducto)
+                                                    }}
+                                                    options={[
+                                                        { key: 1, value: 1, text: "1" },
+                                                        { key: 2, value: 2, text: "2" },
+                                                        { key: 3, value: 3, text: "3" },
+                                                        { key: 4, value: 4, text: "4" },
+                                                        { key: 5, value: 5, text: "5" },
+                                                    ]}
+                                                    noResultsMessage={"No hay resultados"}
+                                                    closeOnChange={true}
+                                                    value={color.Prioridad}
+                                                />
+                                            </div>
+                                        </td>
+                                    }
+
+
+                                    <td style={{
+                                        textAlign: 'center',
+                                        alignItems: 'center',
+                                        verticalAlign: 'middle',
+                                        fontWeight: 600,
+                                        background: colorSeleccionado === color.NombreColor ? "green" : "white",
+                                        color: colorSeleccionado === color.NombreColor ? "white" : "black"
                                     }}
-                                >
-                                    {/* <div style={{
+                                        onClick={() => {
+                                            if (hasImages) {
+                                                props.setListaImagenes(color.NombreColor);
+                                            }
+                                            setColorSeleccionado(color.NombreColor);
+                                        }}
+                                    >
+                                        {/* <div style={{
                                     width: '25px',
                                     height: '25px',
                                     borderRadius: '25px',
                                     margin: 'auto',
                                     backgroundColor: 'rgb(106, 40, 118)'
                                 }}></div> */}
-                                    {hasImages ? <FaEye onClick={() => { openImagenes(color.NombreColor) }} size={"20px"} style={{ display: 'block', margin: "auto" }} /> : ""}
-                                    {color.NombreColor}
-                                </td>
-                                {
-                                    Object.keys(props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Colores[color.CodigoColor].Tallas).map((talla, index2) => {
-                                        var valorTalla = props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Colores[color.CodigoColor].Tallas[talla];
-                                        var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
-                                        let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-                                        cantidadTotalXColor += cantidadXTalla;
-                                        let totalXTalla = cantidadXTalla * valorTalla.Precio;
-                                        totalXColor = parseInt(totalXColor, 10) + totalXTalla;
-                                        return (
+                                        {hasImages ? <FaEye onClick={() => { openImagenes(color.NombreColor) }} size={"20px"} style={{ display: 'block', margin: "auto" }} /> : ""}
+                                        {color.NombreColor}
+                                    </td>
+                                    {
+                                        Object.keys(props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Colores[color.CodigoColor].Tallas).map((talla, index2) => {
+                                            var valorTalla = props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Colores[color.CodigoColor].Tallas[talla];
+                                            var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
+                                            let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+                                            cantidadTotalXColor += cantidadXTalla;
+                                            let totalXTalla = cantidadXTalla * valorTalla.Precio;
+                                            totalXColor = parseInt(totalXColor, 10) + totalXTalla;
+                                            return (
 
-                                            <CeldaTallas
-                                                key={`${color.NombreColor}-${talla}-${props.codigoProducto}`}
-                                                agregarProducto={props.agregarProducto}
-                                                disponible={valorTalla.Disponible}
-                                                backorder={backOrder}
-                                                hasBackOrder={props.hasBackOrder}
-                                                NoEsFuturo={props.futuro}
-                                                handleArrowKeys={handleArrowKeys}
-                                                precio={valorTalla.Precio}
-                                                codigoProducto={props.codigoProducto}
-                                                codigoColor={color.CodigoColor}
-                                                codigoTalla={talla}
-                                                grupoTalla={props.producto.GrupoTalla}
-                                                cantidad={valorTalla.Cantidad}
-                                                onFocus={onFocus}
-                                                onBlur={onBlur}
-                                                color={color.NombreColor}
-                                                setListaImagenesPrincipal={hasImages ? props.setListaImagenes : null}
-                                                onChange={props.onchangeText}
-                                                CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
-                                                cantidadMinima={props.producto.CantidadMinima}
-                                                stockVisibleFuturo={props.producto.StockVisible}
-                                                setColor={setColorSeleccionado}
-                                            />
-                                        )
-                                    })
-                                }
-                                <td style={{
-                                    textAlign: 'center',
-                                    alignItems: 'center',
-                                    verticalAlign: 'middle',
-                                    fontWeight: 600,
-                                }}>{cantidadTotalXColor}</td>
+                                                <CeldaTallas
+                                                    key={`${color.NombreColor}-${talla}-${props.codigoProducto}`}
+                                                    agregarProducto={props.agregarProducto}
+                                                    disponible={valorTalla.Disponible}
+                                                    backorder={backOrder}
+                                                    hasBackOrder={props.hasBackOrder}
+                                                    NoEsFuturo={props.futuro}
+                                                    handleArrowKeys={handleArrowKeys}
+                                                    precio={valorTalla.Precio}
+                                                    codigoProducto={props.codigoProducto}
+                                                    codigoColor={color.CodigoColor}
+                                                    codigoTalla={talla}
+                                                    grupoTalla={props.producto.GrupoTalla}
+                                                    cantidad={valorTalla.Cantidad}
+                                                    onFocus={onFocus}
+                                                    onBlur={onBlur}
+                                                    color={color.NombreColor}
+                                                    setListaImagenesPrincipal={hasImages ? props.setListaImagenes : null}
+                                                    onChange={props.onchangeText}
+                                                    CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
+                                                    cantidadMinima={props.producto.CantidadMinima}
+                                                    stockVisibleFuturo={props.producto.StockVisible}
+                                                    setColor={setColorSeleccionado}
+                                                />
+                                            )
+                                        })
+                                    }
+                                    <td style={{
+                                        textAlign: 'center',
+                                        alignItems: 'center',
+                                        verticalAlign: 'middle',
+                                        fontWeight: 600,
+                                    }}>{cantidadTotalXColor}</td>
 
-                                <td style={{
-                                    textAlign: 'right',
-                                    alignItems: 'center',
-                                    verticalAlign: 'middle',
-                                    fontWeight: 600,
-                                }}>{numberWithCommas(totalXColor)}</td>
-                            </tr>
+                                    <td style={{
+                                        textAlign: 'right',
+                                        alignItems: 'center',
+                                        verticalAlign: 'middle',
+                                        fontWeight: 600,
+                                    }}>{numberWithCommas(totalXColor)}</td>
+                                </tr>
 
-                        )
-                    })}
+                            )
+                        })}
                 </tbody>
             </table >
             {IsOpen && (
