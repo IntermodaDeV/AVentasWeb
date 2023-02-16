@@ -350,7 +350,7 @@ const TablaVistaProducto = (props) => {
                         <Dropdown
                             placeholder="Seleccione Prioridad"
                             selection
-                            style={{ zIndex: 999 }}
+                            style={{ zIndex: 999, marginRight: 10 }}
                             onChange={(e, { value }) => {
                                 actualizarPrioridad(value)
                             }}
