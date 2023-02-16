@@ -25,6 +25,7 @@ const TablaVistaProducto = (props) => {
     const [colorSeleccionado, setColorSeleccionado] = useState("");
     const [colorFiltrado, setColorFiltrado] = useState([]);
     const [showFiltro, setShowFiltro] = useState(false);
+    const [showFiltroAlfabetico, setShowFiltroAlfabetico] = useState(false);
     const [listaColoresCopia, setListaColoresCopia] = useState([]);
     const [openColores, setOpenColores] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
@@ -39,23 +40,41 @@ const TablaVistaProducto = (props) => {
         setIsInOut(props.producto.InOut);
         setisDeshabilitado(props.producto.Deshabilitado);
         setPrioridadProducto(props.producto.Prioridad);
-
-        ordenarColores()
-
+        calcularStockPorColor();
+        ordenarColores();
         // eslint-disable-next-line
     }, []);
 
     const ordenarColores = () => {
+
         let listaColores = props.producto.ListaColores;
-        listaColores.sort((a, b) => (a.NombreColor.localeCompare(b.NombreColor)));
-        listaColores.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
+        let productosList = []
 
-        let productosList = [...listaColores]
-
+        if (showFiltroAlfabetico) {
+            listaColores.sort((a, b) => (a.NombreColor.localeCompare(b.NombreColor)));
+            listaColores.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
+            productosList = [...listaColores]
+        } else {
+            listaColores.sort((a, b) => ((a.StockColor > b.StockColor) ? 1 : -1));
+            listaColores.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
+            productosList = [...listaColores];
+        }
         setListaColoresCopia(productosList)
     }
-    
 
+
+    const calcularStockPorColor = () => {
+        props.producto.ListaColores.forEach(function (color) {
+            let stockColor = props.producto.fisicaDisponible.filter((e) => e.CodigoColor == color.CodigoColor).map((s) => s.Cantidad).reduce((a, b) => a + b, 0);
+            color.StockColor = stockColor;
+        });
+    }
+
+    const handleClickShowFiltroAlfabetico = () => {        
+        setShowFiltroAlfabetico(!showFiltroAlfabetico);
+
+        ordenarColores()
+    }
 
     const onFocus = () => {
 
@@ -263,7 +282,6 @@ const TablaVistaProducto = (props) => {
     }
 
     const handleClickColorFiltrado = (color) => {
-        debugger
         if (colorFiltrado.includes(color)) {
             let colorFiltradoCopia = colorFiltrado;
             let index = colorFiltradoCopia.indexOf(color);
@@ -288,7 +306,6 @@ const TablaVistaProducto = (props) => {
     }
 
     const handleClickDeleteFiltro = () => {
-        debugger
         setColorFiltrado([]);
         setListaColoresCopia(props.producto.ListaColores);
     }
@@ -299,7 +316,7 @@ const TablaVistaProducto = (props) => {
     return (
         <div>
             {props.producto.ListaColoresSinStock.length > 0 && <p style={{ marginRight: 10 }} className="btn btn-secondary" onClick={handleClickColores}>Otros Colores</p>}
-            {props.producto.ListaColores.length > 1 && <p className="btn btn-primary" onClick={handleClickShowFiltro}>{showFiltro ? "Ocultar Filtro -" : "Filtrar colores +"}</p>}
+            {props.producto.ListaColores.length > 1 && <p className="btn btn-primary" style={{ marginRight: 10 }} onClick={handleClickShowFiltro}>{showFiltro ? "Ocultar Filtro -" : "Filtrar colores +"}</p>}
             {colorFiltrado.length > 0 && <Chip
                 style={{ marginBottom: 10, marginLeft: 10 }}
                 variant="outlined" color="secondary" size="small"
@@ -309,6 +326,7 @@ const TablaVistaProducto = (props) => {
             />}
             {showFiltro && <ListaColores colores={props.producto.ListaColores} handleColorFiltrado={handleClickColorFiltrado} colorFiltrado={colorFiltrado} />}
             <ColorSinStockModal open={openColores} colores={props.producto.ListaColoresSinStock} close={handleClickColores} />
+
             {
                 permisos.AdministradorProductos && (
                     <>
@@ -353,7 +371,11 @@ const TablaVistaProducto = (props) => {
                 )
 
             }
-
+            {
+            
+            permisos.AdministradorProductos && props.producto.ListaColores.length > 1 && <p className="btn btn-primary" style={{ marginRight: 10 }} onClick={handleClickShowFiltroAlfabetico}>{showFiltroAlfabetico ? "Ordenar alfanumerica" : "Ordenar por stock"}</p>}
+            
+              
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
                 <thead>
                     <tr className={styles.TrTest}>
@@ -443,7 +465,6 @@ const TablaVistaProducto = (props) => {
                                                 <Dropdown
                                                     placeholder="Seleccione Prioridad"
                                                     selection
-                                                    //style={{ zIndex: (listaColoresCopia.length - index1) }}
                                                     onChange={(e, { value }) => {
                                                         actualizarPrioridadColor(value, color.IdColorxProducto)
                                                     }}
@@ -458,6 +479,7 @@ const TablaVistaProducto = (props) => {
                                                     closeOnChange={true}
                                                     value={color.Prioridad}
                                                 />
+                                                <p>{color.StockColor}</p>
                                             </div>
                                         </td>
                                     }
