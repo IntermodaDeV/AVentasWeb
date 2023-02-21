@@ -25,7 +25,7 @@ const TablaVistaProducto = (props) => {
     const [colorSeleccionado, setColorSeleccionado] = useState("");
     const [colorFiltrado, setColorFiltrado] = useState([]);
     const [showFiltro, setShowFiltro] = useState(false);
-    const [showFiltroAlfabetico, setShowFiltroAlfabetico] = useState(false);
+    const [showFiltroStock, setShowFiltroStock] = useState(true);
     const [listaColoresCopia, setListaColoresCopia] = useState([]);
     const [openColores, setOpenColores] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
@@ -50,14 +50,14 @@ const TablaVistaProducto = (props) => {
         let listaColores = props.producto.ListaColores;
         let productosList = []
 
-        if (showFiltroAlfabetico) {
+        if (showFiltroStock) {
+            listaColores.sort((a, b) => ((a.StockColor > b.StockColor) ? 1 : -1));
+            listaColores.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
+            productosList = [...listaColores];            
+        } else {
             listaColores.sort((a, b) => (a.NombreColor.localeCompare(b.NombreColor)));
             listaColores.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
             productosList = [...listaColores]
-        } else {
-            listaColores.sort((a, b) => ((a.StockColor > b.StockColor) ? 1 : -1));
-            listaColores.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
-            productosList = [...listaColores];
         }
         setListaColoresCopia(productosList)
     }
@@ -70,9 +70,8 @@ const TablaVistaProducto = (props) => {
         });
     }
 
-    const handleClickShowFiltroAlfabetico = () => {        
-        setShowFiltroAlfabetico(!showFiltroAlfabetico);
-
+    const handleClickshowFiltroStock = () => {        
+        setShowFiltroStock(!showFiltroStock);
         ordenarColores()
     }
 
@@ -174,12 +173,9 @@ const TablaVistaProducto = (props) => {
 
     const actualizarPrioridadColor = async (prioridad, IdColorxProducto) => {
         try {
-            console.log(prioridad)
-            console.log(IdColorxProducto)
             let request = await axios.post(`${APIURL}/api/Product/actualizarPrioridadColorProducto/${IdColorxProducto}/${prioridad}`);
 
             if (request.status == 200) {
-                console.log(listaColoresCopia)
 
                 let color = listaColoresCopia.find(p => p.IdColorxProducto == IdColorxProducto);
                 color.Prioridad = prioridad;
@@ -373,7 +369,7 @@ const TablaVistaProducto = (props) => {
             }
             {
             
-            permisos.AdministradorProductos && props.producto.ListaColores.length > 1 && <p className="btn btn-primary" style={{ marginRight: 10 }} onClick={handleClickShowFiltroAlfabetico}>{showFiltroAlfabetico ? "Ordenar alfanumerica" : "Ordenar por stock"}</p>}
+            permisos.AdministradorProductos && props.producto.ListaColores.length > 1 && <p className="btn btn-primary" style={{ marginRight: 10 }} onClick={handleClickshowFiltroStock}>{showFiltroStock ? "Ordenar por Stock" : "Ordenar Por Nombre"}</p>}
             
               
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
@@ -479,7 +475,7 @@ const TablaVistaProducto = (props) => {
                                                     closeOnChange={true}
                                                     value={color.Prioridad}
                                                 />
-                                                <p>{color.StockColor}</p>
+                                                <p>Stock Total: <strong>{color.StockColor}</strong></p>
                                             </div>
                                         </td>
                                     }
