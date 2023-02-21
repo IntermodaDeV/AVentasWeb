@@ -225,6 +225,54 @@ const DetalleRecibo = (props) => {
         return cuotasAgrupadas;
 
     }
+
+    const esFacturaConMayorSaldoCuota = (facturas, factura) => {
+        const nuevasFacturas = facturas.filter(x => x.NumeroCuota === factura.NumeroCuota);
+        nuevasFacturas.sort((a, b) => (a.Saldo > b.Saldo) ? -1 : 1);
+        return nuevasFacturas[0].Saldo === factura.Saldo;
+    }
+
+    const existeFacturaCubreDescuento = (facturas, numeroCuota, descuentoCuota) => {
+        const nuevasFacturas = facturas.filter(x => x.NumeroCuota === numeroCuota);
+
+        for (let factura of nuevasFacturas) {
+            if (factura.Saldo >= descuentoCuota) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    const calcularDescuentoAplicar = (facturas, factura, descuentoCuota) => {
+        const saldoMayorADescuento = factura.Saldo >= descuentoCuota;
+        if (esFacturaConMayorSaldoCuota(facturas, factura) && saldoMayorADescuento) {
+            return descuentoCuota;
+        }
+
+        if (existeFacturaCubreDescuento(facturas, factura.NumeroCuota, descuentoCuota)) {
+            return 0;
+        }
+
+        const facturasCuota = facturas.filter(x => x.NumeroCuota === factura.NumeroCuota);
+        let copiaDescuento = descuentoCuota;
+
+        for (let facturaCuota of facturasCuota) {
+            //Si es la ultima factura de la cuota devolvemos el descuento sobrante
+            if (facturaCuota.NumeroFactura === facturasCuota[facturasCuota.length - 1].NumeroFactura) {
+                return copiaDescuento;
+            }
+
+            if (facturaCuota.NumeroFactura === factura.NumeroFactura) {
+                return copiaDescuento > facturaCuota.Saldo ? facturaCuota.Saldo : copiaDescuento;
+            }
+
+            copiaDescuento -= facturaCuota.Saldo;
+        }
+
+        return 0;
+    }
+
     const CalculoCuotasAgrupadasYDescuento = () => {
         let valorPagos = 0;
         let Descuento = 0;
@@ -255,34 +303,34 @@ const DetalleRecibo = (props) => {
 
                 const descuentoCuota = cuotasAProcesar.reduce((prev, curr) => {
                     const { NumeroCuota, ValorDescuento } = curr;
-                    if (NumeroCuota in prev) {
-                        prev[NumeroCuota] = prev[NumeroCuota] + ValorDescuento;
+                    if (!(NumeroCuota in prev)) {
+                        prev[NumeroCuota] = ValorDescuento;
                         return prev;
                     }
 
-                    prev[NumeroCuota] = ValorDescuento;
                     return prev;
                 }, {});
 
                 for (let cuotProc of cuotasAProcesar) {
                     PagoAcumulado = Number(parseFloat(PagoAcumulado).toFixed(2));
                     const saldoTotalCuota = saldoCuota[cuotProc.NumeroCuota];
-                    const descuentoTotalCuota = descuentoCuota[cuotProc.NumeroCuota];
-                    
+                    const descuentoTotalCuota = Number(parseFloat(descuentoCuota[cuotProc.NumeroCuota]).toFixed(2));
+
                     let isChequePosFechado = pago.indexTiposPago === 0 && pago.indexTiposdePagoDetalle === 1;
                     let aplicaADescuento = false;
                     let aplicaDescuentoFechaPosfechado = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days') && !isChequePosFechado;
                     let montoAPagar = 0;
-                    
+                    let descuentoAplicar = calcularDescuentoAplicar(cuotasAProcesar, cuotProc, descuentoTotalCuota);
+
                     if (aplicaDescuentoFechaPosfechado) {
                         aplicaADescuento = PagoAcumulado == 0 ? true : PagoAcumulado >= (saldoTotalCuota - descuentoTotalCuota);
-                        montoAPagar = aplicaADescuento ? cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento : cuotProc.Saldo - cuotProc.PagoAplicado;
+                        montoAPagar = aplicaADescuento ? cuotProc.Saldo - cuotProc.PagoAplicado - descuentoAplicar : cuotProc.Saldo - cuotProc.PagoAplicado;
                     } else {
                         montoAPagar = cuotProc.Saldo - cuotProc.PagoAplicado;
                     }
 
                     valorPagos += montoAPagar;
-                    Descuento += aplicaADescuento ? descuentoTotalCuota : 0;
+                    Descuento += aplicaADescuento ? descuentoAplicar : 0;
                     localStorage.setItem('valorPagos', valorPagos.toFixed(2));
                     localStorage.setItem('DescuentoFacturas', Descuento);
 
@@ -290,17 +338,27 @@ const DetalleRecibo = (props) => {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
                             PagoAcumulado = 0;
+
+                            if (aplicaADescuento) {
+                                cuotProc.DescuentoAplicado = descuentoAplicar;
+                                descuentoAcumulado += descuentoAplicar;
+                            }
                         }
                         if (montoAPagar <= PagoAcumulado) {
                             cuotProc.PagoAplicado += montoAPagar;
                             PagoAcumulado -= montoAPagar;
                             if (aplicaADescuento) {
-                                cuotProc.DescuentoAplicado = cuotProc.ValorDescuento;
-                                descuentoAcumulado += cuotProc.ValorDescuento;
-                                // cuotProc.APagar = montoAPagar;
+                                cuotProc.DescuentoAplicado = descuentoAplicar;
+                                descuentoAcumulado += descuentoAplicar;
                             }
                         }
                         if (aplicaADescuento) {
+                            cuotProc.APagar = montoAPagar;
+                        }
+                    } else {
+                        if (aplicaADescuento) {
+                            cuotProc.DescuentoAplicado = descuentoAplicar;
+                            descuentoAcumulado += descuentoAplicar;
                             cuotProc.APagar = montoAPagar;
                         }
                     }
