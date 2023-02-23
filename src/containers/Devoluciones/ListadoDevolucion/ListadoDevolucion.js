@@ -47,6 +47,7 @@ export const ListadoDevolucion = (props) => {
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 }
             });
+            console.log(request.data)
             setDevoluciones(request.data);
         } catch (err) {
             console.log(err)
@@ -126,6 +127,13 @@ export const ListadoDevolucion = (props) => {
         {
             label: "Fecha Creacion",
             name: "FechaCreacion",
+            options: {
+                filter: true,
+            }
+        },
+        {
+            label: "Línea",
+            name: "Linea",
             options: {
                 filter: true,
             }
@@ -219,6 +227,7 @@ export const ListadoDevolucion = (props) => {
                 p.motivoDevolucion,
                 p.TotalUnidades,
                 moment(p.FechaCreacion).format("DD/MM/YYYY"),
+                p.IdLinea,
                 p.Estado,
                 p.Observacion,
                 p.Estado === "No autorizado" ? p.UsuarioModifica : "",
