@@ -61,7 +61,7 @@ const Carousel = (props) => {
         return (
             <Slider ref={mySlider} {...settings}>
                 {
-                    props.ListaProductos.map((product, index) => {
+                    props.ListaProductos.filter(x => !x.Deshabilitado).map((product, index) => {
                         if(product.CodigoProducto === producto.CodigoProducto){
                             localStorage.setItem("PosicionProducto", Number(index))
                         }

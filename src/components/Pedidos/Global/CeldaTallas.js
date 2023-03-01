@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactTextTransition, { presets } from "react-text-transition";
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import styles from "components/Pedidos/Global/CeldaTallas.module.css";
 import Swal from 'sweetalert2/dist/sweetalert2.js'
 
@@ -14,7 +14,7 @@ const CeldaTallas = (props) => {
         //CheckStock(props.codigoProducto, props.codigoColor, props.codigoTalla);
     }
 
-    const alertaFisicoDisponible =() => {
+    const alertaFisicoDisponible = () => {
         return Swal.fire({
             title: 'Alerta',
             text: "Excede el fisico disponible ",
@@ -24,9 +24,9 @@ const CeldaTallas = (props) => {
         });
     }
 
-    const esMultiplo = (multiplo,cantidad)=>{
-        let result = cantidad%multiplo;
-        return result===0;
+    const esMultiplo = (multiplo, cantidad) => {
+        let result = cantidad % multiplo;
+        return result === 0;
     }
 
     // eslint-disable-next-line
@@ -63,12 +63,12 @@ const CeldaTallas = (props) => {
         toast: true,
         position: 'top',
         showConfirmButton: false,
-        background:'red',
+        background: 'red',
         timer: 3000,
-      })
+    })
 
 
-    const alertaMultiplo = (multiplo) =>{
+    const alertaMultiplo = (multiplo) => {
 
         Toast.fire({
             title: `<span style='color:#FFF'>Cantidad ingresada no es multiplo ${multiplo}<span>`,
@@ -137,9 +137,12 @@ const CeldaTallas = (props) => {
         props.onBlur();
     }
 
-    const isDisabled = () => {
+    const isDisabled = () => {        
+        if (props.Deshabilitado) {
+            return true;
+        }
 
-        if(props.precio===0){
+        if (props.precio === 0) {
             return true;
         }
 
@@ -150,17 +153,18 @@ const CeldaTallas = (props) => {
                 }
             }
         }
+
         return false;
     }
 
-    const clickEnCelda = ()=>{
-        if(props.setListaImagenesPrincipal!==null && props.color!==null){
+    const clickEnCelda = () => {
+        if (props.setListaImagenesPrincipal !== null && props.color !== null) {
             props.setListaImagenesPrincipal(props.color);
         }
 
-       if(props.setColor){
-           props.setColor(props.color);
-       }
+        if (props.setColor) {
+            props.setColor(props.color);
+        }
     }
 
     return (
@@ -199,7 +203,7 @@ const CeldaTallas = (props) => {
 
                                         {/* <div class={styles.separator}></div> */}
                                         <div className="d-flex m-auto">
-                                           <span className={props.backorder ? 'text-danger' : null}>{props.backorder}</span>
+                                            <span className={props.backorder ? 'text-danger' : null}>{props.backorder}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -221,7 +225,7 @@ const CeldaTallas = (props) => {
                     <div className="row">
                         {/* <div class={styles.separator}></div> */}
                         <div className="d-flex pr-1 m-auto">
-                           Precio: {props.precio.toFixed(2)}
+                            Precio: {props.precio.toFixed(2)}
                         </div>
                     </div>
                 </div>
@@ -231,7 +235,7 @@ const CeldaTallas = (props) => {
                 disabled={isDisabled()}
                 onFocusCapture={() => onFocus()}
                 onKeyDownCapture={(event) => props.handleArrowKeys(event)}
-                onBlurCapture={(text)=>handleMultiplo(text, props.codigoProducto, props.codigoColor, props.grupoTalla, props.codigoTalla, props.precio)}
+                onBlurCapture={(text) => handleMultiplo(text, props.codigoProducto, props.codigoColor, props.grupoTalla, props.codigoTalla, props.precio)}
                 type="text"
                 ref={props.ref}
                 pattern="[0-9]*"

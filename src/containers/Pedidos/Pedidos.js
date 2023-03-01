@@ -2715,8 +2715,9 @@ class Pedidos extends React.Component {
     }
 
     onchangeText(text, productoId, codigoColor, grupoTalla, talla, precio) {
+        debugger
         this.props.onSetBloqueo(false);
-        let borrador = JSON.parse(localStorage.getItem("borrador"));
+        let borrador = JSON.parse(localStorage.getItem("borrador") || "{}");
         let tableValue = { ...this.props.TableValue };
         const valor = (text.target.validity.valid) ? text.target.value : tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla].Cantidad;
         let valorPrevio = tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla];
