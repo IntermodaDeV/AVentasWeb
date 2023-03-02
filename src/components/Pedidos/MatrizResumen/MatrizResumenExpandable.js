@@ -167,8 +167,7 @@ const MatrizResumen = (props) => {
                                                 let color = producto.Colores[codigoColor];
                                                 Object.keys(color.Tallas).forEach((codigoTalla) => {
                                                     let valorTalla = color.Tallas[codigoTalla];
-                                                    let precio = { Precio: (valorTalla.Precio? valorTalla.Precio:0) };
-                                                        
+                                                    let precio = { Precio: (valorTalla.Precio? valorTalla.Precio:0) };                                                        
                                                     let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
                                                     productoConCantindad = productoConCantindad || (cantidadXTalla > 0);
                                                     unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
