@@ -282,6 +282,7 @@ const ProductoTable = (props) => {
                                         CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
                                         cantidadMinima={props.producto.CantidadMinima}
                                         stockVisibleFuturo={props.producto.StockVisible}
+                                        Deshabilitado = {color.Deshabilitado}
                                     />
                                 )
                             })
