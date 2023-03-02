@@ -118,6 +118,12 @@ const Producto = (props) => {
             }
           </>
         }
+        {
+          props.producto.InOut && <div className={styles.inOut} >In&Out</div>
+        }
+        {
+          props.producto.Deshabilitado && <div className={styles.soldOut} >Deshabilitado</div>
+        }
         <div className={selectableClassName}>
           <Img
             className="card-img-right"
