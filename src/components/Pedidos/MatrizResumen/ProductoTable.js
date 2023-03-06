@@ -24,7 +24,9 @@ const ProductoTable = (props) => {
     const Configuraciones = useSelector(e=>e.Configuraciones);
 
     let ArregloProductos = Object.keys(props.producto.Colores).map((key) => ([key, props.producto.Colores[key]]));
-    ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1);
+    ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1)
+                    .sort((a, b) => a[1].StockColor > b[1].StockColor ? 1 : -1)
+                    .sort((a, b) => a[1].Prioridad > b[1].Prioridad ? -1 : 1);
 
     useEffect(() => {
         setDirty(props.mostrarVacios);
