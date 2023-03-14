@@ -7,20 +7,40 @@ import { Card, } from 'reactstrap';
 import { FiEye, FiSearch } from 'react-icons/fi';
 import { MdCheck } from "react-icons/md";
 import { useSnackbar } from 'notistack';
-
-
+import { useSelector } from 'react-redux';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 const Producto = (props) => {
   const { enqueueSnackbar } = useSnackbar();
 
   let stockDisponible = 0;
-  
-  if(!props.isFuture){
-    stockDisponible = props.producto.fisicaDisponible.reduce((a,b)=>(a+b.Cantidad),0);
+
+  if (!props.isFuture) {
+    stockDisponible = props.producto.fisicaDisponible.reduce((a, b) => (a + b.Cantidad), 0);
   }
 
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top',
+    showConfirmButton: false,
+    timer: 3000
+  });
+
+  const alertDeshabilitado = () => {
+    Toast.fire({
+      type: 'error',
+      title: 'Este producto no esta disponible',
+      customClass: {
+        container: styles.ToastOnTopModal,
+      }
+    });
+  }
+
+
   const toggleSelect = () => {
-    if (primerRender ? (precioProductoTemporal !== undefined) : (precioProducto !== undefined)) {
+    if (props.producto.Deshabilitado && !permisos.AdministradorProductos) {
+      alertDeshabilitado()
+    } else if (primerRender ? (precioProductoTemporal !== undefined) : (precioProducto !== undefined)) {
       if (!(selected || isSelectedTemporal) && totalProducto + props.TotalPedido > props.LimiteVenta) {
         props.alertaLimiteCredito();
       } else {
@@ -46,12 +66,13 @@ const Producto = (props) => {
   const [primerRender, setPrimerRender] = useState(true);
   const [totalProducto, setTotalProducto] = useState(0);
   const [precioProducto, setPrecio] = useState(undefined);
+  const permisos = useSelector(e => e.Permisos[0]);
   let isSelectedTemporal = false;
   let precioProductoTemporal = undefined;
 
   try {
     isSelectedTemporal = props.TableValue[props.producto.Linea.IdLinea][props.producto.CodigoColeccion][props.producto.GrupoTalla].Productos[props.producto.ProductoId].Selected;
-  } catch{ }
+  } catch { }
 
   precioProductoTemporal = props.producto.Precio.find(precioxProd => {
     return precioxProd.GrupoPrecio === props.GrupoPrecioCliente;
@@ -63,10 +84,10 @@ const Producto = (props) => {
     let precio = props.producto.Precio.find(precioxProd => {
       return precioxProd.GrupoPrecio === props.GrupoPrecioCliente;
     });
-    if(!precio && props.producto.fisicaDisponible.length>0){
-      let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis=> fsDis.PreciosEspecificos.find(ps=>ps.Precio>0 && ps.GrupoPrecio === props.GrupoPrecioCliente))
-      if(precioFisicoDisponible){
-        precio={Precio: precioFisicoDisponible.PreciosEspecificos.find(ps=>ps.Precio>0 && ps.GrupoPrecio === props.GrupoPrecioCliente).Precio};
+    if (!precio && props.producto.fisicaDisponible.length > 0) {
+      let precioFisicoDisponible = props.producto.fisicaDisponible.find(fsDis => fsDis.PreciosEspecificos.find(ps => ps.Precio > 0 && ps.GrupoPrecio === props.GrupoPrecioCliente))
+      if (precioFisicoDisponible) {
+        precio = { Precio: precioFisicoDisponible.PreciosEspecificos.find(ps => ps.Precio > 0 && ps.GrupoPrecio === props.GrupoPrecioCliente).Precio };
       }
     }
     if (precio) {
@@ -82,7 +103,7 @@ const Producto = (props) => {
           });
         });
         setTotalProducto(tempTotal);
-      } catch{ }
+      } catch { }
       setPrecio(precio);
       setPrimerRender(false);
     }
@@ -92,12 +113,39 @@ const Producto = (props) => {
     let selected = false;
     try {
       selected = props.TableValue[props.producto.Linea.IdLinea][props.producto.CodigoColeccion][props.producto.GrupoTalla].Productos[props.producto.ProductoId].Selected;
-    } catch{ }
+    } catch { }
     setselected(selected);
     // eslint-disable-next-line
   }, [props.producto]);
   let selectableClassName = styles.selectable;
 
+  const handleClickVistaRapida = (e) => {
+    if (permisos.AdministradorProductos) {
+      props.ClickVistaRapida(e);
+      return;
+    }
+
+    if (!permisos.AdministradorProductos && !props.producto.Deshabilitado) {
+      props.ClickVistaRapida(e);
+      return;
+    }
+
+    alertDeshabilitado();
+  }
+
+  const handleVerDetalle = (e) => {
+    if (permisos.AdministradorProductos) {
+      props.Click(e);
+      return;
+    }
+
+    if (!permisos.AdministradorProductos && !props.producto.Deshabilitado) {
+      props.Click(e);
+      return;
+    }
+
+    alertDeshabilitado();
+  }
 
   if (primerRender ? isSelectedTemporal : selected) {
     selectableClassName = selectableClassName + ' ' + styles.selected;
@@ -122,7 +170,7 @@ const Producto = (props) => {
           props.producto.InOut && <div className={styles.inOut} >In&Out</div>
         }
         {
-          props.producto.Deshabilitado && <div className={styles.soldOut} >Deshabilitado</div>
+          props.producto.Deshabilitado && <div className={styles.soldOut} >Cerrado</div>
         }
         <div className={selectableClassName}>
           <Img
@@ -149,7 +197,7 @@ const Producto = (props) => {
               {props.producto.NombreProducto}
             </div>
 
-            <div style={{ fontWeight: "300", fontSize: 12, textAlign: 'left', color: '#a7a4a4', marginTop: 1}} >
+            <div style={{ fontWeight: "300", fontSize: 12, textAlign: 'left', color: '#a7a4a4', marginTop: 1 }} >
               {/* Pseudo  */}Código - {props.producto.ProductoId}
             </div>
 
@@ -162,7 +210,7 @@ const Producto = (props) => {
               *Disponible en {props.producto.ListaColores.length} {(props.producto.ListaColores.length === 1) ? 'color' : 'colores'}
             </div>
 
-            <div style={{ textAlign: 'center'}}>
+            <div style={{ textAlign: 'center' }}>
               {/* El boton se mostrara en responsive */}
               {/* <Button onClick={props.Click} className={styles.btn}>Ver Detalle</Button> */}
 
@@ -172,11 +220,12 @@ const Producto = (props) => {
                 <table className={styles.tableed}>
                   <tbody>
                     <tr>
-                      <td onClick={props.ClickVistaRapida}>
+
+                      <td onClick={handleClickVistaRapida}>
                         <FiEye style={{ fontSize: '16px', color: 'black' }} />
                         <span className={styles.cda}> Vista Rapida</span>
-                      </td>
-                      <td onClick={props.Click}>
+                      </td>                      
+                      <td onClick={handleVerDetalle}>
                         <FiSearch style={{ fontSize: '16px', color: 'black' }} />
                         <span className={styles.cda}> Ver Detalle</span>
                       </td>

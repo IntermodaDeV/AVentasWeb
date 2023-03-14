@@ -66,6 +66,8 @@ const Coleccion = (props) => {
         dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: data });
         localStorage.setItem("ColeccionSeleccionada", props.coleccion.CodigoColeccion)
         localStorage.setItem("HoraIngreso", moment(new Date()).format('YYYY-MM-DDTHH:mm'))
+      }).catch(err=>{
+        alert("Ocurrio un error y no se pudo cargar el paquete.")
       });
   }
 

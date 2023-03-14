@@ -139,8 +139,8 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
-            label: "Estado",
-            name: "estado",
+            label: "Estado AX",
+            name: "EstadoAX",
             options: {
                 filter: true,
             }
@@ -148,6 +148,13 @@ export const ListadoDevolucion = (props) => {
         {
             label: "Observación",
             name: "observacion",
+            options: {
+                filter: false,
+            }
+        },
+        {
+            label: "Seguimiento Calidad",
+            name: "SeguimientoCalidad",
             options: {
                 filter: false,
             }
@@ -230,6 +237,10 @@ export const ListadoDevolucion = (props) => {
                 p.IdLinea,
                 p.Estado,
                 p.Observacion,
+                p.EstadoBodega === 0 ? <span style={{ color: '#FA2016' }}> <strong> Rechazado </strong></span> :
+                p.EstadoBodega === 1 ? <span style={{ color: '#2977F2' }}><strong>Recepcionado </strong></span> :
+                p.EstadoBodega === 2 ? <span style={{ color: '#14DE19' }}><strong>Transferido a bodega</strong></span> :
+                <span style={{color: 'black'}}><strong>-</strong></span> ,
                 p.Estado === "No autorizado" ? p.UsuarioModifica : "",
                 <div>
                     <span className="ml-1">

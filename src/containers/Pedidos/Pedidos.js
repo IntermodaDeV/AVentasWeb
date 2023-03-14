@@ -602,6 +602,12 @@ class Pedidos extends React.Component {
                 value[color.CodigoColor].NombreColor = color.NombreColor;
                 value[color.CodigoColor].Color = color.Color;
                 value[color.CodigoColor].ListaImagenes = color.ListaImagenes;
+                value[color.CodigoColor].Deshabilitado = color.Deshabilitado;
+                
+                 value[color.CodigoColor].Prioridad = color.Prioridad;
+                 let StockColor = producto.fisicaDisponible.filter((e) => e.CodigoColor == color.CodigoColor).map((s) => s.Cantidad).reduce((a, b) => a + b, 0);
+                 value[color.CodigoColor].StockColor = StockColor;
+
                 value[color.CodigoColor].Tallas = {}
                 producto.ListaTalla.map(talla => {
                     var fisicoDisponible = producto.fisicaDisponible.find(fd => { return fd.CodigoColor === color.CodigoColor && fd.IdTalla === talla.Talla })
@@ -620,7 +626,6 @@ class Pedidos extends React.Component {
                 return false;
             });
             this.props.onSetTableValue(tableValue);
-
         }
     }
 
@@ -2716,7 +2721,7 @@ class Pedidos extends React.Component {
 
     onchangeText(text, productoId, codigoColor, grupoTalla, talla, precio) {
         this.props.onSetBloqueo(false);
-        let borrador = JSON.parse(localStorage.getItem("borrador"));
+        let borrador = JSON.parse(localStorage.getItem("borrador") || "{}");
         let tableValue = { ...this.props.TableValue };
         const valor = (text.target.validity.valid) ? text.target.value : tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla].Cantidad;
         let valorPrevio = tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Productos[productoId].Colores[codigoColor].Tallas[talla];

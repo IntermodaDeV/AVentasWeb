@@ -18,7 +18,7 @@ import { useSelector } from 'react-redux';
 import { async } from 'rxjs/internal/scheduler/async';
 import { Dropdown } from "semantic-ui-react";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-const TablaVistaProducto = (props) => {
+const TablaVistaProducto = (props) => {    
     const [SelectedImage, setSelectedImage] = useState(0);
     const [imagenes, setImagenes] = useState([]);
     const [IsOpen, setIsOpen] = useState(false);
@@ -53,7 +53,7 @@ const TablaVistaProducto = (props) => {
         if (showFiltroStock) {
             listaColores.sort((a, b) => ((a.StockColor > b.StockColor) ? 1 : -1));
             listaColores.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
-            productosList = [...listaColores];            
+            productosList = [...listaColores];
         } else {
             listaColores.sort((a, b) => (a.NombreColor.localeCompare(b.NombreColor)));
             listaColores.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
@@ -70,7 +70,7 @@ const TablaVistaProducto = (props) => {
         });
     }
 
-    const handleClickshowFiltroStock = () => {        
+    const handleClickshowFiltroStock = () => {
         setShowFiltroStock(!showFiltroStock);
         ordenarColores()
     }
@@ -129,6 +129,33 @@ const TablaVistaProducto = (props) => {
                     }
                 })
                 setisDeshabilitado(!isDeshabilitado);
+            }
+
+        } catch (err) {
+            console.log("Ha ocurrido un error: " + err)
+        }
+
+    }
+
+    const deshabilitarColor = async (IdColorxProducto) => {
+        try {
+            let request = await axios.post(`${APIURL}/api/Product/activasDeshabilitarColorPrducto/${IdColorxProducto}`);
+            console.log(request);
+
+            if (request.status == 200) {
+
+                let colorOriginal = props.producto.ListaColores.find(p => p.IdColorxProducto == IdColorxProducto);
+                colorOriginal.Deshabilitado = !colorOriginal.Deshabilitado;
+
+                ordenarColores()
+
+                Toast.fire({
+                    type: 'success',
+                    title: 'Actualización exitosa',
+                    customClass: {
+                        container: styles.ToastOnTopModal,
+                    }
+                });
             }
 
         } catch (err) {
@@ -338,7 +365,7 @@ const TablaVistaProducto = (props) => {
                             control={<Checkbox checked={isInOut} onChange={inOut} />}
                         />
                         <FormControlLabel
-                            label="Deshabilitar"
+                            label="Cerrado"
                             style={{ marginLeft: '5px' }}
                             control={<Checkbox checked={isDeshabilitado} onChange={deshabilitar} />}
                         />
@@ -368,15 +395,20 @@ const TablaVistaProducto = (props) => {
 
             }
             {
-            
-            permisos.AdministradorProductos && props.producto.ListaColores.length > 1 && <p className="btn btn-primary" style={{ marginRight: 10 }} onClick={handleClickshowFiltroStock}>{showFiltroStock ? "Ordenar por Stock" : "Ordenar Por Nombre"}</p>}
-            
-              
+
+                permisos.AdministradorProductos && props.producto.ListaColores.length > 1 && <p className="btn btn-primary" style={{ marginRight: 10 }} onClick={handleClickshowFiltroStock}>{showFiltroStock ? "Ordenar por Stock" : "Ordenar Por Nombre"}</p>}
+
+
             <table className={'table table-bordered m-auto'} style={{ borderColor: '#aaa', overflow: "auto" }} >
                 <thead>
                     <tr className={styles.TrTest}>
                         {
-                            permisos.AdministradorProductos && <th className={styles.ThTest} >Prioridad</th>
+                            permisos.AdministradorProductos && (
+                                <>
+                                    <th className={styles.ThTest} >Prioridad</th>
+                                    <th className={styles.ThTest} >Cerrado</th>
+                                </>
+                            )
                         }
                         <th className={styles.ThTest} >Color</th>
                         {props.producto.ListaTalla.map((talla, index) => {
@@ -448,38 +480,59 @@ const TablaVistaProducto = (props) => {
 
                                     {
                                         permisos.AdministradorProductos &&
-                                        <td style={{
-                                            textAlign: 'center',
-                                            alignItems: 'center',
-                                            verticalAlign: 'middle',
-                                            fontWeight: 50,
+                                        (
+                                            <>
+                                                <td style={{
+                                                    textAlign: 'center',
+                                                    alignItems: 'center',
+                                                    verticalAlign: 'middle',
+                                                    fontWeight: 50,
 
-                                        }}
+                                                }}
 
-                                        >
-                                            <div styles={{ position: 'absolute' }} >
-                                                <Dropdown
-                                                    placeholder="Seleccione Prioridad"
-                                                    selection
-                                                    onChange={(e, { value }) => {
-                                                        actualizarPrioridadColor(value, color.IdColorxProducto)
-                                                    }}
-                                                    options={[
-                                                        { key: 1, value: 1, text: "1" },
-                                                        { key: 2, value: 2, text: "2" },
-                                                        { key: 3, value: 3, text: "3" },
-                                                        { key: 4, value: 4, text: "4" },
-                                                        { key: 5, value: 5, text: "5" },
-                                                    ]}
-                                                    noResultsMessage={"No hay resultados"}
-                                                    closeOnChange={true}
-                                                    value={color.Prioridad}
-                                                />
-                                                <p>Stock Total: <strong>{color.StockColor}</strong></p>
-                                            </div>
-                                        </td>
+                                                >
+                                                    <div styles={{ position: 'absolute' }} >
+                                                        <Dropdown
+                                                            placeholder="Seleccione Prioridad"
+                                                            selection
+                                                            onChange={(e, { value }) => {
+                                                                actualizarPrioridadColor(value, color.IdColorxProducto)
+                                                            }}
+                                                            options={[
+                                                                { key: 1, value: 1, text: "1" },
+                                                                { key: 2, value: 2, text: "2" },
+                                                                { key: 3, value: 3, text: "3" },
+                                                                { key: 4, value: 4, text: "4" },
+                                                                { key: 5, value: 5, text: "5" },
+                                                            ]}
+                                                            noResultsMessage={"No hay resultados"}
+                                                            closeOnChange={true}
+                                                            value={color.Prioridad}
+                                                        />
+                                                        <p>Stock Total: <strong>{color.StockColor}</strong></p>
+                                                    </div>
+                                                </td>
+                                                <td style={{
+                                                    textAlign: 'center',
+                                                    alignItems: 'center',
+                                                    verticalAlign: 'middle',
+                                                    fontWeight: 50,
+
+                                                }}
+
+                                                >
+                                                    <div styles={{ position: 'absolute' }} >
+                                                        <Checkbox checked={color.Deshabilitado}
+                                                            onChange={(e, { value }) => {
+                                                                deshabilitarColor(color.IdColorxProducto)
+                                                            }}
+                                                        />
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )
+
                                     }
-
 
                                     <td style={{
                                         textAlign: 'center',
@@ -539,6 +592,7 @@ const TablaVistaProducto = (props) => {
                                                     cantidadMinima={props.producto.CantidadMinima}
                                                     stockVisibleFuturo={props.producto.StockVisible}
                                                     setColor={setColorSeleccionado}
+                                                    Deshabilitado={color.Deshabilitado}
                                                 />
                                             )
                                         })

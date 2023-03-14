@@ -130,7 +130,6 @@ export const RazonesNoVenta = props => {
     
     const cargarRazonesNoVenta = async () => {
         try {
-          //  debugger
             const request = await axios.get(`${APIURL}/api/razonnoventa/listado`);
             console.log("request.data",request.data)
             setRazonesNoVenta(request.data);

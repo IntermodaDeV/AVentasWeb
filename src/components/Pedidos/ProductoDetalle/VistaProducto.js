@@ -102,7 +102,8 @@ const VistaProducto = (props) => {
 
     const setListaImagenesPrincipal = (color) => {
         setColor(color);
-        const imagenesColor = props.producto.ListaColores.filter(e => e.NombreColor === color);
+        const imagenesColor = props.producto.ListaColores.filter(e => e.NombreColor === color);       
+        imagenesColor[0].ListaImagenes.Deshabilitado = imagenesColor[0].Deshabilitado;
         setListaImagenes(imagenesColor[0].ListaImagenes);
     }
 
@@ -144,7 +145,6 @@ const VistaProducto = (props) => {
                 localStorage.removeItem("HoraIngreso");
                 //props.navegar.history.push("/Pedidos/Colecciones")
             });
-            console.log(request.data);
         } catch (err) {
             setOpenDeshabilitar(false);
             let mensaje = "Ha ocurrido un error y no se pudo deshabilitar el producto.";
