@@ -160,8 +160,8 @@ const ListaPedidos = (props) => {
                 [pedido.TotalUnidades, pedido.Sincronizado],
                 [pedido.TotalXPedido, pedido.TotalXPedido],
                 [moment(pedido.FechaEntrega).format('DD/MM/YYYY'), pedido.Sincronizado],
+                [pedido.SaleStatus],
                 <div>
-
                     <span className="mr-1">
                         <Button className='my-1' variant="outlined" onClick={() => GetPedidoDetalle(pedido, false)} size="small" color={"primary"}>Detalle</Button>
                     </span>
@@ -493,6 +493,12 @@ const HeadersListaPedidos = [
                     <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
             }
+        }
+    },
+    {
+        name: "Estado AX",
+        options: {
+            filter: true           
         }
     },
     {
