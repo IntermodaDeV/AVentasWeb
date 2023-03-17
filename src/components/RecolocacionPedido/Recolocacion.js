@@ -117,6 +117,7 @@ export const Recolocacion = (props) => {
 
                 if (data.data.productos.length === 0) {
                     mostrarModal('Recolocación', 'La devolución ya no tiene inventario para recolocar.', "error");
+                    setOpen(false);
                     return;
                 }
 
