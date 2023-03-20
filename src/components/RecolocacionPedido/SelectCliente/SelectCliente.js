@@ -25,11 +25,11 @@ const ClienteSelected = (props) => {
 
 
     const handleOnChange = (value) => {
-        setValue(JSON.parse(value));
+        setValue(value);
     }
 
     const obtenerClientes = () => {
-        return clientes.map(el => ({ key: el.Codigo, value: JSON.stringify(el), text: `${el.Codigo}-${el.Nombre}` }))
+        return clientes.map(el => ({ key: el.Codigo, value: el, text: `${el.Codigo}-${el.Nombre}` }))
     }
 
     const continuarDevolucion = (cliente) => {
