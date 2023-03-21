@@ -16,6 +16,7 @@ import { APIURL } from 'utils/Enviroment';
 import { Button } from "@material-ui/core";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { ImprimirPedidoDevolucion } from 'components/Devoluciones/ImprimirPedidoDevolucion';
+import moment from "moment";
 
 export const AprobacionDevolucion = (props) => {
     const [devoluciones, setDevoluciones] = useState([]);
@@ -191,6 +192,13 @@ export const AprobacionDevolucion = (props) => {
             }
         },
         {
+            label: "Fecha",
+            name: "Fecha",
+            options: {
+                filter: true,
+            }
+        },
+        {
             label: "Acciones",
             name: "acciones",
             options: {
@@ -205,12 +213,13 @@ export const AprobacionDevolucion = (props) => {
                 p.NumDevolucion,
                 p.CodigoCliente,
                 p.NombreCliente,
-                p.MotivoDevolucion,
+                p.motivoDevolucion,
                 p.Linea,
                 p.FacturaOrigen,
                 p.PedidoOrigen,
                 p.TotalUnidades,
                 p.Estado,
+                moment(p.FechaCreacion).format('DD/MM/YYYY hh:mm a'),
                 <div>
                     <span className="mr-1">
                         <Button className='my-1' variant="outlined" onClick={() => showModalCancelado(p)} size="small" color={"primary"}>Cancelar</Button>

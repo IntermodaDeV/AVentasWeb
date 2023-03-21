@@ -110,6 +110,7 @@ export const ImprimirPedidoDevolucion = (props) => {
                                     <p>
                                         Fecha Devolucion : {moment(props.Pedido.FechaCreacion).format('DD/MM/YYYY hh:mm a')}<br />
                                         Asesor: {props.Pedido.Usuario}<br />
+                                        Motivo Devolución: {props.Pedido.MotivoDevolucionDetalle.CodigoMotivoDevolucion + " - " + props.Pedido.MotivoDevolucionDetalle.Descripcion }<br />
                                     </p>
                                 </div>
                             </div >
