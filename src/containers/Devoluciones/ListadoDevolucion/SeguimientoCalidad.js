@@ -36,6 +36,7 @@ export const SeguimientoCalidad = props => {
         Detalles: [],
     });
 
+    // eslint-disable-next-line
     const [loading, setLoading] = useState(false);
     const [fechaInicio, setFechaInicio] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 30));
     const [fechaFin, setFechaFin] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
@@ -151,10 +152,6 @@ export const SeguimientoCalidad = props => {
         return DataDevoluciones;
     }
 
-    const RegresarListaDevoluviones = () => {
-        setState({ ...state, devolucion: null });
-    }
-
     const getMuiTheme = () => createMuiTheme({
         overrides: {
             MUIDataTable: {
@@ -179,7 +176,7 @@ export const SeguimientoCalidad = props => {
     }
 
     const actualizarEstadoDevoluvion = (NumDevolucion, newEstadoBodega) => {
-        const nEstado = (newEstadoBodega == 0) ? "Rechazado" : (newEstadoBodega == 1) ? "Recepcionado" : "Transferido a bodega";
+        const nEstado = (newEstadoBodega === 0) ? "Rechazado" : (newEstadoBodega === 1) ? "Recepcionado" : "Transferido a bodega";
         Swal.fire({
             title: 'Aviso',
             text: `¿Se cambiara el estado la devolucion ${NumDevolucion} a ${nEstado}?`,
@@ -277,6 +274,7 @@ export const SeguimientoCalidad = props => {
         return () => {
             window.removeEventListener('keydown', cancelarReinicio);
         }
+        // eslint-disable-next-line
     }, [])
 
 

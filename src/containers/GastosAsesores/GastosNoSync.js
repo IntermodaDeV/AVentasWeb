@@ -148,7 +148,7 @@ const GastosNoSync = (props) => {
     const DataGastos = () => {
         let DataGastos = [];
 
-        gastos.map(gasto => {
+        gastos.forEach(gasto => {
             let data = [
                 gasto.tipo,
                 gasto.categoria,

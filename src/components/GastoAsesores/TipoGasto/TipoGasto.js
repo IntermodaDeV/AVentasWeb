@@ -184,7 +184,7 @@ export const TipoGasto = props => {
 
     useEffect(() => {
         cargarEmpresas()
-        
+        // eslint-disable-next-line
     }, [])
     return (
         <div>

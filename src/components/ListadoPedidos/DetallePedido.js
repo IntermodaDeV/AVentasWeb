@@ -111,9 +111,6 @@ const DetallePedido = (props) => {
     let options = null;
     let color = "#FF0000";
     let zoom = 9;
-    let LatitudpuntoMedio = 0;
-    let LongitudpuntoMedio = 0;
-    let PuntoMedio = null;
     let distancia = 0;
     if (latitudCliente && longitudCliente) {
         distancia = CalcularDistancia(props.pedido.location.latitude, props.pedido.location.longitude, latitudCliente, longitudCliente)
@@ -143,11 +140,6 @@ const DetallePedido = (props) => {
             radius: 30000,
             zIndex: 1,
         }
-        LatitudpuntoMedio = (props.pedido.location.latitude + latitudCliente) / 2
-        LongitudpuntoMedio = (props.pedido.location.longitude + longitudCliente) / 2
-
-        PuntoMedio = { lat: LatitudpuntoMedio, lng: LongitudpuntoMedio };
-   
     }
     
     return (

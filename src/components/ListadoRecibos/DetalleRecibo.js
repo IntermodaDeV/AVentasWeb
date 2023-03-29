@@ -8,6 +8,7 @@ import styles from "components/ListadoRecibos/DetalleRecibo.module.css";
 import {APIKEY} from 'utils/Enviroment';
 const DetalleRecibo = (props) => {
   const { recibo } = props;
+  // eslint-disable-next-line
   const [maps, setMaps] = useState({ map: null, maps: null });
   let initialCoors = { lat: recibo.locationCliente.latitude,lng: recibo.locationCliente.longitude };
   let longitudCliente = recibo.locationCliente.longitude;
@@ -72,8 +73,6 @@ const DetalleRecibo = (props) => {
   let options = null;
   let color = "#FF0000";
   let zoom = 9;
-  let LatitudpuntoMedio = 0;
-  let LongitudpuntoMedio = 0;
   let distancia = 0;
   if(latitudCliente && longitudCliente)
   {
@@ -105,8 +104,6 @@ const DetalleRecibo = (props) => {
           radius: 30000,
           zIndex: 1
       }
-       LatitudpuntoMedio = (recibo.Latitude + latitudCliente) / 2
-       LongitudpuntoMedio = (recibo.Longitude + longitudCliente) / 2
   }
 
   return (
