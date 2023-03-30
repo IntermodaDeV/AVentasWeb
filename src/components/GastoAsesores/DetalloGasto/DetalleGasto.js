@@ -47,7 +47,7 @@ const DetalleGasto = (props) => {
                             imagen ?
                                 <div style={{ height: '300px', width: '80%', alignItems: "center" }} >
                                     <p style={{ textAlign: 'center' }}>
-                                        <img src={imagen} width="50%" height="auto" />
+                                        <img src={imagen} width="50%" height="auto" alt='imagengasto'/>
                                         <br />
                                         <span className="mr-1">
                                             <a href={imagen} download="factura.png" style={{ textDecoration: 'none' }}>

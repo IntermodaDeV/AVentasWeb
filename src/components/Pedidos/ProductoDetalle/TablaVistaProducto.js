@@ -15,7 +15,6 @@ import Checkbox from '@material-ui/core/Checkbox';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { useSelector } from 'react-redux';
-import { async } from 'rxjs/internal/scheduler/async';
 import { Dropdown } from "semantic-ui-react";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 const TablaVistaProducto = (props) => {    
@@ -65,7 +64,7 @@ const TablaVistaProducto = (props) => {
 
     const calcularStockPorColor = () => {
         props.producto.ListaColores.forEach(function (color) {
-            let stockColor = props.producto.fisicaDisponible.filter((e) => e.CodigoColor == color.CodigoColor).map((s) => s.Cantidad).reduce((a, b) => a + b, 0);
+            let stockColor = props.producto.fisicaDisponible.filter((e) => e.CodigoColor === color.CodigoColor).map((s) => s.Cantidad).reduce((a, b) => a + b, 0);
             color.StockColor = stockColor;
         });
     }
@@ -103,7 +102,7 @@ const TablaVistaProducto = (props) => {
     const inOut = async () => {
         try {
             let request = await axios.post(`${APIURL}/api/Product/actualizarInOutProducto/${props.producto.ProductoId}/${Coleccion.CodigoColeccion}`);
-            if (request.status == 200) {
+            if (request.status === 200) {
                 Coleccion.Edades.forEach(edad => {
                     let producto = edad.ProductosXEdad.find(p => p.CodigoProducto === props.producto.CodigoProducto);
                     if (producto) {
@@ -121,7 +120,7 @@ const TablaVistaProducto = (props) => {
         try {
             let request = await axios.post(`${APIURL}/api/Product/activarDeshabilitarPrducto/${props.producto.ProductoId}/${Coleccion.CodigoColeccion}`);
 
-            if (request.status == 200) {
+            if (request.status === 200) {
                 Coleccion.Edades.forEach(edad => {
                     let producto = edad.ProductosXEdad.find(p => p.CodigoProducto === props.producto.CodigoProducto);
                     if (producto) {
@@ -142,9 +141,9 @@ const TablaVistaProducto = (props) => {
             let request = await axios.post(`${APIURL}/api/Product/activasDeshabilitarColorPrducto/${IdColorxProducto}`);
             console.log(request);
 
-            if (request.status == 200) {
+            if (request.status === 200) {
 
-                let colorOriginal = props.producto.ListaColores.find(p => p.IdColorxProducto == IdColorxProducto);
+                let colorOriginal = props.producto.ListaColores.find(p => p.IdColorxProducto === IdColorxProducto);
                 colorOriginal.Deshabilitado = !colorOriginal.Deshabilitado;
 
                 ordenarColores()
@@ -175,7 +174,7 @@ const TablaVistaProducto = (props) => {
         try {
             let request = await axios.post(`${APIURL}/api/Product/actualizarPrioridadProducto/${props.producto.ProductoId}/${Coleccion.CodigoColeccion}/${prioridad}`);
 
-            if (request.status == 200) {
+            if (request.status === 200) {
                 Coleccion.Edades.forEach(edad => {
                     let producto = edad.ProductosXEdad.find(p => p.CodigoProducto === props.producto.CodigoProducto);
                     if (producto) {
@@ -202,12 +201,12 @@ const TablaVistaProducto = (props) => {
         try {
             let request = await axios.post(`${APIURL}/api/Product/actualizarPrioridadColorProducto/${IdColorxProducto}/${prioridad}`);
 
-            if (request.status == 200) {
+            if (request.status === 200) {
 
-                let color = listaColoresCopia.find(p => p.IdColorxProducto == IdColorxProducto);
+                let color = listaColoresCopia.find(p => p.IdColorxProducto === IdColorxProducto);
                 color.Prioridad = prioridad;
 
-                let colorOriginal = props.producto.ListaColores.find(p => p.IdColorxProducto == IdColorxProducto);
+                let colorOriginal = props.producto.ListaColores.find(p => p.IdColorxProducto === IdColorxProducto);
                 colorOriginal.Prioridad = prioridad;
 
                 setListaColoresCopia(listaColoresCopia);
@@ -473,7 +472,6 @@ const TablaVistaProducto = (props) => {
                             const hasImages = color.ListaImagenes.length > 0;
                             let totalXColor = 0;
                             let cantidadTotalXColor = 0;
-                            let i = color.length;
 
                             return (
                                 <tr key={index1}>

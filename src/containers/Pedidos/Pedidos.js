@@ -605,7 +605,7 @@ class Pedidos extends React.Component {
                 value[color.CodigoColor].Deshabilitado = color.Deshabilitado;
                 
                  value[color.CodigoColor].Prioridad = color.Prioridad;
-                 let StockColor = producto.fisicaDisponible.filter((e) => e.CodigoColor == color.CodigoColor).map((s) => s.Cantidad).reduce((a, b) => a + b, 0);
+                 let StockColor = producto.fisicaDisponible.filter((e) => e.CodigoColor === color.CodigoColor).map((s) => s.Cantidad).reduce((a, b) => a + b, 0);
                  value[color.CodigoColor].StockColor = StockColor;
 
                 value[color.CodigoColor].Tallas = {}

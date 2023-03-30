@@ -24,7 +24,6 @@ import { ObtenerCoordenadas } from 'utils/common';
 import { verificarConexion } from 'utils/http';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { post, postPedidoStorage } from 'utils/http';
-import { async } from 'rxjs/internal/scheduler/async';
 
 export const Recolocacion = (props) => {
     let fechaInicioEntrega = moment().toDate();
@@ -34,8 +33,10 @@ export const Recolocacion = (props) => {
     const [rma, setRma] = useState("");
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
+    // eslint-disable-next-line
     const [ErrorFirma, setErrorFirma] = useState(true);
     const [mostrarFirma, setMostrarFirma] = useState(false);
+    // eslint-disable-next-line
     const [ErrorFecha, setErrorFecha] = useState(false);
     const [FechaEntrega, setFechaEntrega] = useState(fechaInicioEntrega);
     const [loading, setLoading] = useState(false);
@@ -61,10 +62,6 @@ export const Recolocacion = (props) => {
     const bodega = bodegaMaestro.find(x => x.BodegaPrincipal === true && x.Estatus === true);
     const clienteImpuesto = clienteImpuestos.find(x => x.GRUPO === clienteSeleccionado.GrupoImpuesto);
     const moneda = Monedas.find(e => e.IdMoneda === clienteSeleccionado.Moneda).Abreviacion;
-
-    const tipoCreditoRecolocacion = (tcredit) => {
-        dispatch({ type: "SET_TIPOCREDITORECOLOCACION", payload: tcredit });
-    }
 
     const numberWithCommasNoDec = (x) => {
         var parts = x.toString().split(".");
@@ -107,7 +104,7 @@ export const Recolocacion = (props) => {
 
     const obtenerProductoRma = async () => {
         try {
-            if (rma != "") {
+            if (rma !== "") {
                 setTitle("Obteniendo productos de la devolución");
                 setOpen(true);
                 const grupoPrecio = clienteSeleccionado.GrupoPrecio;
@@ -318,9 +315,9 @@ export const Recolocacion = (props) => {
                 Almacen: bodega.Almacen
             };
 
-            Object.keys(tableValue).map((grupoTalla, index) => {
+            Object.keys(tableValue).forEach((grupoTalla, index) => {
                 let productos = Object.keys(tableValue[grupoTalla].Productos);
-                return productos.map((codigoProducto, index1) => {
+                productos.forEach((codigoProducto, index1) => {
                     let producto = tableValue[grupoTalla].Productos[codigoProducto];
 
                     Object.keys(producto.Colores).forEach((codigoColor) => {
@@ -396,7 +393,7 @@ export const Recolocacion = (props) => {
                         setLoading(false);
                         return;
                     }
-                    
+
                     const { mensaje } = data;
 
                     if (mensaje) {
@@ -503,7 +500,7 @@ export const Recolocacion = (props) => {
                             <hr />
                             <div style={{ marginTop: 10, marginBottom: 10 }}>
                                 <h3 style={{ textAlign: "center" }}>Información cliente traslado</h3>
-                                <div style={{display:"flex",justifyContent:"space-around",alignItems:"center"}}>
+                                <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center" }}>
                                     <h4>Codigo: {clienteSeleccionado.Codigo}</h4>
                                     <h4>Nombre: {clienteSeleccionado.Nombre}</h4>
                                 </div>
