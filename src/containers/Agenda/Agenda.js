@@ -69,8 +69,8 @@ class Agenda extends Component {
         valorPago: 0,
         OpenModalNoVenta: false,
         RazonNoVenta: [],
-        NoVentaSelected : null,
-        ComentarioRazonNoVenta : ''
+        NoVentaSelected: null,
+        ComentarioRazonNoVenta: ''
     }
 
     myRef = React.createRef();
@@ -209,7 +209,7 @@ class Agenda extends Component {
     cargarListadoRazonNoVenta = async () => {
         const { data/*, error*/ } = await get(`${this.urlApi}/api/razonnoventa/listado`);
         this.setState({ RazonNoVenta: data });
-          
+
     }
 
     enviarCheckinApi = async (location, check) => {
@@ -273,6 +273,14 @@ class Agenda extends Component {
         }
     }
 
+    alertPromesaPago =  (success, msjAsignacion) => {
+
+        if (success) {
+            return '<div style="background-color:#ABBAEA; border-radius: 0.5rem; padding: 20px 20px;"> <b> <FONT COLOR="black">' + msjAsignacion + '</FONT> </b> </div>';
+        }
+        return '<div style="background-color:red; border-radius: 0.5rem; padding: 20px 20px;"> <b> <FONT COLOR="white">' + msjAsignacion + ' </FONT> </b> </div>';
+    }
+
 
     enviarPromesaPago = async () => {
         try {
@@ -285,13 +293,19 @@ class Agenda extends Component {
 
             await axios.post(`${APIURL}/api/promesaPago/crear`, postBody, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            }).then((response) => {
+
+                console.log(this.alertPromesaPago(response.data.success, response.data.msjAsignacion).toString())
+
+                Swal.fire({
+                    title: 'Registro Guardado',
+                    html: response.data.msjPromesa + '<br>' +  this.alertPromesaPago(response.data.success, response.data.msjAsignacion).toString(),
+                    type: 'success',
+                    confirmButtonText: 'Ok',
+                    target: this.myRef.current
+                })
             });
-            Swal.fire({
-                title: 'Registro Guardado',
-                type: 'success',
-                confirmButtonText: 'Ok',
-                target: this.myRef.current
-            })
+
         } catch (err) {
             console.log("err", err)
             Swal.fire({
@@ -402,6 +416,7 @@ class Agenda extends Component {
                     let objetoCliente = {};
                     let Checkin = asignacion.Checkin;
                     let Checkout = asignacion.Checkout;
+                    let EsPromesaPago = (asignacion.EsPromesaPago) ? "============= VISITA PROMESA PAGO =============" : "";
 
 
                     this.state.clientes.some(clien => {
@@ -422,7 +437,7 @@ class Agenda extends Component {
                     })
 
                     var evento = {
-                        title: cliente,
+                        title: cliente + EsPromesaPago,
                         start: fechainicio,
                         end: fechaFin,
                         textColor: textColor,
@@ -513,7 +528,7 @@ class Agenda extends Component {
             razon: null,
             Observacion: '',
             clienteActivo: clienteActivo,
-            ComentarioRazonNoVenta : ''
+            ComentarioRazonNoVenta: ''
         });
 
         this.setState({
@@ -602,7 +617,7 @@ class Agenda extends Component {
 
     opcionRazonNoVenta = () => {
         const opciones = [];
-        this.state.RazonNoVenta.filter(x=> x.Activo === true).map((razon) => {
+        this.state.RazonNoVenta.filter(x => x.Activo === true).map((razon) => {
             let opcion = (
                 <MenuItem key={razon.razonId} value={razon.razonId}>{razon.RazonNoVenta}</MenuItem>
             )
@@ -646,7 +661,7 @@ class Agenda extends Component {
         });
         return opciones
     }
-    
+
     onChangeAsesor = () => {
         /*this.cargarClientes();
         var eventos = this.setAsignaciones(this.state.Asignaciones);
@@ -678,7 +693,7 @@ class Agenda extends Component {
             NoVentaSelected: event.target.value,
         })
     }
-    
+
     handleChangeCausa = (event) => {
         this.setState({
             razon: event.target.value,
@@ -967,10 +982,10 @@ class Agenda extends Component {
     registrarCheckOut = async () => {
         const request = await axios.get(`${APIURL}/api/asignaciones/reporte/${this.state.clienteActivo.codigo}`);
         let visita = request.data.filter(x => moment(x.FechaAsignacion).format("DD/MM/YYYY") === moment().format("DD/MM/YYYY"))
-        if(visita[0].Cobros === 0 && visita[0].Promesa_de_Pago === 0 && visita[0].Ventas === 0){
+        if (visita[0].Cobros === 0 && visita[0].Promesa_de_Pago === 0 && visita[0].Ventas === 0) {
             this.openModalRazonNoVenta()
         }
-        else{
+        else {
             this.enviarCheckin("checkout")
         }
     }
@@ -1170,7 +1185,7 @@ class Agenda extends Component {
 
                                                         {!this.verifyBlock("checkin")
                                                             ? <Button disabled={this.verifyBlock("checkin")} variant="outlined" onClick={() => { this.enviarCheckin("checkin") }} color="primary">Check In</Button>
-                                                            : <Button disabled={this.verifyBlock("checkout")} variant="outlined" onClick={() => { this.registrarCheckOut()}} color="primary">Check Out</Button>}
+                                                            : <Button disabled={this.verifyBlock("checkout")} variant="outlined" onClick={() => { this.registrarCheckOut() }} color="primary">Check Out</Button>}
                                                     </FormGroup>}
                                                 </div>
                                             </div>
@@ -1272,7 +1287,7 @@ class Agenda extends Component {
                                 color="primary"
                                 className={"py-1"}
                                 style={{ height: '35px' }}
-                                onClick={() => this.enviarRazonesNoVenta()}> 
+                                onClick={() => this.enviarRazonesNoVenta()}>
                                 Guardar
                             </Button>
                         </DialogActions>
