@@ -7,13 +7,13 @@ import { Dropdown } from "semantic-ui-react";
 import { Dialog, DialogActions, DialogContent, DialogTitle, DialogContentText, Button, Select, MenuItem } from '@material-ui/core';
 import { ScaleLoader } from 'react-spinners';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import Loader from 'components/Global/Loader';
 import 'containers/Asignacion/Asignacion.css';
 import styles from './Asignacion.module.css';
 import AsignacionModal from 'components/Agenda/AsignacionModal';
 import CargarAsignaciones from 'components/Agenda/CargarAsignaciones';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import { IsAllow } from 'components/Seguridad/Permisos';
 import 'sweetalert2/src/sweetalert2.scss'
 import { verificarConexion } from 'utils/http';
 import {
@@ -21,7 +21,7 @@ import {
     CardBody,
     CardHeader
 } from 'reactstrap';
-import {connect} from 'react-redux';
+import { connect } from 'react-redux';
 import moment from "moment";
 import axios from 'axios'
 moment.locale('es');
@@ -50,16 +50,49 @@ class Asignacion extends Component {
         TipoVisitaClienteDialogValue: '',
         TipoValues: [],
         TipoInitialValues: [],
-        ArrayTipoValues : [],
-        showCargar:false,
+        ArrayTipoValues: [],
+        showCargar: false,
         Asesores: [],
         AsesorSelected: null,
-        RutasSinFiltro : [],
-        IdAsignacion:null
+        RutasSinFiltro: [],
+        IdAsignacion: null,
+        limpiarAsignacionesShow: false,
     }
 
-    setCargar = (show)=>{
-        this.setState((prevState)=>({...prevState,showCargar:show}))
+    setCargar = (show) => {
+        this.setState((prevState) => ({ ...prevState, showCargar: show }))
+    }
+
+    limpiarAsignacionesShow = async (show) => {
+        this.setState({ limpiarAsignacionesShow: show })
+    }
+
+    mostrarAdvertencia = (title, text, type) => {
+        Swal.fire({
+            title: title,
+            text: text,
+            type: type,
+            confirmButtonText: 'Ok',
+        })
+    }
+
+    limpiarAsignaciones = async () => {
+
+        this.setState({ limpiarAsignacionesShow: false })
+        try {
+            const request = await axios.post(`${APIURL}/api/asignaciones/limpiarAsignaciones/${this.state.AsesorSelected}`);
+            console.log(request.data)
+            if (request.data > 0) {
+                this.mostrarAdvertencia("Asignaciones", "Se limpiaron las asignaciones corectamente", "success")
+                return;
+            } else {
+                this.mostrarAdvertencia("Asignaciones", "No se encontraron asignaciones para limpiar", "warning")
+                return;
+            }
+
+        } catch (err) {
+            this.mostrarAdvertencia("Error", "No se pudo limpiar las asignaciones", "error");
+        }
     }
 
     cargarClientes = () => {
@@ -89,7 +122,7 @@ class Asignacion extends Component {
                                         }
                                         return false;
                                     });*/
-                                let Asesor = Array.from(new Set(result.map(s=> s.Asesor)));
+                                let Asesor = Array.from(new Set(result.map(s => s.Asesor)));
                                 let Asesores = [];
                                 let AsesorSelect = null;
                                 // eslint-disable-next-line
@@ -101,19 +134,19 @@ class Asignacion extends Component {
                                     Asesores.push(Valores);
                                 })
 
-                                let Rutas = Array.from(new Set(result.map(s=> s.CodigoRuta)))
-                                .map(CodigoRuta => {
-                                    return {
-                                        Ruta : result.find(s => s.CodigoRuta === CodigoRuta).Ruta,
-                                        Codigo : CodigoRuta,
-                                        Asesor : result.find(s => s.CodigoRuta === CodigoRuta).Asesor,
-                                    };
-                                });
+                                let Rutas = Array.from(new Set(result.map(s => s.CodigoRuta)))
+                                    .map(CodigoRuta => {
+                                        return {
+                                            Ruta: result.find(s => s.CodigoRuta === CodigoRuta).Ruta,
+                                            Codigo: CodigoRuta,
+                                            Asesor: result.find(s => s.CodigoRuta === CodigoRuta).Asesor,
+                                        };
+                                    });
 
                                 let DropdownRutas = [];
                                 let RutaSelected = null;
 
-                                Rutas.filter(r=> r.Asesor === AsesorSelect).map((Ruta, ind) => {
+                                Rutas.filter(r => r.Asesor === AsesorSelect).map((Ruta, ind) => {
                                     if (ind === 0) {
                                         RutaSelected = Ruta.Ruta;
                                     }
@@ -128,8 +161,8 @@ class Asignacion extends Component {
                                     clientes: result,
                                     isLoaded: true,
                                     Asesores: Asesores,
-                                    AsesorSelected : AsesorSelect,
-                                    RutasSinFiltro : Rutas
+                                    AsesorSelected: AsesorSelect,
+                                    RutasSinFiltro: Rutas
                                 })
 
                             },
@@ -172,14 +205,14 @@ class Asignacion extends Component {
 
             })
     }
-    
+
     cargarTiposAsignacionCliente = () => {
-        this.setState((prevState)=>({...prevState,TiposVisitaCliente:this.props.TipoVisita}));
+        this.setState((prevState) => ({ ...prevState, TiposVisitaCliente: this.props.TipoVisita }));
         this.getTipos(this.props.TipoVisita);
     }
 
     cargarTiempoEstimado = () => {
-        this.setState((prevState)=>({...prevState,LoadedTiempoEstimado:true,Configuraciones:this.props.Configuraciones}))
+        this.setState((prevState) => ({ ...prevState, LoadedTiempoEstimado: true, Configuraciones: this.props.Configuraciones }))
     }
 
     cargarPrioridadesAsignacion = () => {
@@ -268,7 +301,7 @@ class Asignacion extends Component {
         this.setState({
             TipoValues: ArrayValues,
             TipoInitialValues: ArrayInitalValues,
-            ArrayTipoValues : ArrayInitalValues
+            ArrayTipoValues: ArrayInitalValues
         });
     }
 
@@ -297,13 +330,12 @@ class Asignacion extends Component {
     }
 
     async componentDidMount() {
-        if(!IsAllow("/asignacion"))
-        {
+        if (!IsAllow("/asignacion")) {
             this.props.history.push('/home');
         }
 
         const isOnline = await verificarConexion();
-        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
                 title: "Sin internet",
                 text: "Necesita internet para poder visualizar esta pagina.",
@@ -311,7 +343,7 @@ class Asignacion extends Component {
                 confirmButtonText: 'Ok',
             });
             this.setState((prevState) => ({ ...prevState, isLoaded: true }))
-        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+        } else if (localStorage.getItem("Conexion") === "Online" && isOnline) {
 
             this.cargarClientes();
             this.cargarAsignaciones(this.state.startDate, this.state.endDate);
@@ -351,7 +383,7 @@ class Asignacion extends Component {
                             <CardBody>
 
                                 <div className="row">
-                                    <div className='col-lg-2 my-lg-0 col-6 my-1'>
+                                    <div className='col-lg-1 my-lg-0 col-6 my-1'>
                                         <DatePicker
                                             disableToolbar
                                             autoOk
@@ -364,7 +396,7 @@ class Asignacion extends Component {
                                         />
 
                                     </div>
-                                    <div className='col-lg-2 my-lg-0 col-6 my-1'>
+                                    <div className='col-lg-1 my-lg-0 col-6 my-1'>
                                         <DatePicker
                                             disableToolbar
                                             autoOk
@@ -425,15 +457,61 @@ class Asignacion extends Component {
                                             }
                                         </Button>
                                     </div>
+                                    <div className="col-lg-2 my-lg-0 col-6 my-1" style={{ paddingTop: 15 }}>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => { this.setCargar(true) }}>
+                                            Cargar asignaciones
+                                        </Button>
+                                    </div>
+
                                     <div style={{ paddingTop: 15 }}>
                                         <Button
                                             variant="outlined"
-                                            color="primary"                                           
-                                            onClick={() =>{this.setCargar(true)}}>
-                                            Cargar asignaciones
+                                            color="primary"
+                                            onClick={() => { this.limpiarAsignacionesShow(true) }}>
+                                            Liberar Asignaciones
                                         </Button>
-                                    </div>      
+                                    </div>
+
                                 </div>
+
+                                {/* <LimpiarAsignaciones
+                                showDialog={this.state.limpiarAsignacionesShow}
+                                AsesorSelected={this.state.AsesorSelected}
+                                /> */}
+
+                                 <Dialog
+                                    open={this.state.limpiarAsignacionesShow}
+                                >
+                                    <DialogTitle id="scroll-dialog-title">
+                                        <h2>Liberar asignaciones</h2>
+                                    </DialogTitle>
+                                    <DialogContent>
+                                        <div >
+                                            <p>¿Estas seguro de liberar las asignaciones de <strong>{this.state.AsesorSelected}</strong>?</p>
+                                        </div>
+                                        <br>
+                                        </br>
+                                        <br>
+                                        </br>
+
+                                        <Button
+                                            onClick={() => { this.limpiarAsignacionesShow(false) }}
+                                            color="primary"
+                                            variant="outlined">
+                                            Cancelar
+                                        </Button>
+                                        <Button
+                                            onClick={() => { this.limpiarAsignaciones() }}
+                                            color="primary"
+                                            variant="outlined">
+                                            Limpiar
+                                        </Button>
+                                    </DialogContent>
+                                </Dialog> 
+
                                 <div>
                                     {
                                         this.state.ShowTable &&
@@ -456,13 +534,13 @@ class Asignacion extends Component {
                         handleFechaDialogInicio={this.handleFechaDialogInicio}
                         handleInputChange={this.handleInputChange}
                         handleInputEdit={this.handleInputEdit}
-                        TipoValues={this.state.TipoInitialValues} 
+                        TipoValues={this.state.TipoInitialValues}
                         fechaAsignacion={this.state.FechaAsignacion} />
 
-                        <CargarAsignaciones
-                            showDialog={this.state.showCargar}
-                            setDialog={this.setCargar}
-                        />
+                    <CargarAsignaciones
+                        showDialog={this.state.showCargar}
+                        setDialog={this.setCargar}
+                    />
 
                     <Dialog
                         fullWidth={false}
@@ -628,14 +706,14 @@ class Asignacion extends Component {
                                 </Button>
                                 {
                                     this.state.ButtonQuitarDisabled ? null :
-                                    <>
-                                        <Button onClick={() => this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion)} color="primary">
-                                            Quitar
-                                    </Button>
-                                    {this.state.IdAsignacion && (<Button onClick={this.eliminarAsignacion} color="primary">
-                                            Eliminar
-                                    </Button>)}
-                                    </>
+                                        <>
+                                            <Button onClick={() => this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion)} color="primary">
+                                                Quitar
+                                            </Button>
+                                            {this.state.IdAsignacion && (<Button onClick={this.eliminarAsignacion} color="primary">
+                                                Eliminar
+                                            </Button>)}
+                                        </>
                                 }
 
                                 <Button onClick={() => this.state.ButtonQuitarDisabled ? this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion) : this.handleInputEdit(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion)} color="primary">
@@ -739,22 +817,22 @@ class Asignacion extends Component {
         });
     }
     handleOnChangeAsesor = (value) => {
-       let RutaFiltrada = this.state.RutasSinFiltro.filter(r => r.Asesor === value);
-       let DropdownRutas = [];
-       let RutaSelected = null;
+        let RutaFiltrada = this.state.RutasSinFiltro.filter(r => r.Asesor === value);
+        let DropdownRutas = [];
+        let RutaSelected = null;
 
-       RutaFiltrada.map((Ruta, ind) => {
-           if (ind === 0) {
-               RutaSelected = Ruta.Ruta;
-           }
-           let Opciones = { key: Ruta.Codigo, value: Ruta.Ruta, text: Ruta.Codigo + " - " + Ruta.Ruta }
-           DropdownRutas.push(Opciones);
-           return true;
-       })
+        RutaFiltrada.map((Ruta, ind) => {
+            if (ind === 0) {
+                RutaSelected = Ruta.Ruta;
+            }
+            let Opciones = { key: Ruta.Codigo, value: Ruta.Ruta, text: Ruta.Codigo + " - " + Ruta.Ruta }
+            DropdownRutas.push(Opciones);
+            return true;
+        })
         this.setState({
-            AsesorSelected : value,
+            AsesorSelected: value,
             Rutas: DropdownRutas,
-            RutaSelected : RutaSelected
+            RutaSelected: RutaSelected
         });
     }
     handleFechaDialogInicio = (fecha) => {
@@ -917,7 +995,7 @@ class Asignacion extends Component {
 
                         prioridad = ListaAsignaciones[asignacionIndex].IdPrioridad;
                         tipoVisita = ListaAsignaciones[asignacionIndex].IdTipoVisita
-                        this.setState((prevState)=>({...prevState,IdAsignacion:ListaAsignaciones[asignacionIndex].IdAsignacionxAsesor}));
+                        this.setState((prevState) => ({ ...prevState, IdAsignacion: ListaAsignaciones[asignacionIndex].IdAsignacionxAsesor }));
                     }
 
                 }
@@ -1041,9 +1119,9 @@ class Asignacion extends Component {
             timer: 3000
         });
 
-       if (Date.parse(this.state.HoraDialogInicio) > Date.parse(this.state.HoraDialogFin)) {
-            
-        Toast.fire({
+        if (Date.parse(this.state.HoraDialogInicio) > Date.parse(this.state.HoraDialogFin)) {
+
+            Toast.fire({
                 type: 'error',
                 title: 'Ingrese Fecha Válida',
                 customClass: {
@@ -1062,7 +1140,7 @@ class Asignacion extends Component {
             let fechafinValid = this.isValidDate(this.state.HoraDialogFin);
             let finTiempoValid = this.state.FechaFinDialog !== "";
             let fechasValidas = fechainiValid && fechafinValid && finTiempoValid;
-            
+
             if (!fechasValidas) {
 
                 Toast.fire({
@@ -1152,7 +1230,7 @@ class Asignacion extends Component {
             this.setState({
                 Asignaciones: asignaciones,
                 ShowDialog: false,
-                TipoValues : this.state.TipoInitialValues
+                TipoValues: this.state.TipoInitialValues
             })
             this.cargarTiposAsignacionCliente();
 
@@ -1338,9 +1416,9 @@ const getRadio = (Color, ColorChecked) => {
     return <RadioColor />;
 }
 
-const mapStateToProps = state =>({
-    Configuraciones:state.Configuraciones,
-    TipoVisita:state.TipoVisita
+const mapStateToProps = state => ({
+    Configuraciones: state.Configuraciones,
+    TipoVisita: state.TipoVisita
 })
 
 export default connect(mapStateToProps)(Asignacion);

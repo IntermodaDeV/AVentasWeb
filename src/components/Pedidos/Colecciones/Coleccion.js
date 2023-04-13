@@ -237,7 +237,8 @@ const Coleccion = (props) => {
     })
   }
   const obtenerInventario = async () => {
-    const request = await axios.get(`${APIURL}/api/colecciones/inventario/${props.coleccion.CodigoColeccion}`)
+ 
+    const request = await axios.get(`${APIURL}/api/colecciones/inventario/${props.coleccion.IdColeccion}`)
 
     if (request.data.length === 0) {
       mostrarAdvertencia("Sin Inventario", "No hay inventario disponible", "info")
