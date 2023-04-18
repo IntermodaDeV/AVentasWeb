@@ -66,6 +66,7 @@ import { CategoriaGasto } from 'components/GastoAsesores/CategoriaGasto/Categori
 import { GrupoImpuesto } from 'components/GastoAsesores/GrupoImpuestos/GrupoImpuesto'
 import GastosRechazar from 'containers/GastosAsesores/GastosRechazar'
 import { SeguimientoCalidad } from 'containers/Devoluciones/ListadoDevolucion/SeguimientoCalidad'
+import { SincronizacionEspecifica } from 'containers/Sincronizacion/SincronizacionEspecifica'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -301,6 +302,12 @@ const App = props => {
               path='/sincronizacionListaMonitor'
               layout={MainLayout}
               component={SincronizacionListaMonitor}
+            />
+            <LayoutRoute
+              exact
+              path='/sincronizacionEspecifica'
+              layout={MainLayout}
+              component={SincronizacionEspecifica}
             />
             <LayoutRoute
               exact

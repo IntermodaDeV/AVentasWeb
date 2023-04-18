@@ -151,7 +151,8 @@ const navItems = [
             { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr, backgroundColor:''  },
             //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
             { to: '/sincronizacion-especifica-coleccion', name: 'Colección Específica', dataTut: 'DataTut_SincLista', Icon: ViewCompact, backgroundColor:''  },
-            { to: '/sincronizacion-especifica-cliente', name: 'Cliente Específica', dataTut: 'DataTut_SincLista', Icon: AccountBox, backgroundColor:''  }
+            { to: '/sincronizacion-especifica-cliente', name: 'Cliente Específica', dataTut: 'DataTut_SincLista', Icon: AccountBox, backgroundColor:''  },
+            { to: '/sincronizacionEspecifica', name: 'Sincronización Especifica', dataTut: 'DataTut_SincLista', Icon: SyncAlt, backgroundColor:''  }
         ]
     },
     {
