@@ -149,7 +149,7 @@ const Gastos = (props) => {
         doc.setFontSize(10);
 
 
-        const headers = [['#', 'Tipo', 'Categoria', 'Descripcion', 'Fecha', 'Importe Gravado', 'Importe Exento', 'Valor']];
+        const headers = [['#', 'Tipo', 'Categoria', 'Descripcion', 'Fecha', (localStorage.getItem("empresa") == "IMHN" ? "Importe Gracado" : "-" ), (localStorage.getItem("empresa") == "IMHN" ? "Importe Exento" : "Cantidad / Importe Exento" ), 'Valor']];
 
         let date = new Date();
         let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;

@@ -172,7 +172,7 @@ const GastosPendientes = (props) => {
                 gasto.NoFactura,
                 gasto.Descripcion == null ? '-' : gasto.Descripcion,
                 gasto.importeExento,
-                gasto.importeGravado,
+                (localStorage.getItem("empresa") == "IMHN" ? gasto.importeGravado : gasto.ValorFactura ),
                 moment(gasto.FechaFactura).format("DD/MM/YYYY"),
                 moment(gasto.FechaCreacion).format("DD/MM/YYYY HH:MM"),
                 <div>
@@ -275,7 +275,7 @@ const GastosPendientes = (props) => {
         },
         {
             name: "importeExento",
-            label: "Importe Exento",
+            label: (localStorage.getItem("empresa") == "IMHN" ? "Importe Exento" : "Cantidad / Importe Exento" ),
             Option: {
                 filter: true,
                 sort: true,
@@ -287,8 +287,8 @@ const GastosPendientes = (props) => {
             }
         },
         {
-            name: "importeGravado",
-            label: "Importe Gravado",
+            name: (localStorage.getItem("empresa") == "IMHN" ? "importeGravado" : "ValorFactura" ),
+            label: (localStorage.getItem("empresa") == "IMHN" ? "Importe Gravado" : "Total" ),
             Option: {
                 filter: true,
                 sort: true,

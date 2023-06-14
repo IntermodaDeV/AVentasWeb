@@ -23,6 +23,7 @@ const TablacategoriasGasto = (props) => {
                                     <th style={{ textAlign: 'center' }}>Empresa</th>
                                     <th style={{ textAlign: 'center' }}>Tipo</th>
                                     <th style={{ textAlign: 'center' }}>Categoria</th>
+                                    <th style={{ textAlign: 'center' }}>Grupo Impuestos</th>
                                     <th style={{ textAlign: 'center' }}>Proveedor Predefinido</th>
                                     <th style={{ textAlign: 'center' }}>CuentaContrapartida</th>
                                     <th style={{ textAlign: 'center' }}>Factura Obligatoria</th>                                    
@@ -40,6 +41,7 @@ const TablacategoriasGasto = (props) => {
                                         <td style={{ textAlign: 'center' }}>{tip.Empresa}</td>
                                         <td style={{ textAlign: 'center' }}>{tip.TipoNombre}</td>
                                         <td style={{ textAlign: 'center' }}>{tip.CategoriaNombre}</td>
+                                        <td style={{ textAlign: 'center' }}>{tip.GrupoImpuesto}</td>
                                         <td style={{ textAlign: 'center' }}>{tip.ProveedorPredefinido}</td>
                                         <td style={{ textAlign: 'center' }}>{tip.CuentaContrapartida}</td>
                                         <th style={{ textAlign: 'center', color: tip.FacturaObligatoria ? "green" : "red" }}>{tip.FacturaObligatoria ? <p>SI <MdCheckCircle /> </p> : <p>NO <MdCancel /> </p>}</th>
