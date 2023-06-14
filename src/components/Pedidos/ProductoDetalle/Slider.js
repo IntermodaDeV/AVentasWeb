@@ -3,6 +3,7 @@ import Slider from "react-slick";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { IoIosArrowRoundBack, IoIosArrowRoundForward } from "react-icons/io";
 import styles from 'components/Pedidos/ProductoDetalle/VistaProducto.module.css';
+import stylesD from 'components/Pedidos/ProductoLista/Producto.module.css';
 import 'slick-carousel/slick/slick-theme.css';
 import 'slick-carousel/slick/slick.css';
 
@@ -85,6 +86,7 @@ const SliderFunction = (props) => {
                                 return (
                                     <>
                                         <div key={index} className="w-100 row justify-content-center d-flex">
+                                            {props.ListaImagenes.Deshabilitado && <div className={stylesD.soldOut} >Cerrado</div>}
                                             <img className={styles.ImagenProducto} alt="foto" src={imagen.FotografiaProducto} />
                                         </div>
                                     </>
@@ -113,7 +115,7 @@ const SliderFunction = (props) => {
                     </div>
                 }
             </div>
-            <h4 style={{ textAlign: 'center', display: 'block',fontWeight:'bolder' }}>{props.color}</h4>
+            <h4 style={{ textAlign: 'center', display: 'block', fontWeight: 'bolder' }}>{props.color}</h4>
         </>
     )
 }

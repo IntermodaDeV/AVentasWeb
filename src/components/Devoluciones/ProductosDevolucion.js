@@ -195,15 +195,15 @@ export const ProductosDevolucion = (props) => {
     }
 
     const dataMotivos = () => {
-        return motivosDevolucionMaestro.map(x => ({ key: x.codigo, value: x.id, text: x.descripcion }));
+        return motivosDevolucionMaestro.map(x => ({ key: x.codigo, value: x.id, text: `${x.codigo} - ${x.descripcion}` }));
     }
 
     const dataMotivosDetalle = () => {
-        return motivosDevolucionDetalle.map(x => ({ key: x.codigo, value: x.id, text: x.descripcion }));
+        return motivosDevolucionDetalle.map(x => ({ key: x.codigo, value: x.id, text: `${x.codigo} - ${x.descripcion}` }));
     }
 
     const dataAlmacen = () => {
-        return almacenes.map(x => ({ key: x.Almacen, value: x.Almacen, text: x.Almacen + " - "  + x.Nombre}));
+        return almacenes.map(x => ({ key: x.Almacen, value: x.Almacen, text: x.Almacen + " - " + x.Nombre }));
     }
 
     useEffect(() => {
@@ -565,7 +565,7 @@ export const ProductosDevolucion = (props) => {
                 Moneda: clienteSelected.Moneda,
                 MotivoDevolucion: motivoDevolucion,
                 MotivoDevolucionDetalle: motivoDevolucionDetalle,
-                Almacen :almaceneSelected,
+                Almacen: almaceneSelected,
                 FacturaOriginal: productoFactura.Factura,
                 PedidoOriginal: productoFactura.NumeroPedido,
                 Linea: productoFactura.Linea,
@@ -581,7 +581,7 @@ export const ProductosDevolucion = (props) => {
             Moneda: clienteSelected.Moneda,
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
-            Almacen :almaceneSelected,
+            Almacen: almaceneSelected,
             FacturaOriginal: factura.factura,
             PedidoOriginal: factura.pedido,
             Linea: factura.linea,
@@ -632,7 +632,7 @@ export const ProductosDevolucion = (props) => {
             Moneda: clienteSelected.Moneda,
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
-            Almacen:almaceneSelected,
+            Almacen: almaceneSelected,
             FacturaOriginal: "",
             PedidoOriginal: "",
             Linea: "DEN",
@@ -728,12 +728,12 @@ export const ProductosDevolucion = (props) => {
             } else {
                 devoluciones[i].Correlativo = generarCorrelativoParcial(devoluciones[i - 1].Correlativo);
             }
-            
+
             if (devoluciones[i].Empresa === "IMGT" || devoluciones[i].Empresa === "IMCR") {
-                if(devoluciones[i].FacturaOriginal === "" || devoluciones[i].FacturaOriginal === "SIN-FACTURA"){
+                if (devoluciones[i].FacturaOriginal === "" || devoluciones[i].FacturaOriginal === "SIN-FACTURA") {
                     mostrarModal("Sin Factura", "No puede registrar devolucion sin seleccionar factura origen.", "error");
                     return;
-                }  
+                }
             }
         }
 
@@ -875,7 +875,7 @@ export const ProductosDevolucion = (props) => {
                                 closeOnChange={true}
                                 style={{ zIndex: 999, width: '28%' }}
                                 multiple={false}
-                                onChange={(e, {          value }) => { handleChangeAlmacen(value) }}
+                                onChange={(e, { value }) => { handleChangeAlmacen(value) }}
                                 value={almaceneSelected}
                             />
                             <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
@@ -925,7 +925,7 @@ export const ProductosDevolucion = (props) => {
                                         let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
                                         let productoConCantidad = false;
                                         let { totalCantidad } = obtenerTotales(producto);
-                                        totalCant +=totalCantidad;
+                                        totalCant += totalCantidad;
                                         Object.keys(producto.Colores).forEach((codigoColor) => {
                                             let color = producto.Colores[codigoColor];
                                             Object.keys(color.Tallas).forEach((codigoTalla) => {
@@ -958,7 +958,7 @@ export const ProductosDevolucion = (props) => {
                             </form>
                             <div className={`row text-center ${styles['barra']}`} >
                                 <div className={`col ${styles['barraInner']}`}>
-                                   Total de Unidades: {numberWithCommasNoDec(totalCant)}
+                                    Total de Unidades: {numberWithCommasNoDec(totalCant)}
                                 </div>
                                 <div >
                                     <button onClick={finalizarDevolucion} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Finalizar devolución</button>

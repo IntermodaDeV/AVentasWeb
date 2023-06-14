@@ -21,10 +21,12 @@ const ProductoTable = (props) => {
     const [SelectedImage, setSelectedImage] = useState(0);
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [IsOpen, setIsOpen] = useState(false);
-    const Configuraciones = useSelector(e=>e.Configuraciones);
+    const Configuraciones = useSelector(e => e.Configuraciones);
 
     let ArregloProductos = Object.keys(props.producto.Colores).map((key) => ([key, props.producto.Colores[key]]));
-    ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1);
+    ArregloProductos.sort((a, b) => a[1].NombreColor < b[1].NombreColor ? -1 : 1)
+                    .sort((a, b) => a[1].StockColor > b[1].StockColor ? 1 : -1)
+                    .sort((a, b) => a[1].Prioridad > b[1].Prioridad ? -1 : 1);
 
     useEffect(() => {
         setDirty(props.mostrarVacios);
@@ -178,7 +180,7 @@ const ProductoTable = (props) => {
                         </PopupState>
                         <div className="pl-2">
                             <FiTrash2 className={styles.FiTrash2} onClick={() => EliminarProducto(props.grupoTalla, props.codigoProducto, props.producto.NombreProducto)} />
-                        {props.producto.CantidadMinima>0 && <span style={{color:"red",fontSize:13,fontWeight:'bold'}}>Este producto se vende en múltiplos de {props.producto.CantidadMinima}</span>}
+                            {props.producto.CantidadMinima > 0 && <span style={{ color: "red", fontSize: 13, fontWeight: 'bold' }}>Este producto se vende en múltiplos de {props.producto.CantidadMinima}</span>}
                         </div>
                     </div>
 
@@ -253,11 +255,11 @@ const ProductoTable = (props) => {
                                 var valorTalla = color.Tallas[codigoTalla];
                                 var backOrder = (valorTalla.Cantidad > valorTalla.Disponible) ? (valorTalla.Cantidad - valorTalla.Disponible) : 0;
 
-                                
+
                                 let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-                                let totalXTalla = cantidadXTalla*valorTalla.Precio;
-                                cantidadTotalXColor+=cantidadXTalla;
-                                totalXColor =  parseInt(totalXColor, 10) +totalXTalla;
+                                let totalXTalla = cantidadXTalla * valorTalla.Precio;
+                                cantidadTotalXColor += cantidadXTalla;
+                                totalXColor = parseInt(totalXColor, 10) + totalXTalla;
 
 
                                 return (
@@ -282,6 +284,7 @@ const ProductoTable = (props) => {
                                         CrearDetallePedidoOnline={props.CrearDetallePedidoOnline}
                                         cantidadMinima={props.producto.CantidadMinima}
                                         stockVisibleFuturo={props.producto.StockVisible}
+                                        Deshabilitado = {color.Deshabilitado}
                                     />
                                 )
                             })

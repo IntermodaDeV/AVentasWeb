@@ -9,7 +9,8 @@ import { getGeopostion } from './utils/geopostioning'
 import { EmptyLayout, LayoutRoute, MainLayout } from 'components/Layout'
 import AuthModalPage from 'containers/Authorize/AuthModalPage'
 import AuthPage from 'containers/Authorize/AuthPage'
-import Pedidos from 'containers/Pedidos/Pedidos'
+import Pedidos from 'containers/Pedidos/Pedidos' 
+import {RecolocacionPedido} from 'containers/RecolocacionPedido/RecolocacionPedido' 
 import Recibos from 'containers/Recibos/Recibos'
 import Fotografia from 'containers/Fotografias/Fotografias'
 import CuentaCorriente from 'containers/CuentaCorriente/CuentaCorriente'
@@ -64,6 +65,8 @@ import GastosNoSync from 'containers/GastosAsesores/GastosNoSync'
 import { CategoriaGasto } from 'components/GastoAsesores/CategoriaGasto/CategoriaGasto'
 import { GrupoImpuesto } from 'components/GastoAsesores/GrupoImpuestos/GrupoImpuesto'
 import GastosRechazar from 'containers/GastosAsesores/GastosRechazar'
+import { SeguimientoCalidad } from 'containers/Devoluciones/ListadoDevolucion/SeguimientoCalidad'
+import { SincronizacionEspecifica } from 'containers/Sincronizacion/SincronizacionEspecifica'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -134,6 +137,11 @@ const App = props => {
               path='/pedidos'
               layout={MainLayout}
               component={Pedidos}
+            />
+            <LayoutRoute
+              path='/recolocacion-pedido'
+              layout={MainLayout}
+              component={RecolocacionPedido}
             />
             <LayoutRoute
               exact
@@ -297,6 +305,12 @@ const App = props => {
             />
             <LayoutRoute
               exact
+              path='/sincronizacionEspecifica'
+              layout={MainLayout}
+              component={SincronizacionEspecifica}
+            />
+            <LayoutRoute
+              exact
               path='/configuracion-paquete-bodega'
               layout={MainLayout}
               component={PaqueteBodega}
@@ -318,7 +332,7 @@ const App = props => {
               path='/configuracion-RazonesNoVenta'
               layout={MainLayout}
               component={RazonesNoVenta}
-              />
+            />
             <LayoutRoute
               path='/seguridad-mantenimiento'
               layout={MainLayout}
@@ -429,6 +443,11 @@ const App = props => {
               path='/GiraAsesores/GastosNoSincronizados'
               layout={MainLayout}
               component={GastosNoSync}
+            />
+            <LayoutRoute
+              path='/seguimientoCalidad'
+              layout={MainLayout}
+              component={SeguimientoCalidad}
             />
             <Redirect to='/home' />
           </Switch>

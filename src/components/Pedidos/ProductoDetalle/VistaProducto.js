@@ -18,7 +18,7 @@ import { EliminarImagenModal } from 'components/Pedidos/ProductoDetalle/Eliminar
 
 const VistaProducto = (props) => {
     const [precioProducto, setPrecio] = useState(undefined);
-    const [color,setColor] = useState('');
+    const [color, setColor] = useState('');
     const [selected, setselected] = useState(false);
     const [hasBackOrder, setHasBackOrder] = useState("N");
     const [listaImagenes, setListaImagenes] = useState(props.producto.ListaImagenes);
@@ -103,6 +103,7 @@ const VistaProducto = (props) => {
     const setListaImagenesPrincipal = (color) => {
         setColor(color);
         const imagenesColor = props.producto.ListaColores.filter(e => e.NombreColor === color);
+        imagenesColor[0].ListaImagenes.Deshabilitado = imagenesColor[0].Deshabilitado;
         setListaImagenes(imagenesColor[0].ListaImagenes);
     }
 
@@ -118,7 +119,7 @@ const VistaProducto = (props) => {
             }
         }
 
-        if(found && !selected){
+        if (found && !selected) {
             toggleSelect();
         }
 
@@ -132,7 +133,7 @@ const VistaProducto = (props) => {
     const deshabilitarProducto = async () => {
         try {
             const data = { Coleccion: props.coleccion.IdColeccion, Pais: props.coleccion.EmpresaId, Producto: props.producto.ProductoId };
-            const request = await axios.post(`${APIURL}/api/ColeccionesXLinea/deshabilitarproducto`, data);
+            await axios.post(`${APIURL}/api/ColeccionesXLinea/deshabilitarproducto`, data);
             setOpenDeshabilitar(false);
             Swal.fire({
                 title: 'Confirmado',
@@ -144,7 +145,6 @@ const VistaProducto = (props) => {
                 localStorage.removeItem("HoraIngreso");
                 //props.navegar.history.push("/Pedidos/Colecciones")
             });
-            console.log(request.data);
         } catch (err) {
             setOpenDeshabilitar(false);
             let mensaje = "Ha ocurrido un error y no se pudo deshabilitar el producto.";
@@ -184,20 +184,20 @@ const VistaProducto = (props) => {
             <DeshabilitarModal hideDeshabilitar={hideDeshabilitarProducto} open={openDeshabilitar} deshabilitar={deshabilitarProducto} coleccion={props.coleccion.CodigoColeccion} empresa={props.coleccion.EmpresaId} producto={props.producto.ProductoId} />
             <EliminarImagenModal navegar={props.navegar} codigoProducto={props.producto.ProductoId} open={openEliminar} hideEliminar={hideEliminarImagen} listaImagenes={props.producto.ListaImagenes} listaColores={props.producto.ListaColores} />
             <div className="col-md-5">
-                { 
+                {
                     isEmptyImages ?
                         <div className="text-center">
                             <img alt={"ImagenProducto"} src={notFound}></img>
                         </div>
                         :
-                        <Slider ListaImagenes={listaImagenes} color={color}/>
+                        <Slider ListaImagenes={listaImagenes} color={color} />
                 }
             </div>
             <div className="col-md-7 mt-md-0 mt-3">
                 <h2 className={styles.Title}>
                     {props.producto.NombreProducto} {(props.producto.ListaImagenes.length > 0) && <FaEye onClick={() => setIsOpen(true)} size={"30px"} />}
                     {permisos.AdministradorProductos &&
-                        <div style={{display:'inline'}}>
+                        <div style={{ display: 'inline' }}>
                             <button className="btn btn-danger" style={{ marginLeft: 10 }} onClick={displayDeshabilitarProducto}>Deshabilitar Producto</button>
                             <button className="btn btn-danger" style={{ marginLeft: 10 }} onClick={displayEliminarImagen}>Eliminar imagenes</button>
                         </div>

@@ -208,7 +208,7 @@ export const Home = (props) => {
         }
     }
     /*----------------------------------------------------MODULOS DE SINCRONIZACION-------------------------------- */
-
+    // eslint-disable-next-line
     const ValoresModulos = [{ Nombre: "SincronizarPedidosPendiente", Valor: 0 },
     { Nombre: "SincronizarReciboPendiente", Valor: 1 },
     { Nombre: "SincronizarConfiguraciones", Valor: 2 },

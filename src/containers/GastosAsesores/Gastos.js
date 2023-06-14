@@ -46,6 +46,7 @@ const Gastos = (props) => {
         setAsesores(asesoresMap);
 
         getTipos();
+        // eslint-disable-next-line
     }, [])
 
     const getTipos = async () => {
@@ -104,7 +105,7 @@ const Gastos = (props) => {
 
     const handleOnChangeTipo = (value) => {
         setTipoSelected(value);
-        tipoGasto.map(temp => {
+        tipoGasto.forEach(temp => {
             if (value === temp.value) {
                 setTipoId(temp.key)
             }
@@ -115,7 +116,7 @@ const Gastos = (props) => {
     const DataGastos = () => {
         let DataGastos = [];
 
-        gastos.map(gasto => {
+        gastos.forEach(gasto => {
 
             let data = [
                 gasto.tipo,
@@ -148,7 +149,7 @@ const Gastos = (props) => {
         doc.setFontSize(10);
 
 
-        const headers = [['#', 'Tipo', 'Categoria', 'Descripcion', 'Fecha', 'Importe Gravado', 'Importe Exento', 'Valor']];
+        const headers = [['#', 'Tipo', 'Categoria', 'Descripcion', 'Fecha', (localStorage.getItem("empresa") == "IMHN" ? "Importe Gracado" : "-" ), (localStorage.getItem("empresa") == "IMHN" ? "Importe Exento" : "Cantidad / Importe Exento" ), 'Valor']];
 
         let date = new Date();
         let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
@@ -422,7 +423,6 @@ const Gastos = (props) => {
         filter: true,
         filterType: "dropdown",
         responsive: "scrollMaxHeight",
-        print: false,
         download: false,
         print: true,
         selectableRows: 'none',

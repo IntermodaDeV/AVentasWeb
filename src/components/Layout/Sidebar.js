@@ -129,6 +129,7 @@ const navItems = [
             { to: '/lista-pedidos-flotante', name: 'Pedidos Flotantes', dataTut: 'DataTut_ListadoPedidos', Icon: CloudQueueIcon, backgroundColor:''  },
             { to: '/pedidos', name: 'Nuevo Pedido', dataTut: 'DataTut_NuevoPedido', Icon: PostAdd, backgroundColor:''  },
             { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt, backgroundColor:''  },
+            { to: '/recolocacion-pedido', name: 'Recolocar Pedido', dataTut: 'DataTut_ListadoPedidos', Icon: Sync, backgroundColor:''  },
         ]
     },
     {
@@ -150,7 +151,8 @@ const navItems = [
             { to: '/sincronizacionListaMonitor', name: 'Monitor Sincronizaciones', dataTut: 'DataTut_SincListaMonitor', Icon: Dvr, backgroundColor:''  },
             //{ to: '/sincronizacionespecifica', name: 'Sincronizacion Manual', dataTut: 'DataTut_SincEspec', Icon: Book },
             { to: '/sincronizacion-especifica-coleccion', name: 'Colección Específica', dataTut: 'DataTut_SincLista', Icon: ViewCompact, backgroundColor:''  },
-            { to: '/sincronizacion-especifica-cliente', name: 'Cliente Específica', dataTut: 'DataTut_SincLista', Icon: AccountBox, backgroundColor:''  }
+            { to: '/sincronizacion-especifica-cliente', name: 'Cliente Específica', dataTut: 'DataTut_SincLista', Icon: AccountBox, backgroundColor:''  },
+            { to: '/sincronizacionEspecifica', name: 'Sincronización Especifica', dataTut: 'DataTut_SincLista', Icon: SyncAlt, backgroundColor:''  }
         ]
     },
     {
@@ -161,6 +163,7 @@ const navItems = [
             { to: '/listadoDevolucion', name: 'Listado Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
             { to: '/aprobarDevoluciones', name: 'Aprobar Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
             { to: '/MotivosDevolucion', name: 'Motivos Devolucion', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
+            { to: '/seguimientoCalidad', name: 'Seguimiento Calidad', dataTut: 'DataTut_Devoluciones', Icon: SwapHorizOutlined, backgroundColor:''  },
         ]
     },
     {

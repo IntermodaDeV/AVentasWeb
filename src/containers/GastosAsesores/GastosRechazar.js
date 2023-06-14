@@ -42,6 +42,7 @@ const GastosRechazar = (props) => {
             props.history.push('/home');
         }
         cargarHistorialGastos()
+        // eslint-disable-next-line
     }, [])
 
     const handleFechaInicio = (fecha) => {
@@ -160,8 +161,7 @@ const GastosRechazar = (props) => {
     const DataGastos = () => {
         let DataGastos = [];
 
-        gastos.map(gasto => {
-            console.log(gasto)
+        gastos.forEach(gasto => {
             let data = [
                 gasto.tipo,
                 gasto.categoria,

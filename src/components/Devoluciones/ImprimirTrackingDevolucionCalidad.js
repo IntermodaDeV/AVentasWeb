@@ -12,7 +12,11 @@ import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
 import 'moment/locale/es';
 
-export const ImprimirPedidoDevolucion = (props) => {
+export const ImprimirTrackingDevolucionCalidad = (props) => {
+
+    const c = props;
+    console.log(c)
+
     const Monedas = useSelector(e => e.AbreviacionMonedas);
     const Empresas = useSelector(e => e.Empresas);
     const componentRef = useRef();
@@ -70,7 +74,7 @@ export const ImprimirPedidoDevolucion = (props) => {
                             Finalizar
                         </Button>
                     </div>
-                    : "Vista Previa Pedido"
+                    : "Vista Previa Devolucion"
                 }
             </DialogTitle>
             <DialogContent dividers={true} ref={componentRef} style={{ width: '100%' }}>
@@ -110,7 +114,6 @@ export const ImprimirPedidoDevolucion = (props) => {
                                     <p>
                                         Fecha Devolucion : {moment(props.Pedido.FechaCreacion).format('DD/MM/YYYY hh:mm a')}<br />
                                         Asesor: {props.Pedido.Usuario}<br />
-                                        Motivo Devolución: {props.Pedido.MotivoDevolucionDetalle.CodigoMotivoDevolucion + " - " + props.Pedido.MotivoDevolucionDetalle.Descripcion }<br />
                                     </p>
                                 </div>
                             </div >

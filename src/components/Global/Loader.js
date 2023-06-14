@@ -41,11 +41,6 @@ const Loader = (props) => {
         <div className="d-flex flex-grow-1 align-items-center justify-content-center">
             <div className="row">
                 <div className="col-12 text-center">
-                    <iframe
-                        title="LogoLoader" style={{ fill: "#c6a668" }}
-                        id="SVGmator__2kz60s1569860161753"
-                        frameBorder="0"
-                        src="https://www.svgmator.com/embed/VReMobzkw5mSl32?onload=true&onclick=false&onhover=false"></iframe>
                 </div>
                 <div className="col-12 text-center">
                     Cargando..

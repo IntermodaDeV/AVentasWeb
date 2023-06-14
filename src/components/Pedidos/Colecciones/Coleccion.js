@@ -66,6 +66,8 @@ const Coleccion = (props) => {
         dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: data });
         localStorage.setItem("ColeccionSeleccionada", props.coleccion.CodigoColeccion)
         localStorage.setItem("HoraIngreso", moment(new Date()).format('YYYY-MM-DDTHH:mm'))
+      }).catch(err=>{
+        alert("Ocurrio un error y no se pudo cargar el paquete.")
       });
   }
 
@@ -235,7 +237,8 @@ const Coleccion = (props) => {
     })
   }
   const obtenerInventario = async () => {
-    const request = await axios.get(`${APIURL}/api/colecciones/inventario/${props.coleccion.CodigoColeccion}`)
+ 
+    const request = await axios.get(`${APIURL}/api/colecciones/inventario/${props.coleccion.IdColeccion}`)
 
     if (request.data.length === 0) {
       mostrarAdvertencia("Sin Inventario", "No hay inventario disponible", "info")
