@@ -39,7 +39,7 @@ const SoldOut = (producto) => {
 }
 
 const Productos = (props) => {
-    const searched = (nombre, codigo,texto) => {
+    const searched = (nombre, codigo, texto) => {
         if (texto === '') {
             return true;
         }
@@ -122,7 +122,7 @@ const Productos = (props) => {
         if (props.filtroEdad === null || props.filtroEdad === edad.IdEdad) {
             edad.ProductosXEdad.map((producto) => {
                 if (isFuture || !props.NoStock) {
-                    let encontrado = searched(producto.NombreProducto, producto.ProductoId ,props.buscador);
+                    let encontrado = searched(producto.NombreProducto, producto.ProductoId, props.buscador);
 
                     if (encontrado) {
                         if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos)) {
@@ -137,7 +137,7 @@ const Productos = (props) => {
                     let Sold = SoldOut(producto);
 
                     if (!Sold) {
-                        let encontrado = searched(producto.NombreProducto, producto.ProductoId,props.buscador);
+                        let encontrado = searched(producto.NombreProducto, producto.ProductoId, props.buscador);
 
                         if (encontrado) {
                             if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos)) {
@@ -187,13 +187,16 @@ const Productos = (props) => {
         }
     }
 
+    let productosNuevo = productosList.filter(x => x.Nuevo);
+    productosNuevo.sort((a, b) => ((a.Prioridad < b.Prioridad) ? -1 : 1));
+
     let productosInOut = productosList.filter(x => x.InOut);
-    productosInOut.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
+    productosInOut.sort((a, b) => ((a.Prioridad < b.Prioridad) ? -1 : 1));
 
-    let productosRegulares = productosList.filter(x => !x.InOut);
-    productosRegulares.sort((a, b) => ((a.Prioridad > b.Prioridad) ? -1 : 1));
+    let productosRegulares = productosList.filter(x => !x.InOut && !x.Nuevo);
+    productosRegulares.sort((a, b) => ((a.Prioridad < b.Prioridad) ? -1 : 1));
 
-    productosList = [...productosInOut,...productosRegulares];
+    productosList = [...productosNuevo, ...productosInOut, ...productosRegulares];
 
     let productos = (
         <div style={{ height: "80vh" }}>

@@ -172,6 +172,9 @@ const Producto = (props) => {
         {
           props.producto.Deshabilitado && <div className={styles.soldOut} >Cerrado</div>
         }
+        {
+          props.producto.Nuevo && <div className={styles.nuevo} >Nuevo</div>
+       }
         <div className={selectableClassName}>
           <Img
             className="card-img-right"
