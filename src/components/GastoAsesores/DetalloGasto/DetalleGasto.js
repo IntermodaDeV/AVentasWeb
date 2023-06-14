@@ -122,7 +122,7 @@ const DetalleGasto = (props) => {
                                 </tr>
                                 <tr>
                                     <td className={styles.InfoLabel}>
-                                        {'Importe Exento: '}
+                                        {(localStorage.getItem("empresa") == "IMHN" ? "Importe Exento:" : "Cantidad / Importe Exento:" )}
                                     </td>
                                     <td className={styles.InfoLabelDetail}>
                                         {props.detalle.importeExento}

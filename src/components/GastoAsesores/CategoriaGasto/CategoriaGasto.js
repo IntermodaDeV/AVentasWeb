@@ -209,6 +209,7 @@ export const CategoriaGasto = props => {
             idTipoGastoViaje: categoriaGasto.IdTipoGastoViaje,
             Nombre: categoriaGasto.CategoriaNombre,
             ProveedorPredefinido: categoriaGasto.ProveedorPredefinido,
+            GrupoImpuesto: categoriaGasto.GrupoImpuesto,
             CuentaContrapartida: categoriaGasto.CuentaContrapartida,
             FacturaObligatoria: categoriaGasto.FacturaObligatoria,
             Descripcion: categoriaGasto.Descripcion,
@@ -221,6 +222,7 @@ export const CategoriaGasto = props => {
             Nombre: '',
             ProveedorPredefinido: '',
             CuentaContrapartida: '',
+            GrupoImpuesto: '',
             FacturaObligatoria: false,
             Descripcion: false,
             ImagenObligatoria: false
@@ -288,6 +290,17 @@ export const CategoriaGasto = props => {
                                             className="form-control"
                                         />
                                         <br />
+                                        <Field
+                                            label="Grupo Impuestos"
+                                            name="GrupoImpuesto"
+                                            error={!!errors.GrupoImpuesto}
+                                            helperText={errors.GrupoImpuesto}
+                                            style={{ fontSize: '40px', width: '450px', marginRight: '20px' }}
+                                            as={TextField}
+                                            className="form-control"
+                                        />
+                                        <br />
+                                        
                                         <Field
                                             label="Cuenta ContraPartida"
                                             name="CuentaContrapartida"
