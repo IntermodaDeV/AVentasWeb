@@ -13,8 +13,10 @@ import { UsuarioRoles } from './UsuarioRoles';
 import {PantallasFunciones} from './PantallasFunciones';
 import {UsuariosEmpresas} from './UsuariosEmpresas';
 import {UsuarioAsesor} from './UsuarioAsesor';
+import { AsignacionLinea } from '../Mantenimiento/AsignacionLinea';
+import { CheckCircle } from '@material-ui/icons';
 
-export const Relacional = props => {
+export const Relacional = props => {  
     const [value, setValue] = React.useState(0);
 
     const handleChange = (event, newValue) => {
@@ -38,6 +40,9 @@ export const Relacional = props => {
     const redirectUsuarioAsesor  = () =>{
         props.history.push('/seguridad-permisos/Usuario-Asesor');
     }
+    const redirectAgirnarLinea  = () =>{
+        props.history.push('/seguridad-permisos/Asignacion-Linea');
+    }
     return (
         <div style={{height:'100%'}} className="container-fluid">
             <Paper square>
@@ -53,6 +58,7 @@ export const Relacional = props => {
                     <Tab onClick={redirectUsuarioRoles} icon={<SupervisorAccountIcon/>} label="Usuario-Roles" />
                     <Tab onClick={redirectRolesFunciones} icon={<RecentActorsIcon/>} label="Roles-Funciones" />
                     <Tab onClick={redirectFuncionPantalla} icon={<DvrIcon/>} label="Pantallas-Funciones" />
+                    <Tab onClick={redirectAgirnarLinea} icon={<CheckCircle/>} label="Asignacion-Linea" />
                 </Tabs>
             </Paper>
             <div className="card" style={{height:'85%'}}>
@@ -62,6 +68,7 @@ export const Relacional = props => {
                     <Route exact path={`${props.match.url}`} render={(props)=><UsuarioRoles/>}/>
                     <Route exact path={`${props.match.url}/roles-funciones`} render={(props)=><RolesFunciones/>}/>
                     <Route exact path={`${props.match.url}/Funciones-Pantallas`} render={(props)=><PantallasFunciones/>}/>
+                    <Route exact path={`${props.match.url}/Asignacion-Linea`} render={(props)=><AsignacionLinea/>}/>
                 </Switch>
             </div>
         </div>

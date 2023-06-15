@@ -69,8 +69,8 @@ class Agenda extends Component {
         valorPago: 0,
         OpenModalNoVenta: false,
         RazonNoVenta: [],
-        NoVentaSelected : null,
-        ComentarioRazonNoVenta : ''
+        NoVentaSelected: null,
+        ComentarioRazonNoVenta: ''
     }
 
     myRef = React.createRef();
@@ -209,7 +209,7 @@ class Agenda extends Component {
     cargarListadoRazonNoVenta = async () => {
         const { data/*, error*/ } = await get(`${this.urlApi}/api/razonnoventa/listado`);
         this.setState({ RazonNoVenta: data });
-          
+
     }
 
     enviarCheckinApi = async (location, check) => {
@@ -513,7 +513,7 @@ class Agenda extends Component {
             razon: null,
             Observacion: '',
             clienteActivo: clienteActivo,
-            ComentarioRazonNoVenta : ''
+            ComentarioRazonNoVenta: ''
         });
 
         this.setState({
@@ -602,7 +602,7 @@ class Agenda extends Component {
 
     opcionRazonNoVenta = () => {
         const opciones = [];
-        this.state.RazonNoVenta.filter(x=> x.Activo === true).map((razon) => {
+        this.state.RazonNoVenta.filter(x => x.Activo === true).map((razon) => {
             let opcion = (
                 <MenuItem key={razon.razonId} value={razon.razonId}>{razon.RazonNoVenta}</MenuItem>
             )
@@ -646,7 +646,7 @@ class Agenda extends Component {
         });
         return opciones
     }
-    
+
     onChangeAsesor = () => {
         /*this.cargarClientes();
         var eventos = this.setAsignaciones(this.state.Asignaciones);
@@ -678,7 +678,7 @@ class Agenda extends Component {
             NoVentaSelected: event.target.value,
         })
     }
-    
+
     handleChangeCausa = (event) => {
         this.setState({
             razon: event.target.value,
@@ -854,6 +854,15 @@ class Agenda extends Component {
         return asignacion.Checkout;
     }
 
+    verifyBlockNoseVisito = () => {
+        const asignacion = this.props.asignaciones.find(x => x.IdAsignacion === this.state.IdAsignacion);
+
+        if (asignacion.Checkin) {
+            return true
+        }
+        return false
+    }
+
     actualizarCoordenadasPedido = (longitud, latitud) => {
         let copiaClientes = this.props.clientesPedido;
         let indice = copiaClientes.map(x => x.Codigo).indexOf(this.state.clienteActivo.codigo);
@@ -967,10 +976,10 @@ class Agenda extends Component {
     registrarCheckOut = async () => {
         const request = await axios.get(`${APIURL}/api/asignaciones/reporte/${this.state.clienteActivo.codigo}`);
         let visita = request.data.filter(x => moment(x.FechaAsignacion).format("DD/MM/YYYY") === moment().format("DD/MM/YYYY"))
-        if(visita[0].Cobros === 0 && visita[0].Promesa_de_Pago === 0 && visita[0].Ventas === 0){
+        if (visita[0].Cobros === 0 && visita[0].Promesa_de_Pago === 0 && visita[0].Ventas === 0) {
             this.openModalRazonNoVenta()
         }
-        else{
+        else {
             this.enviarCheckin("checkout")
         }
     }
@@ -1166,11 +1175,11 @@ class Agenda extends Component {
                                                 </table>
                                                 <div>
                                                     {this.accesoPineo() === true && <FormGroup row className={"mb-1"}>
-                                                        <Button style={{ marginRight: '10px' }} color="primary" variant="outlined" disabled={(this.verifyBlock("bloqueo") && this.verifyBlock("checkin"))} onClick={() => this.setState((prevState) => ({ ...prevState, noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Visitó</Button>
+                                                        <Button style={{ marginRight: '10px' }} color="primary" variant="outlined" disabled={(this.verifyBlockNoseVisito())} onClick={() => this.setState((prevState) => ({ ...prevState, noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Visitó</Button>
 
                                                         {!this.verifyBlock("checkin")
                                                             ? <Button disabled={this.verifyBlock("checkin")} variant="outlined" onClick={() => { this.enviarCheckin("checkin") }} color="primary">Check In</Button>
-                                                            : <Button disabled={this.verifyBlock("checkout")} variant="outlined" onClick={() => { this.registrarCheckOut()}} color="primary">Check Out</Button>}
+                                                            : <Button disabled={this.verifyBlock("checkout")} variant="outlined" onClick={() => { this.registrarCheckOut() }} color="primary">Check Out</Button>}
                                                     </FormGroup>}
                                                 </div>
                                             </div>
@@ -1272,7 +1281,7 @@ class Agenda extends Component {
                                 color="primary"
                                 className={"py-1"}
                                 style={{ height: '35px' }}
-                                onClick={() => this.enviarRazonesNoVenta()}> 
+                                onClick={() => this.enviarRazonesNoVenta()}>
                                 Guardar
                             </Button>
                         </DialogActions>
