@@ -273,6 +273,14 @@ class Agenda extends Component {
         }
     }
 
+    alertPromesaPago =  (success, msjAsignacion) => {
+
+        if (success) {
+            return '<div style="background-color:#ABBAEA; border-radius: 0.5rem; padding: 20px 20px;"> <b> <FONT COLOR="black">' + msjAsignacion + '</FONT> </b> </div>';
+        }
+        return '<div style="background-color:red; border-radius: 0.5rem; padding: 20px 20px;"> <b> <FONT COLOR="white">' + msjAsignacion + ' </FONT> </b> </div>';
+    }
+
 
     enviarPromesaPago = async () => {
         try {
@@ -285,13 +293,19 @@ class Agenda extends Component {
 
             await axios.post(`${APIURL}/api/promesaPago/crear`, postBody, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            }).then((response) => {
+
+                console.log(this.alertPromesaPago(response.data.success, response.data.msjAsignacion).toString())
+
+                Swal.fire({
+                    title: 'Registro Guardado',
+                    html: response.data.msjPromesa + '<br>' +  this.alertPromesaPago(response.data.success, response.data.msjAsignacion).toString(),
+                    type: 'success',
+                    confirmButtonText: 'Ok',
+                    target: this.myRef.current
+                })
             });
-            Swal.fire({
-                title: 'Registro Guardado',
-                type: 'success',
-                confirmButtonText: 'Ok',
-                target: this.myRef.current
-            })
+
         } catch (err) {
             console.log("err", err)
             Swal.fire({
@@ -402,6 +416,7 @@ class Agenda extends Component {
                     let objetoCliente = {};
                     let Checkin = asignacion.Checkin;
                     let Checkout = asignacion.Checkout;
+                    let EsPromesaPago = (asignacion.EsPromesaPago) ? "============= VISITA PROMESA PAGO =============" : "";
 
 
                     this.state.clientes.some(clien => {
@@ -422,7 +437,7 @@ class Agenda extends Component {
                     })
 
                     var evento = {
-                        title: cliente,
+                        title: cliente + EsPromesaPago,
                         start: fechainicio,
                         end: fechaFin,
                         textColor: textColor,
