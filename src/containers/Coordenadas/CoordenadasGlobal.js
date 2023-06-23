@@ -9,21 +9,34 @@ import {
     Col,
     Row,
 } from 'reactstrap';
+import { string } from 'prop-types';
+import { Cliente } from 'components/Cartera/Cliente';
 
 const paises =
     [
         { id: 1, value: '*', pais: "Todos" },
         { id: 2, value: 'IMHN', pais: "Honduras" },
         { id: 3, value: 'IMGT', pais: "Guatemala" },
-        { id: 4, value: 'IMCR', pais: "Costa Rica" }
+        { id: 4, value: 'IMCR', pais: "Costa Rica" },
+        { id: 5, value: 'IMSL', pais: "El Salvador" },
     ]
 
-const getTodos= () => {
+const estadoCredito =
+    [
+        { id: 1, value: '*', pais: "Todos" },
+        { id: 2, value: 'Todo', pais: "Suprimido" },
+        { id: 3, value: 'No', pais: "Activo Habilitado" },
+        { id: 4, value: 'Factura', pais: "Activo con Mora" },
+    ]
+
+const getTodos = () => {
     return [
-        { $id: "Todos",
-        codigo: "Todos",
-        empresa: "Todos",
-        nombre: "Todos"}
+        {
+            $id: "Todos",
+            codigo: "Todos",
+            empresa: "Todos",
+            nombre: "Todos"
+        }
     ]
 }
 
@@ -73,6 +86,25 @@ const CoordenadasGlobal = (props) => {
         }
 
         clientes.forEach(cliente => {
+            var icon = "";
+
+            switch (cliente.CREDITSTATUS) {
+                case "Todo":
+                    icon = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+                    break;
+                case "No":
+                    icon = "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
+                    break;
+                case "Factura":
+                    icon = "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+                    break;
+                default:
+                    icon = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+                    break;
+            }
+
+            console.log(icon)
+
             var infowindow = new mapsRef.current.InfoWindow({
                 content: cliente.ACCOUNT + " " + cliente.NAME
             });
@@ -82,7 +114,10 @@ const CoordenadasGlobal = (props) => {
                     lng: parseFloat(cliente.LONGITUD)
                 },
                 map: mapRef.current,
-                title: cliente.NAME
+                title: cliente.NAME,
+                icon: {
+                    url: icon,
+                },
             });
             marker.addListener('click', function () {
                 infowindow.open(mapRef.current, marker);
@@ -96,9 +131,9 @@ const CoordenadasGlobal = (props) => {
         setBounds(clientes);
     }
 
-    const handleDropdownChange = (value) => {
-        setpaiseSelected(value)  
-        if (value === '*') {      
+    const handleDropdownChangeCountry = (value) => {
+        setpaiseSelected(value)
+        if (value === '*') {
             renderMarkers(coordenadas);
             setAsesoresFiltrados([]);
             return;
@@ -106,7 +141,7 @@ const CoordenadasGlobal = (props) => {
 
         let filtrados = asesores.filter(x => x.empresa.toUpperCase() === value);
         let todos = getTodos();
-        let newlist =[...todos,...filtrados]
+        let newlist = [...todos, ...filtrados]
         setAsesoresFiltrados(newlist);
 
         const clientes = coordenadas.filter(x => x.COMPANY === value);
@@ -117,12 +152,30 @@ const CoordenadasGlobal = (props) => {
 
         if (value === 'Todos') {
             const clientes = coordenadas.filter(x => x.COMPANY === paiseSelected);
-            renderMarkers(paiseSelected=== '*' ? coordenadas : clientes);
+            renderMarkers(paiseSelected === '*' ? coordenadas : clientes);
             return;
         }
 
         const clientes = coordenadas.filter(x => x.ADVISER === value && x.COMPANY === paiseSelected);
         renderMarkers(clientes);
+    }
+
+    const handleDropdownChangeStatus = (value) => {
+        if (value === '*') {
+            const clientes = coordenadas.filter(x => x.COMPANY === paiseSelected);
+            renderMarkers(paiseSelected === '*' ? coordenadas : clientes);
+            return;
+        }
+        debugger;
+        if (paiseSelected !== '*') {
+            const clientes = coordenadas.filter(x => x.CREDITSTATUS === value && x.COMPANY === paiseSelected);
+            renderMarkers(clientes);
+        } else {
+            const clientes = coordenadas.filter(x => x.CREDITSTATUS === value);
+            renderMarkers(clientes);
+        }
+
+
     }
 
     const setBounds = (clientes) => {
@@ -151,7 +204,7 @@ const CoordenadasGlobal = (props) => {
                         fluid
                         search
                         selection
-                        onChange={(e, { value }) => handleDropdownChange(value)}
+                        onChange={(e, { value }) => handleDropdownChangeCountry(value)}
                         options={paises.map(ruta => {
                             return { key: ruta.id, value: ruta.value, text: ruta.pais }
                         })}
@@ -175,8 +228,23 @@ const CoordenadasGlobal = (props) => {
                     //value={paiseSelected.value}
                     />
                 </Col>
+                <Col>
+                    <Dropdown
+                        placeholder="Seleccione el estado crediticio"
+                        fluid
+                        search
+                        selection
+                        onChange={(e, { value }) => handleDropdownChangeStatus(value)}
+                        options={estadoCredito.map(ruta => {
+                            return { key: ruta.id, value: ruta.value, text: ruta.pais }
+                        })}
+                        noResultsMessage={"No hay resultados"}
+                        closeOnChange={true}
+                    //value={paiseSelected.value}
+                    />
+                </Col>
             </Row>
-
+            <br></br>
 
             <GoogleMapReact
                 bootstrapURLKeys={{ key: APIKEY }}
