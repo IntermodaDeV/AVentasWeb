@@ -1190,7 +1190,7 @@ class Agenda extends Component {
                                                 </table>
                                                 <div>
                                                     {this.accesoPineo() === true && <FormGroup row className={"mb-1"}>
-                                                        <Button style={{ marginRight: '10px' }} color="primary" variant="outlined" disabled={(this.verifyBlockNoseVisito())} onClick={() => this.setState((prevState) => ({ ...prevState, noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Visitó</Button>
+                                                        <Button style={{ marginRight: '10px' }} color="primary" variant="outlined" disabled={(this.verifyBlockNoseVisito())} onClick={() => this.setState((prevState) => ({ ...prevState, noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>Cancelar visita</Button>
 
                                                         {!this.verifyBlock("checkin")
                                                             ? <Button disabled={this.verifyBlock("checkin")} variant="outlined" onClick={() => { this.enviarCheckin("checkin") }} color="primary">Check In</Button>
@@ -1367,7 +1367,7 @@ class Agenda extends Component {
                             id="scroll-dialog-title">
                             <div
                                 style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-                                No se Visitó
+                                Cancelar visita
                             </div>
                         </DialogTitle>
                         <DialogContent >
