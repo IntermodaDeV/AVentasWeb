@@ -9,8 +9,6 @@ import {
     Col,
     Row,
 } from 'reactstrap';
-import { string } from 'prop-types';
-import { Cliente } from 'components/Cartera/Cliente';
 
 const paises =
     [
@@ -23,10 +21,10 @@ const paises =
 
 const estadoCredito =
     [
-        { id: 1, value: '*', pais: "Todos" },
-        { id: 2, value: 'Todo', pais: "Suprimido" },
-        { id: 3, value: 'No', pais: "Activo Habilitado" },
-        { id: 4, value: 'Factura', pais: "Activo con Mora" },
+        { id: 1, value: '*', estado: "Todos" },
+        { id: 2, value: 'Todo', estado: "Suprimido" },
+        { id: 3, value: 'No', estado: "Activo Habilitado" },
+        { id: 4, value: 'Factura', estado: "Activo con Mora" },
     ]
 
 const getTodos = () => {
@@ -87,26 +85,39 @@ const CoordenadasGlobal = (props) => {
 
         clientes.forEach(cliente => {
             var icon = "";
+            var estado = "";
 
             switch (cliente.CREDITSTATUS) {
                 case "Todo":
                     icon = "https://maps.google.com/mapfiles/ms/icons/red-dot.png";
+                    estado = "Suprimido"
                     break;
                 case "No":
                     icon = "https://maps.google.com/mapfiles/ms/icons/green-dot.png";
+                    estado = "Activo Habilitado"
                     break;
                 case "Factura":
                     icon = "https://maps.google.com/mapfiles/ms/icons/yellow-dot.png";
+                    estado = "Mora"
                     break;
                 default:
                     icon = "https://maps.google.com/mapfiles/ms/icons/blue-dot.png";
+                    estado = "No identificado"
                     break;
             }
 
-            console.log(icon)
+            const contentString =
+                "<div style={styles.infowindow}>" +
+                "<p style={{ styles.infowindowTitle}}><b>" + cliente.NAME + "</b></p>" +
+                "<p style={{ fontSize: 13 }}><b>Código Cliente: </b> " + cliente.ACCOUNT + "</p>" +
+                "<p style={{ fontSize: 13 }}><b>Asesor: </b>" + cliente.ADVISERNAME + "</p>" +
+                "<p style={{ fontSize: 13 }}><b>Estado Comercial: </b>" + estado + "</p>" +
+                "<p style={{ fontSize: 13 }}>" + cliente.LATITUDE + "," + cliente.LONGITUD + "</p>" +
+                "</div>";
+
 
             var infowindow = new mapsRef.current.InfoWindow({
-                content: cliente.ACCOUNT + " " + cliente.NAME
+                content: contentString
             });
             let marker = new mapsRef.current.Marker({
                 position: {
@@ -166,7 +177,7 @@ const CoordenadasGlobal = (props) => {
             renderMarkers(paiseSelected === '*' ? coordenadas : clientes);
             return;
         }
-        debugger;
+
         if (paiseSelected !== '*') {
             const clientes = coordenadas.filter(x => x.CREDITSTATUS === value && x.COMPANY === paiseSelected);
             renderMarkers(clientes);
@@ -188,8 +199,6 @@ const CoordenadasGlobal = (props) => {
 
         mapRef.current.fitBounds(bounds);
     }
-
-
 
     if (coordenadas.length === 0) {
         return <h1>Coordenadas no disponbles</h1>
@@ -236,7 +245,7 @@ const CoordenadasGlobal = (props) => {
                         selection
                         onChange={(e, { value }) => handleDropdownChangeStatus(value)}
                         options={estadoCredito.map(ruta => {
-                            return { key: ruta.id, value: ruta.value, text: ruta.pais }
+                            return { key: ruta.id, value: ruta.value, text: ruta.estado }
                         })}
                         noResultsMessage={"No hay resultados"}
                         closeOnChange={true}
@@ -275,6 +284,22 @@ const CoordenadasGlobal = (props) => {
         </div>
     )
 
+}
+
+const styles = {
+    infowindow: {
+        width: 300,
+        height: 240,
+        background: '#fff',
+        borderRadius: 10,
+        padding: 5,
+        boxShadow: '5px 5px #c1c1c1',
+        zIndex: 99
+    },
+    infowindowTitle: {
+        textAlign: 'center',
+        fontSize: 18
+    }
 }
 
 export default CoordenadasGlobal;
