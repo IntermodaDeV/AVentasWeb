@@ -9,6 +9,7 @@ import {
     Col,
     Row,
 } from 'reactstrap';
+import { string } from 'prop-types';
 
 const paises =
     [
@@ -31,7 +32,7 @@ const getTodos = () => {
     return [
         {
             $id: "Todos",
-            codigo: "Todos",
+            codigo: "*",
             empresa: "Todos",
             nombre: "Todos"
         }
@@ -40,11 +41,14 @@ const getTodos = () => {
 
 const CoordenadasGlobal = (props) => {
     const [paiseSelected, setpaiseSelected] = useState(null);
+    const [paisList, setpaisList] = useState([]);
     const [asesores, setAsesores] = useState([]);
+    const [asesor, setAsesor] = useState(null);
     const [asesoresFiltrados, setAsesoresFiltrados] = useState([]);
     const mapRef = useRef();
     const mapsRef = useRef();
     const [coordenadas, setCoordenadas] = useState([]);
+    const [estado, setEstado] = useState(null);
     // eslint-disable-next-line
     const [marcadores, setMarcadores] = useState([]);
     useEffect(() => {
@@ -144,7 +148,15 @@ const CoordenadasGlobal = (props) => {
 
     const handleDropdownChangeCountry = (value) => {
         setpaiseSelected(value)
+        setAsesor('*');
         if (value === '*') {
+            if (estado !== '*' && estado != null) {
+                const clientes = coordenadas.filter(x => x.CREDITSTATUS === estado);
+                renderMarkers(clientes);
+                setAsesoresFiltrados([]);
+                return;
+            }
+            setpaisList(coordenadas);
             renderMarkers(coordenadas);
             setAsesoresFiltrados([]);
             return;
@@ -155,35 +167,58 @@ const CoordenadasGlobal = (props) => {
         let newlist = [...todos, ...filtrados]
         setAsesoresFiltrados(newlist);
 
-        const clientes = coordenadas.filter(x => x.COMPANY === value);
-        renderMarkers(clientes);
+
+        if (estado != '*' && estado != null) {
+            const clientes = coordenadas.filter(x => x.CREDITSTATUS === estado && x.COMPANY === value);
+            renderMarkers(clientes);
+            return;
+        }
+
+        const paisesFiltrados = coordenadas.filter(x => x.COMPANY === value);
+        setpaisList(paisesFiltrados);
+        renderMarkers(paisesFiltrados);
+        return;
     }
 
     const handleDropdownChangeAsesor = (value) => {
-
-        if (value === 'Todos') {
-            const clientes = coordenadas.filter(x => x.COMPANY === paiseSelected);
-            renderMarkers(paiseSelected === '*' ? coordenadas : clientes);
+        setAsesor(value);
+        setEstado('*');
+        if (value === '*') {
+            renderMarkers(paiseSelected === '*' ? coordenadas : paisList);
+            setEstado(null);
             return;
         }
-
-        const clientes = coordenadas.filter(x => x.ADVISER === value && x.COMPANY === paiseSelected);
-        renderMarkers(clientes);
+        setEstado(null);
+        renderMarkers(paisList.filter(x => x.ADVISER === value));
     }
 
     const handleDropdownChangeStatus = (value) => {
+        setEstado(value);
         if (value === '*') {
-            const clientes = coordenadas.filter(x => x.COMPANY === paiseSelected);
-            renderMarkers(paiseSelected === '*' ? coordenadas : clientes);
-            return;
+            if (paiseSelected != null && paiseSelected != '*') {
+                if (asesor != null && asesor != '*') {
+                    renderMarkers(paisList.filter(x => x.ADVISER === asesor));
+                    return;
+                }
+                renderMarkers(paisList);
+                return;
+            }
+            else {
+                renderMarkers(coordenadas);
+                return
+            }
         }
 
-        if (paiseSelected !== '*') {
-            const clientes = coordenadas.filter(x => x.CREDITSTATUS === value && x.COMPANY === paiseSelected);
-            renderMarkers(clientes);
+        if (paiseSelected != '*' && paiseSelected != null) {
+            if (asesor != null && asesor != '*') {
+                renderMarkers(paisList.filter(x => x.CREDITSTATUS === value && x.ADVISER === asesor));
+                return;
+            }
+            renderMarkers(paisList.filter(x => x.CREDITSTATUS === value));
+            return;
         } else {
-            const clientes = coordenadas.filter(x => x.CREDITSTATUS === value);
-            renderMarkers(clientes);
+            const filtradas = coordenadas.filter(x => x.CREDITSTATUS === value);
+            renderMarkers(filtradas);
         }
 
 
@@ -219,7 +254,6 @@ const CoordenadasGlobal = (props) => {
                         })}
                         noResultsMessage={"No hay resultados"}
                         closeOnChange={true}
-                    //value={paiseSelected.value}
                     />
                 </Col>
                 <Col>
@@ -234,7 +268,6 @@ const CoordenadasGlobal = (props) => {
                         })}
                         noResultsMessage={"No hay resultados"}
                         closeOnChange={true}
-                    //value={paiseSelected.value}
                     />
                 </Col>
                 <Col>
@@ -249,7 +282,7 @@ const CoordenadasGlobal = (props) => {
                         })}
                         noResultsMessage={"No hay resultados"}
                         closeOnChange={true}
-                    //value={paiseSelected.value}
+                        value={estado}
                     />
                 </Col>
             </Row>
