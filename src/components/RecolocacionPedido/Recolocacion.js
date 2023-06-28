@@ -59,6 +59,7 @@ export const Recolocacion = (props) => {
     let productosSinCantidad = false;
     let sigPad = {};
 
+    const bodegaLocal = bodegaMaestro.find(x => x.EmpresaId === clienteSeleccionado.EmpresaId && x.Estatus === true);
     const bodega = bodegaMaestro.find(x => x.BodegaPrincipal === true && x.Estatus === true);
     const clienteImpuesto = clienteImpuestos.find(x => x.GRUPO === clienteSeleccionado.GrupoImpuesto);
     const moneda = Monedas.find(e => e.IdMoneda === clienteSeleccionado.Moneda).Abreviacion;
@@ -284,6 +285,22 @@ export const Recolocacion = (props) => {
             });
         } else {
             setLoading(true);
+            let codigoColeccion = ColeccionRecolocacion.codigoColeccion;
+
+            if(ColeccionRecolocacion.linea === null){
+                Swal.fire({
+                    type: 'error',
+                    title: 'Error',
+                    text: "Linea coleccion no encontrada.",
+                });
+                setLoading(false);
+                return
+            }
+
+            if (localStorage.getItem('empresa') !== "IMHN") {
+                codigoColeccion = `B${ColeccionRecolocacion.linea}`;
+            }
+
 
             let nuevoSubtotal = clienteSeleccionado.IncluyeImpuesto ? totalGlobal - Number(localStorage.getItem('Impuesto')) : totalGlobal;
             let pedido = {
@@ -298,7 +315,7 @@ export const Recolocacion = (props) => {
                 location: location,
                 EmpresaUsuario: localStorage.getItem('empresa'),
                 Linea: ColeccionRecolocacion.linea,
-                CodigoColeccion: ColeccionRecolocacion.codigoColeccion,
+                CodigoColeccion: codigoColeccion,
                 DetallePedido: [],
                 TipoPedido: tipoCredito,
                 TipoVenta: calcularTipoVenta(),
@@ -310,9 +327,9 @@ export const Recolocacion = (props) => {
                 subtotal: nuevoSubtotal,
                 Direccion: clienteSeleccionado.Direccion,
                 MonedaCliente: clienteSeleccionado.Moneda,
-                BodegaEspecifica: false,
-                Sitio: bodega.CodigoSitio,
-                Almacen: bodega.Almacen
+                BodegaEspecifica: bodegaLocal.EmpresaId !== 'IMHN',
+                Sitio: bodegaLocal.CodigoSitio,
+                Almacen: bodegaLocal.Almacen
             };
 
             Object.keys(tableValue).forEach((grupoTalla, index) => {
@@ -339,7 +356,7 @@ export const Recolocacion = (props) => {
                                     Unidad: "Und",
                                     PrecioUnitario: precio.Precio,
                                     Talla: valorTalla.Talla,
-                                    CodigoColeccion: ColeccionRecolocacion.codigoColeccion,
+                                    CodigoColeccion: codigoColeccion,
                                     PorcentajeDescuento: "",
                                 }
 
@@ -496,7 +513,8 @@ export const Recolocacion = (props) => {
                     {(Object.keys(tableValue).length > 0) &&
                         <>
                             <hr />
-                            {moment(new Date(ColeccionRecolocacion.ventaFinal)).isBefore(moment(new Date())) && <h3 style={{ textAlign: "center", color: "red", fontWeight: "bold" }}>La venta final del paquete {ColeccionRecolocacion.codigoColeccion} fue {moment(new Date(ColeccionRecolocacion.ventaFinal)).format("DD/MM/YYYY")}</h3>}
+                            {moment(new Date(ColeccionRecolocacion.ventaFinal)).isBefore(moment(new Date())) && bodegaLocal.EmpresaId === 'IMHN'
+                                && <h3 style={{ textAlign: "center", color: "red", fontWeight: "bold" }}>La venta final del paquete {ColeccionRecolocacion.codigoColeccion} fue {moment(new Date(ColeccionRecolocacion.ventaFinal)).format("DD/MM/YYYY")}</h3>}
                             <hr />
                             <div style={{ marginTop: 10, marginBottom: 10 }}>
                                 <h3 style={{ textAlign: "center" }}>Información cliente traslado</h3>
