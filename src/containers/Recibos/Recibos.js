@@ -529,52 +529,52 @@ const Recibos = (props) => {
     for (let AcuerdosXTipoPedido of cliente.AcuerdosXTipoPedido) {
 
       for (let Acuerdos of AcuerdosXTipoPedido.Acuerdos) {
-        let acuerdosFacturas = Acuerdos.Facturas.filter(f => f.Descuento === 0 && cliente.MaestroDescuento.length > 0);
+        let acuerdosFacturas = Acuerdos.Facturas.filter(f => f.Descuento === 0);
 
         for (let Facturas of acuerdosFacturas) {
-          let Descuento = cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea);
+          let Descuento = cliente.MaestroDescuento.length > 0 ? cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea) : [];
+          let noAplicaDescuento = Descuento.length === 0;
 
-          if (Descuento.length > 0) {
-            let totalDocumentosAplicados = 0;
+          let totalDocumentosAplicados = 0;
 
-            if (Facturas.DocumentosAplicadosAFacturas.length > 0) {
-              totalDocumentosAplicados = Facturas.DocumentosAplicadosAFacturas.reduce((prev, curr) => prev + curr.Valor, 0);
-            };
+          if (Facturas.DocumentosAplicadosAFacturas.length > 0) {
+            totalDocumentosAplicados = Facturas.DocumentosAplicadosAFacturas.reduce((prev, curr) => prev + curr.Valor, 0);
+          };
 
-            Facturas.Descuento = Facturas.TotalFactura * (Descuento[0].Porcentaje / 100);
-            for (let Cuotas of Facturas.Cuotas) {
+          Facturas.Descuento = noAplicaDescuento ? 0 : Facturas.TotalFactura * (Descuento[0].Porcentaje / 100);
+          for (let Cuotas of Facturas.Cuotas) {
 
-              let valordescuento = 0;
-              if (AcuerdosXTipoPedido.AgrupaPorCuota === true) {
-                if (Acuerdos.DescuentoEnAcuerdos !== null) {
-                  let Flete = 0;
+            let valordescuento = 0;
+            if (AcuerdosXTipoPedido.AgrupaPorCuota === true) {
+              if (Acuerdos.DescuentoEnAcuerdos !== null) {
+                let Flete = 0;
 
-                  let DocumentoCuota = cliente.DocumentosAplicadosxCuotas.find(x => x.IdAcuerdoxCliente === Acuerdos.Acuerdo && x.NumeroCuota === Cuotas.NumeroCuota);
-                  if (DocumentoCuota !== undefined) {
-                    totalDocumentosAplicados = DocumentoCuota.Valor;
-                    Flete = DocumentoCuota.Flete;
-                  }
-
-                  if (Acuerdos.DescuentoEnAcuerdos != null) {
-                    let consumidoCuota = Cuotas.SaldoCuota - Cuotas.DisponibleCuota;
-                    let totalfactura = consumidoCuota - totalDocumentosAplicados - Flete;
-                    valordescuento = totalfactura * (Acuerdos.DescuentoEnAcuerdos.Porcentaje / 100);
-                  }
-                  Cuotas.Descuento = valordescuento.toFixed(2);
+                let DocumentoCuota = cliente.DocumentosAplicadosxCuotas.find(x => x.IdAcuerdoxCliente === Acuerdos.Acuerdo && x.NumeroCuota === Cuotas.NumeroCuota);
+                if (DocumentoCuota !== undefined) {
+                  totalDocumentosAplicados = DocumentoCuota.Valor;
+                  Flete = DocumentoCuota.Flete;
                 }
-              }
-              else {
-                let fechaMaxDescuent = moment(Facturas.FechaFactura).add(Descuento[0].DiasDescuento, 'days').format();
 
-                Facturas.FechaMaxDescuento = fechaMaxDescuent;
-                Cuotas.FechaMaxDescuento = fechaMaxDescuent;
-
-                let totalfactura = Cuotas.ValorCuota - totalDocumentosAplicados - Cuotas.Flete
-                valordescuento = totalfactura * (Descuento[0].Porcentaje / 100);
+                if (Acuerdos.DescuentoEnAcuerdos != null) {
+                  let consumidoCuota = Cuotas.SaldoCuota - Cuotas.DisponibleCuota;
+                  let totalfactura = consumidoCuota - totalDocumentosAplicados - Flete;
+                  valordescuento = totalfactura * (Acuerdos.DescuentoEnAcuerdos.Porcentaje / 100);
+                }
                 Cuotas.Descuento = valordescuento.toFixed(2);
               }
-            };
-          }
+            }
+            else {
+              let fechaMaxDescuent = noAplicaDescuento ? moment(Facturas.FechaFactura).format() : moment(Facturas.FechaFactura).add(Descuento[0].DiasDescuento, 'days').format();
+
+              Facturas.FechaMaxDescuento = fechaMaxDescuent;
+              Cuotas.FechaMaxDescuento = fechaMaxDescuent;
+
+              let totalfactura = Cuotas.ValorCuota - totalDocumentosAplicados - Cuotas.Flete
+              valordescuento = noAplicaDescuento ? 0 : totalfactura * (Descuento[0].Porcentaje / 100);
+              Cuotas.Descuento = valordescuento.toFixed(2);
+            }
+          };
+
         };
       };
     };
