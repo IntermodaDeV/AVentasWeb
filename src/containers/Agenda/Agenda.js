@@ -273,6 +273,14 @@ class Agenda extends Component {
         }
     }
 
+    alertPromesaPago =  (success, msjAsignacion) => {
+
+        if (success) {
+            return '<div style="background-color:#ABBAEA; border-radius: 0.5rem; padding: 20px 20px;"> <b> <FONT COLOR="black">' + msjAsignacion + '</FONT> </b> </div>';
+        }
+        return '<div style="background-color:red; border-radius: 0.5rem; padding: 20px 20px;"> <b> <FONT COLOR="white">' + msjAsignacion + ' </FONT> </b> </div>';
+    }
+
 
     enviarPromesaPago = async () => {
         try {
@@ -285,13 +293,19 @@ class Agenda extends Component {
 
             await axios.post(`${APIURL}/api/promesaPago/crear`, postBody, {
                 headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+            }).then((response) => {
+
+                console.log(this.alertPromesaPago(response.data.success, response.data.msjAsignacion).toString())
+
+                Swal.fire({
+                    title: 'Registro Guardado',
+                    html: response.data.msjPromesa + '<br>' +  this.alertPromesaPago(response.data.success, response.data.msjAsignacion).toString(),
+                    type: 'success',
+                    confirmButtonText: 'Ok',
+                    target: this.myRef.current
+                })
             });
-            Swal.fire({
-                title: 'Registro Guardado',
-                type: 'success',
-                confirmButtonText: 'Ok',
-                target: this.myRef.current
-            })
+
         } catch (err) {
             console.log("err", err)
             Swal.fire({
@@ -402,6 +416,7 @@ class Agenda extends Component {
                     let objetoCliente = {};
                     let Checkin = asignacion.Checkin;
                     let Checkout = asignacion.Checkout;
+                    let EsPromesaPago = (asignacion.EsPromesaPago) ? "============= VISITA PROMESA PAGO =============" : "";
 
 
                     this.state.clientes.some(clien => {
@@ -422,7 +437,7 @@ class Agenda extends Component {
                     })
 
                     var evento = {
-                        title: cliente,
+                        title: cliente + EsPromesaPago,
                         start: fechainicio,
                         end: fechaFin,
                         textColor: textColor,
@@ -1175,7 +1190,7 @@ class Agenda extends Component {
                                                 </table>
                                                 <div>
                                                     {this.accesoPineo() === true && <FormGroup row className={"mb-1"}>
-                                                        <Button style={{ marginRight: '10px' }} color="primary" variant="outlined" disabled={(this.verifyBlockNoseVisito())} onClick={() => this.setState((prevState) => ({ ...prevState, noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>No se Visitó</Button>
+                                                        <Button style={{ marginRight: '10px' }} color="primary" variant="outlined" disabled={(this.verifyBlockNoseVisito())} onClick={() => this.setState((prevState) => ({ ...prevState, noAtendido: prevState.noAtendido, mostarNoAtendido: true }))}>Cancelar visita</Button>
 
                                                         {!this.verifyBlock("checkin")
                                                             ? <Button disabled={this.verifyBlock("checkin")} variant="outlined" onClick={() => { this.enviarCheckin("checkin") }} color="primary">Check In</Button>
@@ -1352,7 +1367,7 @@ class Agenda extends Component {
                             id="scroll-dialog-title">
                             <div
                                 style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-                                No se Visitó
+                                Cancelar visita
                             </div>
                         </DialogTitle>
                         <DialogContent >
