@@ -14,7 +14,7 @@ import { Radio } from 'semantic-ui-react';
 //import { Link } from "react-scroll";
 import { Checkbox, Dropdown } from 'element-react';
 import { /*Button,*/ Col, Container, Row, } from 'reactstrap';
-import {Button } from '@material-ui/core';
+import { Button } from '@material-ui/core';
 import html2canvas from 'html2canvas';
 import pdfMake from 'pdfmake/build/pdfmake';
 import { FaSignOutAlt, FaShoppingCart, FaArrowCircleLeft, FaAlignJustify } from 'react-icons/fa';
@@ -27,8 +27,8 @@ import {
     ExpansionPanelDetails as MuiExpansionPanelDetails,
 } from '@material-ui/core';
 import axios from 'axios';
-import { post,postPedidoStorage } from 'utils/http';
-import { Dropdown as MiDropdown} from "semantic-ui-react";
+import { post, postPedidoStorage } from 'utils/http';
+import { Dropdown as MiDropdown } from "semantic-ui-react";
 
 //Components
 import NavigationBreadcrumb from 'components/Pedidos/NavigationBreadcrumb/NavigationBreadcrumb'
@@ -51,7 +51,7 @@ import Countdown from "components/Pedidos/Global/Countdown";
 import GuardPedidoActivo from 'containers/Pedidos/GuardPedidoActivo';
 import Loader from 'components/Global/Loader';
 import ImprimirPedidoOriginal from 'components/Pedidos/ResumenPedido/ImprimirPedidoOriginal';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import { IsAllow } from 'components/Seguridad/Permisos';
 //Styles
 import styles from './Pedidos.module.css'
 import './Filtros.css'
@@ -71,7 +71,7 @@ moment.locale('es');
 
 var time;
 class Pedidos extends React.Component {
-   
+
 
     IsEncabezadoCreado = false;
     PedidoId = null;
@@ -116,10 +116,10 @@ class Pedidos extends React.Component {
         firmaPedido: null,
         fechaEntregaPedido: null,
         NumPedido: '#',
-        clientes:[],
-        clientesFiltrados:[],
-        paisSeleccionado:null,
-        Ordenamiento:null
+        clientes: [],
+        clientesFiltrados: [],
+        paisSeleccionado: null,
+        Ordenamiento: null
     };
 
 
@@ -168,42 +168,42 @@ class Pedidos extends React.Component {
 
     cargarClientesContado = () => {
         fetch(this.urlApi + `/api/clientecontado/${localStorage.getItem('codigo')}`)
-        .then(res => {
-            if (res.status === 200) {
+            .then(res => {
+                if (res.status === 200) {
 
-                res.json().then(
-                    (result) => {
-                        this.props.onStoreClienteContado(result);
-                    },
-                    (error) => {
-                        console.log(error)
-                    }
-                )
-            }
-            if (res.status === 401) {  
-                console.log("Ocurrio un error al cargar clientes de contado")
-            }
-        })
+                    res.json().then(
+                        (result) => {
+                            this.props.onStoreClienteContado(result);
+                        },
+                        (error) => {
+                            console.log(error)
+                        }
+                    )
+                }
+                if (res.status === 401) {
+                    console.log("Ocurrio un error al cargar clientes de contado")
+                }
+            })
     }
 
     cargarEmpresasTransporteGlobal = () => {
         fetch(this.urlApi + "/api/transporte/empresas")
-        .then(res => {
-            if (res.status === 200) {
+            .then(res => {
+                if (res.status === 200) {
 
-                res.json().then(
-                    (result) => {
-                        this.props.onSetEmpresasTransporte(result);
-                    },
-                    (error) => {
-                        console.log(error)
-                    }
-                )
-            }
-            if (res.status === 401) {  
-                console.log("Ocurrio un error al cargar empresas transporte global")
-            }
-        })
+                    res.json().then(
+                        (result) => {
+                            this.props.onSetEmpresasTransporte(result);
+                        },
+                        (error) => {
+                            console.log(error)
+                        }
+                    )
+                }
+                if (res.status === 401) {
+                    console.log("Ocurrio un error al cargar empresas transporte global")
+                }
+            })
     }
 
     cargarPrecioCajasGlobal = () => {
@@ -242,7 +242,7 @@ class Pedidos extends React.Component {
                     )
                 }
                 if (res.status === 401) {
-                  console.log("Ocurrio un error al cargar impuesto cliente global")
+                    console.log("Ocurrio un error al cargar impuesto cliente global")
                 }
             })
     }
@@ -261,25 +261,31 @@ class Pedidos extends React.Component {
                     )
                 }
                 if (res.status === 401) {
-                  console.log("Ocurrio un error al cargar impuesto Articulos global")
+                    console.log("Ocurrio un error al cargar impuesto Articulos global")
                 }
             })
     }
 
-    cargarAbreviacionMonedas =  () => {
+    cargarAbreviacionMonedas = () => {
         fetch(this.urlApi + "/api/moneda")
-        .then(res=>res.json())
-        .then(data=>{this.props.onStoreAbreviacionMonedas(data);})
-        .catch(error=>console.log(error))
+            .then(res => res.json())
+            .then(data => { this.props.onStoreAbreviacionMonedas(data); })
+            .catch(error => console.log(error))
     }
 
     cargarColecciones = (empresa) => {
-        let colecciones = this.props.ListaPrecios.filter((x)=>x.EmpresaId===empresa);
+        let colecciones = this.props.ListaPrecios.filter((x) => x.EmpresaId === empresa);
         this.props.onStoreColecciones(colecciones);
     }
-    
+
     cargarMaestroLinea = () => {
-        fetch(this.urlApi + "/api/maestrolinea/")
+        fetch(this.urlApi + "/api/maestrolinea/", {
+            headers: {
+                'Authorization':
+                    'Bearer ' + localStorage.getItem('token')
+
+            }
+        })
             .then(res => {
 
                 if (res.status === 401) {
@@ -366,7 +372,7 @@ class Pedidos extends React.Component {
             )
     }
 
-    cargarMonedas = (empresa) =>{
+    cargarMonedas = (empresa) => {
         ///let empresa = localStorage.getItem('empresa');
         /*fetch(`${this.urlApi}/api/moneda/${empresa}`)
         .then(res=>res.json())
@@ -381,7 +387,7 @@ class Pedidos extends React.Component {
             .then(res => res.json())
             .then(
                 (result) => {
-                    
+
                     this.props.onStoreTiposColeccion(result);
                 },
                 // Note: it's important to handle errors here
@@ -396,7 +402,7 @@ class Pedidos extends React.Component {
             )
     }
 
-    cargarEmpresasTransporte = (empresa) =>{
+    cargarEmpresasTransporte = (empresa) => {
         //const empresa = localStorage.getItem('empresa');
 
         /*fetch(`${this.urlApi}/api/transporte/${empresa}/empresas`)
@@ -407,7 +413,7 @@ class Pedidos extends React.Component {
         this.props.onStoreEmpresasTransporte(empresasTransporteCliente);
     }
 
-    cargarPrecioCajas = (empresa) =>{
+    cargarPrecioCajas = (empresa) => {
         //const empresa = localStorage.getItem('empresa');
 
         /*fetch(`${this.urlApi}/api/transporte/${empresa}/preciocaja`)
@@ -418,7 +424,7 @@ class Pedidos extends React.Component {
         this.props.onStorePrecioCajas(precioCajasCliente);
     }
 
-    cargarImpuestoClientes = (empresa) =>{
+    cargarImpuestoClientes = (empresa) => {
         //const empresa = localStorage.getItem('empresa');
         /*fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/clientes`)
         .then(res=>res.json())
@@ -428,14 +434,14 @@ class Pedidos extends React.Component {
         this.props.onStoreImpuestoClientes(impuestosCliente);
     }
 
-    cargarImpuestoProductos = (empresa) =>{
+    cargarImpuestoProductos = (empresa) => {
         //const empresa = localStorage.getItem('empresa');
 
         /*fetch(`${this.urlApi}/api/gruposimpuestos/${empresa}/articulos`)
         .then(res=>res.json())
         .then(data=>this.props.onStoreImpuestoProductos(data))
         .catch(error=>this.setState({error}))*/
-        let impuestoProductosCliente = this.props.ProductoImpuestosGlobal.filter(x=>x.EMPRESA===empresa);
+        let impuestoProductosCliente = this.props.ProductoImpuestosGlobal.filter(x => x.EMPRESA === empresa);
         this.props.onStoreImpuestoProductos(impuestoProductosCliente);
     }
 
@@ -445,8 +451,7 @@ class Pedidos extends React.Component {
 
     componentDidMount() {
 
-        if(!IsAllow(this.props.match.url))
-        {
+        if (!IsAllow(this.props.match.url)) {
             this.props.history.push('/home');
         }
         this.cargarData();
@@ -456,7 +461,7 @@ class Pedidos extends React.Component {
         // window.onpopstate = this.onBackButtonEvent;
     }
 
-    
+
 
     inactivityTime = () => {
         window.onload = this.resetTimer;
@@ -471,8 +476,8 @@ class Pedidos extends React.Component {
         this.cancelarPedido();
     }
 
-    CargarImpresionPedido = (ValoresPedido) =>{
-        this.props.history.push({pathname:`/Pedidos/ImprimirPedido`,state : JSON.stringify(ValoresPedido)});
+    CargarImpresionPedido = (ValoresPedido) => {
+        this.props.history.push({ pathname: `/Pedidos/ImprimirPedido`, state: JSON.stringify(ValoresPedido) });
     }
 
     countdownHTML = () => {
@@ -603,10 +608,10 @@ class Pedidos extends React.Component {
                 value[color.CodigoColor].Color = color.Color;
                 value[color.CodigoColor].ListaImagenes = color.ListaImagenes;
                 value[color.CodigoColor].Deshabilitado = color.Deshabilitado;
-                
-                 value[color.CodigoColor].Prioridad = color.Prioridad;
-                 let StockColor = producto.fisicaDisponible.filter((e) => e.CodigoColor === color.CodigoColor).map((s) => s.Cantidad).reduce((a, b) => a + b, 0);
-                 value[color.CodigoColor].StockColor = StockColor;
+
+                value[color.CodigoColor].Prioridad = color.Prioridad;
+                let StockColor = producto.fisicaDisponible.filter((e) => e.CodigoColor === color.CodigoColor).map((s) => s.Cantidad).reduce((a, b) => a + b, 0);
+                value[color.CodigoColor].StockColor = StockColor;
 
                 value[color.CodigoColor].Tallas = {}
                 producto.ListaTalla.map(talla => {
@@ -715,7 +720,7 @@ class Pedidos extends React.Component {
             FacturacionEntrega = (
                 <div className="alert alert-danger alert-dismissible fade show" role="alert">
                     <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra con bloqueo ó  en mora.
-            </div>
+                </div>
             )
 
 
@@ -798,16 +803,16 @@ class Pedidos extends React.Component {
                         <tr>
                             <th>
                                 Tipo
-                                    </th>
+                            </th>
                             <th>
                                 Disponible
-                                    </th>
+                            </th>
                             <th>
                                 SaldoTotal
-                                    </th>
+                            </th>
                             <th>
                                 C15Dias
-                                    </th>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -829,16 +834,16 @@ class Pedidos extends React.Component {
                             <tr>
                                 <th>
                                     Tipo
-                                    </th>
+                                </th>
                                 <th>
                                     Disponible
-                                    </th>
+                                </th>
                                 <th>
                                     SaldoTotal
-                                    </th>
+                                </th>
                                 <th>
                                     C15Dias
-                                    </th>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -905,15 +910,14 @@ class Pedidos extends React.Component {
         this.props.history.push("/Pedidos/Colecciones/" + coleccion.ColeccionTipo + "/" + coleccion.CodigoColeccion);
     }
     seleccionarCliente = () => {
-        if(this.state.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && this.props.clienteContado===null)
-        {
+        if (this.state.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && this.props.clienteContado === null) {
             Swal.fire({
                 title: 'Error',
                 text: 'Debe seleccionar un cliente contado',
                 type: 'error',
                 confirmButtonText: 'Ok'
-              })
-        }else{
+            })
+        } else {
             this.cargarColecciones(this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoClientes(this.state.autocompleteValue.EmpresaId);
             this.cargarImpuestoProductos(this.state.autocompleteValue.EmpresaId);
@@ -935,7 +939,7 @@ class Pedidos extends React.Component {
             autocompleteValue: textValue
         });
     }
-    
+
     seleccionarLinea = (linea) => {
         this.props.onSetLineaSeleccionada(linea);
         this.props.history.push("/Pedidos/TipoPedido");
@@ -953,7 +957,7 @@ class Pedidos extends React.Component {
         // this.changeImageProducto('');
         this.props.history.push("/Pedidos/Colecciones/" + this.props.coleccion.ColeccionTipo + "/" + this.props.coleccion.CodigoColeccion);
     }
-    
+
 
     cambiarTabColecciones = (tab) => {
         if (this.state.activeTab !== tab) {
@@ -964,18 +968,18 @@ class Pedidos extends React.Component {
     }
     isPedidoActivo = () => {
         let isProductosSeleccionados = false;
-        isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true :false; 
-                /*let tableValue = { ...this.props.TableValue };
-        if (this.props.LineaSeleccionada && this.props.coleccion) {
-            if (tableValue[this.props.LineaSeleccionada.IdLinea] === undefined || tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion] === undefined) {
-               return isProductosSeleccionados;
-            }
-            const gruposTalla = Object.keys(tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]);
-            isProductosSeleccionados = gruposTalla.length > 0 && gruposTalla.every(grupoTalla => {
-                return tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Mostrar === true;
-            });
+        isProductosSeleccionados = parseInt(localStorage.getItem('ProdEnCarrito')) > 0 ? true : false;
+        /*let tableValue = { ...this.props.TableValue };
+if (this.props.LineaSeleccionada && this.props.coleccion) {
+    if (tableValue[this.props.LineaSeleccionada.IdLinea] === undefined || tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion] === undefined) {
+       return isProductosSeleccionados;
+    }
+    const gruposTalla = Object.keys(tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]);
+    isProductosSeleccionados = gruposTalla.length > 0 && gruposTalla.every(grupoTalla => {
+        return tableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion][grupoTalla].Mostrar === true;
+    });
 
-        }*/
+}*/
         return isProductosSeleccionados;
     }
     toggle = () => {
@@ -991,7 +995,7 @@ class Pedidos extends React.Component {
                 productosSeleccionado = false;
 
             }
-        } catch{
+        } catch {
 
             productosSeleccionado = false;
         }
@@ -1056,11 +1060,11 @@ class Pedidos extends React.Component {
                     tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Mostrar = true;
                 }
             } else {
-                
+
                 tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Mostrar = true;
             }
-         
-        } catch{
+
+        } catch {
             if (tableValue[producto.Linea.IdLinea] === undefined) {
                 tableValue[producto.Linea.IdLinea] = {};
             }
@@ -1147,7 +1151,7 @@ class Pedidos extends React.Component {
         if (isSelected) {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito + 1))
             borrador.ProdEnCarrito = carrito + 1;
-            let newProduct = {...producto,Selected:true};
+            let newProduct = { ...producto, Selected: true };
             this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
@@ -1160,7 +1164,7 @@ class Pedidos extends React.Component {
         } else {
             localStorage.setItem('ProdEnCarrito', parseInt(carrito - 1))
             borrador.ProdEnCarrito = carrito - 1;
-            let newProduct = {...producto,Selected:false};
+            let newProduct = { ...producto, Selected: false };
             this.props.onSetProductoLista(newProduct);
             Object.keys(tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores).forEach((codigoColor) => {
                 let color = tableValue[producto.Linea.IdLinea][producto.CodigoColeccion][producto.GrupoTalla].Productos[producto.ProductoId].Colores[codigoColor];
@@ -1176,7 +1180,7 @@ class Pedidos extends React.Component {
 
         borrador.TableValue = tableValue;
         borrador.TotalPedido = totalAcumulado;
-        localStorage.setItem("borrador",JSON.stringify(borrador));
+        localStorage.setItem("borrador", JSON.stringify(borrador));
 
         this.props.onSetTableValue(tableValue);
         // this.calcularTotal();
@@ -1295,7 +1299,7 @@ class Pedidos extends React.Component {
         let borrador = JSON.parse(localStorage.getItem("borrador"));
         borrador.TableValue = tableValue;
         borrador.TotalPedido = totalAcumulado;
-        localStorage.setItem("borrador",JSON.stringify(borrador));
+        localStorage.setItem("borrador", JSON.stringify(borrador));
 
         this.props.onSetTableValue(tableValue);
     }
@@ -1329,7 +1333,7 @@ class Pedidos extends React.Component {
 
     mostrarResumen = () => {
         // this.setState({ mostrarResumen: true })
-        this.setState({ mostrarRecibo: false})
+        this.setState({ mostrarRecibo: false })
         this.props.history.push("/Pedidos/ResumenPedido");
 
     }
@@ -1360,23 +1364,23 @@ class Pedidos extends React.Component {
         }
     }
 
-    enviarPedidoAx = async (pedido) =>{
+    enviarPedidoAx = async (pedido) => {
         let isOnline = await verificarConexion();
-        if(isOnline){
-            try{
-                const request = await axios.post(this.urlApi + "/api/PedidosXCliente/postax",pedido,{
+        if (isOnline) {
+            try {
+                const request = await axios.post(this.urlApi + "/api/PedidosXCliente/postax", pedido, {
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization':'Bearer ' + localStorage.getItem('token')
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
                     },
-                    timeout:900*1000
+                    timeout: 900 * 1000
                 });
 
                 console.log(request.data);
-            }catch(err){
+            } catch (err) {
                 let mensaje = "Ha ocurrido un error y no se pudo sincronizar el pedido con AX.";
 
-                if(err.response){
+                if (err.response) {
                     mensaje = err.response.data.Message;
                 }
 
@@ -1422,10 +1426,10 @@ class Pedidos extends React.Component {
             }
         }
     }
-  
+
     enviarPeticionPedido = async (location, correlativo) => {
         let isOnline = await verificarConexion();
-        let nuevoSubtotal = this.props.cliente.Codigo.IncluyeImpuesto ? this.props.TotalPedido-Number(localStorage.getItem('Impuesto')) : this.props.TotalPedido;
+        let nuevoSubtotal = this.props.cliente.Codigo.IncluyeImpuesto ? this.props.TotalPedido - Number(localStorage.getItem('Impuesto')) : this.props.TotalPedido;
         let pedido = {
             NumeroReferencia: localStorage.getItem("CorrelativoPedido"),
             //PedidoCache:localStorage.getItem("isOffline"),
@@ -1463,26 +1467,26 @@ class Pedidos extends React.Component {
                     if (tableValue[codigoGrupoTalla].Productos[codigoProducto].Selected) {
                         this.props.coleccion.Edades.map(edad => {
                             let producto = edad.ProductosXEdad.find(prod => prod.ProductoId === codigoProducto);
-                            
+
                             if (producto) {
 
                                 producto.matriz = [];
                                 producto.ListaColores.forEach(color => {
-                            
+
                                     Object.keys(tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas).forEach(talla => {
                                         let detalle = {
-                                            IdProducto:producto.CodigoProducto,
+                                            IdProducto: producto.CodigoProducto,
                                             CodigoProducto: codigoProducto,
                                             NombreProducto: producto.NombreProducto,
                                             CodigoColor: color.CodigoColor,
-                                            NombreColor:color.NombreColor,
+                                            NombreColor: color.NombreColor,
                                             Cantidad: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad,
                                             Unidad: "Und",
                                             PrecioUnitario: tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Precio,
                                             Talla: talla.substring(1),
                                             CodigoColeccion: this.props.coleccion.CodigoColeccion,
                                             PorcentajeDescuento: "",
-                                            Edad:edad.IdEdad
+                                            Edad: edad.IdEdad
                                         };
                                         if (tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad > 0) {
                                             pedido.DetallePedido.push(detalle);
@@ -1500,7 +1504,7 @@ class Pedidos extends React.Component {
                 })
             }
         })
-       
+
         let total = pedido.subtotal + pedido.Impuesto + pedido.Flete
         this.reducirDisponibleAcuerdo(pedido.CodigoCliente, total, pedido.TipoPedido.TipoPedido, pedido.AcuerdoVenta);
         if (!isOnline || localStorage.getItem("Conexion") === "offline" || pedido.NumeroReferencia === "") {
@@ -1557,7 +1561,7 @@ class Pedidos extends React.Component {
                         title: 'Advertencia',
                         text: "Actualmente no dispone de internet el pedido se guardara en cache.",
                     });
-        
+
                     const data = postPedidoStorage(pedido);
                     let numPedido = data.EncabezadoPedido.PedidoId;
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
@@ -1567,8 +1571,7 @@ class Pedidos extends React.Component {
                 }
 
                 const { correlativo, mensaje } = data;
-                if(mensaje)
-                {
+                if (mensaje) {
                     if (mensaje.includes("flotante")) {
                         Swal.fire({
                             type: 'warning',
@@ -1579,7 +1582,7 @@ class Pedidos extends React.Component {
                     this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: correlativo });
                     this.props.onSetNumeroOrden(correlativo);
                 }
-                else{
+                else {
                     Swal.fire({
                         type: 'warning',
                         title: 'Advertencia',
@@ -1591,7 +1594,7 @@ class Pedidos extends React.Component {
                     localStorage.setItem("isOffline", true);
                 }
             }
-            
+
         }
     }
 
@@ -1612,11 +1615,11 @@ class Pedidos extends React.Component {
         this.props.onStoreClientes(newlistaClientes);
     }
 
-    desactivarLoading = ()=>{
-        this.setState((prevState)=>({...prevState,loadingRecibo:false}));
+    desactivarLoading = () => {
+        this.setState((prevState) => ({ ...prevState, loadingRecibo: false }));
     }
 
-    enviarPedido = async (correlativo)=> {
+    enviarPedido = async (correlativo) => {
         localStorage.removeItem("ColeccionSeleccionada");
         localStorage.removeItem("HoraIngreso");
         localStorage.removeItem("ProdEnCarrito");
@@ -1625,9 +1628,9 @@ class Pedidos extends React.Component {
             this.enviarPeticionPedido({
                 longitude: position.coords.longitude,
                 latitude: position.coords.latitude
-            },correlativo)
+            }, correlativo)
         }, (error) => {
-            this.enviarPeticionPedido(null,correlativo);
+            this.enviarPeticionPedido(null, correlativo);
         });
     }
     FinalizarPedidoOnline = () => {
@@ -1957,15 +1960,15 @@ class Pedidos extends React.Component {
         return filtros;
     }
 
-    seleccionarPais=(pais)=>{
+    seleccionarPais = (pais) => {
         /*clientes:this.props.clientes,
         clientesFiltrados:[],
         paisSeleccionado:null*/
-        if(this.state.paisSeleccionado===pais){
-            this.setState((prevState)=>({...prevState,clientesFiltrados:prevState.clientes,paisSeleccionado:null,autocompleteValue:null}));
-        }else{
-            const paisFiltrado = this.state.clientes.filter(x=>x.EmpresaId===pais);
-            this.setState((prevState)=>({...prevState,clientesFiltrados:paisFiltrado,paisSeleccionado:pais,autocompleteValue:null}))
+        if (this.state.paisSeleccionado === pais) {
+            this.setState((prevState) => ({ ...prevState, clientesFiltrados: prevState.clientes, paisSeleccionado: null, autocompleteValue: null }));
+        } else {
+            const paisFiltrado = this.state.clientes.filter(x => x.EmpresaId === pais);
+            this.setState((prevState) => ({ ...prevState, clientesFiltrados: paisFiltrado, paisSeleccionado: pais, autocompleteValue: null }))
         }
     }
 
@@ -2050,7 +2053,7 @@ class Pedidos extends React.Component {
                         TableValue={this.props.TableValue}
                         LineaSeleccionada={this.props.LineaSeleccionada}
                         TipoPedido={this.props.TipoPedido}
-                        BodegaSeleccionada= {this.props.BodegaSeleccionada}
+                        BodegaSeleccionada={this.props.BodegaSeleccionada}
                     >
                     </PedidosBreadCrumb>
                     <Switch>
@@ -2074,29 +2077,29 @@ class Pedidos extends React.Component {
                                                     distanceFromBottom,
                                                     calculatedHeight
                                                 }) => (
-                                                        <header style={{ ...style, zIndex: 3 }}>
-                                                            <div className="text-center" style={{
-                                                                backgroundColor: '#F8F9FA',
-                                                                fontSize: '15px',
-                                                                marginTop: '-0.5rem',
-                                                                paddingTop: '0.5rem',
-                                                                fontWeight: 500,
-                                                                borderBottom: '1px solid #aaa',
-                                                                letterSpacing: '0.5px',
-                                                            }}>
-                                                                <TotalXPedido
-                                                                    TableValue={this.props.TableValue[this.props.LineaSeleccionada.IdLinea] === undefined ? null : this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]}
-                                                                    // GrupoPrecioCliente={props.cliente.GrupoPrecio}
-                                                                    AcuerdoVenta={this.props.AcuerdoVenta}
-                                                                    cliente={this.props.cliente}
-                                                                    TipoPedido={this.props.TipoPedido}
-                                                                    TotalPedido={this.props.TotalPedido}
-                                                                    lineal
-                                                                />
-                                                            </div>
+                                                    <header style={{ ...style, zIndex: 3 }}>
+                                                        <div className="text-center" style={{
+                                                            backgroundColor: '#F8F9FA',
+                                                            fontSize: '15px',
+                                                            marginTop: '-0.5rem',
+                                                            paddingTop: '0.5rem',
+                                                            fontWeight: 500,
+                                                            borderBottom: '1px solid #aaa',
+                                                            letterSpacing: '0.5px',
+                                                        }}>
+                                                            <TotalXPedido
+                                                                TableValue={this.props.TableValue[this.props.LineaSeleccionada.IdLinea] === undefined ? null : this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]}
+                                                                // GrupoPrecioCliente={props.cliente.GrupoPrecio}
+                                                                AcuerdoVenta={this.props.AcuerdoVenta}
+                                                                cliente={this.props.cliente}
+                                                                TipoPedido={this.props.TipoPedido}
+                                                                TotalPedido={this.props.TotalPedido}
+                                                                lineal
+                                                            />
+                                                        </div>
 
-                                                        </header>
-                                                    )}
+                                                    </header>
+                                                )}
                                             </Sticky>
                                             {
                                                 this.state.expandable ?
@@ -2146,23 +2149,23 @@ class Pedidos extends React.Component {
                                         guardarFecha={this.setFechaEntregaPedido}
                                         NumeroOrden={this.props.NumeroOrden}
                                         FinalizarPedidoOnline={this.FinalizarPedidoOnline}
-                                        CargarImpresionPedido = {this.CargarImpresionPedido}
+                                        CargarImpresionPedido={this.CargarImpresionPedido}
                                         obtenerUltimoCorrelativo={this.obtenerUltimoCorrelativo}
                                     ></ResumenPedido>
                                 )
                             }}
                         />
-                          <Route
+                        <Route
                             exact
                             path={this.props.match.url + '/ImprimirPedido'}
                             render={(routeProps) => {
                                 return (
-                                    <ImprimirPedidoOriginal 
+                                    <ImprimirPedidoOriginal
                                         tableValue={this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]}
-                                        firma = {this.state.firmaPedido}
-                                        Cliente = {this.props.cliente}
+                                        firma={this.state.firmaPedido}
+                                        Cliente={this.props.cliente}
                                         ValoresPedido={JSON.parse(routeProps.location.state)}
-                                        NumeroOrden = {this.props.NumeroOrden}
+                                        NumeroOrden={this.props.NumeroOrden}
                                         reiniciarPedido={this.reiniciarPedido}
                                         cancelarPedido={this.cancelarPedido}>
                                     </ImprimirPedidoOriginal>
@@ -2175,7 +2178,7 @@ class Pedidos extends React.Component {
                             render={() =>
                                 <Container fluid={true}>
                                     <Row style={{ marginBottom: '1rem' }}>
-                                        
+
                                         <Col style={{ textAlign: 'right' }}>
                                             <Dropdown
                                                 onCommand={this.cancelarPedido.bind(this)}
@@ -2323,91 +2326,91 @@ class Pedidos extends React.Component {
                                                     distanceFromBottom,
                                                     calculatedHeight
                                                 }) => (
-                                                        <header style={style} className="Especial2 p-0 shadow">
-                                                            <div className="row align-items-center">
-                                                                <div className="col-md-2 col-6 pr-0">
-                                                                    <div className="col-12 pr-0">
-                                                                        <Media queries={{
-                                                                            mobile: "(max-width: 767px)",
-                                                                            desktop: "(min-width: 768px)"
-                                                                        }}>
-                                                                            {matches => (
-                                                                                <>
-                                                                                    {
-                                                                                        matches.mobile &&
-                                                                                        <span style={{ fontSize: "20px" }} id="menu-toggle-mobile" onClick={() => this.Alerta()}><FaAlignJustify /></span>
-                                                                                    }
-                                                                                    {
-                                                                                        matches.desktop &&
-                                                                                        <span style={{ fontSize: "20px" }} id="menu-toggle" onClick={() => this.Alerta()}><FaAlignJustify /> Filtros</span>
-                                                                                    }
-                                                                                </>
-                                                                            )}
-                                                                        </Media>
-                                                                    </div>
-                                                                </div>
-
-
-                                                                <div className="order-md-last col-md-1 col-6 text-right py-1 pl-0" style={{ zIndex: 3 }}>
-                                                                    <SearchButton onSearch={this.SearchProductos} clear={this.ClearSearch} />
-                                                                    {/* {!this.props.NumeroOrden ? <Button style={{ marginLeft: '0.5rem', display: 'inline' }} onClick={() => { this.CrearEncabezadoPedidoOnline() }} outline>C</Button> : null} */}
-                                                                    <Button variant="outlined" color="primary" onClick={this.toggle} style={{ marginLeft: '0.5rem' }}  startIcon ={<FaShoppingCart/>}>
-                                                                        {parseInt(localStorage.getItem('ProdEnCarrito'))}
-                                                                    </Button>                   
-                                                                </div>
-
-                                                                <div className="col-md-9 text-right" style={{ zIndex: 2 }}>
-                                                                    <div className="row align-items-center justify-content-around justify-content-md-start">
-                                                                        {this.props.coleccion.Edades.map((edad, index0, self) => {
-                                                                            if (self.map(e => e.IdEdad).indexOf(edad.IdEdad) === index0) {
-                                                                                return (
-                                                                                    <div
-                                                                                        key={index0}
-                                                                                        className={this.state.filtroEdad === edad.IdEdad ? "especiala especialaActive" : "especiala"}
-                                                                                        onClick={() => this.SelectFiltroEdad(edad.IdEdad)}
-                                                                                    >
-                                                                                        {edad.Edad}
-                                                                                    </div>
-                                                                                    // <Link
-                                                                                    //     key={index0}
-                                                                                    //     className="especiala"
-                                                                                    //     activeClass="especialaActive"
-                                                                                    //     to={'section' + edad.IdEdad}
-                                                                                    //     spy={true}
-                                                                                    //     smooth={"easeOutCubic"}
-                                                                                    //     offset={-70}
-                                                                                    //     duration={1500}
-                                                                                    // >
-                                                                                    //     {edad.Edad}
-                                                                                    // </Link>
-                                                                                )
-                                                                            }
-                                                                            return null;
-                                                                        })}
-
-                                                                    </div>
-
+                                                    <header style={style} className="Especial2 p-0 shadow">
+                                                        <div className="row align-items-center">
+                                                            <div className="col-md-2 col-6 pr-0">
+                                                                <div className="col-12 pr-0">
+                                                                    <Media queries={{
+                                                                        mobile: "(max-width: 767px)",
+                                                                        desktop: "(min-width: 768px)"
+                                                                    }}>
+                                                                        {matches => (
+                                                                            <>
+                                                                                {
+                                                                                    matches.mobile &&
+                                                                                    <span style={{ fontSize: "20px" }} id="menu-toggle-mobile" onClick={() => this.Alerta()}><FaAlignJustify /></span>
+                                                                                }
+                                                                                {
+                                                                                    matches.desktop &&
+                                                                                    <span style={{ fontSize: "20px" }} id="menu-toggle" onClick={() => this.Alerta()}><FaAlignJustify /> Filtros</span>
+                                                                                }
+                                                                            </>
+                                                                        )}
+                                                                    </Media>
                                                                 </div>
                                                             </div>
-                                                            <div className="row" style={{ backgroundColor: '#90B9CB', fontSize: '15px' }}>
-                                                                {/* <div className="2">
+
+
+                                                            <div className="order-md-last col-md-1 col-6 text-right py-1 pl-0" style={{ zIndex: 3 }}>
+                                                                <SearchButton onSearch={this.SearchProductos} clear={this.ClearSearch} />
+                                                                {/* {!this.props.NumeroOrden ? <Button style={{ marginLeft: '0.5rem', display: 'inline' }} onClick={() => { this.CrearEncabezadoPedidoOnline() }} outline>C</Button> : null} */}
+                                                                <Button variant="outlined" color="primary" onClick={this.toggle} style={{ marginLeft: '0.5rem' }} startIcon={<FaShoppingCart />}>
+                                                                    {parseInt(localStorage.getItem('ProdEnCarrito'))}
+                                                                </Button>
+                                                            </div>
+
+                                                            <div className="col-md-9 text-right" style={{ zIndex: 2 }}>
+                                                                <div className="row align-items-center justify-content-around justify-content-md-start">
+                                                                    {this.props.coleccion.Edades.map((edad, index0, self) => {
+                                                                        if (self.map(e => e.IdEdad).indexOf(edad.IdEdad) === index0) {
+                                                                            return (
+                                                                                <div
+                                                                                    key={index0}
+                                                                                    className={this.state.filtroEdad === edad.IdEdad ? "especiala especialaActive" : "especiala"}
+                                                                                    onClick={() => this.SelectFiltroEdad(edad.IdEdad)}
+                                                                                >
+                                                                                    {edad.Edad}
+                                                                                </div>
+                                                                                // <Link
+                                                                                //     key={index0}
+                                                                                //     className="especiala"
+                                                                                //     activeClass="especialaActive"
+                                                                                //     to={'section' + edad.IdEdad}
+                                                                                //     spy={true}
+                                                                                //     smooth={"easeOutCubic"}
+                                                                                //     offset={-70}
+                                                                                //     duration={1500}
+                                                                                // >
+                                                                                //     {edad.Edad}
+                                                                                // </Link>
+                                                                            )
+                                                                        }
+                                                                        return null;
+                                                                    })}
+
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                        <div className="row" style={{ backgroundColor: '#90B9CB', fontSize: '15px' }}>
+                                                            {/* <div className="2">
 
                                                                 </div> */}
-                                                                <div className={"col-md-12 col-12 p-0"}>
-                                                                    <TotalXPedido
-                                                                        TableValue={this.props.TableValue[this.props.LineaSeleccionada.IdLinea] === undefined ? null : this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]}
-                                                                        // GrupoPrecioCliente={props.cliente.GrupoPrecio}
-                                                                        AcuerdoVenta={this.props.AcuerdoVenta}
-                                                                        color={'white'}
-                                                                        lineal
-                                                                        cliente={this.props.cliente}
-                                                                        TotalPedido={this.props.TotalPedido}
-                                                                        TipoPedido={this.props.TipoPedido}
-                                                                    />
-                                                                </div>
+                                                            <div className={"col-md-12 col-12 p-0"}>
+                                                                <TotalXPedido
+                                                                    TableValue={this.props.TableValue[this.props.LineaSeleccionada.IdLinea] === undefined ? null : this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion]}
+                                                                    // GrupoPrecioCliente={props.cliente.GrupoPrecio}
+                                                                    AcuerdoVenta={this.props.AcuerdoVenta}
+                                                                    color={'white'}
+                                                                    lineal
+                                                                    cliente={this.props.cliente}
+                                                                    TotalPedido={this.props.TotalPedido}
+                                                                    TipoPedido={this.props.TipoPedido}
+                                                                />
                                                             </div>
-                                                        </header>
-                                                    )}
+                                                        </div>
+                                                    </header>
+                                                )}
                                             </Sticky>
                                             <div className={"col-12 p-0 bg-white"}>
 
@@ -2489,7 +2492,7 @@ class Pedidos extends React.Component {
                                                                                                 :
                                                                                                 <div className="text-center">
                                                                                                     Sin Resultados
-                                                                                        </div>
+                                                                                                </div>
                                                                                         }
                                                                                     </div>
                                                                                 </div>
@@ -2513,9 +2516,9 @@ class Pedidos extends React.Component {
                                                                             placeholder="Seleccione ordenamiento"
                                                                             closeOnChange={true}
                                                                             value={this.state.Ordenamiento}
-                                                                            options={ this.OpcionesOrdenamiento()}
-                                                                            onChange={(e, { value }) =>{
-                                                                                this.setState((prevState)=>({...prevState,Ordenamiento:value}));
+                                                                            options={this.OpcionesOrdenamiento()}
+                                                                            onChange={(e, { value }) => {
+                                                                                this.setState((prevState) => ({ ...prevState, Ordenamiento: value }));
                                                                             }}
                                                                         />
                                                                     </div>
@@ -2614,7 +2617,7 @@ class Pedidos extends React.Component {
                                     <Colecciones
                                         {...routeProps}
                                         Click={this.getColeccion}
-                                        reiniciarPedido = {this.reiniciarPedido}
+                                        reiniciarPedido={this.reiniciarPedido}
                                         colecciones={this.props.colecciones}
                                         TiposColeccion={this.props.TiposColeccion}
                                         LineaSeleccionada={this.props.LineaSeleccionada}
@@ -2627,60 +2630,60 @@ class Pedidos extends React.Component {
                         />
                         <Redirect from={this.props.match.url + '/Colecciones'} to={this.props.match.url + '/Colecciones/B'} />
                         <div>
-                            {this.props.Paises.length>1 &&
-                            <div className="container-fluid" style={{display:'flex',marginBottom:'10px'}}>
-                                <h4>Filtro por pais</h4>
-                                <div>
-                                    {
-                                    // eslint-disable-next-line
-                                    this.props.Paises.map(pais=>{
-                                        if(pais.EmpresaId==="IMHN"){
-                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'};
-                                            if(this.state.paisSeleccionado==="IMHN"){
-                                               stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'}
-                                            }
+                            {this.props.Paises.length > 1 &&
+                                <div className="container-fluid" style={{ display: 'flex', marginBottom: '10px' }}>
+                                    <h4>Filtro por pais</h4>
+                                    <div>
+                                        {
+                                            // eslint-disable-next-line
+                                            this.props.Paises.map(pais => {
+                                                if (pais.EmpresaId === "IMHN") {
+                                                    let stylePaises = { width: '30px', height: '30px', marginLeft: '25px' };
+                                                    if (this.state.paisSeleccionado === "IMHN") {
+                                                        stylePaises = { width: '30px', height: '30px', marginLeft: '25px', outline: '5px solid green' }
+                                                    }
 
-                                            return <img alt="honduras" src={honduras} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
-                                        }else if(pais.EmpresaId==="IMCR"){
-                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'};
-                                            if(this.state.paisSeleccionado==="IMCR"){
-                                                stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
-                                            }
-                                            return <img alt="costarica" src={costarica} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
-                                        }else if(pais.EmpresaId==="IMGT"){
-                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'}
-                                            if(this.state.paisSeleccionado==="IMGT"){
-                                                stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
-                                            }
-                                            return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
-                                        }else if(pais.EmpresaId==="IMSL"){
-                                            let stylePaises={width:'30px',height:'30px',marginLeft:'25px'}
-                                            if(this.state.paisSeleccionado==="IMSL"){
-                                                stylePaises = {width:'30px',height:'30px',marginLeft:'25px',outline:'5px solid green'};
-                                            }
-                                            return <img alt="salvador" src={salvador} style={stylePaises} onClick={()=>{this.seleccionarPais(pais.EmpresaId)}}/>
-                                        }
-                                    })}
+                                                    return <img alt="honduras" src={honduras} style={stylePaises} onClick={() => { this.seleccionarPais(pais.EmpresaId) }} />
+                                                } else if (pais.EmpresaId === "IMCR") {
+                                                    let stylePaises = { width: '30px', height: '30px', marginLeft: '25px' };
+                                                    if (this.state.paisSeleccionado === "IMCR") {
+                                                        stylePaises = { width: '30px', height: '30px', marginLeft: '25px', outline: '5px solid green' };
+                                                    }
+                                                    return <img alt="costarica" src={costarica} style={stylePaises} onClick={() => { this.seleccionarPais(pais.EmpresaId) }} />
+                                                } else if (pais.EmpresaId === "IMGT") {
+                                                    let stylePaises = { width: '30px', height: '30px', marginLeft: '25px' }
+                                                    if (this.state.paisSeleccionado === "IMGT") {
+                                                        stylePaises = { width: '30px', height: '30px', marginLeft: '25px', outline: '5px solid green' };
+                                                    }
+                                                    return <img alt="guatemala" src={guatemala} style={stylePaises} onClick={() => { this.seleccionarPais(pais.EmpresaId) }} />
+                                                } else if (pais.EmpresaId === "IMSL") {
+                                                    let stylePaises = { width: '30px', height: '30px', marginLeft: '25px' }
+                                                    if (this.state.paisSeleccionado === "IMSL") {
+                                                        stylePaises = { width: '30px', height: '30px', marginLeft: '25px', outline: '5px solid green' };
+                                                    }
+                                                    return <img alt="salvador" src={salvador} style={stylePaises} onClick={() => { this.seleccionarPais(pais.EmpresaId) }} />
+                                                }
+                                            })}
+                                    </div>
                                 </div>
-                            </div>
-                        }
-                        <SelectCliente
-                            clientes={this.state.clientesFiltrados}
-                            value={this.state.autocompleteValue}
-                            textValue={this.textValueChange}
-                            fetchSuggestions={this.querySearch}
-                            onSelect={this.handleSelect}
-                            setCliente={this.seleccionarCliente}
-                            refrescarClienteSeleccionado={this.refrescarClienteSeleccionado}
-                            autocompleteValue={this.state.autocompleteValue}
-                            loading={this.state.selectClienteLoading}
-                            codigoClientePreseleccionado={this.props.location.state ? this.props.location.state.CodigoCliente : null}
-                            infoCliente={this.infoCliente}
-                            onSetTableValue={this.props.onSetTableValue}
-                            onSetTotalPedido={this.props.onSetTotalPedido}
-                            onSetNumeroOrden={this.props.onSetNumeroOrden}
-                            ModuloConfiguraciones = {this.ModuloConfiguraciones}
-                        />
+                            }
+                            <SelectCliente
+                                clientes={this.state.clientesFiltrados}
+                                value={this.state.autocompleteValue}
+                                textValue={this.textValueChange}
+                                fetchSuggestions={this.querySearch}
+                                onSelect={this.handleSelect}
+                                setCliente={this.seleccionarCliente}
+                                refrescarClienteSeleccionado={this.refrescarClienteSeleccionado}
+                                autocompleteValue={this.state.autocompleteValue}
+                                loading={this.state.selectClienteLoading}
+                                codigoClientePreseleccionado={this.props.location.state ? this.props.location.state.CodigoCliente : null}
+                                infoCliente={this.infoCliente}
+                                onSetTableValue={this.props.onSetTableValue}
+                                onSetTotalPedido={this.props.onSetTotalPedido}
+                                onSetNumeroOrden={this.props.onSetNumeroOrden}
+                                ModuloConfiguraciones={this.ModuloConfiguraciones}
+                            />
                         </div>
                     </Switch>
                 </div>
@@ -2706,9 +2709,9 @@ class Pedidos extends React.Component {
         toast: true,
         position: 'top',
         showConfirmButton: false,
-        background:'red',
+        background: 'red',
         timer: 3000,
-      })
+    })
 
 
     alertaLimiteCredito() {
@@ -2748,7 +2751,7 @@ class Pedidos extends React.Component {
         }
 
         borrador.TableValue = tableValue;
-        localStorage.setItem("borrador",JSON.stringify(borrador));
+        localStorage.setItem("borrador", JSON.stringify(borrador));
 
         this.props.onSetTableValue(tableValue);
     }
@@ -2762,7 +2765,7 @@ class Pedidos extends React.Component {
 
         var found = false;
         var agregados = this.props.listaProductosAgregados;
-        
+
 
         var contador = this.state.unidadesCarrito;
 
@@ -2823,25 +2826,25 @@ const mapStateToProps = state => {
         Limite: state.Limite,
         NumeroOrden: state.NumeroOrden,
         TiposColeccion: state.TiposColeccion,
-        clienteContado:state.clienteContado,
-        flete:state.flete,
-        requiereEntrega:state.requiereEntrega,
-        impuesto:state.Impuesto,
-        Paises:state.Permisos[0].EmpresasUsuarios,
-        ListaPrecios:state.ListaPrecios,
-        MonedasGlobal:state.MonedasGlobal,
-        EmpresaTransporteGlobal:state.EmpresaTransporteGlobal,
-        PrecioCajasGlobal:state.PrecioCajasGlobal,
-        ClienteImpuestosGlobal:state.ClienteImpuestosGlobal,
-        ProductoImpuestosGlobal:state.ProductoImpuestosGlobal,
-        UsuarioOficina:state.Permisos[0].UsuarioOficina,
+        clienteContado: state.clienteContado,
+        flete: state.flete,
+        requiereEntrega: state.requiereEntrega,
+        impuesto: state.Impuesto,
+        Paises: state.Permisos[0].EmpresasUsuarios,
+        ListaPrecios: state.ListaPrecios,
+        MonedasGlobal: state.MonedasGlobal,
+        EmpresaTransporteGlobal: state.EmpresaTransporteGlobal,
+        PrecioCajasGlobal: state.PrecioCajasGlobal,
+        ClienteImpuestosGlobal: state.ClienteImpuestosGlobal,
+        ProductoImpuestosGlobal: state.ProductoImpuestosGlobal,
+        UsuarioOficina: state.Permisos[0].UsuarioOficina,
         BodegaSeleccionada: state.BodegaSeleccionada
     };
 };
 const mapDispatchToProps = dispatch => {
     return {
-        onSetProductoLista:(producto) =>dispatch({type:'SET_PRODUCTOAGREGADO',payload:producto}),
-        onSetBloqueo:(valor)=>dispatch({ type: 'SET_BLOQUEO', payload: valor }),
+        onSetProductoLista: (producto) => dispatch({ type: 'SET_PRODUCTOAGREGADO', payload: producto }),
+        onSetBloqueo: (valor) => dispatch({ type: 'SET_BLOQUEO', payload: valor }),
         onStoreColecciones: (colecciones) => dispatch({ type: 'STORE_COLECCIONES', colecciones: colecciones }),
         onStoreClientes: (clientes) => dispatch({ type: 'STORE_CLIENTES', clientes: clientes }),
         onStoreTipoPedido: (TipoPedido) => dispatch({ type: 'STORE_TIPO_PEDIDO', TipoPedido: TipoPedido }),
@@ -2862,20 +2865,20 @@ const mapDispatchToProps = dispatch => {
         onStoreTiposColeccion: (TiposColeccion) => dispatch({ type: 'STORE_TIPOS_COLECCION', TiposColeccion: TiposColeccion }),
         onStoreDatosParaPedido: (colecciones, clientes, TiposPedido, maestroLineas) => dispatch(
             { type: 'STORE_DATOSPARAPEDIDO', colecciones: colecciones, clientes: clientes, TiposPedido: TiposPedido, maestroLineas: maestroLineas }),
-        onStoreEmpresasTransporte:(empresas)=>dispatch({type:'SET_EMPRESASTRANSPORTE',payload:empresas}),
-        onStorePrecioCajas:(precioCajas)=>dispatch({type:'SET_PRECIOCAJAS',payload:precioCajas}),
-        onStoreImpuestoClientes:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOS',payload:impuestos}),
-        onStoreImpuestoProductos:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOS',payload:impuestos}),
-        onSaveMonedas:(monedas)=>{dispatch({type:'SET_MONEDAS',payload:monedas})},
-        onSetEmpresasTransporte: (data) => {dispatch({ type: 'SET_EMPRESASTRANSPORTEGLOBAL', payload: data })},
-        onStorePrecioCajasGlobal:(precioCajas)=>dispatch({type:'SET_PRECIOCAJASGLOBAL',payload:precioCajas}),
-        onStoreImpuestoClientesGlobal:(impuestos)=>dispatch({type:'SET_CLIENTEIMPUESTOSGLOBAL',payload:impuestos}),
-        onStoreImpuestoProductosGlobal:(impuestos)=>dispatch({type:'SET_PRODUCTOIMPUESTOSGLOBAL',payload:impuestos}),
-        onStoreAbreviacionMonedas:(data)=> dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data }),
-        onStoreClienteContado:(data)=> dispatch({ type: 'SET_CLIENTESCONTADO', payload: data }),
-        onStoreComunidadAutonoma:(data)=> dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data }),
-        onStoreMonedas:(data)=> dispatch({ type: 'SET_MONEDASGLOBAL', payload: data }),
-        onSaveListaPrecios:(precios)=>{dispatch({type:'SET_LISTAPRECIOS',payload:precios})},
+        onStoreEmpresasTransporte: (empresas) => dispatch({ type: 'SET_EMPRESASTRANSPORTE', payload: empresas }),
+        onStorePrecioCajas: (precioCajas) => dispatch({ type: 'SET_PRECIOCAJAS', payload: precioCajas }),
+        onStoreImpuestoClientes: (impuestos) => dispatch({ type: 'SET_CLIENTEIMPUESTOS', payload: impuestos }),
+        onStoreImpuestoProductos: (impuestos) => dispatch({ type: 'SET_PRODUCTOIMPUESTOS', payload: impuestos }),
+        onSaveMonedas: (monedas) => { dispatch({ type: 'SET_MONEDAS', payload: monedas }) },
+        onSetEmpresasTransporte: (data) => { dispatch({ type: 'SET_EMPRESASTRANSPORTEGLOBAL', payload: data }) },
+        onStorePrecioCajasGlobal: (precioCajas) => dispatch({ type: 'SET_PRECIOCAJASGLOBAL', payload: precioCajas }),
+        onStoreImpuestoClientesGlobal: (impuestos) => dispatch({ type: 'SET_CLIENTEIMPUESTOSGLOBAL', payload: impuestos }),
+        onStoreImpuestoProductosGlobal: (impuestos) => dispatch({ type: 'SET_PRODUCTOIMPUESTOSGLOBAL', payload: impuestos }),
+        onStoreAbreviacionMonedas: (data) => dispatch({ type: 'SET_ABREVACIONMONEDAS', payload: data }),
+        onStoreClienteContado: (data) => dispatch({ type: 'SET_CLIENTESCONTADO', payload: data }),
+        onStoreComunidadAutonoma: (data) => dispatch({ type: 'SET_COMUNIDADAUTONOMA', payload: data }),
+        onStoreMonedas: (data) => dispatch({ type: 'SET_MONEDASGLOBAL', payload: data }),
+        onSaveListaPrecios: (precios) => { dispatch({ type: 'SET_LISTAPRECIOS', payload: precios }) },
         onSetBodegaSeleccionada: (BodegaSeleccionada) => dispatch({ type: 'SET_BODEGASELECCIONADA', payload: BodegaSeleccionada })
     };
 };
