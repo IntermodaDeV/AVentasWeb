@@ -6,32 +6,29 @@ import styles from "components/ListadoRecibos/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
 import axios from 'axios';
-import {useSelector} from 'react-redux';
-import {APIURL} from 'utils/Enviroment';
-import {ObtenerCoordenadas} from 'utils/common';
+import { useSelector } from 'react-redux';
+import { APIURL } from 'utils/Enviroment';
+import { ObtenerCoordenadas } from 'utils/common';
 
 const Recibo = (props) => {
-    const [numeroCopia,setNumeroCopia] = useState(props.recibo.NumeroCopia);
-    const Monedas = useSelector(e=>e.AbreviacionMonedas);
-    const clientesContado = useSelector(e=>e.clientesContado);
-    const empresas = useSelector(e=>e.Empresas);
+    const [numeroCopia, setNumeroCopia] = useState(props.recibo.NumeroCopia);
+    const Monedas = useSelector(e => e.AbreviacionMonedas);
+    const clientesContado = useSelector(e => e.clientesContado);
+    const empresas = useSelector(e => e.Empresas);
     const empresaCliente = props.recibo.Cliente.Codigo.split("-")[0];
     let NombreCliente = props.recibo.Cliente.Nombre;
-    let DireccionCliente=props.recibo.Cliente.Direccion; 
-    const clienteContado = props.recibo.Pedido !==null && props.recibo.Pedido !==undefined ? clientesContado.find(x=>x.id=== props.recibo.Pedido.ClienteContadoId) : null;
+    let DireccionCliente = props.recibo.Cliente.Direccion;
+    const clienteContado = props.recibo.Pedido !== null && props.recibo.Pedido !== undefined ? clientesContado.find(x => x.id === props.recibo.Pedido.ClienteContadoId) : null;
     let valor = props.recibo.Valor;
-    const empresa = empresas.find(x=>x.COMPANY_CODE === empresaCliente.toUpperCase());
-    const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Cliente.Moneda).Abreviacion;
-    if(clienteContado!==null && clienteContado!==undefined)
-    {
-            if(valor < 10000)
-            {
-                NombreCliente = 'CONSUMIDOR FINAL';
-            }
-            else
-            {
-                NombreCliente = clienteContado.Nombre;
-            }
+    const empresa = empresas.find(x => x.COMPANY_CODE === empresaCliente.toUpperCase());
+    const moneda = Monedas.find(e => e.IdMoneda === props.recibo.Cliente.Moneda).Abreviacion;
+    if (clienteContado !== null && clienteContado !== undefined) {
+        if (valor < 10000) {
+            NombreCliente = 'CONSUMIDOR FINAL';
+        }
+        else {
+            NombreCliente = clienteContado.Nombre;
+        }
         DireccionCliente = clienteContado.Direccion;
     }
 
@@ -39,31 +36,31 @@ const Recibo = (props) => {
 
     const RegistrarLogs = async () => {
         let logRecibo = {};
-            ObtenerCoordenadas((position) => {
-                logRecibo = {
-                    numRecibo: props.recibo.NumeroRecibo,
-                    Usuario: localStorage.getItem("codigo"),
-                    Fecha: new Date(),
-                    Latitude: position.coords.latitude,
-                    Longitude: position.coords.longitude
-                };
-                postLogRecibos(logRecibo);
-            }, (error) => {
-                logRecibo = {
-                    numRecibo: props.recibo.NumeroRecibo,
-                    Usuario: localStorage.getItem("codigo"),
-                    Fecha: new Date(),
-                    Latitude: null,
-                    Longitude: null
-                };
-                postLogRecibos(logRecibo);
-            });
+        ObtenerCoordenadas((position) => {
+            logRecibo = {
+                numRecibo: props.recibo.NumeroRecibo,
+                Usuario: localStorage.getItem("codigo"),
+                Fecha: new Date(),
+                Latitude: position.coords.latitude,
+                Longitude: position.coords.longitude
+            };
+            postLogRecibos(logRecibo);
+        }, (error) => {
+            logRecibo = {
+                numRecibo: props.recibo.NumeroRecibo,
+                Usuario: localStorage.getItem("codigo"),
+                Fecha: new Date(),
+                Latitude: null,
+                Longitude: null
+            };
+            postLogRecibos(logRecibo);
+        });
     }
 
     const postLogRecibos = async (data) => {
         try {
             const request = await axios.post(`${APIURL}/api/logImpresionRecibo`, data);
-            setNumeroCopia((prev)=>(prev+1));
+            setNumeroCopia((prev) => (prev + 1));
             return request.data;
         } catch (err) {
             console.log(err);
@@ -80,17 +77,17 @@ const Recibo = (props) => {
                         <div className="row">
                             <img className="pr-3" alt={"Logo"} width={180} style={{ objectFit: 'contain' }} src={Logo} ></img>
                             <div className="col text-left m-auto">
-                                <div style={{display:'flex',justifyContent:'space-between'}}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <h2 className={"m-0 " + styles.Title}>
                                         {empresa.NAME}
                                     </h2>
                                     <h4 style={{ fontWeight: 'bolder' }}>{(numeroCopia <= 4 ? "Original" : "Copia")}</h4>
                                 </div>
-                                <div style={{display:'flex',justifyContent:'space-between'}}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
                                         {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                                     </h3>
-                                    <h5 style={{fontWeight:'bolder'}}> Impresión No. {numeroCopia}</h5>
+                                    <h5 style={{ fontWeight: 'bolder' }}> Impresión No. {numeroCopia}</h5>
                                 </div>
                             </div>
                         </div>
@@ -133,22 +130,22 @@ const Recibo = (props) => {
                                         <tr>
                                             <th>
                                                 Tipo Pago
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Esp. Pago
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Fecha
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Referencia
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Banco
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Monto
-                                                    </th>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -213,8 +210,8 @@ const Recibo = (props) => {
                                                                 {moment(factu.FechaFactura).format("DD/MM/YYYY")}
                                                             </td>
                                                             <td>
-                                                             {factu.EsAbono === true && "Abono"}
-                                                             {factu.EsAbono === false && "Cancelado"}
+                                                                {factu.EsAbono === true && "Abono"}
+                                                                {factu.EsAbono === false && "Cancelado"}
                                                             </td>
                                                             <td>
 
@@ -224,22 +221,22 @@ const Recibo = (props) => {
                                                                 {numberWithCommas(Number(factu.ValorFactura))}
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
-                                                                  {factu.cuota ? "Cuota: " + factu.cuota : ""}
+                                                                {factu.cuota ? "Cuota: " + factu.cuota : ""}
                                                             </td>
                                                         </tr>
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
                                                                 {factu.Factura}
-                                                                {factu.NumeroFel !== "" && factu.NumeroFel !== null  && 
-                                                                " - FEL: " + factu.NumeroFel                                                    
-                                                                } 
+                                                                {factu.NumeroFel !== "" && factu.NumeroFel !== null &&
+                                                                    " - FEL: " + factu.NumeroFel
+                                                                }
                                                             </td>
                                                             <td>
                                                                 {"Dias: " + factu.DiasVencimiento}
                                                             </td>
                                                             <td>
                                                                 Desc
-                                                        {/* {factu.Parcial2 !=='0' ? 'D':'' } */}
+                                                                {/* {factu.Parcial2 !=='0' ? 'D':'' } */}
                                                             </td>
                                                             <td>
 
@@ -267,8 +264,9 @@ const Recibo = (props) => {
                                 </h3>
                             </div>
 
-                            <div className="col-6 p-0 m-auto">
-                                <div className={styles.FirmaContainer}>
+                            <div className="col-6 p-0 m-auto" style={{ display: "flex", flexDirection: "column" }}>
+                                {props.recibo.firma !== "" && <img alt="Firma asesor" src={props.recibo.firma} style={{ height: 150, alignSelf: "center" }} />}
+                                <div className={styles.FirmaContainer} style={{ marginTop: props.recibo.firma !== "" ? 16 : 160 }}>
                                     <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
                                         {props.recibo.NombreAsesor}
                                     </h4>
@@ -284,14 +282,14 @@ const Recibo = (props) => {
                     trigger={() =>
                         <Button color="primary">
                             Imprimir
-                            </Button>
+                        </Button>
                     }
                     onAfterPrint={() => RegistrarLogs()}
                     content={() => componentRef.current}
                 />
                 <Button onClick={() => props.hidePrint()} color="primary">
                     Finalizar
-                        </Button>
+                </Button>
             </DialogActions>
         </>
     )

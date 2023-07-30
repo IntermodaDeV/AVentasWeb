@@ -171,6 +171,7 @@ const navItems = [
         expanded: [
             { to: '/seguridad-permisos', name: 'Asignar Permisos', dataTut: 'DataTut_AsignarPermisos', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/seguridad-mantenimiento', name: 'Mantenimiento', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt, backgroundColor:''  },
+            { to: '/seguridad-firma', name: 'Firmas', dataTut: 'DataTut_Mantenimiento', Icon: ListAlt, backgroundColor:''  },
         ]
     },
     { to: '/inventarios', name: 'Inventarios', dataTut: 'DataTut_Inventarios', Icon: StoreMallDirectoryOutlined },

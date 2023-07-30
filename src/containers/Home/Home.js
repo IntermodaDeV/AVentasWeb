@@ -268,6 +268,7 @@ export const Home = (props) => {
 
     const CargaModuloRecibo = () => {
         cargarCorrelativoRecibo();
+        cargarFirmaRecibo();
         cargarClientesRecibos();///Siempre debe ser el Ultimo Metodo
     }
 
@@ -482,6 +483,24 @@ export const Home = (props) => {
             console.log(error);*/
         }
     }
+
+    const cargarFirmaRecibo = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/recibos/firma/${localStorage.getItem('empresa')}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            localStorage.setItem("firmarecibo", request.data)
+        }
+        catch (error) {
+            /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarRecibo")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]))
+            console.log(error);*/
+        }
+    }
+
     /*--------- ----------------CARGA DE INFORMACION EN FLUJO DE PEDIDOS--------------------------------------*/
     const cargarCorrelativoPedido = async () => {
         try {
