@@ -35,10 +35,20 @@ export const FirmaPantalla = () => {
 
     const onFileChange = async (id, e) => {
         try {
+            const IMG_EXTENSION = ["jpg", "png", "jpeg", "gif"];
+            const extension = e.target.files[0].name.split('.')[1];
+
+            if (!IMG_EXTENSION.includes(extension.toLowerCase())) {
+                alert("El archivo seleccionado no es imagen.");
+                return
+            }
+
             const fileBase = await createBase64Image(e.target.files[0]);
             await axios.post(`${APIURL}/api/asesor/firma`, { id: id, firma: fileBase });
             obtenerAsesoresActivos();
-        } catch (e) { }
+        } catch (e) {
+            alert("Ocurrio un error y no se pudo actualizar la fotografia.");
+        }
     }
 
     useEffect(() => {
@@ -49,7 +59,7 @@ export const FirmaPantalla = () => {
         <MuiThemeProvider theme={getMuiTheme()}>
             <MUIDataTable
                 title={"Listado Firmas"}
-                data={asesores.map(asesor => [asesor.id, asesor.codigo, asesor.nombre, asesor.empresa, asesor.firma === null ? "Sin Firma" : <img alt="Firma asesor" style={{height:150}} src={`data:image/png;base64,${asesor.firma}`} />, <input type="file" onChange={(e) => onFileChange(asesor.id, e)} />])}
+                data={asesores.map(asesor => [asesor.id, asesor.codigo, asesor.nombre, asesor.empresa, asesor.firma === null ? "Sin Firma" : <img alt="Firma asesor" style={{ height: 150 }} src={`data:image/png;base64,${asesor.firma}`} />, <input type="file" accept="image/*" onChange={(e) => onFileChange(asesor.id, e)} />])}
                 columns={HeadersListaPedidos}
                 options={DatatableOptions}
             />
