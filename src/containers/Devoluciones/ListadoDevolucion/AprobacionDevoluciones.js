@@ -72,7 +72,8 @@ export const AprobacionDevolucion = (props) => {
 
     const CancelarDevolucion = async () => {
         try {
-            await axios.post(`${APIURL}/api/devolucion/rechazarDevoluciones/${devolucion.NumDevolucion}/${observacion}`, {}, {
+            const data = { numero: devolucion.NumDevolucion, motivo: observacion };
+            await axios.post(`${APIURL}/api/devolucion/rechazarDevoluciones`, data, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -213,7 +214,7 @@ export const AprobacionDevolucion = (props) => {
                 p.NumDevolucion,
                 p.CodigoCliente,
                 p.NombreCliente,
-                p.motivoDevolucion,
+                `${p.MotivoDevolucionDetalle.CodigoMotivoDevolucion} - ${p.MotivoDevolucionDetalle.Descripcion}`,
                 p.Linea,
                 p.FacturaOrigen,
                 p.PedidoOrigen,
