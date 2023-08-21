@@ -49,11 +49,10 @@ export const IsAllow = (Ruta, expanded) => {
 export const PermisoExcepcionDescuento = () => {
     const globalState = store.getState();
     const Permisos = globalState["Permisos"];
-    const UsuarioElevadoOficinaCreditos = 83;
 
     for (const Permiso of Permisos) {
         for (const Roles of Permiso.RolesUsuarios) {
-            if (Roles.Id === UsuarioElevadoOficinaCreditos) {
+            if (Roles.Nombre === "Aprobador excepcion descuento") {
                 return true;
             }
         }
