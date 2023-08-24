@@ -311,10 +311,16 @@ const DetalleRecibo = (props) => {
                     return prev;
                 }, {});
 
+                let pagadoCuota = {};
+
                 for (let cuotProc of cuotasAProcesar) {
                     PagoAcumulado = Number(parseFloat(PagoAcumulado).toFixed(2));
                     const saldoTotalCuota = saldoCuota[cuotProc.NumeroCuota];
                     const descuentoTotalCuota = Number(parseFloat(descuentoCuota[cuotProc.NumeroCuota]).toFixed(2));
+
+                    if (!(cuotProc.NumeroCuota in pagadoCuota)) {
+                        pagadoCuota[cuotProc.NumeroCuota] = 0;
+                    }
 
                     let isChequePosFechado = pago.indexTiposPago === 0 && pago.indexTiposdePagoDetalle === 1;
                     let aplicaADescuento = false;
@@ -323,7 +329,7 @@ const DetalleRecibo = (props) => {
                     let descuentoAplicar = calcularDescuentoAplicar(cuotasAProcesar, cuotProc, descuentoTotalCuota);
 
                     if (aplicaDescuentoFechaPosfechado) {
-                        aplicaADescuento = PagoAcumulado == 0 ? true : PagoAcumulado >= (saldoTotalCuota - descuentoTotalCuota);
+                        aplicaADescuento = PagoAcumulado == 0 ? true : PagoAcumulado >= (saldoTotalCuota - descuentoTotalCuota - pagadoCuota[cuotProc.NumeroCuota]);
                         montoAPagar = aplicaADescuento ? cuotProc.Saldo - cuotProc.PagoAplicado - descuentoAplicar : cuotProc.Saldo - cuotProc.PagoAplicado;
                     } else {
                         montoAPagar = cuotProc.Saldo - cuotProc.PagoAplicado;
@@ -362,6 +368,8 @@ const DetalleRecibo = (props) => {
                             cuotProc.APagar = montoAPagar;
                         }
                     }
+
+                    pagadoCuota[cuotProc.NumeroCuota] = pagadoCuota[cuotProc.NumeroCuota] + montoAPagar;
                 };
             }
         });
