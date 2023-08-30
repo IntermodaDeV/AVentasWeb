@@ -45,7 +45,10 @@ if(localStorage.getItem('empresa')==='IMGT')
     columns.splice(3,0,{ name: 'Numero FEL', label: 'Numero FEL', options: { customHeadRender: columnRender } })
 }
 
-const numberWithCommas = (numero)=>(numero.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+const numberWithCommas = (numero)=>{
+    numero = Number(numero)
+    return (numero.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
+}
 
 const CuentaCorrienteTable = props => {
     const cuentaCorriente = useSelector(e=>e.CuentaImprimir);
@@ -133,7 +136,7 @@ const CuentaCorrienteTable = props => {
         const cantidadFacturas = data.length;
         const totalValor = cuentaCorriente.reduce((pre,curr)=>(pre+curr.Valor),0);
         const totalSaldo = cuentaCorriente.reduce((pre,curr)=>(pre+curr.Saldo),0);
-        const totalDescuento = cuentaCorriente.reduce((pre,curr)=>(pre+curr.Descuento),0);
+        const totalDescuento = cuentaCorriente.reduce((pre, curr) => (pre + Number(curr.Descuento)), 0);
         const totalPagar = cuentaCorriente.reduce((pre,curr)=>(pre+curr.APagar),0);
 
         data.push([`Facturas: ${cantidadFacturas}`,'','','','',numberWithCommas(totalValor),numberWithCommas(totalSaldo),'','',numberWithCommas(totalDescuento),numberWithCommas(totalPagar)]);

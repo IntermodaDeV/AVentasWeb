@@ -336,7 +336,7 @@ const GastosPendientes = (props) => {
     ];
 
     const DatatableOptions = {
-        filter: false,
+        filter: true,
         filterType: "dropdown",
         responsive: "scrollMaxHeight",
         print: false,

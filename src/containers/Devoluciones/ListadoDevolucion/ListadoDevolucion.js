@@ -9,7 +9,7 @@ import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
 import PrintOutlined from '@material-ui/icons/PrintOutlined';
 //import GridOnIcon from '@material-ui/icons/GridOn';
-import { FaFileExcel } from "react-icons/fa";
+import { FaFileExcel,FaInfo } from "react-icons/fa";
 import FileSaver from 'file-saver';
 import XLSX from 'xlsx';
 import { Dropdown } from "semantic-ui-react";
@@ -17,6 +17,7 @@ import { useSelector } from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
 import { ImprimirPedidoDevolucion } from 'components/Devoluciones/ImprimirPedidoDevolucion';
 import moment from 'moment';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 
 export const ListadoDevolucion = (props) => {
     const [devoluciones, setDevoluciones] = useState([]);
@@ -33,6 +34,7 @@ export const ListadoDevolucion = (props) => {
         ObtenerlistadoDevoluciones();
 
         let asesoresMap = AsesoresUsuario.map((Ase) => ({ key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }));
+        asesoresMap.unshift({ key: "Todo", value: "Todo", text: "Todo" });
         setAsesores(asesoresMap);
         // eslint-disable-next-line
     }, [])
@@ -139,8 +141,8 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
-            label: "Estado AX",
-            name: "EstadoAX",
+            label: "Estado",
+            name: "Estado",
             options: {
                 filter: true,
             }
@@ -222,8 +224,19 @@ export const ListadoDevolucion = (props) => {
         }
     }
 
+    const mostrarDetalleDevolucion = (e) => {
+        const notaCredito = e.NotaCredito === null ? "No disponible" : e.NotaCredito;
+        const fechaNotaCredito = e.FechaNotaCredito === null ? "No disponible" : moment(e.FechaNotaCredito).format('DD/MM/YYYY hh:mm a');
+        const fechaCreacionAx = e.FechaCreacionAx === null ? "No disponible" : moment(e.FechaCreacionAx).format('DD/MM/YYYY hh:mm a');
+        const fechaCreacion = moment(e.FechaCreacion).format('DD/MM/YYYY hh:mm a');
+
+        Swal.fire({
+            title: "<h3>Detalle AX</h3>",
+            html: `<div><p><b>Fecha Ingreso:</b> ${fechaCreacion}</p><p><b>Fecha Ingreso AX:</b> ${fechaCreacionAx}</p><p><b>Fecha Nota Credito:</b> ${fechaNotaCredito}</p><p><b>Nota Credito:</b> ${notaCredito}</p></div>`,
+        });
+    }
+
     const Data = () => {
-        console.log("devoluciones",devoluciones)
         return devoluciones.map(p => (
             [
                 p.NumDevolucion,
@@ -231,7 +244,7 @@ export const ListadoDevolucion = (props) => {
                 p.PedidoDevolucion,
                 p.CodigoCliente,
                 p.NombreCliente,
-                p.motivoDevolucion,
+                `${p.MotivoDevolucionDetalle.CodigoMotivoDevolucion} - ${p.MotivoDevolucionDetalle.Descripcion}`,
                 p.TotalUnidades,
                 moment(p.FechaCreacion).format("DD/MM/YYYY"),
                 p.IdLinea,
@@ -251,6 +264,11 @@ export const ListadoDevolucion = (props) => {
                     <span className="ml-1">
                         <Button className='my-1' variant="outlined" size="large" onClick={() => { obtenerReporteDevolucion(p.NumDevolucion) }} color={"primary"}>
                             <FaFileExcel />
+                        </Button>
+                    </span >
+                    <span className="ml-1">
+                        <Button className='my-1' variant="outlined" size="large" onClick={() => { mostrarDetalleDevolucion(p) }} color={"primary"}>
+                            <FaInfo />
                         </Button>
                     </span >
                 </div>

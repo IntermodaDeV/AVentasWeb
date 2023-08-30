@@ -16,8 +16,8 @@ export const CuentaCorriente = props => {
         props.cliente.AcuerdosXTipoPedido.forEach(acuXTip => {
             acuXTip.Acuerdos.forEach(acu => {
                 acu.Facturas.forEach(fact => {
-                    fact.Cuotas.forEach(cuot => {
-                        let diasVencimiento = moment().diff(cuot.FechaVencimiento, 'days') * -1;
+                    fact.Cuotas.filter(c => c.Saldo > 0).forEach(cuot => {
+                        let diasVencimiento = (moment().diff(cuot.FechaVencimiento, 'days') * -1) + 1;
                         let diasDescuento = (moment().diff(cuot.FechaMaxDescuento, 'days') * -1) + 1;
                         let aPagar = cuot.Saldo;
                         if (diasDescuento >= 0 && cuot.Descuento) {
@@ -35,52 +35,13 @@ export const CuentaCorriente = props => {
                                 IdAcuerdoxCliente: <span className={colorFuente}>{cuot.IdAcuerdoxCliente}</span>,// IdAcuerdoxCliente
                                 NumeroCuota: <span className={colorFuente}>{cuot.NumeroCuota}</span>,// NumeroCuota
                                 FechaFactura: <span className={colorFuente}>{moment(cuot.FechaFactura).format("DD/MM/YYYY")}</span>,// FechaFactura
-                                FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento
+                                FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY") === '01/01/1900' ? '' : moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento
                                 Dias: <span className={colorFuente}>{isNaN(diasVencimiento) ? "" : diasVencimiento}</span>,// Dias
                                 Valor: <span className={colorFuente}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Valor
                                 Saldo: <span className={colorFuente}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Saldo
-                                FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900'? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
-                                DiasV: <span className={colorFuente}>{isNaN(diasDescuento) || moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") === '01/01/1900'? "" : diasDescuento}</span>, // DiasV
-                                Descuento: <span className={colorFuente}>{cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
-                            APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
-                                idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
-                            });
-
-                            agrupacionCuentaCorriente.push({
-                                Tipo: cuot.TipoDocumento, // Tipo
-                                TipoPedido: acuXTip.TipoPedido,// TipoPedido
-                                Factura: fact.Factura,// Factura
-                                NumeroFEL: fact.NumeroFEL,
-                                IdAcuerdoxCliente: cuot.IdAcuerdoxCliente,// IdAcuerdoxCliente
-                                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
-                                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
-                                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
-                                Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
-                                Valor: cuot.ValorCuota,// Valor
-                                Saldo: cuot.Saldo,// Saldo
-                                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900'? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
-                                DiasV: isNaN(diasDescuento) || moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") === '01/01/1900'? "" : diasDescuento, // DiasV
-                                Descuento: cuot.Descuento,// Descuento
-                                APagar: aPagar,// APagar
-                                idmoneda: cuot.IdMoneda,// idmoneda
-                            });
-
-                        }
-                        else {
-                            agrupacionCuentCorriente.push({
-                                Tipo: <span className={colorFuente}>{cuot.TipoDocumento}</span>, // Tipo
-                                TipoPedido: <span className={colorFuente}>{acuXTip.TipoPedido}</span>,// TipoPedido
-                                Factura: <span className={colorFuente}>{fact.Factura}</span>,// Factura
-                                IdAcuerdoxCliente: <span className={colorFuente}>{cuot.IdAcuerdoxCliente}</span>,// IdAcuerdoxCliente
-                                NumeroCuota: <span className={colorFuente}>{cuot.NumeroCuota}</span>,// NumeroCuota
-                                FechaFactura: <span className={colorFuente}>{moment(cuot.FechaFactura).format("DD/MM/YYYY")}</span>,// FechaFactura
-                                FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento
-                                Dias: <span className={colorFuente}>{isNaN(diasVencimiento) ? "" : diasVencimiento}</span>,// Dias
-                                Valor: <span className={colorFuente}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Valor
-                                Saldo: <span className={colorFuente}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Saldo
-                                FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900'? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
-                                DiasV: <span className={colorFuente}>{isNaN(diasDescuento) || moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") === '01/01/1900'? "" : diasDescuento}</span>, // DiasV
-                                Descuento: <span className={colorFuente}>{cuot.Descuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
+                                FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900' ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
+                                DiasV: <span className={colorFuente}>{isNaN(diasDescuento) ? "" : diasDescuento}</span>, // DiasV
+                                Descuento: <span className={colorFuente}>{cuot.Descuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
                             });
@@ -97,20 +58,54 @@ export const CuentaCorriente = props => {
                                 Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
                                 Valor: cuot.ValorCuota,// Valor
                                 Saldo: cuot.Saldo,// Saldo
-                                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900'? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
-                                DiasV: isNaN(diasDescuento) || moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") === '01/01/1900'? "" : diasDescuento, // DiasV
+                                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900' ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                                DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV
                                 Descuento: cuot.Descuento,// Descuento
                                 APagar: aPagar,// APagar
                                 idmoneda: cuot.IdMoneda,// idmoneda
                             });
+                        }
+                        else {
+                            agrupacionCuentCorriente.push({
+                                Tipo: <span className={colorFuente}>{cuot.TipoDocumento}</span>, // Tipo
+                                TipoPedido: <span className={colorFuente}>{acuXTip.TipoPedido}</span>,// TipoPedido
+                                Factura: <span className={colorFuente}>{fact.Factura}</span>,// Factura
+                                IdAcuerdoxCliente: <span className={colorFuente}>{cuot.IdAcuerdoxCliente}</span>,// IdAcuerdoxCliente
+                                NumeroCuota: <span className={colorFuente}>{cuot.NumeroCuota}</span>,// NumeroCuota
+                                FechaFactura: <span className={colorFuente}>{moment(cuot.FechaFactura).format("DD/MM/YYYY")}</span>,// FechaFactura
+                                FechaVencimiento: <span className={colorFuente}>{moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,// FechaVencimiento
+                                Dias: <span className={colorFuente}>{isNaN(diasVencimiento) ? "" : diasVencimiento}</span>,// Dias
+                                Valor: <span className={colorFuente}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Valor
+                                Saldo: <span className={colorFuente}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Saldo
+                                FechaMaxDescuento: <span className={colorFuente}>{moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900' ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,// FechaMaxDescuento
+                                DiasV: <span className={colorFuente}>{isNaN(diasDescuento) || moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") === '01/01/1900' ? "" : diasDescuento}</span>, // DiasV
+                                Descuento: <span className={colorFuente}>{cuot.Descuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
+                                APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
+                                idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
+                            });
 
+                            agrupacionCuentaCorriente.push({
+                                Tipo: cuot.TipoDocumento, // Tipo
+                                TipoPedido: acuXTip.TipoPedido,// TipoPedido
+                                Factura: fact.Factura,// Factura
+                                IdAcuerdoxCliente: cuot.IdAcuerdoxCliente,// IdAcuerdoxCliente
+                                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
+                                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+                                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+                                Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
+                                Valor: cuot.ValorCuota,// Valor
+                                Saldo: cuot.Saldo,// Saldo
+                                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                                DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV
+                                Descuento: cuot.Descuento,// Descuento
+                                APagar: aPagar,// APagar
+                                idmoneda: cuot.IdMoneda,// idmoneda
+                            });
                         }
                     });
                 });
             });
         });
-
-
         agrupacionCuentCorriente.sort((a, b) => {
             if (moment(a.FechaVencimiento.props.children, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento.props.children, "DD/MM/YYYY"), 'day')) {
                 return 1;
@@ -152,45 +147,11 @@ export const CuentaCorriente = props => {
         });
 
         agrupacionCuentaCorriente.sort((a, b) => {
-            if (moment(a.FechaVencimiento, "DD/MM/YYYY").isAfter(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-                return 1;
-            }
-            if (moment(a.FechaVencimiento, "DD/MM/YYYY").isBefore(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-                return -1;
-            }
-            if (moment(a.FechaVencimiento, "DD/MM/YYYY").isSame(moment(b.FechaVencimiento, "DD/MM/YYYY"), 'day')) {
-                return 0;
-            }
-
-            return 0;
-
+            return moment(a.FechaVencimiento).diff(b.FechaVencimiento);
         });
 
         agrupacionCuentaCorriente.sort((a, b) => {
-            if (a.Factura < b.Factura) {
-
-                return -1;
-            }
-            if (a.Factura > b.Factura) {
-
-                return 1;
-            }
-
-            return 0;
-
-        });
-
-        agrupacionCuentaCorriente.sort((a, b) => {
-            if (a.NumeroCuota < b.NumeroCuota) {
-
-                return -1;
-            }
-            if (a.NumeroCuota > b.NumeroCuota) {
-
-                return 1;
-            }
-            
-            return 0;
+            return a.Factura < b.Factura ? -1 : 1;
         });
 
         agrupacionCuentCorriente.push({

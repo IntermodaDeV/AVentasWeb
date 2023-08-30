@@ -17,7 +17,7 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import SearchIcon from "@material-ui/icons/Search";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
-import { IsAllow } from 'components/Seguridad/Permisos';
+import { IsAllow, PermisoExcepcionDescuento } from 'components/Seguridad/Permisos';
 import CachedIcon from '@material-ui/icons/Cached';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import axios from 'axios';
@@ -27,6 +27,7 @@ import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import { FacturasReservadas } from 'components/Cartera/FacturasReservadas';
 import moment from 'moment';
+import { ExcepcionDescuento } from 'components/Cartera/ExcepcionDescuento';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
@@ -38,6 +39,64 @@ export const Cartera = props => {
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
     const [asesor, setAsesor] = useState(AsesoresUsuario[0]);
     const [showClientes, setShowClientes] = useState(true);
+
+    const calcularDescuentoNuevaLogica = (clienteSeleccionado) => {
+        let cliente = {...clienteSeleccionado};
+        for (let AcuerdosXTipoPedido of cliente.AcuerdosXTipoPedido) {
+
+            for (let Acuerdos of AcuerdosXTipoPedido.Acuerdos) {
+                let acuerdosFacturas = Acuerdos.Facturas.filter(f => f.Descuento === 0);
+
+                for (let Facturas of acuerdosFacturas) {
+                    let Descuento = cliente.MaestroDescuento.length > 0 ? cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea) : [];
+                    let noAplicaDescuento = Descuento.length === 0;
+
+                    let totalDocumentosAplicados = 0;
+
+                    if (Facturas.DocumentosAplicadosAFacturas.length > 0) {
+                        totalDocumentosAplicados = Facturas.DocumentosAplicadosAFacturas.reduce((prev, curr) => prev + curr.Valor, 0);
+                    };
+
+                    Facturas.Descuento = noAplicaDescuento ? 0 : Facturas.TotalFactura * (Descuento[0].Porcentaje / 100);
+                    for (let Cuotas of Facturas.Cuotas) {
+
+                        let valordescuento = 0;
+                        if (AcuerdosXTipoPedido.AgrupaPorCuota === true) {
+                            if (Acuerdos.DescuentoEnAcuerdos !== null) {
+                                let Flete = 0;
+
+                                let DocumentoCuota = cliente.DocumentosAplicadosxCuotas.find(x => x.IdAcuerdoxCliente === Acuerdos.Acuerdo && x.NumeroCuota === Cuotas.NumeroCuota);
+                                if (DocumentoCuota !== undefined) {
+                                    totalDocumentosAplicados = DocumentoCuota.Valor;
+                                    Flete = DocumentoCuota.Flete;
+                                }
+
+                                if (Acuerdos.DescuentoEnAcuerdos != null) {
+                                    let consumidoCuota = Cuotas.SaldoCuota - Cuotas.DisponibleCuota;
+                                    let totalfactura = consumidoCuota - totalDocumentosAplicados - Flete;
+                                    valordescuento = totalfactura * (Acuerdos.DescuentoEnAcuerdos.Porcentaje / 100);
+                                }
+                                Cuotas.Descuento = valordescuento.toFixed(2);
+                            }
+                        }
+                        else {
+                            let fechaMaxDescuent = noAplicaDescuento ? moment(Facturas.FechaFactura).format() : moment(Facturas.FechaFactura).add(Descuento[0].DiasDescuento, 'days').format();
+
+                            Facturas.FechaMaxDescuento = fechaMaxDescuent;
+                            Cuotas.FechaMaxDescuento = fechaMaxDescuent;
+
+                            let totalfactura = Cuotas.ValorCuota - totalDocumentosAplicados - Cuotas.Flete
+                            valordescuento = noAplicaDescuento ? 0 : totalfactura * (Descuento[0].Porcentaje / 100);
+                            Cuotas.Descuento = valordescuento.toFixed(2);
+                        }
+                    };
+
+                };
+            };
+        };
+
+        return cliente;
+    }
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
@@ -137,14 +196,16 @@ export const Cartera = props => {
             e.preventDefault();
             if (localStorage.getItem("indice") !== "null" && localStorage.getItem("indice") !== "0") {
                 let index = Number(localStorage.getItem("indice"));
-                setCliente(clientes[index - 1]);
+                const nuevoCliente = calcularDescuentoNuevaLogica(clientes[index - 1]);
+                setCliente(nuevoCliente);
                 localStorage.setItem("indice", (index - 1));
                 return;
             }
         } else if (e.which === 40) {
             e.preventDefault();
             if (localStorage.getItem("indice") === "null" && clientes.length > 0) {
-                setCliente(clientes[0]);
+                const nuevoCliente = calcularDescuentoNuevaLogica(clientes[0]);
+                setCliente(nuevoCliente);
                 localStorage.setItem("indice", 0);
                 return;
             } else {
@@ -153,7 +214,8 @@ export const Cartera = props => {
                     return;
                 }
                 if ((index + 1) <= clientes.length) {
-                    setCliente(clientes[index + 1]);
+                    const nuevoCliente = calcularDescuentoNuevaLogica(clientes[index + 1]);
+                    setCliente(nuevoCliente);
                     localStorage.setItem("indice", (index + 1));
                     return;
                 }
@@ -181,7 +243,8 @@ export const Cartera = props => {
         let index = clientes.map(x => x.Codigo).indexOf(id);
         const clienteSeleccionado = clientes.find(x => x.Codigo === id);
         localStorage.setItem("indice", index);
-        setCliente(clienteSeleccionado);
+        const nuevoCliente = calcularDescuentoNuevaLogica(clienteSeleccionado);
+        setCliente(nuevoCliente);
     }
 
     const redirectCartera = () => {
@@ -194,6 +257,10 @@ export const Cartera = props => {
 
     const redirectDocumentosPendientes = () => {
         props.history.push('/cartera/facturas-reservadas');
+    }
+
+    const redirectExcepcionDescuento = () => {
+        props.history.push('/cartera/excepcion-descuento');
     }
 
     const handleChangeBusqueda = (busqueda) => {
@@ -265,6 +332,7 @@ export const Cartera = props => {
                                 <Tab onClick={redirectCartera} icon={<PersonIcon />} label="Informacion" />
                                 <Tab onClick={redirectRoles} icon={<ContactMailIcon />} label="Cuenta Corriente" />
                                 <Tab onClick={redirectDocumentosPendientes} icon={<ContactMailIcon />} label="Facturas Reservadas" />
+                                {PermisoExcepcionDescuento() && <Tab onClick={redirectExcepcionDescuento} icon={<ContactMailIcon />} label="Excepción Descuento" />}
                             </Tabs>
                         </Paper>
                         <div style={{ height: '90%' }} className="card">
@@ -272,6 +340,7 @@ export const Cartera = props => {
                                 <Route exact path={`${props.match.url}`} render={(props) => <InformacionGeneral cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/cuenta`} render={(props) => <CuentaCorriente cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/facturas-reservadas`} render={(props) => <FacturasReservadas cliente={cliente} />} />
+                                {PermisoExcepcionDescuento() && <Route exact path={`${props.match.url}/excepcion-descuento`} render={(props) => <ExcepcionDescuento cliente={cliente} />} />}
                             </Switch>
                         </div>
                     </div></>)

@@ -67,6 +67,7 @@ import { GrupoImpuesto } from 'components/GastoAsesores/GrupoImpuestos/GrupoImpu
 import GastosRechazar from 'containers/GastosAsesores/GastosRechazar'
 import { SeguimientoCalidad } from 'containers/Devoluciones/ListadoDevolucion/SeguimientoCalidad'
 import { SincronizacionEspecifica } from 'containers/Sincronizacion/SincronizacionEspecifica'
+import { FirmaPantalla } from 'containers/Seguridad/Firmas/FirmaPantalla'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -342,6 +343,11 @@ const App = props => {
               path='/seguridad-permisos'
               layout={MainLayout}
               component={Relacional}
+            />
+            <LayoutRoute
+              path='/seguridad-firma'
+              layout={MainLayout}
+              component={FirmaPantalla}
             />
             <LayoutRoute
               path='/Mantenimiento/Encuesta'

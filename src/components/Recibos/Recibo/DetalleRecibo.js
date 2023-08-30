@@ -225,6 +225,54 @@ const DetalleRecibo = (props) => {
         return cuotasAgrupadas;
 
     }
+
+    const esFacturaConMayorSaldoCuota = (facturas, factura) => {
+        const nuevasFacturas = facturas.filter(x => x.NumeroCuota === factura.NumeroCuota);
+        nuevasFacturas.sort((a, b) => (a.Saldo > b.Saldo) ? -1 : 1);
+        return nuevasFacturas[0].Saldo === factura.Saldo;
+    }
+
+    const existeFacturaCubreDescuento = (facturas, numeroCuota, descuentoCuota) => {
+        const nuevasFacturas = facturas.filter(x => x.NumeroCuota === numeroCuota);
+
+        for (let factura of nuevasFacturas) {
+            if (factura.Saldo >= descuentoCuota) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    const calcularDescuentoAplicar = (facturas, factura, descuentoCuota) => {
+        const saldoMayorADescuento = factura.Saldo >= descuentoCuota;
+        if (esFacturaConMayorSaldoCuota(facturas, factura) && saldoMayorADescuento) {
+            return descuentoCuota;
+        }
+
+        if (existeFacturaCubreDescuento(facturas, factura.NumeroCuota, descuentoCuota)) {
+            return 0;
+        }
+
+        const facturasCuota = facturas.filter(x => x.NumeroCuota === factura.NumeroCuota);
+        let copiaDescuento = descuentoCuota;
+
+        for (let facturaCuota of facturasCuota) {
+            //Si es la ultima factura de la cuota devolvemos el descuento sobrante
+            if (facturaCuota.NumeroFactura === facturasCuota[facturasCuota.length - 1].NumeroFactura) {
+                return copiaDescuento;
+            }
+
+            if (facturaCuota.NumeroFactura === factura.NumeroFactura) {
+                return copiaDescuento > facturaCuota.Saldo ? facturaCuota.Saldo : copiaDescuento;
+            }
+
+            copiaDescuento -= facturaCuota.Saldo;
+        }
+
+        return 0;
+    }
+
     const CalculoCuotasAgrupadasYDescuento = () => {
         let valorPagos = 0;
         let Descuento = 0;
@@ -242,35 +290,88 @@ const DetalleRecibo = (props) => {
             let PagoAcumulado = Number(pago.valor);
             let fechaPago = pago.fecha;
             if (PagoAcumulado >= 0) {
-                cuotasAProcesar.forEach(cuotProc => {
-                     //let isChequePosFechado = pago.indexTiposPago === 0 && pago.indexTiposdePagoDetalle === 1;
-                     let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days') /*&& !isChequePosFechado*/;
-                     let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento/*.toFixed(2)*/) : (cuotProc.Saldo - cuotProc.PagoAplicado);
-                    //if(calculo.current===2){
+                const saldoCuota = cuotasAProcesar.reduce((prev, curr) => {
+                    const { NumeroCuota, Saldo } = curr;
+                    if (NumeroCuota in prev) {
+                        prev[NumeroCuota] = prev[NumeroCuota] + Saldo;
+                        return prev;
+                    }
+
+                    prev[NumeroCuota] = Saldo;
+                    return prev;
+                }, {});
+
+                const descuentoCuota = cuotasAProcesar.reduce((prev, curr) => {
+                    const { NumeroCuota, ValorDescuento } = curr;
+                    if (!(NumeroCuota in prev)) {
+                        prev[NumeroCuota] = ValorDescuento;
+                        return prev;
+                    }
+
+                    return prev;
+                }, {});
+
+                let pagadoCuota = {};
+
+                for (let cuotProc of cuotasAProcesar) {
+                    PagoAcumulado = Number(parseFloat(PagoAcumulado).toFixed(2));
+                    const saldoTotalCuota = saldoCuota[cuotProc.NumeroCuota];
+                    const descuentoTotalCuota = Number(parseFloat(descuentoCuota[cuotProc.NumeroCuota]).toFixed(2));
+
+                    if (!(cuotProc.NumeroCuota in pagadoCuota)) {
+                        pagadoCuota[cuotProc.NumeroCuota] = 0;
+                    }
+
+                    let isChequePosFechado = pago.indexTiposPago === 0 && pago.indexTiposdePagoDetalle === 1;
+                    let aplicaADescuento = false;
+                    let aplicaDescuentoFechaPosfechado = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days') && !isChequePosFechado;
+                    let montoAPagar = 0;
+                    let descuentoAplicar = calcularDescuentoAplicar(cuotasAProcesar, cuotProc, descuentoTotalCuota);
+
+                    if (aplicaDescuentoFechaPosfechado) {
+                        let saldoRestante = Number((saldoTotalCuota - descuentoTotalCuota - pagadoCuota[cuotProc.NumeroCuota]).toFixed(2));
+                        aplicaADescuento = PagoAcumulado == 0 ? true : PagoAcumulado >= saldoRestante;
+                        montoAPagar = aplicaADescuento ? cuotProc.Saldo - cuotProc.PagoAplicado - descuentoAplicar : cuotProc.Saldo - cuotProc.PagoAplicado;
+                    } else {
+                        montoAPagar = cuotProc.Saldo - cuotProc.PagoAplicado;
+                    }
+
                     valorPagos += montoAPagar;
-                    Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0;
-                    localStorage.setItem('valorPagos',valorPagos.toFixed(2));
-                    localStorage.setItem('DescuentoFacturas',Descuento);  
-                    //}
+                    Descuento += aplicaADescuento ? Number(descuentoAplicar) : 0;
+                    localStorage.setItem('valorPagos', valorPagos.toFixed(2));
+                    localStorage.setItem('DescuentoFacturas', Descuento);
+
                     if (montoAPagar > 0) {
                         if (montoAPagar > PagoAcumulado) {
                             cuotProc.PagoAplicado += PagoAcumulado;
                             PagoAcumulado = 0;
+
+                            if (aplicaADescuento) {
+                                cuotProc.DescuentoAplicado = descuentoAplicar;
+                                descuentoAcumulado += Number(descuentoAplicar);
+                            }
                         }
                         if (montoAPagar <= PagoAcumulado) {
                             cuotProc.PagoAplicado += montoAPagar;
                             PagoAcumulado -= montoAPagar;
                             if (aplicaADescuento) {
-                                cuotProc.DescuentoAplicado = cuotProc.ValorDescuento;
-                                descuentoAcumulado += cuotProc.ValorDescuento;
-                                // cuotProc.APagar = montoAPagar;
+                                cuotProc.DescuentoAplicado = descuentoAplicar;
+                                descuentoAcumulado += Number(descuentoAplicar);
                             }
                         }
                         if (aplicaADescuento) {
                             cuotProc.APagar = montoAPagar;
                         }
+                    } else {
+                        if (aplicaADescuento) {
+                            cuotProc.DescuentoAplicado = descuentoAplicar;
+                            descuentoAcumulado += Number(descuentoAplicar);
+                            cuotProc.APagar = montoAPagar;
+                        }
                     }
-                });
+
+                    pagadoCuota[cuotProc.NumeroCuota] = pagadoCuota[cuotProc.NumeroCuota] + montoAPagar;
+                };
             }
         });
         const cuotas = cuotasAProcesar.map(cuotAgru => {
@@ -315,13 +416,14 @@ const DetalleRecibo = (props) => {
             let fechaPago = pago.fecha;
             if (PagoAcumulado >= 0) {
                 cuotasAProcesar.sort( (a,b)=> a.Fecha).forEach(cuotProc => {
-                    //let isChequePosFechado = pago.indexTiposPago === 0 && pago.indexTiposdePagoDetalle === 1;
-                    let aplicaADescuento = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days') /*&& !isChequePosFechado*/;
-                    let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento.toFixed(2)) : (cuotProc.Saldo - cuotProc.PagoAplicado);
+                    const excepcionDescuento = cuotProc.ExcepcionDescuento;
+                    let isChequePosFechado = pago.indexTiposPago === 0 && pago.indexTiposdePagoDetalle === 1;
+                    let aplicaADescuento = (moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days') || excepcionDescuento) && !isChequePosFechado;
+                    let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
                     
                     //if(calculo.current===2){
                         valorPagos += montoAPagar;  
-                        Descuento += aplicaADescuento ? cuotProc.ValorDescuento : 0; 
+                        Descuento += aplicaADescuento ? Number(cuotProc.ValorDescuento) : 0; 
                         localStorage.setItem('valorPagos',valorPagos.toFixed(2));
                         localStorage.setItem('DescuentoFacturas',Descuento);                
                     //}
@@ -335,7 +437,7 @@ const DetalleRecibo = (props) => {
                             PagoAcumulado -= montoAPagar;
                             if (aplicaADescuento) {
                                 cuotProc.DescuentoAplicado = cuotProc.ValorDescuento;
-                                descuentoAcumulado += cuotProc.ValorDescuento;
+                                descuentoAcumulado += Number(cuotProc.ValorDescuento);
                                 // cuotProc.APagar = montoAPagar;
                             }
                         }
@@ -357,9 +459,9 @@ const DetalleRecibo = (props) => {
                 moment(cuotProc.FechaDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuotProc.FechaDescuento).format("DD/MM/YYYY") : "", //FechaDescuento  
                 isNaN(cuotProc.DiasDescuento) ? "": cuotProc.DiasDescuento, //DiasDescuento  
                 cuotProc.Valor.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor  
-                cuotProc.ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Valor Descuento
+                cuotProc.ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Valor Descuento
                 cuotProc.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo 
-                cuotProc.DescuentoAplicado.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Descuento
+                cuotProc.DescuentoAplicado.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Descuento
                 (cuotProc.APagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//APagar
                 cuotProc.PagoAplicado.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),//Aplicado 
                 cuotProc.Moneda, //DiasDescuento  
@@ -407,7 +509,8 @@ const DetalleRecibo = (props) => {
                                 PagoAplicado: 0,
                                 DescuentoAplicado: 0,
                                 Saldo: cuot.Saldo, //Saldo  
-                                APagar: cuot.Saldo, //APagar  
+                                APagar: cuot.Saldo, //APagar
+                                ExcepcionDescuento: cuot.ExcepcionDescuento  
                             });
                         }
                     });

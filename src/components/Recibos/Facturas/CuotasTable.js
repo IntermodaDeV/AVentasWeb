@@ -198,6 +198,7 @@ moment.locale('es')
           let DiasVencido = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
           let ValorDescuento = cuot.Descuento;
           let isVencida = DiasVencido<0;
+          const excepcionDescuento = cuot.ExcepcionDescuento;
 
           Apagar = diasDescuento < 0 ? cuot.Saldo : cuot.Saldo - ValorDescuento;
           Saldo = Saldo + Apagar;
@@ -209,7 +210,7 @@ moment.locale('es')
               IdSubFactura: cuot.IdSubFactura,
               Dias: <span className="text-danger font-weight-bold">{isNaN(DiasVencido) ? "": DiasVencido}</span>,
               DiasDescuento: <span className="text-danger font-weight-bold"> {isNaN(diasDescuento) ? "": diasDescuento}</span>,
-              ValorDescuento: <span className="text-danger font-weight-bold">{ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+              ValorDescuento: <span className="text-danger font-weight-bold">{ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Tipo: <span className="text-danger font-weight-bold"> {cuot.TipoDocumento}</span>,
               Factura: <span className="text-danger font-weight-bold"> {fact.Factura}</span>,
               NumeroFEL: <span className="text-danger font-weight-bold"> {fact.NumeroFEL}</span>,
@@ -223,7 +224,8 @@ moment.locale('es')
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
               Facturaa:fact.Factura,
-              DiasVencido
+              DiasVencido,
+              excepcionDescuento
             })
           }
           else if (DiasVencido >= 0 && DiasVencido <= 15) {
@@ -231,7 +233,7 @@ moment.locale('es')
               IdSubFactura: cuot.IdSubFactura,
               Dias: <span className={"font-weight-bold " + styles.WarnRecibo}>{isNaN(DiasVencido) ? "": DiasVencido}</span>,
               DiasDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {isNaN(diasDescuento) ? "": diasDescuento}</span>,
-              ValorDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+              ValorDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
               Tipo: <span className={"font-weight-bold " + styles.WarnRecibo}> {cuot.TipoDocumento}</span>,
               Factura: <span className={"font-weight-bold " + styles.WarnRecibo}> {fact.Factura}</span>,
               NumeroFEL: <span className={"font-weight-bold " + styles.WarnRecibo}> {fact.NumeroFEL}</span>,
@@ -245,7 +247,8 @@ moment.locale('es')
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
               Facturaa:fact.Factura,
-              DiasVencido
+              DiasVencido,
+              excepcionDescuento
             })
           }
           else {
@@ -253,7 +256,7 @@ moment.locale('es')
               IdSubFactura: cuot.IdSubFactura,
               Dias: isNaN(DiasVencido) ? "": DiasVencido,
               DiasDescuento: isNaN(diasDescuento) ? "": diasDescuento,
-              ValorDescuento: ValorDescuento.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+              ValorDescuento: ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
               Tipo: cuot.TipoDocumento,
               Factura: fact.Factura,
               NumeroFEL: fact.NumeroFEL,
@@ -267,15 +270,8 @@ moment.locale('es')
               IsVencida:isVencida,
               Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
               Facturaa:fact.Factura,
-              DiasVencido
-              //   C15Dias: fact.C15Dias.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-              //   Accion : (<Button
-
-              //     onClick={()=>{}}
-              //     variant="contained"
-              //     color="primary">
-              //     Pagar
-              // </Button>)
+              DiasVencido,
+              excepcionDescuento
             })
           }
         });
@@ -283,7 +279,7 @@ moment.locale('es')
     });
   })
   localStorage.setItem("totalCredito", (Saldo).toFixed(2));
-
+  console.log(data);
     data.sort((a, b) => {
       if (moment(a.Fechaa, "DD/MM/YYYY").isAfter(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
         return 1;
