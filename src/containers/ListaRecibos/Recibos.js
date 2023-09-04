@@ -10,6 +10,8 @@ import RecibosBreadCrumb from 'components/Recibos/RecibosBreadCrumb/RecibosBread
 // import TableCliente from 'components/Recibos/SelectCliente/TableClienteSelected'
 import {APIURL} from 'utils/Enviroment';
 import CuentaCorrienteTable from '../CuentaCorriente/CuentaCorienteTable'
+import { verificarConexion } from 'utils/http';
+import Swal from 'sweetalert2/dist/sweetalert2.js';
 // import styles from 'containers/Recibos/Recibos.module.css';
 const Recibos = (props) => {
   const [clientes, setClientes] = useState([])
@@ -20,8 +22,6 @@ const Recibos = (props) => {
   // const [clientePreSelected, setClientePreSelected] = useState(null)
   const [facturasXCliente, setFacturasXCliente] = useState(null)
   // const [tipoPedido, setTipoPedido] = useState(null)
-  import { verificarConexion } from 'utils/http';
-  import Swal from 'sweetalert2/dist/sweetalert2.js';
   const urlApi = APIURL
 
   useEffect(() => {

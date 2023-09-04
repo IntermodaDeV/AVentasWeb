@@ -44,6 +44,7 @@ export const CuentaCorriente = props => {
                                 Descuento: <span className={colorFuente}>{cuot.Descuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
+                                excepcionDescuento: <span style={{color:fact.ExcepcionDescuento?"green":"red"}}>{fact.ExcepcionDescuento ? "Si":"No"}</span>
                             });
 
                             agrupacionCuentaCorriente.push({
@@ -82,6 +83,7 @@ export const CuentaCorriente = props => {
                                 Descuento: <span className={colorFuente}>{cuot.Descuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
+                                excepcionDescuento: <span style={{color:fact.ExcepcionDescuento?"green":"red"}}>{fact.ExcepcionDescuento ? "Si":"No"}</span>
                             });
 
                             agrupacionCuentaCorriente.push({
