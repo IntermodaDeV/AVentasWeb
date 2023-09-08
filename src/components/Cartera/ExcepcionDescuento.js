@@ -77,6 +77,22 @@ const HeaderDocumentoPendientes = [
         }
     },
     {
+        name: "descuento",
+        label: "Descuento",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
+        name: "vencimientoDescuento",
+        label: "Vencimiento Descuento",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
         name: "excepcionDescuento",
         label: "Excepcion Descuento",
         options: {
@@ -157,13 +173,15 @@ export const ExcepcionDescuento = (props) => {
         try {
             const request = await axios.get(`${APIURL}/api/factura/descuentovencido/${cliente.Codigo}`);
             const data = request.data;
-            const facturasDescuento = data.map(({ fecha, vencimiento, valor, saldo, excepcionDescuento, numero, ...rest }) => ({
+            const facturasDescuento = data.map(({ fecha, vencimiento, valor, saldo, excepcionDescuento, numero, descuento, vencimientoDescuento, ...rest }) => ({
                 ...rest,
                 numero,
                 fecha: moment(fecha).format("DD/MM/YYYY"),
                 vencimiento: moment(vencimiento).format("DD/MM/YYYY"),
+                vencimientoDescuento: moment(vencimientoDescuento).format("DD/MM/YYYY"),
                 valor: numberWithCommas(valor),
                 saldo: numberWithCommas(saldo),
+                descuento: numberWithCommas(descuento),
                 excepcionDescuento: <button onClick={() => actualizarExcepcionDescuento(cliente.Codigo, numero)} className={`btn ${excepcionDescuento ? 'btn-success' : 'btn-danger'}`}>{excepcionDescuento ? "activo" : "desactivado"}</button>
             }));
 

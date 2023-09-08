@@ -38,6 +38,7 @@ const columns = [
     { name: 'Descuento', label: 'Descuento', options: { customHeadRender: columnRender } },
     { name: 'A Pagar', label: 'A Pagar', options: { customHeadRender: columnRender } },
     { name: 'Moneda', label: 'Moneda', options: { customHeadRender: columnRender } },
+    { name: 'Excepción Descuento', label: 'Excepción Descuento', options: { customHeadRender: columnRender } },
 ]
 
 if(localStorage.getItem('empresa')==='IMGT')
