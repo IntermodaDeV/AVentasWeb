@@ -68,6 +68,7 @@ import GastosRechazar from 'containers/GastosAsesores/GastosRechazar'
 import { SeguimientoCalidad } from 'containers/Devoluciones/ListadoDevolucion/SeguimientoCalidad'
 import { SincronizacionEspecifica } from 'containers/Sincronizacion/SincronizacionEspecifica'
 import { FirmaPantalla } from 'containers/Seguridad/Firmas/FirmaPantalla'
+import { MotivosTiempoFuera } from 'containers/Agenda/MotivoTiempoFuera/MotivoTiempoFuera'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -333,6 +334,12 @@ const App = props => {
               path='/configuracion-RazonesNoVenta'
               layout={MainLayout}
               component={RazonesNoVenta}
+            />
+            <LayoutRoute
+              exact
+              path='/configuracion-tiemposfuera'
+              layout={MainLayout}
+              component={MotivosTiempoFuera}
             />
             <LayoutRoute
               path='/seguridad-mantenimiento'
