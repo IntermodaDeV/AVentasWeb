@@ -1046,6 +1046,7 @@ const DetalleRecibo = (props) => {
                         showAlert={showAlert}
                         setHabilitado={setHabilitado}
                         habilitado={habilitado}
+                        facturas={cuotasYDescuentoAplicado.Cuotas}
                     ></PagoReciboTable>
                 </Card>
 
