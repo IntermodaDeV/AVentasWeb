@@ -29,7 +29,8 @@ function equalTo(ref, msg) {
 const validationSchema = yup.object().shape(
 {
     Nombre: yup.string().required('El nombre es obligatorio'),
-    Direccion: yup.string().required('La direcciòn es obligatoria'),
+    Direccion: yup.string().required('La dirección es obligatoria'),
+    Provincia: yup.string().required('La provincia es obligatoria'),
     RTN:yup.string(),
     RTN2:yup.string().equalTo(yup.ref('RTN'),'El rtn debe coincidir'),
     Telefono:yup.string().required('El telefono es obligatorio'),
@@ -45,6 +46,7 @@ const ClienteContado = React.memo((props)=>{
             id:0,
             Nombre:'',
             Direccion:'',
+            Provincia:'',
             FlagClientePotencial:false,
             RTN:'',
             RTN2:'',
@@ -62,6 +64,7 @@ const ClienteContado = React.memo((props)=>{
             id:props.cliente.id,
             Nombre:props.cliente.Nombre,
             Direccion:props.cliente.Direccion,
+            Provincia:props.cliente.Provincia,
             FlagClientePotencial:props.cliente.FlagClientePotencial,
             RTN:props.cliente.RTN,
             RTN2:props.cliente.RTN,
@@ -269,6 +272,17 @@ const ClienteContado = React.memo((props)=>{
                                 disabled={habilitado}
                             />
                         </div>
+                        <div>
+                            <Field
+                                name="Provincia"
+                                label="Provincia"
+                                style={{width:'100%'}}
+                                error={!!errors.Provincia}
+                                helperText={errors.Provincia}
+                                as={TextField}
+                                disabled={habilitado}
+                            />
+                        </div>
                         
                         <div style={{marginTop:'20px'}}>
                         <ButtonGroup size="large" color="primary" aria-label="large outlined primary button group">
@@ -281,6 +295,7 @@ const ClienteContado = React.memo((props)=>{
                                         id:0,
                                         Nombre:'',
                                         Direccion:'',
+                                        Provincia:'',
                                         FlagClientePotencial:false,
                                         RTN:'',
                                         RTN2:'',
