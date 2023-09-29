@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react'
+import React, { useEffect } from 'react'
 import MUIDataTable from 'mui-datatables'
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
@@ -151,16 +151,16 @@ const PagoReciboTable = (props) => {
     }, []);
 
     const Validaciones = () => {
-        if(props.Pedido !== null && localStorage.getItem('Faltante') !== '0'){
-            props.showAlert(true,'El valor de pago tiene que ser igual al valor del pedido seleccionado');
+        if (props.Pedido !== null && localStorage.getItem('Faltante') !== '0') {
+            props.showAlert(true, 'El valor de pago tiene que ser igual al valor del pedido seleccionado');
             return;
         }
-        else{
+        else {
             props.setHabilitado(true);
             props.EnviarRecibo()
         }
-      };
-    const validacionFechaPago = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray, indexBanco, referencia)=>{
+    };
+    const validacionFechaPago = (indexTiposPago, indexTiposdePagoDetalle, fecha, indexArray, indexBanco, referencia) => {
         /*
             0 Cheque             [0=Cheque al dia,1=Cheque posfechado]
             1 Deposito           [0=Cheque al dia,1=Deduccion,2=Deposito con efectivo,3=Transferencia]
@@ -168,131 +168,134 @@ const PagoReciboTable = (props) => {
             3 Letra Cambio       [0=Efectivo,1=Transferencia]
             4 Tarjeta de credito [0=Tarjeta de credito]
         */
-        if(fecha!==undefined)
-        {
-            const isCheque      = indexTiposPago === 0;
-            const isDeposito    = indexTiposPago === 1;
-            const isEfectivo    = indexTiposPago === 2;
+        if (fecha !== undefined) {
+
+            const isCheque = indexTiposPago === 0;
+            const isDeposito = indexTiposPago === 1;
+            const isEfectivo = indexTiposPago === 2;
             const isLetraCambio = indexTiposPago === 3;
-            const isTarjeta     = indexTiposPago === 4;
+            const isTarjeta = indexTiposPago === 4;
 
-            const fechaActual   = new Date().setHours(0,0,0,0);
-            const fechaRecibida = new Date(fecha).setHours(0,0,0,0);
-            
-            if(isEfectivo)
-            {
-                if(fechaRecibida>fechaActual)
-                {
-                    props.showAlert(true,'Efectivo: La fecha de pago no puede ser mayor que la fecha actual');
+            const fechaActual = new Date().setHours(0, 0, 0, 0);
+            const fechaRecibida = new Date(fecha).setHours(0, 0, 0, 0);
+
+            if (isEfectivo) {
+                if (fechaRecibida > fechaActual) {
+                    props.showAlert(true, 'Efectivo: La fecha de pago no puede ser mayor que la fecha actual');
                     return;
                 }
 
-                if(fechaRecibida<fechaActual)
-                {
-                    props.showAlert(true,'Efectivo: La fecha de pago no puede ser menor que la fecha actual');
+                if (fechaRecibida < fechaActual) {
+                    props.showAlert(true, 'Efectivo: La fecha de pago no puede ser menor que la fecha actual');
                     return;
                 }
 
-                if(indexTiposdePagoDetalle === null || indexTiposdePagoDetalle === undefined || indexTiposdePagoDetalle !== 0){                        
-                    props.showAlert(true,'Especificacion de Pago: El Campo Especificacion de pago no debe ir vacio');
+                if (indexTiposdePagoDetalle === null || indexTiposdePagoDetalle === undefined || indexTiposdePagoDetalle !== 0) {
+                    props.showAlert(true, 'Especificacion de Pago: El Campo Especificacion de pago no debe ir vacio');
                     return;
                 }
                 props.ConfirmEditarPago(indexArray);
                 props.setHabilitado(false);
             }
-            if(isTarjeta)
-            {
-                if(fechaRecibida>fechaActual)
-                {
-                    props.showAlert(true,'Tarjeta: La fecha de pago no puede ser mayor que la fecha actual');
+            if (isTarjeta) {
+                if (fechaRecibida > fechaActual) {
+                    props.showAlert(true, 'Tarjeta: La fecha de pago no puede ser mayor que la fecha actual');
                     return;
                 }
 
-                else if(indexBanco === null || indexBanco === undefined){                        
-                    props.showAlert(true,'Tarjeta: El Campo Banco no debe ir vacio');
+                else if (indexBanco === null || indexBanco === undefined) {
+                    props.showAlert(true, 'Tarjeta: El Campo Banco no debe ir vacio');
                     return;
                 }
-                else if(referencia === "" || referencia === undefined){                        
-                    props.showAlert(true,'Tarjeta: La referencia no debe ir vacia');
+                else if (referencia === "" || referencia === undefined) {
+                    props.showAlert(true, 'Tarjeta: La referencia no debe ir vacia');
                     return;
                 }
 
-                if(indexTiposdePagoDetalle === null || indexTiposdePagoDetalle === undefined || indexTiposdePagoDetalle > 1){                        
-                    props.showAlert(true,'Especificacion de Pago: El Campo Especificacion de pago no debe ir vacio');
+                if (indexTiposdePagoDetalle === null || indexTiposdePagoDetalle === undefined || indexTiposdePagoDetalle > 1) {
+                    props.showAlert(true, 'Especificacion de Pago: El Campo Especificacion de pago no debe ir vacio');
                     return;
                 }
 
                 props.ConfirmEditarPago(indexArray);
                 props.setHabilitado(false);
             }
-            if(isCheque)
-            {
-                const isPosfechado = indexTiposdePagoDetalle===1;
-                const isAlDia = indexTiposdePagoDetalle ===0;
-                if(isPosfechado)
-                {
-                    if(fechaActual>fechaRecibida || fechaActual===fechaRecibida){                        
-                        props.showAlert(true,'Posfechado: La fecha de pago debe ser mayor que la fecha actual');
+            if (isCheque) {
+                const isPosfechado = indexTiposdePagoDetalle === 1;
+                const isAlDia = indexTiposdePagoDetalle === 0;
+                if (isPosfechado) {
+                    if (fechaActual > fechaRecibida || fechaActual === fechaRecibida) {
+                        props.showAlert(true, 'Posfechado: La fecha de pago debe ser mayor que la fecha actual');
                         return;
                     }
-                    else if(indexBanco === null || indexBanco === undefined){                        
-                        props.showAlert(true,'Posfechado: El Campo Banco no debe ir vacio');
+                    else if (indexBanco === null || indexBanco === undefined) {
+                        props.showAlert(true, 'Posfechado: El Campo Banco no debe ir vacio');
                         return;
                     }
-                    else if(referencia === "" || referencia === undefined){                        
-                        props.showAlert(true,'Posfechado: La referencia no debe ir vacia');
+                    else if (referencia === "" || referencia === undefined) {
+                        props.showAlert(true, 'Posfechado: La referencia no debe ir vacia');
                         return;
                     }
-                }
-
-                if(isAlDia)
-                {
-                    if(fechaRecibida>fechaActual)
-                    {
-                        props.showAlert(true,'Cheque al dia: La fecha de pago no puede ser mayor que la fecha actual');
-                        return;
-                    }
-    
-                    if(fechaRecibida<fechaActual)
-                    {
-                        props.showAlert(true,'Cheque al dia: La fecha de pago no puede ser menor que la fecha actual');
-                        return;
-                    }
-                    else if(indexBanco === null || indexBanco === undefined){                        
-                        props.showAlert(true,'Cheque al dia: El Campo Banco no debe ir vacio');
-                        return;
-                    }
-                    else if(referencia === "" || referencia === undefined){                        
-                        props.showAlert(true,'Cheque al dia: La referencia no debe ir vacia');
+                    
+                    let facturaVencida =      
+                    props.facturas.some((fac) => {
+                        const fechaParseada = moment(fac[4],  'DD/MM/YYYY').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
+                        const fechaVencimiento = new Date(fechaParseada).setHours(0, 0, 0, 0);
+                        return fechaRecibida > fechaVencimiento                                    
+                      });
+                    if (facturaVencida) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: `Avocarse con el departamento de crédito ya que la programación del cheque esta fuera del plazo de crédito establecido`,
+                            type: 'error',
+                        });
                         return;
                     }
                 }
 
-                if(indexTiposdePagoDetalle === null || indexTiposdePagoDetalle === undefined || indexTiposdePagoDetalle > 1){                        
-                    props.showAlert(true,'Especificacion de Pago: El Campo Especificacion de pago no debe ir vacio');
+                if (isAlDia) {
+                    if (fechaRecibida > fechaActual) {
+                        props.showAlert(true, 'Cheque al dia: La fecha de pago no puede ser mayor que la fecha actual');
+                        return;
+                    }
+
+                    if (fechaRecibida < fechaActual) {
+                        props.showAlert(true, 'Cheque al dia: La fecha de pago no puede ser menor que la fecha actual');
+                        return;
+                    }
+                    else if (indexBanco === null || indexBanco === undefined) {
+                        props.showAlert(true, 'Cheque al dia: El Campo Banco no debe ir vacio');
+                        return;
+                    }
+                    else if (referencia === "" || referencia === undefined) {
+                        props.showAlert(true, 'Cheque al dia: La referencia no debe ir vacia');
+                        return;
+                    }
+                }
+
+                if (indexTiposdePagoDetalle === null || indexTiposdePagoDetalle === undefined || indexTiposdePagoDetalle > 1) {
+                    props.showAlert(true, 'Especificacion de Pago: El Campo Especificacion de pago no debe ir vacio');
                     return;
                 }
                 props.ConfirmEditarPago(indexArray);
                 props.setHabilitado(false);
             }
-            if(isDeposito)
-            {
-                const isChequeDia     = indexTiposdePagoDetalle === 0;
-                const isDeduccion     = indexTiposdePagoDetalle === 1;
-                const isDepositoe     = indexTiposdePagoDetalle === 2;
+            if (isDeposito) {
+                const isChequeDia = indexTiposdePagoDetalle === 0;
+                const isDeduccion = indexTiposdePagoDetalle === 1;
+                const isDepositoe = indexTiposdePagoDetalle === 2;
                 const isTransferencia = indexTiposdePagoDetalle === 3;
-                if(isChequeDia || isDepositoe || isTransferencia || isDeduccion)
-                {
-                    if(fechaRecibida>fechaActual){
-                        props.showAlert(true,'Deposito: La fecha de pago no debe ser mayor que la fecha actual');
+                if (isChequeDia || isDepositoe || isTransferencia || isDeduccion) {
+                    if (fechaRecibida > fechaActual) {
+                        props.showAlert(true, 'Deposito: La fecha de pago no debe ser mayor que la fecha actual');
                         return;
                     }
-                    else if(indexBanco === null || indexBanco === undefined){                        
-                        props.showAlert(true,'Deposito: El Campo Banco no debe ir vacio');
+                    else if (indexBanco === null || indexBanco === undefined) {
+                        props.showAlert(true, 'Deposito: El Campo Banco no debe ir vacio');
                         return;
                     }
-                    else if(referencia === "" || referencia === undefined){                        
-                        props.showAlert(true,'Deposito: La referencia no debe ir vacia');
+                    else if (referencia === "" || referencia === undefined) {
+                        props.showAlert(true, 'Deposito: La referencia no debe ir vacia');
                         return;
                     }
                     props.ConfirmEditarPago(indexArray);
@@ -301,17 +304,17 @@ const PagoReciboTable = (props) => {
                 props.ConfirmEditarPago(indexArray);
                 props.setHabilitado(false);
             }
-            if(isLetraCambio){
-                if(fechaRecibida>fechaActual){
-                    props.showAlert(true,'Letra Cambio: La fecha de pago no debe ser mayor que la fecha actual');
+            if (isLetraCambio) {
+                if (fechaRecibida > fechaActual) {
+                    props.showAlert(true, 'Letra Cambio: La fecha de pago no debe ser mayor que la fecha actual');
                     return;
                 }
-                else if(indexBanco === null || indexBanco === undefined){                        
-                    props.showAlert(true,'Letra Cambio: El Campo Banco no debe ir vacio');
+                else if (indexBanco === null || indexBanco === undefined) {
+                    props.showAlert(true, 'Letra Cambio: El Campo Banco no debe ir vacio');
                     return;
                 }
-                else if(referencia === "" || referencia === undefined){                        
-                    props.showAlert(true,'Letra Cambio: La referencia no debe ir vacia');
+                else if (referencia === "" || referencia === undefined) {
+                    props.showAlert(true, 'Letra Cambio: La referencia no debe ir vacia');
                     return;
                 }
                 props.ConfirmEditarPago(indexArray);
@@ -320,51 +323,45 @@ const PagoReciboTable = (props) => {
         }
     }
 
-    const validacionDatosRecibo = (indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor, indexBanco, referencia, indexMoneda)=>{
+    const validacionDatosRecibo = (indexTiposPago, indexTiposdePagoDetalle, fecha, indexArray, valor, indexBanco, referencia, indexMoneda) => {
+        const TotalRecibo = parseFloat(localStorage.getItem('TotalRecibo'));
+        const TotalCredito = parseFloat(localStorage.getItem('totalCredito')).toFixed(2);
+        const notTotal = TotalRecibo.toFixed(2) !== TotalCredito;
+        const isNotAnticipo = localStorage.getItem('isAnticipo') === 'false';
 
-        
-            const TotalRecibo = parseFloat(localStorage.getItem('TotalRecibo'));
-            const TotalCredito = parseFloat(localStorage.getItem('totalCredito')).toFixed(2);
-            const notTotal = TotalRecibo.toFixed(2)!==TotalCredito;
-            const isNotAnticipo = localStorage.getItem('isAnticipo') === 'false';
+        localStorage.setItem("saldoFavor", 0);
 
-            localStorage.setItem("saldoFavor",0);
-
-            if(valor>TotalRecibo && notTotal && isNotAnticipo)
-            {
-                const diferencia = (valor-TotalRecibo).toFixed(2);
-                Swal.fire({
-                    title: 'Error',
-                    text: `El valor ingresado excede el total de factura.
+        if (valor > TotalRecibo && notTotal && isNotAnticipo) {
+            const diferencia = (valor - TotalRecibo).toFixed(2);
+            Swal.fire({
+                title: 'Error',
+                text: `El valor ingresado excede el total de factura.
                             Por favor seleccione otra factura para abonar la diferencia de ${diferencia}`,
-                    type: 'error',
-                });
-                return;
-            }
-
-            const diferencia = (valor-TotalRecibo).toFixed(2);
-            const difTotal = diferencia>0?diferencia:0;
-            localStorage.setItem("saldoFavor",difTotal);
-
-        if(isNaN(valor) || valor === "")
-        {
-            props.showAlert(true,'El valor de pago tiene que ser un numero y no contener espacios');
+                type: 'error',
+            });
             return;
         }
 
-        if(indexMoneda === 2 || indexMoneda === undefined || indexMoneda === null)
-        {
-            props.showAlert(true,'El campo moneda no puede ir vacio');
+        const diferencia = (valor - TotalRecibo).toFixed(2);
+        const difTotal = diferencia > 0 ? diferencia : 0;
+        localStorage.setItem("saldoFavor", difTotal);
+
+        if (isNaN(valor) || valor === "") {
+            props.showAlert(true, 'El valor de pago tiene que ser un numero y no contener espacios');
             return;
         }
 
-        if(valor==="0" || valor===0)
-        {
-            props.showAlert(true,'El valor de pago no puede ser igual a cero');
+        if (indexMoneda === 2 || indexMoneda === undefined || indexMoneda === null) {
+            props.showAlert(true, 'El campo moneda no puede ir vacio');
             return;
         }
 
-        validacionFechaPago(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray, indexBanco, referencia);
+        if (valor === "0" || valor === 0) {
+            props.showAlert(true, 'El valor de pago no puede ser igual a cero');
+            return;
+        }
+
+        validacionFechaPago(indexTiposPago, indexTiposdePagoDetalle, fecha, indexArray, indexBanco, referencia);
     }
 
     const arrayPagoRecibo = (indexTiposPago, indexTiposdePagoDetalle, fecha, valor, indexMoneda, indexBanco, referencia, indexArray) => {
@@ -383,7 +380,7 @@ const PagoReciboTable = (props) => {
             </div>),
         ]
     };
-    const editarArrayPagoRecibo = (indexTiposPago, indexTiposdePagoDetalle, fecha, valor, indexMoneda, indexBanco, referencia, indexArray) => {     
+    const editarArrayPagoRecibo = (indexTiposPago, indexTiposdePagoDetalle, fecha, valor, indexMoneda, indexBanco, referencia, indexArray) => {
 
         return [
             // pagXRec.TipoPago,
@@ -427,7 +424,7 @@ const PagoReciboTable = (props) => {
             </Select>),
             (<Select
                 value={indexTiposdePagoDetalle}
-                onChange={(event) => {           
+                onChange={(event) => {
                     props.OnpagosXReciboChange(
                         indexArray,
                         {
@@ -570,8 +567,8 @@ const PagoReciboTable = (props) => {
             />),
 
             (<div className="d-flex">
-                <Button className="mr-1" onClick={() => { /*props.ConfirmEditarPago(indexArray)*/ validacionDatosRecibo(indexTiposPago, indexTiposdePagoDetalle,fecha,indexArray,valor,indexBanco, referencia,indexMoneda) }}><CheckIcon /></Button>
-                <Button className="ml-1" onClick={() => { props.CancelEditarPago(indexArray); props.setHabilitado(false)}}><CloseIcon /></Button>
+                <Button className="mr-1" onClick={() => { /*props.ConfirmEditarPago(indexArray)*/ validacionDatosRecibo(indexTiposPago, indexTiposdePagoDetalle, fecha, indexArray, valor, indexBanco, referencia, indexMoneda) }}><CheckIcon /></Button>
+                <Button className="ml-1" onClick={() => { props.CancelEditarPago(indexArray); props.setHabilitado(false) }}><CloseIcon /></Button>
             </div>),
 
         ];

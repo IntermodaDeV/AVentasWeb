@@ -533,6 +533,13 @@ const Recibos = (props) => {
       for (let Acuerdos of AcuerdosXTipoPedido.Acuerdos) {
         let acuerdosFacturas = Acuerdos.Facturas.filter(f => f.Descuento === 0);
 
+        for (let Facturas of acuerdosFacturas) { 
+          Facturas.FechaVencimiento = moment(Facturas.FechaVencimiento).add(Facturas.DiasGracia, 'days');
+          for (let Cuotas of Facturas.Cuotas) {
+            Cuotas.FechaVencimiento = moment(Cuotas.FechaVencimiento).add(Cuotas.DiasGracia, 'days');
+          }
+        }
+
         for (let Facturas of acuerdosFacturas) {
           let Descuento = cliente.MaestroDescuento.length > 0 ? cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea) : [];
           let noAplicaDescuento = Descuento.length === 0;

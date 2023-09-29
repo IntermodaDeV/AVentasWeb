@@ -26,6 +26,8 @@ import { verificarConexion } from 'utils/http';
 import ArrowBackIosIcon from '@material-ui/icons/ArrowBackIos';
 import ArrowForwardIosIcon from '@material-ui/icons/ArrowForwardIos';
 import { FacturasReservadas } from 'components/Cartera/FacturasReservadas';
+import { DiasGracia } from 'components/Cartera/DiasGracia';
+import { ChequesContabilizados } from 'components/Cartera/ChequesContabilizados';
 import moment from 'moment';
 import { ExcepcionDescuento } from 'components/Cartera/ExcepcionDescuento';
 
@@ -41,7 +43,7 @@ export const Cartera = props => {
     const [showClientes, setShowClientes] = useState(true);
 
     const calcularDescuentoNuevaLogica = (clienteSeleccionado) => {
-        let cliente = {...clienteSeleccionado};
+        let cliente = { ...clienteSeleccionado };
         for (let AcuerdosXTipoPedido of cliente.AcuerdosXTipoPedido) {
 
             for (let Acuerdos of AcuerdosXTipoPedido.Acuerdos) {
@@ -259,6 +261,14 @@ export const Cartera = props => {
         props.history.push('/cartera/facturas-reservadas');
     }
 
+    const redirectChequesPosfechados = () => {
+        props.history.push('/cartera/cheques-posfechados');
+    }
+
+    const redirectDiasGracia = () => {
+        props.history.push('/cartera/dias-gracia');
+    }
+
     const redirectExcepcionDescuento = () => {
         props.history.push('/cartera/excepcion-descuento');
     }
@@ -332,7 +342,9 @@ export const Cartera = props => {
                                 <Tab onClick={redirectCartera} icon={<PersonIcon />} label="Informacion" />
                                 <Tab onClick={redirectRoles} icon={<ContactMailIcon />} label="Cuenta Corriente" />
                                 <Tab onClick={redirectDocumentosPendientes} icon={<ContactMailIcon />} label="Facturas Reservadas" />
+                                <Tab onClick={redirectChequesPosfechados} icon={<ContactMailIcon />} label="Cheques Posfechados" />
                                 {PermisoExcepcionDescuento() && <Tab onClick={redirectExcepcionDescuento} icon={<ContactMailIcon />} label="Excepción Descuento" />}
+                                {PermisoExcepcionDescuento() && <Tab onClick={redirectDiasGracia} icon={<ContactMailIcon />} label="Días de gracia" />}
                             </Tabs>
                         </Paper>
                         <div style={{ height: '90%' }} className="card">
@@ -340,7 +352,9 @@ export const Cartera = props => {
                                 <Route exact path={`${props.match.url}`} render={(props) => <InformacionGeneral cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/cuenta`} render={(props) => <CuentaCorriente cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/facturas-reservadas`} render={(props) => <FacturasReservadas cliente={cliente} />} />
+                                <Route exact path={`${props.match.url}/cheques-posfechados`} render={(props) => <ChequesContabilizados cliente={cliente} />} />
                                 {PermisoExcepcionDescuento() && <Route exact path={`${props.match.url}/excepcion-descuento`} render={(props) => <ExcepcionDescuento cliente={cliente} />} />}
+                                {PermisoExcepcionDescuento() && <Route exact path={`${props.match.url}/dias-gracia`} render={(props) => <DiasGracia cliente={cliente} />} />}
                             </Switch>
                         </div>
                     </div></>)
