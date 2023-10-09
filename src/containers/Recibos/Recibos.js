@@ -573,7 +573,7 @@ const Recibos = (props) => {
               }
             }
             else {
-              let fechaMaxDescuent = noAplicaDescuento ? moment(Facturas.FechaFactura).format() : moment(Facturas.FechaFactura).add(Descuento[0].DiasDescuento, 'days').format();
+              let fechaMaxDescuent = noAplicaDescuento ? moment(Facturas.FechaFactura).format() : moment(Facturas.FechaFactura).add((Descuento[0].DiasDescuento + cliente.DiasTransporte), 'days').format();
 
               Facturas.FechaMaxDescuento = fechaMaxDescuent;
               Cuotas.FechaMaxDescuento = fechaMaxDescuent;
