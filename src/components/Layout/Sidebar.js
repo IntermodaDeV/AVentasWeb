@@ -109,6 +109,7 @@ const navItems = [
     { to: '/coordenadas-global', name: 'Coordenadas Global', dataTut: 'DataTut_Coordenadas', Icon: Public },
     { to: '/asignacion', name: 'Asignación', dataTut: 'DataTut_Asignación', Icon: EventAvailable },
     { to: '/agenda', name: 'Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
+    { to: '/tiempofueraagenda', name: 'Tiempo Fuera Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
     { to: '/cartera', name: 'Cartera Clientes', dataTut: 'DataTut_Agenda', Icon: AccountBox },
     { to: '/acuerdosVenta', name: 'Acuerdos de Venta', dataTut: 'DataTut_Agenda', Icon: MonetizationOn },
     //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
@@ -194,7 +195,8 @@ const navItems = [
             { to: '/configuracion-sitio', name: 'Sitio', dataTut: 'DataTut_SincLista', Icon: HomeWork, backgroundColor:''  },
             { to: '/configuracion-almacenes', name: 'Almacen', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  },
             { to: '/configuracion-ubicaciones', name: 'Ubicacion', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  },
-            { to: '/configuracion-RazonesNoVenta', name: 'Razones no venta', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  }
+            { to: '/configuracion-RazonesNoVenta', name: 'Razones no venta', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
+            { to: '/configuracion-tiemposfuera', name: 'Motivos tiempo fuera', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  }
         ]
     }
 ];
