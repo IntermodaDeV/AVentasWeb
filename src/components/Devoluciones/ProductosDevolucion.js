@@ -729,11 +729,9 @@ export const ProductosDevolucion = (props) => {
                 devoluciones[i].Correlativo = generarCorrelativoParcial(devoluciones[i - 1].Correlativo);
             }
 
-            if (devoluciones[i].Empresa === "IMGT" || devoluciones[i].Empresa === "IMCR") {
-                if (devoluciones[i].FacturaOriginal === "" || devoluciones[i].FacturaOriginal === "SIN-FACTURA") {
-                    mostrarModal("Sin Factura", "No puede registrar devolucion sin seleccionar factura origen.", "error");
-                    return;
-                }
+            if (devoluciones[i].FacturaOriginal === "" || devoluciones[i].FacturaOriginal === "SIN-FACTURA") {
+                mostrarModal("Sin Factura", "No puede registrar devolucion sin seleccionar factura origen.", "error");
+                return;
             }
         }
 

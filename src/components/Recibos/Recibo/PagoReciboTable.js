@@ -236,20 +236,20 @@ const PagoReciboTable = (props) => {
                         props.showAlert(true, 'Posfechado: La referencia no debe ir vacia');
                         return;
                     }
-                    
-                    let facturaVencida =      
-                    props.facturas.some((fac) => {
-                        const fechaParseada = moment(fac[4],  'DD/MM/YYYY').format('ddd MMM DD YYYY HH:mm:ss [GMT]ZZ (z)');
-                        const fechaVencimiento = new Date(fechaParseada).setHours(0, 0, 0, 0);
-                        return fechaRecibida > fechaVencimiento                                    
-                      });
-                    if (facturaVencida) {
-                        Swal.fire({
-                            title: 'Error',
-                            text: `Avocarse con el departamento de crédito ya que la programación del cheque esta fuera del plazo de crédito establecido`,
-                            type: 'error',
-                        });
-                        return;
+
+                    for (let fac of props.facturas) {
+                        const fechaParseada = moment(fac[4], 'DD/MM/YYYY');
+                        const fechaPago = moment(fechaRecibida);
+
+                        if (fechaPago.isAfter(fechaParseada)) {
+                            Swal.fire({
+                                title: 'Error',
+                                text: `Avocarse con el departamento de crédito ya que la programación del cheque esta fuera del plazo de crédito establecido`,
+                                type: 'error',
+                            });
+
+                            return;
+                        }
                     }
                 }
 
