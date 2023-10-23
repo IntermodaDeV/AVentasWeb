@@ -172,7 +172,8 @@ export const ProductosDevolucion = (props) => {
     }
 
     const handleDevolucionCompleta = () => {
-        dispatch({ type: "SET_DEVOLUCIONCOMPLETA" })
+        dispatch({ type: "SET_DEVOLUCIONCOMPLETA" });
+        dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: {} });
     }
 
     const handleChangeMotivo = (value) => {
@@ -599,20 +600,21 @@ export const ProductosDevolucion = (props) => {
                 for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
                     for (let talla of Object.keys(tableValue[grupoTalla].Productos[producto].Colores[color].Tallas)) {
                         let cantidad = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Cantidad;
+                        let precio = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
 
-                        if (cantidad > 0) {
+                        if (cantidad > 0 && precio > 0) {
                             let productoDevolver = {
                                 IdProducto: tableValue[grupoTalla].Productos[producto].Id,
                                 CodigoProducto: producto,
                                 CodigoColor: color,
                                 Cantidad: cantidad,
                                 Unidad: "Und",
-                                PrecioUnitario: tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio,
+                                PrecioUnitario: precio,
                                 CodigoTalla: talla,
                             }
 
                             detalleDevolucion.push(productoDevolver);
-                            subTotal += cantidad * tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
+                            subTotal += cantidad * precio;
                         }
                     }
                 }
@@ -649,20 +651,21 @@ export const ProductosDevolucion = (props) => {
                     for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
                         for (let talla of Object.keys(tableValue[grupoTalla].Productos[producto].Colores[color].Tallas)) {
                             let cantidad = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Cantidad;
+                            let precio = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
 
-                            if (cantidad > 0) {
+                            if (cantidad > 0 && precio > 0) {
                                 let productoDevolver = {
                                     IdProducto: tableValue[grupoTalla].Productos[producto].Id,
                                     CodigoProducto: producto,
                                     CodigoColor: color,
                                     Cantidad: cantidad,
                                     Unidad: "Und",
-                                    PrecioUnitario: tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio,
+                                    PrecioUnitario: precio,
                                     CodigoTalla: talla,
                                 }
 
                                 devolucionSinFactura.DetalleDevolucion.push(productoDevolver);
-                                devolucionSinFactura.SubTotal += cantidad * tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
+                                devolucionSinFactura.SubTotal += cantidad * precio;
                             }
                         }
                     }
@@ -681,20 +684,21 @@ export const ProductosDevolucion = (props) => {
                     for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
                         for (let talla of Object.keys(tableValue[grupoTalla].Productos[producto].Colores[color].Tallas)) {
                             let cantidad = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Cantidad;
+                            let precio = tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
 
-                            if (cantidad > 0) {
+                            if (cantidad > 0 && precio > 0) {
                                 let productoDevolver = {
                                     IdProducto: tableValue[grupoTalla].Productos[producto].Id,
                                     CodigoProducto: producto,
                                     CodigoColor: color,
                                     Cantidad: cantidad,
                                     Unidad: "Und",
-                                    PrecioUnitario: tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio,
+                                    PrecioUnitario: precio,
                                     CodigoTalla: talla,
                                 }
 
                                 devoluciones[indice].DetalleDevolucion.push(productoDevolver);
-                                devoluciones[indice].SubTotal += cantidad * tableValue[grupoTalla].Productos[producto].Colores[color].Tallas[talla].Precio;
+                                devoluciones[indice].SubTotal += cantidad * precio;
                             }
                         }
                     }

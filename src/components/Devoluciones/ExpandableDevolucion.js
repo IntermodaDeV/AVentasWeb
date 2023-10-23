@@ -43,7 +43,9 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
 
     const dataFacturas = () => {
         let arreglo = facturas.map(x => ({ key: x.Factura, value: x, text: <span style={{ color: x.Abierta === 1 ? 'green' : 'black' }}>{x.Factura}</span> }));
-        arreglo.unshift({ key: "SIN-FACTURA", value: "SIN-FACTURA", text: "SIN-FACTURA" });
+        if (arreglo.length === 0) {
+            arreglo.unshift({ key: "SIN-FACTURA", value: "SIN-FACTURA", text: "SIN-FACTURA" });
+        }
         return arreglo;
     }
 

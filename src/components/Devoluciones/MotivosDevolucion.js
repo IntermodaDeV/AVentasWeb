@@ -56,7 +56,8 @@ export const MotivosDevolucion = ({ agregarProducto, agregarDevolucionCompleta }
     }
 
     const handleDevolucionCompleta = () => {
-        dispatch({ type: "SET_DEVOLUCIONCOMPLETA" })
+        dispatch({ type: "SET_DEVOLUCIONCOMPLETA" });
+        dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: {} });
     }
 
     const dataFacturas = () => {
