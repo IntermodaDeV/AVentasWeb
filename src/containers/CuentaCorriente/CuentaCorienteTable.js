@@ -285,10 +285,10 @@ const CuentaCorrienteTable = props => {
             {(!props.cartera) && (<>
                 {(permisos.AsesoresUsuario.length === 1) && <Button onClick={verificarObtencionCoordenadas} style={{ marginBottom: '10px', marginRight: 5 }} variant="contained" color="primary">Guardar coordenadas</Button>}
             </>)}
-            {(cuentaCorriente.length > 0) && (<div style={{ display: 'inline' }}>
+            {/*(cuentaCorriente.length > 0) && (<div style={{ display: 'inline' }}>
                 <Button onClick={generatePDF} style={{ marginBottom: '10px' }} variant="contained" color="primary">Generar Reporte</Button>
                 <DescargarCuentaExcel cliente={props.clienteSelected.Codigo} />
-            </div>)}
+            </div>)*/}
             <MUIDataTable
                 title={''}
                 data={data}

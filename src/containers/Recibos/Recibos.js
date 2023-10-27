@@ -78,6 +78,8 @@ const Recibos = (props) => {
       props.onStoreReciboClienteSelected(cliente);
       props.onStoreReciboFacturasXCliente(cliente.Facturas);
     }
+    setClientes(props.clientes);
+    setClientesFiltrados(props.clientes);
     // eslint-disable-next-line
   }, [props.clientes]);
   useEffect(() => {

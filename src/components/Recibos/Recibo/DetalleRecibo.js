@@ -330,7 +330,7 @@ const DetalleRecibo = (props) => {
 
                     if (aplicaDescuentoFechaPosfechado) {
                         let saldoRestante = Number((saldoTotalCuota - descuentoTotalCuota - pagadoCuota[cuotProc.NumeroCuota]).toFixed(2));
-                        aplicaADescuento = PagoAcumulado == 0 ? true : PagoAcumulado >= saldoRestante;
+                        aplicaADescuento = /*PagoAcumulado === 0 ||*/ PagoAcumulado >= saldoRestante;
                         montoAPagar = aplicaADescuento ? cuotProc.Saldo - cuotProc.PagoAplicado - descuentoAplicar : cuotProc.Saldo - cuotProc.PagoAplicado;
                     } else {
                         montoAPagar = cuotProc.Saldo - cuotProc.PagoAplicado;
