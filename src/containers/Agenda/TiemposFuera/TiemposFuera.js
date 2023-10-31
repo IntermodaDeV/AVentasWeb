@@ -38,6 +38,12 @@ export const TiemposFuera = () => {
 
     const registrarTiempoFuera = async (latitudEntrada, longitudEntrada) => {
         try {
+            const existeTiempoAbierto = tiemposFuera.find(x=>x.horaSalida === null);
+            if(existeTiempoAbierto){
+                alert("Cerrar tiempos fuera de agenda abiertos.");
+                return;
+            }
+
             if (motivo === null) {
                 alert("Por favor, seleccione un motivo.");
             } else {
