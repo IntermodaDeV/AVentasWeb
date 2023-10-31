@@ -134,7 +134,7 @@ const CuentaCorrienteTable = props => {
             numberWithCommas(e.APagar)
         ]);
         const cantidadFacturas = data.length;
-        const totalValor = cuentaCorriente.reduce((pre, curr) => (pre + curr.Valor), 0);
+        const totalValor = cuentaCorriente.reduce((pre, curr) => (pre + curr.TotalFactura), 0);
         const totalSaldo = cuentaCorriente.reduce((pre, curr) => (pre + curr.Saldo), 0);
         const totalDescuento = cuentaCorriente.reduce((pre, curr) => (pre + Number(curr.Descuento)), 0);
         const totalPagar = cuentaCorriente.reduce((pre, curr) => (pre + curr.APagar), 0);
@@ -285,10 +285,10 @@ const CuentaCorrienteTable = props => {
             {(!props.cartera) && (<>
                 {(permisos.AsesoresUsuario.length === 1) && <Button onClick={verificarObtencionCoordenadas} style={{ marginBottom: '10px', marginRight: 5 }} variant="contained" color="primary">Guardar coordenadas</Button>}
             </>)}
-            {/*(cuentaCorriente.length > 0) && (<div style={{ display: 'inline' }}>
+            {(cuentaCorriente.length > 0) && (<div style={{ display: 'inline' }}>
                 <Button onClick={generatePDF} style={{ marginBottom: '10px' }} variant="contained" color="primary">Generar Reporte</Button>
                 <DescargarCuentaExcel cliente={props.clienteSelected.Codigo} />
-            </div>)*/}
+            </div>)}
             <MUIDataTable
                 title={''}
                 data={data}
