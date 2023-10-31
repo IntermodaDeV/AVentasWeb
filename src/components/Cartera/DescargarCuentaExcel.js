@@ -11,6 +11,22 @@ const ExcelColumn = ReactExport.ExcelFile.ExcelColumn;
 export const DescargarCuentaExcel = props => {
     const cuentaCorriente = useSelector(e => e.CuentaImprimir);
 
+    const conversionData = () => {
+        return cuentaCorriente.map(e => ({
+            Tipo: e.Tipo,
+            Factura: e.Factura,
+            FechaFactura: e.FechaFactura,
+            FechaVencimiento: e.FechaVencimiento,
+            Dias: e.Dias,
+            TotalFactura: e.TotalFactura,
+            Saldo: e.Saldo,
+            FechaMaxDescuento: e.IdAcuerdoxCliente != null ? "AV" : e.FechaMaxDescuento,
+            DiasV: e.IdAcuerdoxCliente != null ? "" : e.DiasV,
+            Descuento: e.IdAcuerdoxCliente != null ? "AV" : e.Descuento,
+            APagar: e.APagar
+        }));
+    }
+
     const handleClickDownload = () => {
         Swal.fire({
             title: "¡Documento Descargado!",
@@ -22,13 +38,13 @@ export const DescargarCuentaExcel = props => {
 
     return (
         <ExcelFile filename={`Excel-${props.cliente}`} element={<Button onClick={handleClickDownload} variant="contained" color="primary" style={{ marginBottom: '10px', marginLeft: '10px' }}>Generar Excel</Button>}>
-            <ExcelSheet data={cuentaCorriente} name="Pruebas">
+            <ExcelSheet data={conversionData()} name="Pruebas">
                 <ExcelColumn label="Documento" value="Tipo" />
                 <ExcelColumn label="Numero" value="Factura" />
                 <ExcelColumn label="Fecha" value="FechaFactura" />
                 <ExcelColumn label="Vencimiento" value="FechaVencimiento" />
                 <ExcelColumn label="Dias" value="Dias" />
-                <ExcelColumn label="Valor" value="Valor" />
+                <ExcelColumn label="Valor" value="TotalFactura" />
                 <ExcelColumn label="Saldo" value="Saldo" />
                 <ExcelColumn label="Descuento" value="FechaMaxDescuento" />
                 <ExcelColumn label="Dias" value="DiasV" />
