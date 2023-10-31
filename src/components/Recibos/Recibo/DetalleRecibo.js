@@ -207,6 +207,7 @@ const DetalleRecibo = (props) => {
 
                                     FechaDescuento: cuot.FechaMaxDescuento,
                                     ValorDescuento: cuot.Descuento,
+                                    ValorDescuentoBack:cuot.DescuentoBack,
                                     DescuentoAplicado: 0,
                                     APagar: cuot.Saldo,
                                     PagoAplicado: 0,
@@ -302,9 +303,9 @@ const DetalleRecibo = (props) => {
                 }, {});
 
                 const descuentoCuota = cuotasAProcesar.reduce((prev, curr) => {
-                    const { NumeroCuota, ValorDescuento } = curr;
+                    const { NumeroCuota, ValorDescuentoBack } = curr;
                     if (!(NumeroCuota in prev)) {
-                        prev[NumeroCuota] = ValorDescuento;
+                        prev[NumeroCuota] = ValorDescuentoBack;
                         return prev;
                     }
 
@@ -348,6 +349,7 @@ const DetalleRecibo = (props) => {
 
                             if (aplicaADescuento) {
                                 cuotProc.DescuentoAplicado = descuentoAplicar;
+                                cuotProc.ValorDescuento = descuentoAplicar;
                                 descuentoAcumulado += Number(descuentoAplicar);
                             }
                         }
@@ -355,6 +357,7 @@ const DetalleRecibo = (props) => {
                             cuotProc.PagoAplicado += montoAPagar;
                             PagoAcumulado -= montoAPagar;
                             if (aplicaADescuento) {
+                                cuotProc.ValorDescuento = descuentoAplicar;
                                 cuotProc.DescuentoAplicado = descuentoAplicar;
                                 descuentoAcumulado += Number(descuentoAplicar);
                             }
@@ -364,6 +367,7 @@ const DetalleRecibo = (props) => {
                         }
                     } else {
                         if (aplicaADescuento) {
+                            cuotProc.ValorDescuento = descuentoAplicar;
                             cuotProc.DescuentoAplicado = descuentoAplicar;
                             descuentoAcumulado += Number(descuentoAplicar);
                             cuotProc.APagar = montoAPagar;

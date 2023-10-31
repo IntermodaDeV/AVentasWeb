@@ -45,10 +45,10 @@ const columns = [
         name: 'FechaDescuento',
         label: 'Fecha Descuento',
     },
-    {
+    /*{
         name: 'ValorDescuento',
         label: 'Descuento',
-    },
+    },*/
     {
         name: 'DiasDescuento',
         label: 'Dias Descuento',
@@ -77,11 +77,13 @@ const CuotasAgrupadasExpandableRow = (props) => {
         let seleccionado = false;
         let Fecha = new Date();
         let ValorDescuento = 0;
+        let ValorDescuentoBack = 0;
         let Dias = moment(cuotAgru.FechaVencimiento).diff(moment(new Date()), 'days')
         let DiasDescuento = moment(cuotAgru.FechaMaxDescuento).diff(moment(new Date()), 'days')
         cuotAgru.Cuotas.forEach(factura=>{
              Fecha = factura.FechaFactura;
              ValorDescuento = factura.Descuento;
+             ValorDescuentoBack = factura.DescuentoBack;
         });
         seleccionado = cuotAgru.IdsSubFactura.some(idsub => {
             return IdsSubFactura.includes(idsub);
@@ -141,6 +143,7 @@ const CuotasAgrupadasExpandableRow = (props) => {
                 DiasVencido: Dias,
                 FechaDescuento: props.moment(cuotAgru.FechaMaxDescuento).format("DD/MM/YYYY"), 
                 ValorDescuento: Number(ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                ValorDescuentoBack:Number(ValorDescuentoBack).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
                 DiasDescuento: Number(DiasDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
                 Saldo: Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
                 Acciones: <FaEye onClick={(event) => { props.onClick(event, cuotAgru.Cuotas) }} size={"20px"} />,

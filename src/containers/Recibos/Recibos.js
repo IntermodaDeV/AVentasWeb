@@ -571,7 +571,8 @@ const Recibos = (props) => {
                   let totalfactura = consumidoCuota - totalDocumentosAplicados - Flete;
                   valordescuento = totalfactura * (Acuerdos.DescuentoEnAcuerdos.Porcentaje / 100);
                 }
-                Cuotas.Descuento = valordescuento.toFixed(2);
+                Cuotas.Descuento = "0.00";
+                Cuotas.DescuentoBack = valordescuento.toFixed(2);
               }
             }
             else {
