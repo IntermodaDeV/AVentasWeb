@@ -45,10 +45,10 @@ const columns = [
         name: 'FechaDescuento',
         label: 'Fecha Descuento',
     },
-    /*{
+    {
         name: 'ValorDescuento',
         label: 'Descuento',
-    },*/
+    },
     {
         name: 'DiasDescuento',
         label: 'Dias Descuento',
