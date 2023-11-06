@@ -39,8 +39,8 @@ const SelectCliente = (props) => {
                 props.onSelect((cliente));
             }
         }
-        //dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'})
-        //dispatch({type:'DELETE_RECIBO_CLIENTESELECTED'})
+        dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'})
+        dispatch({type:'DELETE_RECIBO_CLIENTESELECTED'})
         // eslint-disable-next-line
     }, [props.clientes]);
 
@@ -97,6 +97,9 @@ const SelectCliente = (props) => {
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.value) {
+                setValue(null);
+                dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'});
+                dispatch({type:'DELETE_RECIBO_CLIENTESELECTED'});
                 recargarClientes();
                 props.ModuloConfiguraciones();
             }

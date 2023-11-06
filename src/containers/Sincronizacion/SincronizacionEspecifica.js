@@ -21,6 +21,7 @@ export const SincronizacionEspecifica = (props) => {
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
     const [isLoading, setLoading] = useState(false);
     const [title, setTitle] = useState("");
+    const [acuerdo,setAcuerdo] = useState("");
 
     useEffect(() => {
         if (!IsAllow("/sincronizacionlista")) {
@@ -30,8 +31,8 @@ export const SincronizacionEspecifica = (props) => {
         setAsesores(asesoresMap);
     }, [])
 
-    const objectSincronizar = ["asesores", "rutasAsesores", "clientes"];
-    const objectmsg = ["Asesores", "Rutas Asesores", "Clientes"];
+    const objectSincronizar = ["asesores", "rutasAsesores", "clientes","cuotas"];
+    const objectmsg = ["Asesores", "Rutas Asesores", "Clientes","Cuotas Acuerdo"];
 
     const Sincronizar = (id) => {
         try {
@@ -40,6 +41,16 @@ export const SincronizacionEspecifica = (props) => {
                 Swal.fire({
                     title: 'Error',
                     text: "Para sincronizar los clientes debe seleccionar un asesor!",
+                    type: 'error',
+                    confirmButtonText: 'Ok'
+                })
+                return;
+            }
+
+            if (id == objectSincronizar[3] && acuerdo === "") {
+                Swal.fire({
+                    title: 'Error',
+                    text: "Para sincronizar las cuotas debe ingresar un acuerdo!",
                     type: 'error',
                     confirmButtonText: 'Ok'
                 })
@@ -59,6 +70,10 @@ export const SincronizacionEspecifica = (props) => {
                 case objectSincronizar[2]:
                     url = url + `${AsesorSelected}`;
                     msgType = objectmsg[2];
+                    break;
+                case objectSincronizar[3]:
+                    url = url + `${acuerdo}`;
+                    msgType = objectmsg[3];
                     break;
                 default:
                     url = "";
@@ -191,6 +206,24 @@ export const SincronizacionEspecifica = (props) => {
                                     <div>
                                         <Button
                                             onClick={() => { Sincronizar(objectSincronizar[2]) }}
+                                            variant="contained"
+                                            color="primary">
+                                            Sincronizar
+                                        </Button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr key="3" style={{ textAlign: "center" }}>
+                                <td>Cuotas Acuerdo</td>
+                                <td >
+                                    <div>
+                                        <input type='text' placeholder='Acuerdo' onChange={(e)=>setAcuerdo(e.target.value)} className='form-control'/>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <Button
+                                            onClick={() => { Sincronizar(objectSincronizar[3]) }}
                                             variant="contained"
                                             color="primary">
                                             Sincronizar

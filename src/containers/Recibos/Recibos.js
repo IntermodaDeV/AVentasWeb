@@ -78,6 +78,8 @@ const Recibos = (props) => {
       props.onStoreReciboClienteSelected(cliente);
       props.onStoreReciboFacturasXCliente(cliente.Facturas);
     }
+    setClientes(props.clientes);
+    setClientesFiltrados(props.clientes);
     // eslint-disable-next-line
   }, [props.clientes]);
   useEffect(() => {
@@ -172,6 +174,7 @@ const Recibos = (props) => {
                 FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
                 Dias: isNaN(diasVencimiento) ? "":diasVencimiento,// Dias
                 Valor: cuot.ValorCuota,// Valor
+                TotalFactura: fact.TotalFactura,// TotalFactura
                 Saldo:cuot.Saldo,// Saldo
                 FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900' ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
                 DiasV: isNaN(diasDescuento) ? "":diasDescuento, // DiasV
@@ -211,6 +214,7 @@ const Recibos = (props) => {
                 FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
                 Dias: isNaN(diasVencimiento) ? "":diasVencimiento,// Dias
                 Valor: cuot.ValorCuota,// Valor
+                TotalFactura: fact.TotalFactura,// TotalFactura
                 Saldo:cuot.Saldo,// Saldo
                 FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
                 DiasV: isNaN(diasDescuento) ? "":diasDescuento, // DiasV
@@ -570,6 +574,7 @@ const Recibos = (props) => {
                   valordescuento = totalfactura * (Acuerdos.DescuentoEnAcuerdos.Porcentaje / 100);
                 }
                 Cuotas.Descuento = valordescuento.toFixed(2);
+                Cuotas.DescuentoBack = valordescuento.toFixed(2);
               }
             }
             else {

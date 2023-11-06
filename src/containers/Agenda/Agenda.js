@@ -33,6 +33,7 @@ moment.locale('es');
 class Agenda extends Component {
     urlApi = APIURL;
     state = {
+        TiemposFuera:[],
         Asignaciones: [],
         mostrarAcciones: true,
         isLoaded: false,
@@ -143,6 +144,16 @@ class Agenda extends Component {
         }
     }
 
+    obtenerTiemposFueraAsesorDia = async () => {
+        try {
+            const asesor = localStorage.getItem("codigo");
+            const request = await axios.get(`${APIURL}/api/tiemposfuera/diario/${asesor}`);
+            this.setState(prev => ({ ...prev, TiemposFuera: request.data }))
+        } catch (err) {
+
+        }
+    }
+
     cargarClientes = async (clientes) => {
         try {
             let request = await axios.get(`${this.urlApi}/api/cliente/agenda`, {
@@ -213,6 +224,12 @@ class Agenda extends Component {
     }
 
     enviarCheckinApi = async (location, check) => {
+        const existeTiempoAbierto = this.state.TiemposFuera.find(x => x.horaSalida === null);
+        if (existeTiempoAbierto) {
+            alert("Cerrar tiempos fuera de agenda abiertos.");
+            return;
+        }
+
         const isOnline = await verificarConexion();
         if (!isOnline || localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
@@ -836,6 +853,7 @@ class Agenda extends Component {
             this.cargarListadoRazonNoVenta();
             this.cargarTipoVisitas();
             this.cargarConfiguraciones();
+            this.obtenerTiemposFueraAsesorDia();
             this.setState((prevState) => ({ ...prevState, isLoaded: true }))
         } else {
             Swal.fire({

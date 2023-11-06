@@ -44,7 +44,7 @@ export const CuentaCorriente = props => {
                                 Descuento: <span className={colorFuente}>{cuot.Descuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
-                                excepcionDescuento: <span style={{color:fact.ExcepcionDescuento?"green":"red"}}>{fact.ExcepcionDescuento ? "Si":"No"}</span>
+                                excepcionDescuento: <span style={{ color: fact.ExcepcionDescuento ? "green" : "red" }}>{fact.ExcepcionDescuento ? "Si" : "No"}</span>
                             });
 
                             agrupacionCuentaCorriente.push({
@@ -58,6 +58,7 @@ export const CuentaCorriente = props => {
                                 FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
                                 Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
                                 Valor: cuot.ValorCuota,// Valor
+                                TotalFactura: fact.TotalFactura,// TotalFactura
                                 Saldo: cuot.Saldo,// Saldo
                                 FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900' ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
                                 DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV
@@ -83,7 +84,7 @@ export const CuentaCorriente = props => {
                                 Descuento: <span className={colorFuente}>{cuot.Descuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// Descuento
                                 APagar: <span className={colorFuente}>{aPagar.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,// APagar
                                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
-                                excepcionDescuento: <span style={{color:fact.ExcepcionDescuento?"green":"red"}}>{fact.ExcepcionDescuento ? "Si":"No"}</span>
+                                excepcionDescuento: <span style={{ color: fact.ExcepcionDescuento ? "green" : "red" }}>{fact.ExcepcionDescuento ? "Si" : "No"}</span>
                             });
 
                             agrupacionCuentaCorriente.push({
@@ -96,6 +97,7 @@ export const CuentaCorriente = props => {
                                 FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
                                 Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
                                 Valor: cuot.ValorCuota,// Valor
+                                TotalFactura: fact.TotalFactura,// TotalFactura
                                 Saldo: cuot.Saldo,// Saldo
                                 FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
                                 DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV

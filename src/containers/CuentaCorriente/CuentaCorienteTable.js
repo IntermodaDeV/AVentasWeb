@@ -2,16 +2,16 @@ import React from 'react'
 import MUIDataTable from 'mui-datatables';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import moment from 'moment';
-import {useSelector,useDispatch} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import jsPDF from "jspdf";
 import Logo from './LogoSinLetrasInv.png';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import "jspdf-autotable";
 import 'moment/locale/es';
-import {DescargarCuentaExcel} from 'components/Cartera/DescargarCuentaExcel';
+import { DescargarCuentaExcel } from 'components/Cartera/DescargarCuentaExcel';
 import axios from 'axios';
-import {APIURL} from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
 import { ObtenerCoordenadas } from 'utils/common';
 moment.locale('es')
@@ -41,21 +41,20 @@ const columns = [
     { name: 'Excepción Descuento', label: 'Excepción Descuento', options: { customHeadRender: columnRender } },
 ]
 
-if(localStorage.getItem('empresa')==='IMGT')
-{
-    columns.splice(3,0,{ name: 'Numero FEL', label: 'Numero FEL', options: { customHeadRender: columnRender } })
+if (localStorage.getItem('empresa') === 'IMGT') {
+    columns.splice(3, 0, { name: 'Numero FEL', label: 'Numero FEL', options: { customHeadRender: columnRender } })
 }
 
-const numberWithCommas = (numero)=>{
+const numberWithCommas = (numero) => {
     numero = Number(numero)
     return (numero.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
 }
 
 const CuentaCorrienteTable = props => {
-    const cuentaCorriente = useSelector(e=>e.CuentaImprimir);
-    const clientesPedido = useSelector(c=>c.clientes);
-    const clientesRecibo = useSelector(c=>c.Recibo);
-    const permisos = useSelector(e=>e.Permisos[0]);
+    const cuentaCorriente = useSelector(e => e.CuentaImprimir);
+    const clientesPedido = useSelector(c => c.clientes);
+    const clientesRecibo = useSelector(c => c.Recibo);
+    const permisos = useSelector(e => e.Permisos[0]);
     const dispatch = useDispatch();
 
     let data = []
@@ -101,13 +100,12 @@ const CuentaCorrienteTable = props => {
         }
     };
     data = props.CuotasCuentaCorriente.map(cuenCorr => {
-          return Object.values(cuenCorr)
+        return Object.values(cuenCorr)
     })
 
-    
-    const generatePDF = () =>{
+    const generatePDF = () => {
         const unit = "pt";
-        const size = "letter"; 
+        const size = "letter";
         const orientation = "portrait";
 
         const doc = new jsPDF(orientation, unit, size);
@@ -121,37 +119,39 @@ const CuentaCorrienteTable = props => {
     Direcciòn: ${props.clienteSelected.Direccion}
         `;
 
-        const headers = [['Documento','Numero','Fecha','Vencimiento','Dias','Valor','Saldo','Descuento','Dias','Descuento','A Pagar']];
-        const data = cuentaCorriente.map(e=>[e.Tipo,
+        const headers = [['Documento', 'Numero', 'Fecha', 'Vencimiento', 'Dias', 'Valor', 'Saldo', 'Descuento', 'Dias', 'Descuento', 'A Pagar']];
+        const data = cuentaCorriente.map(e => [
+            e.Tipo,
             e.Factura,
             e.FechaFactura,
             e.FechaVencimiento,
             e.Dias,
-            numberWithCommas(e.Valor),
+            numberWithCommas(e.TotalFactura),
             numberWithCommas(e.Saldo),
-            e.FechaMaxDescuento,
-            e.DiasV,
-            numberWithCommas(e.Descuento),
+            e.IdAcuerdoxCliente != null ? "AV" : e.FechaMaxDescuento,
+            e.IdAcuerdoxCliente != null ? "" : e.DiasV,
+            e.IdAcuerdoxCliente != null ? "AV" : numberWithCommas(e.Descuento),
             numberWithCommas(e.APagar)
         ]);
         const cantidadFacturas = data.length;
-        const totalValor = cuentaCorriente.reduce((pre,curr)=>(pre+curr.Valor),0);
-        const totalSaldo = cuentaCorriente.reduce((pre,curr)=>(pre+curr.Saldo),0);
+        const totalValor = cuentaCorriente.reduce((pre, curr) => (pre + curr.TotalFactura), 0);
+        const totalSaldo = cuentaCorriente.reduce((pre, curr) => (pre + curr.Saldo), 0);
         const totalDescuento = cuentaCorriente.reduce((pre, curr) => (pre + Number(curr.Descuento)), 0);
-        const totalPagar = cuentaCorriente.reduce((pre,curr)=>(pre+curr.APagar),0);
+        const totalPagar = cuentaCorriente.reduce((pre, curr) => (pre + curr.APagar), 0);
 
-        data.push([`Facturas: ${cantidadFacturas}`,'','','','',numberWithCommas(totalValor),numberWithCommas(totalSaldo),'','',numberWithCommas(totalDescuento),numberWithCommas(totalPagar)]);
+        data.push([`Facturas: ${cantidadFacturas}`, '', '', '', '', numberWithCommas(totalValor), numberWithCommas(totalSaldo), '', '', numberWithCommas(totalDescuento), numberWithCommas(totalPagar)]);
 
         let content = {
-            styles:{fontSize:7},
+            styles: { fontSize: 7 },
             startY: 50,
             head: headers,
             body: data,
-            didDrawPage:function (data) {
+            didDrawPage: function (data) {
                 if (Logo) {
                     doc.addImage(Logo, 'PNG', 40, 0, 33, 33);
                 }
-        }}
+            }
+        }
 
         doc.text(title, 180, 0);
         doc.autoTable(content);
@@ -277,8 +277,8 @@ const CuentaCorrienteTable = props => {
         })
     }
 
-    React.useEffect(()=>{
-    },[props.clienteSelected])
+    React.useEffect(() => {
+    }, [props.clienteSelected])
 
     return (
         <MuiThemeProvider theme={getMuiTheme()}>
