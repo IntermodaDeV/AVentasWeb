@@ -173,6 +173,7 @@ export const Home = (props) => {
         cargarMotivosDevolucion();
 
         ////Configuracion De Pedido
+        cargarCorrelativoPedido();
         cargarMaestroLinea();
         cargarTiposColeccion();
         cargarTiposPedido();
@@ -182,6 +183,7 @@ export const Home = (props) => {
         cargarImpuestoProductos();
         cargarMaestroBodega();
         /////Configuracion De Recibos
+        cargarCorrelativoRecibo();
         cargarBancos();
         cargarTipoPago();
         cargarTipoVisitasOficina();
