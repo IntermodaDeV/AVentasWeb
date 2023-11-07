@@ -5,7 +5,7 @@ import moment from 'moment';
 import { useSelector, useDispatch } from 'react-redux';
 import Button from '@material-ui/core/Button';
 import jsPDF from "jspdf";
-import Logo from './LogoSinLetrasInv.png';
+import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import "jspdf-autotable";
 import 'moment/locale/es';
@@ -136,7 +136,7 @@ const CuentaCorrienteTable = props => {
         const cantidadFacturas = data.length;
         const totalValor = cuentaCorriente.reduce((pre, curr) => (pre + curr.TotalFactura), 0);
         const totalSaldo = cuentaCorriente.reduce((pre, curr) => (pre + curr.Saldo), 0);
-        const totalDescuento = cuentaCorriente.reduce((pre, curr) => (pre + Number(curr.Descuento)), 0);
+        const totalDescuento = cuentaCorriente.reduce((pre, curr) => (pre + Number(curr.IdAcuerdoxCliente != null ? 0 : curr.Descuento)), 0);
         const totalPagar = cuentaCorriente.reduce((pre, curr) => (pre + curr.APagar), 0);
 
         data.push([`Facturas: ${cantidadFacturas}`, '', '', '', '', numberWithCommas(totalValor), numberWithCommas(totalSaldo), '', '', numberWithCommas(totalDescuento), numberWithCommas(totalPagar)]);
@@ -148,7 +148,7 @@ const CuentaCorrienteTable = props => {
             body: data,
             didDrawPage: function (data) {
                 if (Logo) {
-                    doc.addImage(Logo, 'PNG', 40, 0, 33, 33);
+                    doc.addImage(Logo, 'PNG', 40, 5, 55, 35);
                 }
             }
         }
@@ -285,10 +285,10 @@ const CuentaCorrienteTable = props => {
             {(!props.cartera) && (<>
                 {(permisos.AsesoresUsuario.length === 1) && <Button onClick={verificarObtencionCoordenadas} style={{ marginBottom: '10px', marginRight: 5 }} variant="contained" color="primary">Guardar coordenadas</Button>}
             </>)}
-            {/*(cuentaCorriente.length > 0) && (<div style={{ display: 'inline' }}>
+            {(cuentaCorriente.length > 0 && props.visible) && (<div style={{ display: 'inline' }}>
                 <Button onClick={generatePDF} style={{ marginBottom: '10px' }} variant="contained" color="primary">Generar Reporte</Button>
                 <DescargarCuentaExcel cliente={props.clienteSelected.Codigo} />
-            </div>)*/}
+            </div>)}
             <MUIDataTable
                 title={''}
                 data={data}
