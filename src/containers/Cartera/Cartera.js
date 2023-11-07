@@ -52,6 +52,16 @@ export const Cartera = props => {
                 for (let Facturas of acuerdosFacturas) {
                     let Descuento = cliente.MaestroDescuento.length > 0 ? cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea) : [];
                     let noAplicaDescuento = Descuento.length === 0;
+                    let porcentajeDescuento = 0;
+                    let diasDescuento = 0;
+
+                    if (Descuento.length !== 0) {
+                        const descuentoArreglo = Descuento.find(x => x.CodigoDescuento === Facturas.CodigoDescuento);
+                        if (descuentoArreglo !== undefined) {
+                            porcentajeDescuento = descuentoArreglo.Porcentaje;
+                            diasDescuento = descuentoArreglo.DiasDescuento;
+                        }
+                    }
 
                     let totalDocumentosAplicados = 0;
 
@@ -59,7 +69,7 @@ export const Cartera = props => {
                         totalDocumentosAplicados = Facturas.DocumentosAplicadosAFacturas.reduce((prev, curr) => prev + curr.Valor, 0);
                     };
 
-                    Facturas.Descuento = noAplicaDescuento ? 0 : Facturas.TotalFactura * (Descuento[0].Porcentaje / 100);
+                    Facturas.Descuento = noAplicaDescuento ? 0 : Facturas.TotalFactura * (porcentajeDescuento / 100);
                     for (let Cuotas of Facturas.Cuotas) {
 
                         let valordescuento = 0;
@@ -82,13 +92,13 @@ export const Cartera = props => {
                             }
                         }
                         else {
-                            let fechaMaxDescuent = noAplicaDescuento ? moment(Facturas.FechaFactura).format() : moment(Facturas.FechaFactura).add((Descuento[0].DiasDescuento + cliente.DiasTransporte), 'days').format();
+                            let fechaMaxDescuent = noAplicaDescuento ? moment(Facturas.FechaFactura).format() : moment(Facturas.FechaFactura).add((diasDescuento + cliente.DiasTransporte), 'days').format();
 
                             Facturas.FechaMaxDescuento = fechaMaxDescuent;
                             Cuotas.FechaMaxDescuento = fechaMaxDescuent;
 
                             let totalfactura = Cuotas.ValorCuota - totalDocumentosAplicados - Cuotas.Flete
-                            valordescuento = noAplicaDescuento ? 0 : totalfactura * (Descuento[0].Porcentaje / 100);
+                            valordescuento = noAplicaDescuento ? 0 : totalfactura * (porcentajeDescuento / 100);
                             Cuotas.Descuento = valordescuento.toFixed(2);
                         }
                     };
