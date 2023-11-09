@@ -46,26 +46,6 @@ export const CuentaCorriente = props => {
                                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
                                 excepcionDescuento: <span style={{ color: fact.ExcepcionDescuento ? "green" : "red" }}>{fact.ExcepcionDescuento ? "Si" : "No"}</span>
                             });
-
-                            agrupacionCuentaCorriente.push({
-                                Tipo: cuot.TipoDocumento, // Tipo
-                                TipoPedido: acuXTip.TipoPedido,// TipoPedido
-                                Factura: fact.Factura,// Factura
-                                NumeroFEL: fact.NumeroFEL,
-                                IdAcuerdoxCliente: cuot.IdAcuerdoxCliente,// IdAcuerdoxCliente
-                                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
-                                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
-                                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
-                                Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
-                                Valor: cuot.ValorCuota,// Valor
-                                TotalFactura: fact.TotalFactura,// TotalFactura
-                                Saldo: cuot.Saldo,// Saldo
-                                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900' ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
-                                DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV
-                                Descuento: cuot.Descuento,// Descuento
-                                APagar: aPagar,// APagar
-                                idmoneda: cuot.IdMoneda,// idmoneda
-                            });
                         }
                         else {
                             agrupacionCuentCorriente.push({
@@ -86,27 +66,51 @@ export const CuentaCorriente = props => {
                                 idmoneda: <span className={colorFuente}>{cuot.IdMoneda}</span>,// idmoneda
                                 excepcionDescuento: <span style={{ color: fact.ExcepcionDescuento ? "green" : "red" }}>{fact.ExcepcionDescuento ? "Si" : "No"}</span>
                             });
-
-                            agrupacionCuentaCorriente.push({
-                                Tipo: cuot.TipoDocumento, // Tipo
-                                TipoPedido: acuXTip.TipoPedido,// TipoPedido
-                                Factura: fact.Factura,// Factura
-                                IdAcuerdoxCliente: cuot.IdAcuerdoxCliente,// IdAcuerdoxCliente
-                                NumeroCuota: cuot.NumeroCuota,// NumeroCuota
-                                FechaFactura: moment(cuot.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
-                                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
-                                Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
-                                Valor: cuot.ValorCuota,// Valor
-                                TotalFactura: fact.TotalFactura,// TotalFactura
-                                Saldo: cuot.Saldo,// Saldo
-                                FechaMaxDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
-                                DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV
-                                Descuento: cuot.Descuento,// Descuento
-                                APagar: aPagar,// APagar
-                                idmoneda: cuot.IdMoneda,// idmoneda
-                            });
                         }
                     });
+                    let diasVencimiento = (moment().diff(fact.FechaVencimiento, 'days') * -1) + 1;
+                    let diasDescuento = (moment().diff(fact.FechaMaxDescuento, 'days') * -1) + 1;
+                    let aPagar = fact.Saldo;
+                    if (diasDescuento >= 0 && fact.Descuento && fact.IdAcuerdoxCliente == null) {
+                        aPagar -= fact.Descuento;
+                    }
+                    if (localStorage.getItem('empresa') === 'IMGT') {
+                        agrupacionCuentaCorriente.push({
+                            Tipo: fact.Tipo, // Tipo
+                            TipoPedido: acuXTip.Tipo,// TipoPedido
+                            Factura: fact.Factura,// Factura
+                            NumeroFEL: fact.NumeroFEL,
+                            IdAcuerdoxCliente: fact.IdAcuerdoxCliente,// IdAcuerdoxCliente
+                            FechaFactura: moment(fact.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+                            FechaVencimiento: moment(fact.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+                            Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
+                            TotalFactura: fact.TotalFactura,// TotalFactura
+                            Saldo: fact.Saldo,// Saldo
+                            FechaMaxDescuento: moment(fact.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(fact.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900' ? moment(fact.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                            DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV
+                            Descuento: fact.Descuento,// Descuento
+                            APagar: aPagar,// APagar
+                            idmoneda: fact.IdMoneda,// idmoneda
+                        });
+                    }
+                    else {
+                        agrupacionCuentaCorriente.push({
+                            Tipo: fact.Tipo, // Tipo
+                            TipoPedido: acuXTip.Tipo,// TipoPedido
+                            Factura: fact.Factura,// Factur
+                            IdAcuerdoxCliente: fact.IdAcuerdoxCliente,// IdAcuerdoxCliente
+                            FechaFactura: moment(fact.FechaFactura).format("DD/MM/YYYY"),// FechaFactura
+                            FechaVencimiento: moment(fact.FechaVencimiento).format("DD/MM/YYYY"),// FechaVencimiento
+                            Dias: isNaN(diasVencimiento) ? "" : diasVencimiento,// Dias
+                            TotalFactura: fact.TotalFactura,// TotalFactura
+                            Saldo: fact.Saldo,// Saldo
+                            FechaMaxDescuento: moment(fact.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" && moment(fact.FechaMaxDescuento).format("DD/MM/YYYY") !== '01/01/1900' ? moment(fact.FechaMaxDescuento).format("DD/MM/YYYY") : "",// FechaMaxDescuento
+                            DiasV: isNaN(diasDescuento) ? "" : diasDescuento, // DiasV
+                            Descuento: fact.Descuento,// Descuento
+                            APagar: aPagar,// APagar
+                            idmoneda: fact.IdMoneda,// idmoneda
+                        });
+                    }
                 });
             });
         });
@@ -199,5 +203,6 @@ export const CuentaCorriente = props => {
         cartera={true}
         clienteSelected={props.cliente}
         CuotasCuentaCorriente={cuotas}
+        visible={true}
     />
 }

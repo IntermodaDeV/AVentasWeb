@@ -219,6 +219,7 @@ const Recibos = (props) => {
           {
             clienteSelected &&
             <CuentaCorrienteTable
+              visible={false}
               clienteSelected={clienteSelected}
             >
             </CuentaCorrienteTable>
