@@ -49,6 +49,13 @@ export const Cartera = props => {
             for (let Acuerdos of AcuerdosXTipoPedido.Acuerdos) {
                 let acuerdosFacturas = Acuerdos.Facturas.filter(f => f.Descuento === 0);
 
+                for (let Facturas of Acuerdos.Facturas) { 
+                    Facturas.FechaVencimiento = moment(Facturas.FechaVencimiento).add(Facturas.DiasGracia, 'days');
+                    for (let Cuotas of Facturas.Cuotas) {
+                      Cuotas.FechaVencimiento = moment(Cuotas.FechaVencimiento).add(Cuotas.DiasGracia, 'days');
+                    }
+                  }
+
                 for (let Facturas of acuerdosFacturas) {
                     let Descuento = cliente.MaestroDescuento.length > 0 ? cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea) : [];
                     let noAplicaDescuento = Descuento.length === 0;
@@ -100,6 +107,7 @@ export const Cartera = props => {
                             let totalfactura = Cuotas.ValorCuota - totalDocumentosAplicados - Cuotas.Flete
                             valordescuento = noAplicaDescuento ? 0 : totalfactura * (porcentajeDescuento / 100);
                             Cuotas.Descuento = valordescuento.toFixed(2);
+                            Facturas.Descuento = valordescuento;
                         }
                     };
 
