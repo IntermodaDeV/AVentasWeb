@@ -537,7 +537,7 @@ const Recibos = (props) => {
       for (let Acuerdos of AcuerdosXTipoPedido.Acuerdos) {
         let acuerdosFacturas = Acuerdos.Facturas.filter(f => f.Descuento === 0);
 
-        for (let Facturas of acuerdosFacturas) { 
+        for (let Facturas of Acuerdos.Facturas) { 
           Facturas.FechaVencimiento = moment(Facturas.FechaVencimiento).add(Facturas.DiasGracia, 'days');
           for (let Cuotas of Facturas.Cuotas) {
             Cuotas.FechaVencimiento = moment(Cuotas.FechaVencimiento).add(Cuotas.DiasGracia, 'days');
@@ -596,6 +596,7 @@ const Recibos = (props) => {
               let totalfactura = Cuotas.ValorCuota - totalDocumentosAplicados - Cuotas.Flete
               valordescuento = noAplicaDescuento ? 0 : totalfactura * (porcentajeDescuento / 100);
               Cuotas.Descuento = valordescuento.toFixed(2);
+              Facturas.Descuento = valordescuento;
             }
           };
 
