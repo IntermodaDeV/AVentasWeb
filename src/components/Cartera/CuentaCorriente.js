@@ -20,7 +20,7 @@ export const CuentaCorriente = props => {
                         let diasVencimiento = (moment().diff(cuot.FechaVencimiento, 'days') * -1) + 1;
                         let diasDescuento = (moment().diff(cuot.FechaMaxDescuento, 'days') * -1) + 1;
                         let aPagar = cuot.Saldo;
-                        if (diasDescuento >= 0 && cuot.Descuento) {
+                        if (diasDescuento >= 0 && cuot.Descuento && cuot.IdAcuerdoxCliente === null) {
                             aPagar -= cuot.Descuento;
                         }
                         totalSaldo += cuot.Saldo;
