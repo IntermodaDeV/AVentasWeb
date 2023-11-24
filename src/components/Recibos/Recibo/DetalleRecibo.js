@@ -44,6 +44,7 @@ const DetalleRecibo = (props) => {
     const [InfoModal, setInfoModal] = useState([]);
     const [openPedidoModal, setOpenPedidoModal] = useState(false);
     const [loading,setLoading] = useState(false);
+    const [correrValidacionAcuerdos,setCorrerValidacionAcuerdos] = useState(false);
     //const [bancoSeleccionado, setBancoSeleccionado] = useState(null);
     const [cuotasYDescuentoAplicado, setCuotasYDescuentoAplicado] = useState({
         Cuotas: [],
@@ -96,6 +97,22 @@ const DetalleRecibo = (props) => {
         calculo.current+=1;
         // eslint-disable-next-line
     }, [pagosXRecibo]);
+
+    useEffect(() => {
+        
+        if (props.Cuotas[0].AgrupaPorCuota) {
+            let cuotasYDescuentoCalculado = {
+                Cuotas: [],
+                DescuentoAplicado: 0,
+                TotalPorPagar: 0
+            };
+            cuotasYDescuentoCalculado = CalculoCuotasAgrupadasYDescuentoValidacion();
+            setCuotasYDescuentoAplicado(cuotasYDescuentoCalculado);
+            calculo.current += 1;
+        } 
+        // eslint-disable-next-line
+    }, [correrValidacionAcuerdos]);
+
     useEffect(() => {
         validacionCorrelativoRecibo();
         CargarDatos()
@@ -273,8 +290,8 @@ const DetalleRecibo = (props) => {
 
         return 0;
     }
-
-    const CalculoCuotasAgrupadasYDescuento = () => {
+    
+    const CalculoCuotasAgrupadasYDescuentoValidacion = () => {
         let valorPagos = 0;
         let Descuento = 0;
         let descuentoAcumulado = 0;
@@ -349,7 +366,6 @@ const DetalleRecibo = (props) => {
 
                             if (aplicaADescuento) {
                                 cuotProc.DescuentoAplicado = descuentoAplicar;
-                                cuotProc.ValorDescuento = descuentoAplicar;
                                 descuentoAcumulado += Number(descuentoAplicar);
                             }
                         }
@@ -357,7 +373,6 @@ const DetalleRecibo = (props) => {
                             cuotProc.PagoAplicado += montoAPagar;
                             PagoAcumulado -= montoAPagar;
                             if (aplicaADescuento) {
-                                cuotProc.ValorDescuento = descuentoAplicar;
                                 cuotProc.DescuentoAplicado = descuentoAplicar;
                                 descuentoAcumulado += Number(descuentoAplicar);
                             }
@@ -367,7 +382,138 @@ const DetalleRecibo = (props) => {
                         }
                     } else {
                         if (aplicaADescuento) {
-                            cuotProc.ValorDescuento = descuentoAplicar;
+                            cuotProc.DescuentoAplicado = descuentoAplicar;
+                            descuentoAcumulado += Number(descuentoAplicar);
+                            cuotProc.APagar = montoAPagar;
+                        }
+                    }
+
+                    pagadoCuota[cuotProc.NumeroCuota] = pagadoCuota[cuotProc.NumeroCuota] + montoAPagar;
+                };
+            }
+        });
+        const cuotas = cuotasAProcesar.map(cuotAgru => {
+            let NumeroFel = "";
+            cuotAgru.Cuotas.forEach(cuo =>{
+                NumeroFel = cuo.NumeroFEL;
+            })
+            return [
+                cuotAgru.NumeroCuota, //Cuota:
+                cuotAgru.NumeroFactura, //Factura:
+                NumeroFel, //NumeroFel
+                moment(cuotAgru.FechaFactura).format("DD/MM/YYYY"), //Fecha:
+                moment(cuotAgru.FechaDescuento).format("DD/MM/YYYY"), //FechaDescuento:
+                cuotAgru.Moneda, //DiasDescuento  
+                Number(cuotAgru.Valor).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Valor:
+                Number(cuotAgru.ValorDescuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //ValorDescuento:
+                Number(cuotAgru.Saldo).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo:
+                Number(cuotAgru.DescuentoAplicado).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //DescuentoAplicado:
+                Number(cuotAgru.APagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //APagar:
+                Number(cuotAgru.PagoAplicado).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //PagoAplicado:
+                <FaEye onClick={(event) => { OpenModal(event, cuotAgru.Cuotas) }} size={"20px"} />, //Acciones:
+                cuotAgru.FechaFactura, // Fecha Factura
+                cuotAgru.Tipo, //tipo de Documento
+                
+            ]
+        });
+        return {
+            Cuotas: cuotas,
+            DescuentoAplicado: descuentoAcumulado,
+            ValorAPagar : Number(localStorage.getItem('valorPagos')),
+            DescuentoTotal: Number(localStorage.getItem('DescuentoFacturas')),
+            agrupadas: true
+        }
+    }
+    const CalculoCuotasAgrupadasYDescuento = () => {
+        let valorPagos = 0;
+        let Descuento = 0;
+        let descuentoAcumulado = 0;
+        let cuotasAProcesar = CuotasAgrupadas().sort((a, b) => {
+            if (a.NumeroCuota > b.NumeroCuota) {
+                return 1;
+            }
+            if (a.NumeroCuota < b.NumeroCuota) {
+                return -1;
+            }
+            return 0;
+        });
+        pagosXRecibo.forEach(pago => {
+            let PagoAcumulado = Number(pago.valor);
+            let fechaPago = pago.fecha;
+            if (PagoAcumulado >= 0) {
+                const saldoCuota = cuotasAProcesar.reduce((prev, curr) => {
+                    const { NumeroCuota, Saldo } = curr;
+                    if (NumeroCuota in prev) {
+                        prev[NumeroCuota] = prev[NumeroCuota] + Saldo;
+                        return prev;
+                    }
+
+                    prev[NumeroCuota] = Saldo;
+                    return prev;
+                }, {});
+
+                const descuentoCuota = cuotasAProcesar.reduce((prev, curr) => {
+                    const { NumeroCuota, ValorDescuentoBack } = curr;
+                    if (!(NumeroCuota in prev)) {
+                        prev[NumeroCuota] = ValorDescuentoBack;
+                        return prev;
+                    }
+
+                    return prev;
+                }, {});
+
+                let pagadoCuota = {};
+
+                for (let cuotProc of cuotasAProcesar) {
+                    PagoAcumulado = Number(parseFloat(PagoAcumulado).toFixed(2));
+                    const saldoTotalCuota = saldoCuota[cuotProc.NumeroCuota];
+                    const descuentoTotalCuota = Number(parseFloat(descuentoCuota[cuotProc.NumeroCuota]).toFixed(2));
+
+                    if (!(cuotProc.NumeroCuota in pagadoCuota)) {
+                        pagadoCuota[cuotProc.NumeroCuota] = 0;
+                    }
+
+                    let isChequePosFechado = pago.indexTiposPago === 0 && pago.indexTiposdePagoDetalle === 1;
+                    let aplicaADescuento = false;
+                    let aplicaDescuentoFechaPosfechado = moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days') && !isChequePosFechado;
+                    let montoAPagar = 0;
+                    let descuentoAplicar = calcularDescuentoAplicar(cuotasAProcesar, cuotProc, descuentoTotalCuota);
+
+                    if (aplicaDescuentoFechaPosfechado) {
+                        aplicaADescuento = true;
+                        montoAPagar = cuotProc.Saldo - cuotProc.PagoAplicado - descuentoAplicar;
+                    } else {
+                        montoAPagar = cuotProc.Saldo - cuotProc.PagoAplicado;
+                    }
+
+                    valorPagos += montoAPagar;
+                    Descuento += aplicaADescuento ? Number(descuentoAplicar) : 0;
+                    localStorage.setItem('valorPagos', valorPagos.toFixed(2));
+                    localStorage.setItem('DescuentoFacturas', Descuento);
+
+                    if (montoAPagar > 0) {
+                        if (montoAPagar > PagoAcumulado) {
+                            cuotProc.PagoAplicado += PagoAcumulado;
+                            PagoAcumulado = 0;
+
+                            if (aplicaADescuento) {
+                                cuotProc.DescuentoAplicado = descuentoAplicar;
+                                descuentoAcumulado += Number(descuentoAplicar);
+                            }
+                        }
+                        if (montoAPagar <= PagoAcumulado) {
+                            cuotProc.PagoAplicado += montoAPagar;
+                            PagoAcumulado -= montoAPagar;
+                            if (aplicaADescuento) {
+                                cuotProc.DescuentoAplicado = descuentoAplicar;
+                                descuentoAcumulado += Number(descuentoAplicar);
+                            }
+                        }
+                        if (aplicaADescuento) {
+                            cuotProc.APagar = montoAPagar;
+                        }
+                    } else {
+                        if (aplicaADescuento) {
                             cuotProc.DescuentoAplicado = descuentoAplicar;
                             descuentoAcumulado += Number(descuentoAplicar);
                             cuotProc.APagar = montoAPagar;
@@ -597,6 +743,7 @@ const DetalleRecibo = (props) => {
         setPagosXRecibo(pagos);
         setTipoPagoEditando(null);
         setAddedNewPayment(false);
+        setCorrerValidacionAcuerdos(prev=>!prev);
     }
     const deletePago = (index) => {
         if (!tipoPagoEditando && pagosXRecibo.length > 1) {
