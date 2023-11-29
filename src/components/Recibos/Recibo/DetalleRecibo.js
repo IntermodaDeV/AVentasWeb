@@ -743,7 +743,7 @@ const DetalleRecibo = (props) => {
         setPagosXRecibo(pagos);
         setTipoPagoEditando(null);
         setAddedNewPayment(false);
-        setCorrerValidacionAcuerdos(prev=>!prev);
+        setCorrerValidacionAcuerdos(prev=>!correrValidacionAcuerdos);
     }
     const deletePago = (index) => {
         if (!tipoPagoEditando && pagosXRecibo.length > 1) {
