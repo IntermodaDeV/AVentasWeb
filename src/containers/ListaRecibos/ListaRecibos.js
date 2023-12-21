@@ -16,6 +16,7 @@ import CustomFooter from 'components/Layout/CustomFooter';
 import {IsAllow} from 'components/Seguridad/Permisos';
 import { useSelector } from 'react-redux';
 import { verificarConexion } from 'utils/http';
+import axios from 'axios';
 moment.locale('es');
 
 const ListaRecibos = (props) => {
@@ -200,9 +201,18 @@ const ListaRecibos = (props) => {
        
     }
 
-    const showPrint = (recibo) => {
-        setDialogRecibo(recibo);
-        setShowDialog(true);
+    const showPrint = async (recibo) => {
+        try {
+            const request = await axios.get(`${APIURL}/api/Recibo/obtenerfirma/${recibo.NumeroRecibo}`);
+            let copyRecibo = { ...recibo };
+            copyRecibo.NombreAsesor = request.data.nombreAsesor;
+            copyRecibo.firma = request.data.firma;
+            setDialogRecibo(copyRecibo);
+            setShowDialog(true);
+        } catch (err) {
+            setDialogRecibo(recibo);
+            setShowDialog(true);
+        }
     }
 
     const hidePrint = () => {
