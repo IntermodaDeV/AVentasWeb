@@ -153,7 +153,7 @@ const ListaRecibos = (props) => {
 
         }
 
-        recibos.filter(r => r.Asesor === AsesorSelected).map(recib => {
+        recibos.map(recib => {
 
             let fechaIni = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
             let fechaFin = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
