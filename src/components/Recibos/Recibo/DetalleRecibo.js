@@ -980,6 +980,7 @@ const DetalleRecibo = (props) => {
     
         let apiURL     = urlApi + "/api/Recibo";
         let parametros = {
+            CodigoCliente: props.Cliente.Codigo,
             Fecha: pagosXRecibo[0].fecha,
             FechaPago: new Date(pagosXRecibo[0].fecha.setHours(0,0,0,0)),
             SaldoFavor:saldoAFavor,
