@@ -580,6 +580,7 @@ const TablaVistaProducto = (props) => {
                                 }}></div> */}
                                         {hasImages ? <FaEye onClick={() => { openImagenes(color.NombreColor) }} size={"20px"} style={{ display: 'block', margin: "auto" }} /> : ""}
                                         {color.NombreColor}
+                                        {color.Deshabilitado && <span style={{ backgroundColor: "red", color: "#FFF", fontWeight: "bold", display: "block", margin: 0 }}>CERRADO</span>}
                                     </td>
                                     {
                                         Object.keys(props.TableValue[props.producto.GrupoTalla].Productos[props.producto.ProductoId].Colores[color.CodigoColor].Tallas).map((talla, index2) => {
