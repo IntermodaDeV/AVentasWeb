@@ -145,7 +145,7 @@ const ListaPedidos = (props) => {
     })
     const DataPedidos = () => {
         let DataPedidos = [];
-        state.pedidos.filter(p => p.Asesor === AsesorSelected).map(pedido => {
+        state.pedidos.map(pedido => {
             //if (moment(fechaIni) < moment(pedido.FechaActual) && moment(pedido.FechaActual) < moment(fechaFin)) {
             let data = [
                 [pedido.PedidoId, pedido.Sincronizado],
