@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Loader from 'components/Global/Loader';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import { Button } from "@material-ui/core";
 import DetalleRecibo from 'components/ListadoRecibos/DetalleRecibo';
-import { PrintOutlined } from '@material-ui/icons';
+import { PrintOutlined,Image } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
 import { APIURL } from 'utils/Enviroment';
@@ -22,6 +25,9 @@ moment.locale('es');
 const ListaRecibos = (props) => {
     const urlApi = APIURL;
 
+    const [showModalUpload,setShowModalUpload] = useState(false);
+    const [numeroRecibo,setNumeroRecibo] = useState("");
+    const [imagenDepositos,setImagenDepositos] = useState();
     const [error, setError] = useState(false);
     const [isLoaded, setIsLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
     const [startDate, setStartDate] =  useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
@@ -34,6 +40,7 @@ const ListaRecibos = (props) => {
     const [Asesores, setAsesores] = useState([]);
     const [AsesorSelected, setAsesorSelected] = useState(null);
     const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
+
     useEffect(() => {
         if(!IsAllow("/lista-recibos"))
         {
@@ -146,6 +153,39 @@ const ListaRecibos = (props) => {
     const handleOnChangeAsesor = (value) => {
         setAsesorSelected(value);
      }
+
+    const handleOpenModal=(numeroRecibo)=>{
+        setShowModalUpload(true);
+        setNumeroRecibo(numeroRecibo);
+    }
+
+    const handleFilesChange=(e)=>{
+        setImagenDepositos(e.target.files);
+    }
+
+    const uploadDepositos = async () => {
+        try {
+            if (numeroRecibo === "" || imagenDepositos === undefined) {
+                alert("Seleccione uno o varios depositos para subir.");
+                return;
+            }
+
+            let formData = new FormData();
+
+            for (let i = 0; i < imagenDepositos.length; i++) {
+                formData.append(`images`, imagenDepositos[i]);
+            }
+
+            await axios.post(`${APIURL}/api/recibo/comprobantes/${numeroRecibo}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            alert("Depositos subidos con exito.");
+            setShowModalUpload(false);
+            setNumeroRecibo("");
+            setImagenDepositos(undefined);
+        } catch (err) {
+            alert("Ocurrio un error y no se pudieron subir los depositos");
+        }
+    }
+     
     const DataRecibos = () => {
         let DataRecibos = [];
 
@@ -185,6 +225,11 @@ const ListaRecibos = (props) => {
                         <span className="ml-1">
                             <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
                                 <PrintOutlined />
+                            </Button>
+                        </span >
+                        <span className="ml-1">
+                            <Button className='my-1' variant="outlined" onClick={() => handleOpenModal(recib.NumeroRecibo)} size="small" color={"primary"}>
+                                <Image />
                             </Button>
                         </span >
                     </div>
@@ -241,23 +286,45 @@ const ListaRecibos = (props) => {
     } else {
         return (
             <>
-            <Listado
-                startDate={startDate}
-                endDate={endDate}
-                handleFechaInicio={handleFechaInicio}
-                handleFechaFin={handleFechaFin}
-                DataRecibos={DataRecibos}
-                HeadersListaRecibos={HeadersListaRecibos}
-                DatatableOptions={DatatableOptions}
-                showDialog={showDialog}
-                hidePrint={hidePrint}
-                DialogRecibo={DialogRecibo}
-                Asesores = {Asesores}
-                AsesorSelected = {AsesorSelected}
-                handleOnChangeAsesor = {handleOnChangeAsesor}
-                cargarRecibos = {cargarRecibos}
-            />
-            <LoadingModal title={'recibos'} Open={isLoading}/>
+                <Dialog
+                    open={showModalUpload}
+                    onClose={() => setShowModalUpload(false)}>
+                    <DialogTitle id="scroll-dialog-title">
+                        <h2>Cargar depositos</h2>
+                    </DialogTitle>
+                    <DialogContent>
+                        <input
+                            type='file'
+                            accept="image/*"
+                            multiple
+                            onChange={handleFilesChange}
+                        />
+                        {imagenDepositos!==undefined && <Button
+                            onClick={uploadDepositos}
+                            color="primary"
+                            variant="outlined"
+                        >
+                            Cargar depositos
+                        </Button>}
+                    </DialogContent>
+                </Dialog>
+                <Listado
+                    startDate={startDate}
+                    endDate={endDate}
+                    handleFechaInicio={handleFechaInicio}
+                    handleFechaFin={handleFechaFin}
+                    DataRecibos={DataRecibos}
+                    HeadersListaRecibos={HeadersListaRecibos}
+                    DatatableOptions={DatatableOptions}
+                    showDialog={showDialog}
+                    hidePrint={hidePrint}
+                    DialogRecibo={DialogRecibo}
+                    Asesores={Asesores}
+                    AsesorSelected={AsesorSelected}
+                    handleOnChangeAsesor={handleOnChangeAsesor}
+                    cargarRecibos={cargarRecibos}
+                />
+                <LoadingModal title={'recibos'} Open={isLoading} />
             </>
         );
     }
