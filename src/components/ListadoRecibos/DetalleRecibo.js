@@ -110,9 +110,13 @@ const DetalleRecibo = (props) => {
       }
   }
 
+  const handleClose=()=>{
+    setOpenModal(false);
+  }
+
   return (
     <div className="px-3">
-      <DepositosModal numeroRecibo={recibo.NumeroRecibo} open={openModal}/>
+      <DepositosModal numeroRecibo={recibo.NumeroRecibo} open={openModal} handleClose={handleClose}/>
       <div>
         <Fab
           size="small"

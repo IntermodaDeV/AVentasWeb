@@ -6,7 +6,7 @@ import { APIURL } from 'utils/Enviroment';
 import axios from 'axios';
 
 export const DepositosModal = props => {
-    const { open, numeroRecibo } = props;
+    const { open, numeroRecibo, handleClose } = props;
     const [depositos, setDepositos] = useState([]);
 
     const obtenerDepositos = async () => {
@@ -26,6 +26,7 @@ export const DepositosModal = props => {
         <Dialog
             scroll={'paper'}
             open={open}
+            onClose={handleClose}
         >
             <DialogTitle className="text-center" id="scroll-dialog-title">
                 <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
@@ -38,7 +39,7 @@ export const DepositosModal = props => {
                     <div style={{ display: 'inline-block' }}>
                         {depositos.map(x => <img key={x.id} src={`${APIURL}/uploads/${x.deposito}`} />)}
                     </div>
-                    
+
                 </div>
             </DialogContent>
         </Dialog>
