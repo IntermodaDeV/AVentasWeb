@@ -309,6 +309,7 @@ const ListaRecibos = (props) => {
                     </DialogContent>
                 </Dialog>
                 <Listado
+                recibos={recibos}
                     startDate={startDate}
                     endDate={endDate}
                     handleFechaInicio={handleFechaInicio}
