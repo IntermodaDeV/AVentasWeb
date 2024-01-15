@@ -1,14 +1,15 @@
-import React from 'react';
-import { DialogActions, DialogContent, DialogTitle, Button } from '@material-ui/core';
-import ReactToPrint from 'react-to-print';
+import React, { useEffect, useState } from 'react';
 import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/ListadoRecibos/Recibo.module.css";
 import moment from "moment";
+import axios from 'axios';
 import 'moment/locale/es';
 import { useSelector } from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
 
 export const ReciboReporte = (props) => {
+    const [nombreAsesor,setNombreAsesor] = useState('');
+    const [firmaAsesor,setFirmaAsesor] = useState('');
     const Monedas = useSelector(e => e.AbreviacionMonedas);
     const clientesContado = useSelector(e => e.clientesContado);
     const empresas = useSelector(e => e.Empresas);
@@ -28,6 +29,20 @@ export const ReciboReporte = (props) => {
         }
         DireccionCliente = clienteContado.Direccion;
     }
+
+    const obtenerFirmaRecibo = async () => {
+        try{
+            const request = await axios.get(`${APIURL}/api/Recibo/obtenerfirma/${props.recibo.NumeroRecibo}`);
+            setNombreAsesor(request.data.nombreAsesor);
+           setFirmaAsesor(request.data.firma);
+        }catch(err){
+
+        }
+    }
+
+    useEffect(()=>{
+        obtenerFirmaRecibo();
+    },[])
 
     return (
         <>
@@ -224,10 +239,10 @@ export const ReciboReporte = (props) => {
                         </div>
 
                         <div className="col-6 p-0 m-auto" style={{ display: "flex", flexDirection: "column" }}>
-                            {props.recibo.firma !== "" && <img alt="Firma asesor" src={props.recibo.firma} style={{ height: 150, alignSelf: "center" }} />}
-                            <div className={styles.FirmaContainer} style={{ marginTop: props.recibo.firma !== "" ? 16 : 160 }}>
+                            {firmaAsesor !== "" && <img alt="Firma asesor" src={firmaAsesor} style={{ height: 150, alignSelf: "center" }} />}
+                            <div className={styles.FirmaContainer} style={{ marginTop: firmaAsesor !== "" ? 16 : 160 }}>
                                 <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
-                                    {props.recibo.NombreAsesor}
+                                    {nombreAsesor}
                                 </h4>
                             </div>
                         </div>
