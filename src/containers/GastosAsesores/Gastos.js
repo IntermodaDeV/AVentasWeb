@@ -141,7 +141,7 @@ const Gastos = (props) => {
     }
 
     const guardarPdf = async () => {
-        const unit = "pt";
+        /*const unit = "pt";
         const size = "letter";
         const orientation = "portrait";
 
@@ -151,12 +151,22 @@ const Gastos = (props) => {
 
         const headers = [['#', 'Tipo', 'Categoria', 'Descripcion', 'Fecha', (localStorage.getItem("empresa") == "IMHN" ? "Importe Gracado" : "-" ), (localStorage.getItem("empresa") == "IMHN" ? "Importe Exento" : "Cantidad / Importe Exento" ), 'Valor']];
 
-        let date = new Date();
+        let date = new Date();*/
         let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
         var Inicio = moment(startDate).format("YYYY-MM-DD");
         var Fin = moment(endDate).format("YYYY-MM-DD");
         const request = await axios.get(`${APIURL}/api/Gira/GastosPDF/${asesor}/${Inicio}/${Fin}/${tipoId}`);
-        let datos = request.data;
+        console.log(`${APIURL}/api/Gira/GastosPDF/${asesor}/${Inicio}/${Fin}/${tipoId}`)
+        if(request)
+        {
+            Swal.fire({
+                title: "¡Documento Generado!",
+                text: `Revise la carpeta del servidor \\ GIM-SER-FINANZAS\ Gira Asesores`,
+                type: 'success',
+                confirmButtonText: 'Ok',
+            });
+        }
+        /*let datos = request.data;
         if (datos.length > 0) {
             const title = `
 
@@ -208,9 +218,8 @@ const Gastos = (props) => {
                 type: 'error',
                 confirmButtonText: 'Ok',
             });
-        }
-        /*
-        */
+        }*/
+        
 
     }
 
@@ -218,11 +227,11 @@ const Gastos = (props) => {
 
         var date = moment(fecha).toDate();
 
-        var fech = moment(fecha).toDate();
-        fech.setMonth(date.getMonth() + 1);
+        /*var fech = moment(fecha).toDate();
+        fech.setMonth(date.getMonth() + 1);*/
 
         setStartDate(date);
-        setEndDate(fech);
+        //setEndDate(fech);
     }
 
     const handleFechaFin = (fecha) => {
@@ -333,7 +342,7 @@ const Gastos = (props) => {
         },
         {
             name: "importeExento",
-            label: "Importe Exento",
+            label: "Importe Gravado",
             Option: {
                 filter: true,
                 sort: true,
@@ -346,7 +355,7 @@ const Gastos = (props) => {
         },
         {
             name: "importeGravado",
-            label: "Importe Gravado",
+            label: "Importe Exento",
             Option: {
                 filter: true,
                 sort: true,
