@@ -37,11 +37,42 @@ export const DepositosModal = props => {
 
                 <div style={{ width: '100%' }}>
                     <div style={{ display: 'inline-block' }}>
-                        {depositos.map(x => <img key={x.id} src={`${APIURL}/uploads/${x.deposito}`} />)}
+                        {depositos.map(x => <DetalleDeposito key={x.id} deposito={x.deposito} id={x.id} dpi={x.dpi} />)}
                     </div>
 
                 </div>
             </DialogContent>
         </Dialog>
     )
+}
+
+const DetalleDeposito = (props) => {
+    const [dpi, setDpi] = useState(props.dpi);
+
+    const actualizarDpi = async () => {
+        try {
+            if (dpi === "") {
+                alert("llenar el valor del deposito por investigar");
+                return
+            }
+
+            await axios.post(`${APIURL}/api/recibo/comprobante/dpi/${props.id}`, { dpi });
+            alert("depisito por investigar actualizado correctamente");
+        } catch (err) {
+            alert("no se pudo actualizar el deposito por investigar");
+        }
+    }
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex' }}>
+                <label>Deposito por investigar:</label>
+                <input type='text' className='form-control' value={dpi} onChange={(e) => setDpi(e.target.value)} />
+                <button style={{ marginLeft: 10 }} className='btn btn-success' onClick={actualizarDpi}>Actualizar</button>
+            </div>
+            <div>
+                <img src={`${APIURL}/uploads/${props.deposito}`} />
+            </div>
+        </div>
+    );
 }

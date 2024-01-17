@@ -8,8 +8,8 @@ import { useSelector } from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
 
 export const ReciboReporte = (props) => {
-    const [nombreAsesor,setNombreAsesor] = useState('');
-    const [firmaAsesor,setFirmaAsesor] = useState('');
+    const [nombreAsesor, setNombreAsesor] = useState('');
+    const [firmaAsesor, setFirmaAsesor] = useState('');
     const Monedas = useSelector(e => e.AbreviacionMonedas);
     const clientesContado = useSelector(e => e.clientesContado);
     const empresas = useSelector(e => e.Empresas);
@@ -31,18 +31,18 @@ export const ReciboReporte = (props) => {
     }
 
     const obtenerFirmaRecibo = async () => {
-        try{
+        try {
             const request = await axios.get(`${APIURL}/api/Recibo/obtenerfirma/${props.recibo.NumeroRecibo}`);
             setNombreAsesor(request.data.nombreAsesor);
-           setFirmaAsesor(request.data.firma);
-        }catch(err){
+            setFirmaAsesor(request.data.firma);
+        } catch (err) {
 
         }
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         obtenerFirmaRecibo();
-    },[])
+    }, [])
 
     return (
         <>
@@ -250,7 +250,12 @@ export const ReciboReporte = (props) => {
 
                 </div>
 
-                {props.recibo.depositos.map(e => <img src={`${APIURL}/uploads/${e.deposito}`} key={e.id} />)}
+                {props.recibo.depositos.map(e => (
+                    <div style={{ display: 'flex', flexDirection: 'column' }} key={e.id}>
+                        <p style={{ color: "red", fontWeight: 'bold', fontSize: 35,textAlign:'center' }}>{e.dpi}</p>
+                        <img src={`${APIURL}/uploads/${e.deposito}`}/>
+                    </div>
+                ))}
             </div>
         </>
     )
