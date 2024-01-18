@@ -74,6 +74,7 @@ export const ReciboReporte = (props) => {
                         <div className="col p-0 text-center">
                             <h2 className={"font-weight-bold " + styles.Title + styles.LineHeight_1_5}>
                                 {'No. ' + props.recibo.NumeroRecibo}
+                                {props.recibo.anulado && <span className={"font-weight-bold " + styles.Title + styles.LineHeight_1_5} style={{color:"red"}}> ANULADO</span>}
                             </h2>
                         </div>
                     </div>
