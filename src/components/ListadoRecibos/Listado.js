@@ -32,6 +32,7 @@ const Listado = (props) => {
 
     return (
         <div className="px-3">
+            {props.mostrarGenerarReporte && 
             <Dialog
                 open={openModal}
                 onClose={() => setOpenModal(false)}
@@ -39,6 +40,8 @@ const Listado = (props) => {
                 aria-labelledby="scroll-dialog-title"
             >
                 <DialogContent dividers={true} ref={componentRef} style={{ width: '100%' }}>
+                    <h2 style={{ textAlign: "center", fontWeight: "bold" }}>{`${props.startDate.getDate()}/${props.startDate.getMonth() + 1}/${props.startDate.getFullYear()}`} - {`${props.endDate.getDate()}/${props.endDate.getMonth() + 1}/${props.endDate.getFullYear()} - ${props.nombreAsesor}`}</h2>
+                    <hr/>
                     {props.recibos.map((x,i)=><ReciboReporte key={i} recibo={x}/>)}
                 </DialogContent>
                 <DialogActions>
@@ -54,7 +57,7 @@ const Listado = (props) => {
                         Finalizar
                     </Button>
                 </DialogActions>
-            </Dialog >
+            </Dialog >}
             <div className="row mb-3">
                 <div className='col-lg-2 my-lg-0 col-6 my-1'>
                     <DatePicker
@@ -101,12 +104,12 @@ const Listado = (props) => {
                     </Button>
                  </div>
                  <div className="col-lg-1 col-sm-2 col-4"  style={{ paddingTop: 10 }}>
-                 <Button
+                 {props.mostrarGenerarReporte && <Button
                         variant="outlined"
                         color="primary"
                         onClick={() => setOpenModal(true)}
                         >Generar reporte
-                    </Button>
+                    </Button>}
                  </div>
             </div>
             <div>

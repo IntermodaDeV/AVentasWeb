@@ -274,7 +274,7 @@ export const ListaReciboCreditos = (props) => {
         return (
             <>
                 <Listado
-                    recibos={recibos}
+                    recibos={[]}
                     startDate={startDate}
                     endDate={endDate}
                     handleFechaInicio={handleFechaInicio}

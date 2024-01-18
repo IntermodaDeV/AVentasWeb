@@ -39,6 +39,7 @@ const ListaRecibos = (props) => {
     const [isLoading,setLoading] = useState(false);
     const [Asesores, setAsesores] = useState([]);
     const [AsesorSelected, setAsesorSelected] = useState(null);
+    const [nombreAsesor, setNombreAsesor] = useState(null);
     const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
 
     useEffect(() => {
@@ -55,6 +56,7 @@ const ListaRecibos = (props) => {
         })
         setAsesores(Asesores)
         setAsesorSelected(AsesoresUsuario[0].Usuario)
+        setNombreAsesor(AsesoresUsuario[0].Nombre);
         //cargarClientes();
         // eslint-disable-next-line
     }, []);
@@ -152,7 +154,11 @@ const ListaRecibos = (props) => {
 
     const handleOnChangeAsesor = (value) => {
         setAsesorSelected(value);
-     }
+        const asesorFiltadro = AsesoresUsuario.find(x => x.Usuario === value);
+        if (asesorFiltadro) {
+            setNombreAsesor(asesorFiltadro.Nombre);
+        }
+    }
 
     const handleOpenModal=(numeroRecibo)=>{
         setShowModalUpload(true);
@@ -322,8 +328,10 @@ const ListaRecibos = (props) => {
                     DialogRecibo={DialogRecibo}
                     Asesores={Asesores}
                     AsesorSelected={AsesorSelected}
+                    nombreAsesor={nombreAsesor}
                     handleOnChangeAsesor={handleOnChangeAsesor}
                     cargarRecibos={cargarRecibos}
+                    mostrarGenerarReporte={true}
                 />
                 <LoadingModal title={'recibos'} Open={isLoading} />
             </>
