@@ -234,6 +234,7 @@ const ListaRecibos = (props) => {
                     [recib.CodigoAsesor,recib.Sincronizado],
                     [recib.DetalleRecibo[0].Factura,recib.Sincronizado],
                     [recib.Descuento,recib.Sincronizado],
+                    <div style={{ color: "white", fontWeight: "bold", backgroundColor: recib.depositos.length === 0 ? "red" : "green", textAlign: "center" }}>{recib.depositos.length === 0 ? "No" : "Si"}</div>,
                     <div>
 
                         <span className="mr-1">
@@ -255,6 +256,7 @@ const ListaRecibos = (props) => {
                             </Button>
                         </span >
                     </div>
+                        
                 ]
 
                 DataRecibos.push(data);
@@ -538,6 +540,14 @@ const HeadersListaRecibos = [
                     <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
                 );
               }
+        }
+    },
+    {
+        name: "Deposito",
+        label: "Deposito",
+        options: {
+            filter: false,
+            sort: false,
         }
     },
     {
