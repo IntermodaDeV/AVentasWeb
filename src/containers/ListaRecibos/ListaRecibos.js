@@ -191,6 +191,18 @@ const ListaRecibos = (props) => {
             alert("Ocurrio un error y no se pudieron subir los depositos");
         }
     }
+
+    const anularRecibo = async (numeroRecibo) => {
+        try {
+            const result = window.confirm(`¿Esta seguro de anular el recibo ${numeroRecibo}?`);
+            if (result) {
+                await axios.delete(`${APIURL}/api/recibo/anular/${numeroRecibo}`);
+                alert(`El recibo ${numeroRecibo} ha sido anulado con exito.`);
+            }
+        } catch (err) {
+            alert(`Ha ocurrido un error y no se pudo anular el recibo.`);
+        }
+    }
      
     const DataRecibos = () => {
         let DataRecibos = [];
@@ -224,10 +236,14 @@ const ListaRecibos = (props) => {
                     [recib.Descuento,recib.Sincronizado],
                     <div>
 
-                            <span className="mr-1">
+                        <span className="mr-1">
                             <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
                         </span> 
-
+                        <span className="ml-1">
+                            <Button className='my-1' variant="outlined" onClick={() => anularRecibo(recib.NumeroRecibo)} size="small" color={"primary"}>
+                                Anular
+                            </Button>
+                        </span >
                         <span className="ml-1">
                             <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
                                 <PrintOutlined />

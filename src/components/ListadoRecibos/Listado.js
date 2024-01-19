@@ -53,7 +53,7 @@ const Listado = (props) => {
                         }
                         content={() => componentRef.current}
                     />
-                    <Button onClick={() => props.hidePrint()} color="primary">
+                    <Button onClick={() => setOpenModal(false)} color="primary">
                         Finalizar
                     </Button>
                 </DialogActions>
