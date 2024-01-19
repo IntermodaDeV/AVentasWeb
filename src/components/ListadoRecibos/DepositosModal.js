@@ -57,7 +57,7 @@ const DetalleDeposito = (props) => {
             }
 
             await axios.post(`${APIURL}/api/recibo/comprobante/dpi/${props.id}`, { dpi });
-            alert("depisito por investigar actualizado correctamente");
+            alert("deposito por investigar actualizado correctamente");
         } catch (err) {
             alert("no se pudo actualizar el deposito por investigar");
         }
