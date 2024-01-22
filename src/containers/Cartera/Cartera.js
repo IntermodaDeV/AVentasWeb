@@ -104,7 +104,15 @@ export const Cartera = props => {
                             Facturas.FechaMaxDescuento = fechaMaxDescuent;
                             Cuotas.FechaMaxDescuento = fechaMaxDescuent;
 
-                            let totalfactura = Cuotas.ValorCuota - totalDocumentosAplicados - Cuotas.Flete
+                            let totalfactura = Cuotas.ValorCuota - totalDocumentosAplicados - Cuotas.Flete;
+                            let fechaActual = new Date().setHours(0, 0, 0, 0);;
+                            let diasTranscurridos = Math.abs(moment(Facturas.FechaFactura).diff(moment(fechaActual), 'days'));
+
+                            if (diasTranscurridos > 60 && cliente.EmpresaId === "IMGT") {
+                                const porcentajeDeduccion = 1.12;
+                                totalfactura = totalfactura / porcentajeDeduccion;
+                            }
+
                             valordescuento = noAplicaDescuento ? 0 : totalfactura * (porcentajeDescuento / 100);
                             Cuotas.Descuento = valordescuento.toFixed(2);
                             Facturas.Descuento = valordescuento;
