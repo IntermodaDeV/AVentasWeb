@@ -8,6 +8,7 @@ import { Dropdown } from "semantic-ui-react";
 import moment from "moment";
 import ReactToPrint from 'react-to-print';
 import {ReciboReporte} from './ReciboReporte';
+import { PermisoUsuarioOficinaCreditos } from 'components/Seguridad/Permisos';
 moment.locale('es');
 
 const Listado = (props) => {
@@ -32,7 +33,7 @@ const Listado = (props) => {
 
     return (
         <div className="px-3">
-            {props.mostrarGenerarReporte && 
+            {(props.mostrarGenerarReporte && PermisoUsuarioOficinaCreditos()) && 
             <Dialog
                 open={openModal}
                 onClose={() => setOpenModal(false)}
@@ -104,7 +105,7 @@ const Listado = (props) => {
                     </Button>
                  </div>
                  <div className="col-lg-1 col-sm-2 col-4"  style={{ paddingTop: 10 }}>
-                 {props.mostrarGenerarReporte && <Button
+                 {(props.mostrarGenerarReporte && PermisoUsuarioOficinaCreditos()) && <Button
                         variant="outlined"
                         color="primary"
                         onClick={() => setOpenModal(true)}

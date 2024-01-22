@@ -60,3 +60,18 @@ export const PermisoExcepcionDescuento = () => {
 
     return false;
 }
+
+export const PermisoUsuarioOficinaCreditos = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "Usuario Oficina Créditos" || Roles.Nombre === "Usuario Elevado Oficina Créditos") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

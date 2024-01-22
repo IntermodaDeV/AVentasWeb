@@ -3,6 +3,7 @@ import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { APIURL } from 'utils/Enviroment';
+import { PermisoUsuarioOficinaCreditos } from 'components/Seguridad/Permisos';
 import axios from 'axios';
 
 export const DepositosModal = props => {
@@ -65,11 +66,11 @@ const DetalleDeposito = (props) => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex' }}>
+            {PermisoUsuarioOficinaCreditos() && <div style={{ display: 'flex' }}>
                 <label>Deposito por investigar:</label>
                 <input type='text' className='form-control' value={dpi} onChange={(e) => setDpi(e.target.value)} />
                 <button style={{ marginLeft: 10 }} className='btn btn-success' onClick={actualizarDpi}>Actualizar</button>
-            </div>
+            </div>}
             <div>
                 <img src={`${APIURL}/uploads/${props.deposito}`} />
             </div>
