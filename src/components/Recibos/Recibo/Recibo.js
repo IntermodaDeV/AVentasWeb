@@ -13,8 +13,14 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { ObtenerCoordenadas } from 'utils/common';
 import { APIURL } from 'utils/Enviroment';
 import axios from 'axios';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
+
 const Recibo = (props) => {
+    const [showModalUpload,setShowModalUpload] = useState(true);
     const [numeroImpresion,setNumeroImpresion] = useState(0);
+    const [imagenDepositos,setImagenDepositos] = useState();
     const clientesContado = useSelector(e=>e.clientesContado);
     const Monedas = useSelector(e=>e.AbreviacionMonedas);
     const pedidoSelected = useSelector(k => k.pedidoSelected);
@@ -100,11 +106,59 @@ const Recibo = (props) => {
         }
     }
 
+    const handleFilesChange=(e)=>{
+        setImagenDepositos(e.target.files);
+    }
+
+    const uploadDepositos = async () => {
+        try {
+            if ( imagenDepositos === undefined) {
+                alert("Seleccione uno o varios depositos para subir.");
+                return;
+            }
+
+            let formData = new FormData();
+
+            for (let i = 0; i < imagenDepositos.length; i++) {
+                formData.append(`images`, imagenDepositos[i]);
+            }
+
+            await axios.post(`${APIURL}/api/recibo/comprobantes/${props.RecibosAplicados.CodigoUltimoRecibo}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            alert("Depositos subidos con exito.");
+            setShowModalUpload(false);
+            setImagenDepositos(undefined);
+        } catch (err) {
+            alert("Ocurrio un error y no se pudieron subir los depositos");
+        }
+    }
+
    return (
         <div className="col">
             {
                 props.Cliente &&
                 <div>
+                       <Dialog
+                           open={showModalUpload}
+                           onClose={() => setShowModalUpload(false)}>
+                           <DialogTitle id="scroll-dialog-title">
+                               <h2>Cargar depositos</h2>
+                           </DialogTitle>
+                           <DialogContent>
+                               <input
+                                   type='file'
+                                   accept="image/*"
+                                   multiple
+                                   onChange={handleFilesChange}
+                               />
+                               {imagenDepositos !== undefined && <Button
+                                   onClick={uploadDepositos}
+                                   color="primary"
+                                   variant="outlined"
+                               >
+                                   Cargar depositos
+                               </Button>}
+                           </DialogContent>
+                       </Dialog>
                         <div className="text-right">
                             <div className="col">
                                     <ReactToPrint
