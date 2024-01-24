@@ -16,7 +16,7 @@ import  TableFooter from "@material-ui/core/TableFooter";
 import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import {IsAllow, PermisoUsuarioOficinaCreditos} from 'components/Seguridad/Permisos';
 import { useSelector } from 'react-redux';
 import { verificarConexion } from 'utils/http';
 import axios from 'axios';
@@ -240,11 +240,11 @@ const ListaRecibos = (props) => {
                         <span className="mr-1">
                             <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
                         </span> 
-                        <span className="ml-1">
+                        {PermisoUsuarioOficinaCreditos() && <span className="ml-1">
                             <Button className='my-1' variant="outlined" onClick={() => anularRecibo(recib.NumeroRecibo)} size="small" color={"primary"}>
                                 Anular
                             </Button>
-                        </span >
+                        </span >}
                         <span className="ml-1">
                             <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
                                 <PrintOutlined />
