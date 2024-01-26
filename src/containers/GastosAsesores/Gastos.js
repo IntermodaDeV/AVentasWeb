@@ -18,6 +18,7 @@ import DetalleGasto from 'components/GastoAsesores/DetalloGasto/DetalleGasto'
 import Dialog from "@material-ui/core/Dialog";
 import { IsAllow } from 'components/Seguridad/Permisos';
 import jsPDF from "jspdf";
+import fileDownload from 'js-file-download';
 
 moment.locale('es');
 
@@ -35,6 +36,7 @@ const Gastos = (props) => {
     const numberWithCommas = (numero) => (numero.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'));
     const [tipoSelected, setTipoSelected] = useState(null);
     const [tipoId, setTipoId] = useState('')
+    const [nombreTipo,setNombreTipo] = useState('')
 
     useEffect(() => {
         if (!IsAllow('/GiraAsesores/HistorialGasto')) {
@@ -55,6 +57,7 @@ const Gastos = (props) => {
             setTipoGasto(tipos);
             setTipoSelected(tipos[0].text)
             setTipoId(tipos[0].key)
+            setNombreTipo(tipos[0].text)
 
         })
 
@@ -108,6 +111,7 @@ const Gastos = (props) => {
         tipoGasto.forEach(temp => {
             if (value === temp.value) {
                 setTipoId(temp.key)
+                setNombreTipo(temp.text)
             }
         })
 
@@ -141,86 +145,35 @@ const Gastos = (props) => {
     }
 
     const guardarPdf = async () => {
-        /*const unit = "pt";
-        const size = "letter";
-        const orientation = "portrait";
-
-        const doc = new jsPDF(orientation, unit, size);
-        doc.setFontSize(10);
-
-
-        const headers = [['#', 'Tipo', 'Categoria', 'Descripcion', 'Fecha', (localStorage.getItem("empresa") == "IMHN" ? "Importe Gracado" : "-" ), (localStorage.getItem("empresa") == "IMHN" ? "Importe Exento" : "Cantidad / Importe Exento" ), 'Valor']];
-
-        let date = new Date();*/
         let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
         var Inicio = moment(startDate).format("YYYY-MM-DD");
         var Fin = moment(endDate).format("YYYY-MM-DD");
-        const request = await axios.get(`${APIURL}/api/Gira/GastosPDF/${asesor}/${Inicio}/${Fin}/${tipoId}`);
-        console.log(`${APIURL}/api/Gira/GastosPDF/${asesor}/${Inicio}/${Fin}/${tipoId}`)
-        if(request)
-        {
-            Swal.fire({
-                title: "¡Documento Generado!",
-                text: `Revise la carpeta del servidor \\ GIM-SER-FINANZAS\ Gira Asesores`,
-                type: 'success',
-                confirmButtonText: 'Ok',
+
+        //var resp = await axios.get(`${APIURL}/api/Gira/GastosPDF/${asesor}/${Inicio}/${Fin}/${tipoId}`);
+        try {
+            // Hacer la petición a la API
+            const response = await axios({
+                method: 'get',
+                url: `${APIURL}/api/Gira/GastosPDF/${asesor}/${Inicio}/${Fin}/${tipoId}`,
+                responseType: 'blob', // Importante: indicar que esperas una respuesta en formato blob
             });
+            console.log(response)
+            // Guardar el blob como un archivo
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${nombreTipo} ${asesor} ${Inicio} a ${Fin}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+
+            // Liberar recursos después de un tiempo
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }, 1000);
+        } catch (error) {
+            console.error('Error al descargar el archivo', error);
         }
-        /*let datos = request.data;
-        if (datos.length > 0) {
-            const title = `
-
-
-
-                                                                                Reporte ${tipoSelected}
-
-        Nombre Completo: ${datos[0].nombre}
-        
-        Desde: ${moment(startDate).format("DD/MM/YYYY")}
-        Hasta: ${moment(endDate).format("DD/MM/YYYY")}
-        `;
-
-
-            const data = datos.map(e => [
-                e.$id,
-                e.Tipo,
-                e.categoria,
-                e.descripcion,
-                moment(e.fecha).format("DD/MM/YYYY"),
-                numberWithCommas(e.importeGravado),
-                numberWithCommas(e.importeExento),
-                numberWithCommas(e.valor)
-            ])
-
-            const total = datos.reduce((pre, curr) => (pre + curr.valor), 0);
-            data.push(['', '', '', '', '', '', '', numberWithCommas(total)]);
-
-            let content = {
-                styles: { fontSize: 8 },
-                startY: 120,
-                head: headers,
-                body: data
-            };
-            doc.text(title, 25, 0);
-            doc.autoTable(content);
-            doc.save(`Reporte ${tipoSelected} ${asesor} ${moment(date).format("DD-MM-YYYY")}.pdf`)
-
-            Swal.fire({
-                title: "¡Documento Descargado!",
-                text: "Revise su panel de notificaciones o su carpeta de descargas.",
-                type: 'success',
-                confirmButtonText: 'Ok',
-            });
-        } else {
-            Swal.fire({
-                title: "¡Documento no Descargado!",
-                text: "No se encontraron gastos aprobados en el rango de fechas.",
-                type: 'error',
-                confirmButtonText: 'Ok',
-            });
-        }*/
-        
-
     }
 
     const handleFechaInicio = (fecha) => {
