@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { Fab } from "@material-ui/core";
+import { Fab,Button } from "@material-ui/core";
+import { Image } from '@material-ui/icons';
 import { GoogleMap, useJsApiLoader, Marker, Circle } from '@react-google-maps/api';
+import {DepositosModal} from './DepositosModal';
 import moment from "moment";
 import "moment/locale/es";
 import styles from "components/ListadoRecibos/DetalleRecibo.module.css";
 import {APIKEY} from 'utils/Enviroment';
+
 const DetalleRecibo = (props) => {
   const { recibo } = props;
   // eslint-disable-next-line
   const [maps, setMaps] = useState({ map: null, maps: null });
+  const [openModal,setOpenModal] = useState(false);
   let initialCoors = { lat: recibo.locationCliente.latitude,lng: recibo.locationCliente.longitude };
   let longitudCliente = recibo.locationCliente.longitude;
   let latitudCliente = recibo.locationCliente.latitude;
@@ -106,8 +110,13 @@ const DetalleRecibo = (props) => {
       }
   }
 
+  const handleClose=()=>{
+    setOpenModal(false);
+  }
+
   return (
     <div className="px-3">
+      <DepositosModal numeroRecibo={recibo.NumeroRecibo} open={openModal} handleClose={handleClose}/>
       <div>
         <Fab
           size="small"
@@ -234,7 +243,16 @@ const DetalleRecibo = (props) => {
                         {distancia + ' m'}
                     </td>
                 </tr>
-                
+                <tr>
+                  <td className={styles.InfoLabel}>
+                    Depositos:
+                  </td>
+                  <td className={styles.InfoLabelDetail}>
+                    <Button className='my-1' variant="outlined" size="small" color={"primary"} onClick={()=>setOpenModal(true)}>
+                      <Image />
+                    </Button>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>

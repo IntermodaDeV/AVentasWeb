@@ -253,6 +253,7 @@ export const ListaReciboPendiente = (props) => {
                     <FiAlertTriangle style={{ fontSize: '32px', color: 'orange' }} /> Los recibos mostrados en esta pantalla están registrados únicamente en la nube pero no en AX.
             </div>
                 <Listado
+                    recibos={[]}
                     startDate={startDate}
                     endDate={endDate}
                     handleFechaInicio={handleFechaInicio}

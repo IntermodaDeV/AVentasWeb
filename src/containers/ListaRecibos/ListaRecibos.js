@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import Loader from 'components/Global/Loader';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import Dialog from '@material-ui/core/Dialog';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import { Button } from "@material-ui/core";
 import DetalleRecibo from 'components/ListadoRecibos/DetalleRecibo';
-import { PrintOutlined } from '@material-ui/icons';
+import { PrintOutlined,Image } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
 import { APIURL } from 'utils/Enviroment';
@@ -13,7 +16,7 @@ import  TableFooter from "@material-ui/core/TableFooter";
 import  TableRow from "@material-ui/core/TableRow";
 import  TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import {IsAllow, PermisoUsuarioOficinaCreditos} from 'components/Seguridad/Permisos';
 import { useSelector } from 'react-redux';
 import { verificarConexion } from 'utils/http';
 import axios from 'axios';
@@ -22,6 +25,9 @@ moment.locale('es');
 const ListaRecibos = (props) => {
     const urlApi = APIURL;
 
+    const [showModalUpload,setShowModalUpload] = useState(false);
+    const [numeroRecibo,setNumeroRecibo] = useState("");
+    const [imagenDepositos,setImagenDepositos] = useState();
     const [error, setError] = useState(false);
     const [isLoaded, setIsLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
     const [startDate, setStartDate] =  useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
@@ -33,7 +39,9 @@ const ListaRecibos = (props) => {
     const [isLoading,setLoading] = useState(false);
     const [Asesores, setAsesores] = useState([]);
     const [AsesorSelected, setAsesorSelected] = useState(null);
+    const [nombreAsesor, setNombreAsesor] = useState(null);
     const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
+
     useEffect(() => {
         if(!IsAllow("/lista-recibos"))
         {
@@ -48,6 +56,7 @@ const ListaRecibos = (props) => {
         })
         setAsesores(Asesores)
         setAsesorSelected(AsesoresUsuario[0].Usuario)
+        setNombreAsesor(AsesoresUsuario[0].Nombre);
         //cargarClientes();
         // eslint-disable-next-line
     }, []);
@@ -145,7 +154,56 @@ const ListaRecibos = (props) => {
 
     const handleOnChangeAsesor = (value) => {
         setAsesorSelected(value);
-     }
+        const asesorFiltadro = AsesoresUsuario.find(x => x.Usuario === value);
+        if (asesorFiltadro) {
+            setNombreAsesor(asesorFiltadro.Nombre);
+        }
+    }
+
+    const handleOpenModal=(numeroRecibo)=>{
+        setShowModalUpload(true);
+        setNumeroRecibo(numeroRecibo);
+    }
+
+    const handleFilesChange=(e)=>{
+        setImagenDepositos(e.target.files);
+    }
+
+    const uploadDepositos = async () => {
+        try {
+            if (numeroRecibo === "" || imagenDepositos === undefined) {
+                alert("Seleccione uno o varios depositos para subir.");
+                return;
+            }
+
+            let formData = new FormData();
+
+            for (let i = 0; i < imagenDepositos.length; i++) {
+                formData.append(`images`, imagenDepositos[i]);
+            }
+
+            await axios.post(`${APIURL}/api/recibo/comprobantes/${numeroRecibo}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            alert("Depositos subidos con exito.");
+            setShowModalUpload(false);
+            setNumeroRecibo("");
+            setImagenDepositos(undefined);
+        } catch (err) {
+            alert("Ocurrio un error y no se pudieron subir los depositos");
+        }
+    }
+
+    const anularRecibo = async (numeroRecibo) => {
+        try {
+            const result = window.confirm(`¿Esta seguro de anular el recibo ${numeroRecibo}?`);
+            if (result) {
+                await axios.delete(`${APIURL}/api/recibo/anular/${numeroRecibo}`);
+                alert(`El recibo ${numeroRecibo} ha sido anulado con exito.`);
+            }
+        } catch (err) {
+            alert(`Ha ocurrido un error y no se pudo anular el recibo.`);
+        }
+    }
+     
     const DataRecibos = () => {
         let DataRecibos = [];
 
@@ -176,18 +234,29 @@ const ListaRecibos = (props) => {
                     [recib.CodigoAsesor,recib.Sincronizado],
                     [recib.DetalleRecibo[0].Factura,recib.Sincronizado],
                     [recib.Descuento,recib.Sincronizado],
+                    <div style={{ color: "white", fontWeight: "bold", backgroundColor: recib.depositos.length === 0 ? "red" : "green", textAlign: "center" }}>{recib.depositos.length === 0 ? "No" : "Si"}</div>,
                     <div>
 
-                            <span className="mr-1">
+                        <span className="mr-1">
                             <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
                         </span> 
-
+                        {PermisoUsuarioOficinaCreditos() && <span className="ml-1">
+                            <Button className='my-1' variant="outlined" onClick={() => anularRecibo(recib.NumeroRecibo)} size="small" color={"primary"}>
+                                Anular
+                            </Button>
+                        </span >}
                         <span className="ml-1">
                             <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
                                 <PrintOutlined />
                             </Button>
                         </span >
+                        <span className="ml-1">
+                            <Button className='my-1' variant="outlined" onClick={() => handleOpenModal(recib.NumeroRecibo)} size="small" color={"primary"}>
+                                <Image />
+                            </Button>
+                        </span >
                     </div>
+                        
                 ]
 
                 DataRecibos.push(data);
@@ -241,23 +310,48 @@ const ListaRecibos = (props) => {
     } else {
         return (
             <>
-            <Listado
-                startDate={startDate}
-                endDate={endDate}
-                handleFechaInicio={handleFechaInicio}
-                handleFechaFin={handleFechaFin}
-                DataRecibos={DataRecibos}
-                HeadersListaRecibos={HeadersListaRecibos}
-                DatatableOptions={DatatableOptions}
-                showDialog={showDialog}
-                hidePrint={hidePrint}
-                DialogRecibo={DialogRecibo}
-                Asesores = {Asesores}
-                AsesorSelected = {AsesorSelected}
-                handleOnChangeAsesor = {handleOnChangeAsesor}
-                cargarRecibos = {cargarRecibos}
-            />
-            <LoadingModal title={'recibos'} Open={isLoading}/>
+                <Dialog
+                    open={showModalUpload}
+                    onClose={() => setShowModalUpload(false)}>
+                    <DialogTitle id="scroll-dialog-title">
+                        <h2>Cargar depositos</h2>
+                    </DialogTitle>
+                    <DialogContent>
+                        <input
+                            type='file'
+                            accept="image/*"
+                            multiple
+                            onChange={handleFilesChange}
+                        />
+                        {imagenDepositos!==undefined && <Button
+                            onClick={uploadDepositos}
+                            color="primary"
+                            variant="outlined"
+                        >
+                            Cargar depositos
+                        </Button>}
+                    </DialogContent>
+                </Dialog>
+                <Listado
+                recibos={recibos}
+                    startDate={startDate}
+                    endDate={endDate}
+                    handleFechaInicio={handleFechaInicio}
+                    handleFechaFin={handleFechaFin}
+                    DataRecibos={DataRecibos}
+                    HeadersListaRecibos={HeadersListaRecibos}
+                    DatatableOptions={DatatableOptions}
+                    showDialog={showDialog}
+                    hidePrint={hidePrint}
+                    DialogRecibo={DialogRecibo}
+                    Asesores={Asesores}
+                    AsesorSelected={AsesorSelected}
+                    nombreAsesor={nombreAsesor}
+                    handleOnChangeAsesor={handleOnChangeAsesor}
+                    cargarRecibos={cargarRecibos}
+                    mostrarGenerarReporte={true}
+                />
+                <LoadingModal title={'recibos'} Open={isLoading} />
             </>
         );
     }
@@ -446,6 +540,14 @@ const HeadersListaRecibos = [
                     <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
                 );
               }
+        }
+    },
+    {
+        name: "Deposito",
+        label: "Deposito",
+        options: {
+            filter: false,
+            sort: false,
         }
     },
     {

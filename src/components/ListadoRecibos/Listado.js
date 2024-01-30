@@ -1,14 +1,19 @@
-import React from 'react';
-import { Button, Dialog } from "@material-ui/core";
+import React, { useState } from 'react';
+import { Button, Dialog,DialogContent,DialogActions} from "@material-ui/core";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from "mui-datatables";
 import Recibo from "components/ListadoRecibos/Recibo";
 import { Dropdown } from "semantic-ui-react";
 import moment from "moment";
+import ReactToPrint from 'react-to-print';
+import {ReciboReporte} from './ReciboReporte';
+import { PermisoUsuarioOficinaCreditos } from 'components/Seguridad/Permisos';
 moment.locale('es');
 
 const Listado = (props) => {
+    const [openModal,setOpenModal] = useState(false);
+    const componentRef = React.useRef();
     const getMuiTheme = () => createMuiTheme({
         overrides: {
             MUIDataTable: {
@@ -28,6 +33,32 @@ const Listado = (props) => {
 
     return (
         <div className="px-3">
+            {(props.mostrarGenerarReporte && PermisoUsuarioOficinaCreditos()) && 
+            <Dialog
+                open={openModal}
+                onClose={() => setOpenModal(false)}
+                scroll={'paper'}
+                aria-labelledby="scroll-dialog-title"
+            >
+                <DialogContent dividers={true} ref={componentRef} style={{ width: '100%' }}>
+                    <h2 style={{ textAlign: "center", fontWeight: "bold" }}>{`${props.startDate.getDate()}/${props.startDate.getMonth() + 1}/${props.startDate.getFullYear()}`} - {`${props.endDate.getDate()}/${props.endDate.getMonth() + 1}/${props.endDate.getFullYear()} - ${props.nombreAsesor}`}</h2>
+                    <hr/>
+                    {props.recibos.map((x,i)=><ReciboReporte key={i} recibo={x}/>)}
+                </DialogContent>
+                <DialogActions>
+                    <ReactToPrint
+                        trigger={() =>
+                            <Button color="primary">
+                                Imprimir
+                            </Button>
+                        }
+                        content={() => componentRef.current}
+                    />
+                    <Button onClick={() => setOpenModal(false)} color="primary">
+                        Finalizar
+                    </Button>
+                </DialogActions>
+            </Dialog >}
             <div className="row mb-3">
                 <div className='col-lg-2 my-lg-0 col-6 my-1'>
                     <DatePicker
@@ -72,6 +103,14 @@ const Listado = (props) => {
                         onClick={() => props.cargarRecibos(props.startDate, props.endDate)}
                         >Obtener
                     </Button>
+                 </div>
+                 <div className="col-lg-1 col-sm-2 col-4"  style={{ paddingTop: 10 }}>
+                 {(props.mostrarGenerarReporte && PermisoUsuarioOficinaCreditos()) && <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => setOpenModal(true)}
+                        >Generar reporte
+                    </Button>}
                  </div>
             </div>
             <div>

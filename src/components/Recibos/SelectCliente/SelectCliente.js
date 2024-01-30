@@ -24,7 +24,7 @@ const TransitionGrow = React.forwardRef(function Transition(props, ref) {
 });
 
 const SelectCliente = (props) => {
-
+    const [recibosSinDeposito,setRecibosSinDeposito] = useState(false);
     const [Value, setValue] = useState(null);
     const dispatch = useDispatch();
     const [loading,setLoading] = useState(false);
@@ -43,6 +43,11 @@ const SelectCliente = (props) => {
         dispatch({type:'DELETE_RECIBO_CLIENTESELECTED'})
         // eslint-disable-next-line
     }, [props.clientes]);
+
+    useEffect(()=>{
+        axios.get(`${APIURL}/api/recibo/sindepoosito/${localStorage.getItem('codigo')}`)
+        .then(data=>setRecibosSinDeposito(data.data.sindepositos)); 
+    },[])
 
     // let FacturacionEntrega = null;
     var alerta = false;
@@ -153,6 +158,7 @@ const SelectCliente = (props) => {
 
     const Validacion = async () => {
         let isOnline = await verificarConexion();
+        
         if (RecibosCache.length > 0 && isOnline && localStorage.getItem("Conexion") === "Online") {
             Swal.fire({
               title: 'Pendiente a Sincronizar',
@@ -175,6 +181,13 @@ const SelectCliente = (props) => {
                     props.setCliente();
                 }
             })
+        }else if(recibosSinDeposito){
+            Swal.fire({
+                title: 'Recibos sin depositos',
+                text: 'Tiene recibos sin imagen de depositos cargadas del dia anterior.',
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
         }
         else{
             props.setCliente();

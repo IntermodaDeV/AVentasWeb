@@ -32,6 +32,7 @@
     "formik-error-focus": "^1.1.0",
     "google-map-react": "^1.1.5",
     "html2canvas": "^1.0.0-rc.3",
+    "js-file-download": "^0.4.12",
     "jspdf": "^1.5.3",
     "jspdf-autotable": "^3.5.6",
     "localforage": "^1.7.3",
