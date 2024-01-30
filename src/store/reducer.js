@@ -88,6 +88,7 @@ const initialState = {
         tipoCreditoRecolocacion: "",
         pedidoRecolocacion: {}
     },
+    configuracionBaseColor:[]
 }
 
 const calcularLimite = (state) => {
@@ -940,6 +941,14 @@ const reducer = (state = initialState, action) => {
                 ...state.TrasladoPedido,
                 pedidoRecolocacion: action.payload
             }
+        }
+    }
+
+    if (action.type === 'SET_CONFIGURACIONBASECOLOR') {
+
+        return {
+            ...state,
+            configuracionBaseColor: action.payload
         }
     }
 

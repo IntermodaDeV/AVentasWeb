@@ -70,6 +70,7 @@ import { SincronizacionEspecifica } from 'containers/Sincronizacion/Sincronizaci
 import { FirmaPantalla } from 'containers/Seguridad/Firmas/FirmaPantalla'
 import { MotivosTiempoFuera } from 'containers/Agenda/MotivoTiempoFuera/MotivoTiempoFuera'
 import { TiemposFuera } from 'containers/Agenda/TiemposFuera/TiemposFuera'
+import { BaseColorImpuesto } from 'containers/BaseColorImpuesto/BaseColorImpuesto'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -328,6 +329,12 @@ const App = props => {
               path='/configuracion-sitio'
               layout={MainLayout}
               component={SitioBodega}
+            />
+            <LayoutRoute
+              exact
+              path='/configuracion-basecolor'
+              layout={MainLayout}
+              component={BaseColorImpuesto}
             />
             <LayoutRoute
               exact

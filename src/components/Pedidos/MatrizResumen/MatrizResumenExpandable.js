@@ -40,6 +40,8 @@ const MatrizResumen = (props) => {
     const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
     const cliente = useSelector(e=>e.cliente);
     const clienteImpuesto = clienteImpuestos.find(x=>x.GRUPO===cliente.GrupoImpuesto);
+    const configuracionBaseColor = useSelector(x=>x.configuracionBaseColor);
+    const configuracionBaseColorPais = configuracionBaseColor.filter(x=>x.empresa===cliente.Codigo.split('-')[0]);
 
     const findProduct=(codigo)=>
     {
@@ -155,8 +157,8 @@ const MatrizResumen = (props) => {
                             if (props.tableValue[grupoTalla].Mostrar) {
                                 return (
                                     productos.map((codigoProducto, index1) => {
-                                        const prod = findProduct(codigoProducto);
-                                        const productoImpuesto = productoImpuestos.find(x=>x.GRUPO===prod.GrupoImpuesto).IMPUESTO;
+                                        const prod = findProduct(codigoProducto);                   
+                                        let productoImpuesto = productoImpuestos.find(x=>x.GRUPO===prod.GrupoImpuesto).IMPUESTO;
                                         let producto = props.tableValue[grupoTalla].Productos[codigoProducto];
                                         producto = {...producto,CantidadMinima:prod.CantidadMinima,StockVisible:prod.StockVisible};
                                         let tallas = props.tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
@@ -173,6 +175,14 @@ const MatrizResumen = (props) => {
                                                     unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
                                                     totalGlobal = (precio.Precio * cantidadXTalla) + totalGlobal;
 
+                                                    if (prod.atributo) {
+                                                        console.log(prod.atributo)
+                                                        let configuracionBaseColorImpuesto = configuracionBaseColorPais.find(x => x.codigobase === prod.atributo.codigo && x.color === codigoColor);
+                                                        if (configuracionBaseColorImpuesto) {
+                                                            productoImpuesto = configuracionBaseColorImpuesto.impuesto;
+                                                        }
+                                                    }
+
                                                     if (clienteImpuesto.IMPUESTO !== 0) {
                                                         if (cliente.IncluyeImpuesto) {
                                                             let nuevoImpuesto = ((precio.Precio * cantidadXTalla) * productoImpuesto);
@@ -180,6 +190,7 @@ const MatrizResumen = (props) => {
                                                             impuesto = nuevoImpuesto + impuesto;
                                                             localStorage.setItem('Impuesto', impuesto);
                                                         } else {
+                                                            
                                                             impuesto = ((precio.Precio * cantidadXTalla) * productoImpuesto) + impuesto;
                                                             localStorage.setItem('Impuesto', impuesto);
                                                         }

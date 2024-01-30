@@ -165,6 +165,7 @@ export const Home = (props) => {
     const cargarConfiguracionesUsuarioOficina = () => {
         setloading(true);
         ////Configuracion General
+        cargarConfiguracionBaseColor();
         cargarEmpresas();
         cargarAbreviacionMonedas();
         cargarClientesContado();
@@ -240,6 +241,7 @@ export const Home = (props) => {
         //sincronizarDocumentosPendientes();
 
         ////Configuracion General
+        cargarConfiguracionBaseColor();
         ObtenerPermisos();
         cargarEmpresas();
         cargarAbreviacionMonedas();
@@ -385,6 +387,22 @@ export const Home = (props) => {
 
         let fecha = moment(new Date()).format("YYYY-MM-DD");
         localStorage.setItem(`expiracion-TipoVisita`, moment(`${fecha} 23:59:59`))
+    }
+
+    const cargarConfiguracionBaseColor = async () => {
+        setMensaje('Cargando configuración base color');
+        const { data, error } = await get(`${APIURL}/api/basecolorimpuesto`, "ConfiguracionBaseColor");
+        if (error) {
+            /*console.log(error);
+            let step = ValoresModulos.filter(v => v.Nombre === "SincronizarConfiguraciones")
+            setModulosError((prevState) => ([...prevState, step[0].Valor]));*/
+
+        } else {
+            dispatch({ type: "SET_CONFIGURACIONBASECOLOR", payload: data });
+        }
+
+        let fecha = moment(new Date()).format("YYYY-MM-DD");
+        localStorage.setItem(`expiracion-ConfiguracionBaseColor`, moment(`${fecha} 23:59:59`))
     }
 
     const cargarTipoVisitasOficina = async () => {
