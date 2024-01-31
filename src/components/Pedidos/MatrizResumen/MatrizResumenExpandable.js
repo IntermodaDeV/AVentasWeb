@@ -176,7 +176,6 @@ const MatrizResumen = (props) => {
                                                     totalGlobal = (precio.Precio * cantidadXTalla) + totalGlobal;
 
                                                     if (prod.atributo) {
-                                                        console.log(prod.atributo)
                                                         let configuracionBaseColorImpuesto = configuracionBaseColorPais.find(x => x.codigobase === prod.atributo.codigo && x.color === codigoColor);
                                                         if (configuracionBaseColorImpuesto) {
                                                             productoImpuesto = configuracionBaseColorImpuesto.impuesto;

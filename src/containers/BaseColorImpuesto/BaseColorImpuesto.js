@@ -7,7 +7,6 @@ import {
     CardBody,
     CardHeader,
 } from 'reactstrap';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { APIURL } from 'utils/Enviroment';
 import { BaseColorImpuestoTable } from './components/BaseColorImpuestoTable';
 
@@ -17,6 +16,8 @@ export const BaseColorImpuesto = (props) => {
     const [color, setColor] = useState('');
     const [impuesto, setImpuesto] = useState(0);
     const [combinaciones, setCombinaciones] = useState([]);
+    const [colores, setColores] = useState([]);
+    const [bases, setBases] = useState([]);
     const empresas = useSelector(e => e.Empresas);
 
     const crearCombinacion = async () => {
@@ -51,8 +52,28 @@ export const BaseColorImpuesto = (props) => {
         }
     }
 
+    const obtenerColores = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/basecolorimpuesto/colores`);
+            setColores(request.data);
+        } catch (e) {
+
+        }
+    }
+
+    const obtenerBases = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/basecolorimpuesto/bases`);
+            setBases(request.data);
+        } catch (e) {
+
+        }
+    }
+
     useEffect(() => {
         obtenerCombinaciones();
+        obtenerColores();
+        obtenerBases();
     }, [])
 
     return (
@@ -75,12 +96,30 @@ export const BaseColorImpuesto = (props) => {
                             })}
                             noResultsMessage={"No hay resultados"}
                         />
-                        <div style={{ width: "5%" }}>
-                            <input className='form-control' onChange={(e) => setCodigobase(e.target.value)} placeholder='Base' />
-                        </div>
-                        <div style={{ width: "5%" }}>
-                            <input className='form-control' onChange={(e) => setColor(e.target.value)} placeholder='Color' />
-                        </div>
+                        <Dropdown
+                            style={{ width: "5%", zIndex: 999 }}
+                            placeholder="Seleccione base"
+                            search
+                            selection
+                            value={codigobase}
+                            onChange={(e, { value }) => { setCodigobase(value) }}
+                            options={bases.map(base => {
+                                return { key: base.Base, value: base.Base, text: `${base.Base}-${base.Descripcion}` }
+                            })}
+                            noResultsMessage={"No hay resultados"}
+                        />
+                        <Dropdown
+                            style={{ width: "5%", zIndex: 999 }}
+                            placeholder="Seleccione color"
+                            search
+                            selection
+                            value={color}
+                            onChange={(e, { value }) => { setColor(value) }}
+                            options={colores.map(color => {
+                                return { key: color.codigo, value: color.codigo, text: `${color.codigo}-${color.nombre}` }
+                            })}
+                            noResultsMessage={"No hay resultados"}
+                        />
                         <div style={{ width: "10%" }}>
                             <input type='number' className='form-control' onChange={(e) => setImpuesto(e.target.value)} placeholder='Impuesto' value={impuesto} />
                         </div>
