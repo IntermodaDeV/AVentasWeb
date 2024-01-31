@@ -142,7 +142,10 @@ export const BaseColorImpuestoTable = props => {
             impuesto: x.impuesto,
             empresa: x.empresa,
             estado: <p style={{ fontWeight: 'bolder', color: x.estado ? 'green' : 'red' }}>{x.estado ? "Activo" : "Inactivo"}</p>,
-            Acciones: <div><button onClick={() => { props.cambiarEstado(x.id) }} className="btn btn-primary" >{x.estado ? "Desactivar" : "Activar"}</button></div>
+            Acciones: (<div>
+                <button onClick={() => { props.cambiarEstado(x.id) }} className="btn btn-primary" >{x.estado ? "Desactivar" : "Activar"}</button>
+                <button onClick={() => { props.handleModalEdit(x) }} className="ml-5 btn btn-primary" >Editar</button>
+            </div>)
         }));
     }
 
