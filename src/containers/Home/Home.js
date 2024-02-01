@@ -29,6 +29,7 @@ export const Home = (props) => {
     const [velocidad,setVelocidad] = useState(0);
 
     useEffect(() => {
+        cargarConfiguracionBaseColor();
         localStorage.setItem("Operando", "No");
         if (localStorage.getItem("SesionObligatorio") === null || localStorage.getItem("SesionObligatorio") === undefined) {
             localStorage.setItem("SesionObligatorio", 1);
@@ -165,7 +166,6 @@ export const Home = (props) => {
     const cargarConfiguracionesUsuarioOficina = () => {
         setloading(true);
         ////Configuracion General
-        cargarConfiguracionBaseColor();
         cargarEmpresas();
         cargarAbreviacionMonedas();
         cargarClientesContado();
@@ -241,7 +241,6 @@ export const Home = (props) => {
         //sincronizarDocumentosPendientes();
 
         ////Configuracion General
-        cargarConfiguracionBaseColor();
         ObtenerPermisos();
         cargarEmpresas();
         cargarAbreviacionMonedas();

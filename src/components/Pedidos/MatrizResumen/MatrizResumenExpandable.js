@@ -158,7 +158,7 @@ const MatrizResumen = (props) => {
                                 return (
                                     productos.map((codigoProducto, index1) => {
                                         const prod = findProduct(codigoProducto);                   
-                                        let productoImpuesto = productoImpuestos.find(x=>x.GRUPO===prod.GrupoImpuesto).IMPUESTO;
+                                        
                                         let producto = props.tableValue[grupoTalla].Productos[codigoProducto];
                                         producto = {...producto,CantidadMinima:prod.CantidadMinima,StockVisible:prod.StockVisible};
                                         let tallas = props.tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
@@ -168,6 +168,7 @@ const MatrizResumen = (props) => {
                                             Object.keys(producto.Colores).forEach((codigoColor) => {
                                                 let color = producto.Colores[codigoColor];
                                                 Object.keys(color.Tallas).forEach((codigoTalla) => {
+                                                    let productoImpuesto = productoImpuestos.find(x=>x.GRUPO===prod.GrupoImpuesto).IMPUESTO;
                                                     let valorTalla = color.Tallas[codigoTalla];
                                                     let precio = { Precio: (valorTalla.Precio? valorTalla.Precio:0) };                                                        
                                                     let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
