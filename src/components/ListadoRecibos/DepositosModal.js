@@ -93,6 +93,18 @@ const DetalleDeposito = (props) => {
         }
     }
 
+    const eliminarImagenDeposito = async () => {
+        try {
+            const result = window.confirm(`¿Esta seguro de eliminar la imagen del recibo ${props.recibo}?`);
+            if (result) {
+                await axios.delete(`${APIURL}/api/recibo/comprobante/eliminar/${props.id}`);
+                alert(`La imagen ha sido eliminado con exito.`);
+            }
+        } catch (err) {
+            alert("Ocurrio un error y no se pudieron subir los depositos");
+        }
+    }
+
     return (
         <div style={{ display: 'flex', flexDirection: 'column' }}>
             <Dialog
@@ -125,6 +137,7 @@ const DetalleDeposito = (props) => {
             <div>
                 <img src={`${APIURL}/uploads/${props.deposito}`} />
                 <button style={{ marginLeft: 10 }} className='btn btn-success' onClick={() => setShowModalUpload(true)}>Actualizar Imagen</button>
+                {PermisoUsuarioOficinaCreditos() && <button style={{ marginLeft: 10 }} className='btn btn-danger' onClick={eliminarImagenDeposito}>Eliminar Imagen</button>}
             </div>
         </div>
     );
