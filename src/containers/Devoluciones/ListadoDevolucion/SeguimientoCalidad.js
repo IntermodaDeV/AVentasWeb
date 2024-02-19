@@ -18,6 +18,7 @@ import PrintOutlined from '@material-ui/icons/PrintOutlined';
 import { FaFileExcel } from "react-icons/fa";
 import FileSaver from 'file-saver';
 import XLSX from 'xlsx';
+import { useHistory } from 'react-router';
 
 import { APIURL } from 'utils/Enviroment';
 import { Loading } from 'components/Global/Loading';
@@ -25,6 +26,7 @@ import { IsAllow } from 'components/Seguridad/Permisos';
 import { ImprimirTrackingDevolucionCalidad } from 'components/Devoluciones/ImprimirTrackingDevolucionCalidad';
 
 export const SeguimientoCalidad = props => {
+    const history = useHistory();
     const [state, setState] = useState({
         error: false,
         isLoaded: false,
@@ -142,6 +144,11 @@ export const SeguimientoCalidad = props => {
                     <span className="ml-1">
                         <Button className='my-1' variant="outlined" size="large" onClick={() => { obtenerReporteDevolucionTracking(devolucion.NumDevolucion) }} color={"primary"}>
                             <FaFileExcel />
+                        </Button>
+                    </span >
+                    <span className="ml-1">
+                        <Button className='my-1' variant="outlined" size="large" onClick={() => { history.push({ pathname: "/devolucion-clasificacion", state: devolucion.NumDevolucion }); }} color={"primary"}>
+                            Clasificación
                         </Button>
                     </span >
                 </div>
