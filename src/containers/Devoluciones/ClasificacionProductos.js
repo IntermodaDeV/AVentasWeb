@@ -82,6 +82,15 @@ const ClasificacionDetalle = ({ clasificacion, operaciones, index, defectos }) =
     const [cantidadMantenimiento, setCantidadMantenimiento] = useState(clasificacion.cantidadMantenimiento);
     const [descripcionText, setDescripcionText] = useState(clasificacion.clasificacion);
 
+    const actualizarDetalle = async () => {
+        try {
+            await axios.put(`${APIURL}/api/devolucion/clasificacion/${clasificacion.devolucionDetalleId}`, { operacionId, defectoId, cantidadMantenimiento, clasificacion: descripcionText });
+            alert("Detalle actualizado con exito");
+        } catch (err) {
+
+        }
+    }
+
     return (
         <tr>
             <td>{clasificacion.CodigoProducto}</td>
@@ -104,7 +113,7 @@ const ClasificacionDetalle = ({ clasificacion, operaciones, index, defectos }) =
                 fluid
                 search
                 selection
-                onChange={(e, { value }) => { setDefectoId(defectoId) }}
+                onChange={(e, { value }) => { setDefectoId(value) }}
                 options={defectos.map(x => ({ key: x.id, value: x.id, text: x.descripcion }))}
                 noResultsMessage={"No hay resultados"}
                 closeOnChange={true}
@@ -113,6 +122,7 @@ const ClasificacionDetalle = ({ clasificacion, operaciones, index, defectos }) =
             /></td>
             <td><input className="form-control" value={descripcionText} onChange={(e) => setDescripcionText(e.target.value)} /></td>
             <td><input className="form-control" type="number" value={cantidadMantenimiento} onChange={(e) => setCantidadMantenimiento(Number(e.target.value))} /></td>
+            <td><button className="btn btn-success" onClick={actualizarDetalle}>Guardar</button></td>
         </tr>
     )
 }
