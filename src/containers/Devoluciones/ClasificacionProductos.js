@@ -56,7 +56,6 @@ export const ClasficacionProductos = props => {
                         <th>Operación</th>
                         <th>Defecto</th>
                         <th>Clasificación</th>
-                        <th>Cantidad</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -121,7 +120,6 @@ const ClasificacionDetalle = ({ clasificacion, operaciones, index, defectos }) =
                 value={defectoId}
             /></td>
             <td><input className="form-control" value={descripcionText} onChange={(e) => setDescripcionText(e.target.value)} /></td>
-            <td><input className="form-control" type="number" value={cantidadMantenimiento} onChange={(e) => setCantidadMantenimiento(Number(e.target.value))} /></td>
             <td><button className="btn btn-success" onClick={actualizarDetalle}>Guardar</button></td>
         </tr>
     )

@@ -89,6 +89,13 @@ export const SeguimientoCalidad = props => {
         }
     }
 
+    const generarPlantilla = async (devolucion) => {
+        try {
+            await axios.post(`${APIURL}/api/devolucion/clasificacion/generar/${devolucion}`);
+            await cargarDevoluvionesAprobadas(fechaInicio, fechaFin);
+        } catch (e) { }
+    }
+
     const hidePrint = () => {
         setShowDialog(false);
     }
@@ -147,9 +154,11 @@ export const SeguimientoCalidad = props => {
                         </Button>
                     </span >
                     <span className="ml-1">
-                        <Button className='my-1' variant="outlined" size="large" onClick={() => { history.push({ pathname: "/devolucion-clasificacion", state: devolucion.NumDevolucion }); }} color={"primary"}>
+                        {devolucion.plantillaGenerada ? <Button className='my-1' variant="outlined" size="large" onClick={() => { history.push({ pathname: "/devolucion-clasificacion", state: devolucion.NumDevolucion }); }} color={"primary"}>
                             Clasificación
-                        </Button>
+                        </Button> : <Button className='my-1' variant="outlined" size="large" onClick={() => { generarPlantilla(devolucion.NumDevolucion) }} color={"primary"}>
+                            Generar Plantilla
+                        </Button>}
                     </span >
                 </div>
             ]
