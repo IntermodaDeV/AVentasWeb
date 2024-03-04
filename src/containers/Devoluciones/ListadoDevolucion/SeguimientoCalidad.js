@@ -56,13 +56,13 @@ export const SeguimientoCalidad = props => {
             let Inicio = moment(fechainicio).format("YYYY-MM-DD");
             let Fin = moment(fechafin).format("YYYY-MM-DD");
             let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
-            let ruta = todos ? `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadas/${Inicio}/${Fin}/${estado}` : `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadas/${Inicio}/${Fin}/${estado}/${Asesor}`;
+            let ruta = todos ? `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadasEmpresa/${Inicio}/${Fin}/${estado}/${localStorage.getItem('empresa')}` : `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadas/${Inicio}/${Fin}/${estado}/${Asesor}`;
             const request = await axios.get(ruta, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).catch(function (err) {
 
                 setState({
                     ...state,
                     isLoaded: true,
-                    devoluciones: []
+                    //devoluciones: []
                 });
 
                 let mensaje = "Ha ocurrido un error verifique su conexion a internet.";
