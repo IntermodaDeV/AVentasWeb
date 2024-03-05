@@ -19,10 +19,13 @@ export const BaseColorImpuesto = (props) => {
     const [empresa, setEmpresa] = useState('');
     const [codigobase, setCodigobase] = useState('');
     const [color, setColor] = useState('');
+    const [codigoImpuesto, setCodigoImpuesto] = useState('');
     const [impuesto, setImpuesto] = useState(0);
     const [combinaciones, setCombinaciones] = useState([]);
     const [colores, setColores] = useState([]);
     const [bases, setBases] = useState([]);
+    const [codigosImpuesto, setCodigosImpuesto] = useState([]);
+    const [codigosImpuestoTmp, setCodigosImpuestoTmp] = useState([]);
     const empresas = useSelector(e => e.Empresas);
 
     const limpiarCampos = () => {
@@ -30,17 +33,18 @@ export const BaseColorImpuesto = (props) => {
         setColor('');
         setImpuesto(0);
         setEmpresa('');
+        setCodigoImpuesto('');
         setCombinacionId();
     }
 
     const crearCombinacion = async () => {
         try {
-            if (codigobase === "" || color === "" || empresa === "") {
-                alert("Favor llenar los campos de base y color.");
+            if (codigobase === "" || color === "" || empresa === "" || codigoImpuesto == "") {
+                alert("Favor llenar los campos.");
                 return;
             }
 
-            await axios.post(`${APIURL}/api/basecolorimpuesto`, { codigobase, color, impuesto, empresa, usuario: localStorage.getItem('codigo') });
+            await axios.post(`${APIURL}/api/basecolorimpuesto`, { codigobase, color, impuesto, empresa, codigoImpuesto, usuario: localStorage.getItem('codigo') });
             alert("Combinación creada con exito");
             await obtenerCombinaciones();
             limpiarCampos();
@@ -51,7 +55,7 @@ export const BaseColorImpuesto = (props) => {
 
     const modificarCombinacion = async () => {
         try {
-            await axios.put(`${APIURL}/api/basecolorimpuesto/${comibinacionId}`, { codigobase, color, impuesto, empresa, usuario: localStorage.getItem('codigo') });
+            await axios.put(`${APIURL}/api/basecolorimpuesto/${comibinacionId}`, { codigobase, color, impuesto, empresa, codigoImpuesto, usuario: localStorage.getItem('codigo') });
             alert("Combinación modificada con exito");
             await obtenerCombinaciones();
             limpiarCampos();
@@ -97,13 +101,25 @@ export const BaseColorImpuesto = (props) => {
         }
     }
 
+    const obtenerImpuestos = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/basecolorimpuesto/impuestos`);
+            setCodigosImpuesto(request.data);
+        } catch (e) {
+
+        }
+    }
+
     const handleModalEdit = (combinacion) => {
         setOpenModal(true);
+        setCodigoImpuesto(combinacion.codigoImpuesto);
         setEmpresa(combinacion.empresa);
         setCodigobase(combinacion.codigobase);
         setColor(combinacion.color);
         setImpuesto(combinacion.impuesto);
         setCombinacionId(combinacion.id);
+        const impuestos = codigosImpuesto.filter(x => x.empresa === combinacion.empresa);
+        setCodigosImpuestoTmp(impuestos);
     }
 
     const closeModal = () => {
@@ -115,6 +131,7 @@ export const BaseColorImpuesto = (props) => {
         obtenerCombinaciones();
         obtenerColores();
         obtenerBases();
+        obtenerImpuestos();
     }, [])
 
     return (
@@ -133,7 +150,11 @@ export const BaseColorImpuesto = (props) => {
                         search
                         selection
                         value={empresa}
-                        onChange={(e, { value }) => { setEmpresa(value) }}
+                        onChange={(e, { value }) => {
+                            setEmpresa(value);
+                            const impuestos = codigosImpuesto.filter(x => x.empresa === value);
+                            setCodigosImpuestoTmp(impuestos);
+                        }}
                         options={empresas.map(empresa => {
                             return { key: empresa.COMPANY_CODE, value: empresa.COMPANY_CODE, text: empresa.COMPANY_CODE }
                         })}
@@ -163,6 +184,18 @@ export const BaseColorImpuesto = (props) => {
                         })}
                         noResultsMessage={"No hay resultados"}
                     />
+                    <Dropdown
+                        style={{ display: "block", zIndex: 3, margin: 10 }}
+                        placeholder="Seleccione codigo"
+                        search
+                        selection
+                        value={codigoImpuesto}
+                        onChange={(e, { value }) => { setCodigoImpuesto(value) }}
+                        options={codigosImpuestoTmp.map(color => {
+                            return { key: color.impuesto, value: color.impuesto, text: color.impuesto }
+                        })}
+                        noResultsMessage={"No hay resultados"}
+                    />
                     <div>
                         <input type='number' className='form-control' onChange={(e) => setImpuesto(e.target.value)} placeholder='Impuesto' value={impuesto} />
                     </div>
@@ -182,7 +215,11 @@ export const BaseColorImpuesto = (props) => {
                             search
                             selection
                             value={empresa}
-                            onChange={(e, { value }) => { setEmpresa(value) }}
+                            onChange={(e, { value }) => {
+                                setEmpresa(value);
+                                const impuestos = codigosImpuesto.filter(x => x.empresa === value);
+                                setCodigosImpuestoTmp(impuestos);
+                            }}
                             options={empresas.map(empresa => {
                                 return { key: empresa.COMPANY_CODE, value: empresa.COMPANY_CODE, text: empresa.COMPANY_CODE }
                             })}
@@ -209,6 +246,18 @@ export const BaseColorImpuesto = (props) => {
                             onChange={(e, { value }) => { setColor(value) }}
                             options={colores.map(color => {
                                 return { key: color.codigo, value: color.codigo, text: `${color.codigo}-${color.nombre}` }
+                            })}
+                            noResultsMessage={"No hay resultados"}
+                        />
+                        <Dropdown
+                            style={{ display: "block", zIndex: 3, margin: 10 }}
+                            placeholder="Seleccione codigo"
+                            search
+                            selection
+                            value={codigoImpuesto}
+                            onChange={(e, { value }) => { setCodigoImpuesto(value) }}
+                            options={codigosImpuestoTmp.map(color => {
+                                return { key: color.impuesto, value: color.impuesto, text: color.impuesto }
                             })}
                             noResultsMessage={"No hay resultados"}
                         />

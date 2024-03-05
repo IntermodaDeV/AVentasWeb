@@ -106,6 +106,14 @@ let HeaderDocumentoPendientes = [
         }
     },
     {
+        name: "codigoImpuesto",
+        label: "Codigo Impuesto",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
         name: "Acciones",
         label: "Acciones",
         options: {
@@ -141,6 +149,7 @@ export const BaseColorImpuestoTable = props => {
             color: x.color,
             impuesto: x.impuesto,
             empresa: x.empresa,
+            codigoImpuesto: x.codigoImpuesto,
             estado: <p style={{ fontWeight: 'bolder', color: x.estado ? 'green' : 'red' }}>{x.estado ? "Activo" : "Inactivo"}</p>,
             Acciones: (<div>
                 <button onClick={() => { props.cambiarEstado(x.id) }} className="btn btn-primary" >{x.estado ? "Desactivar" : "Activar"}</button>
