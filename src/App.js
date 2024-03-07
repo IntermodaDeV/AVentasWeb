@@ -70,6 +70,7 @@ import { SincronizacionEspecifica } from 'containers/Sincronizacion/Sincronizaci
 import { FirmaPantalla } from 'containers/Seguridad/Firmas/FirmaPantalla'
 import { MotivosTiempoFuera } from 'containers/Agenda/MotivoTiempoFuera/MotivoTiempoFuera'
 import { TiemposFuera } from 'containers/Agenda/TiemposFuera/TiemposFuera'
+import { ClasficacionProductos } from 'containers/Devoluciones/ClasificacionProductos'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -467,6 +468,12 @@ const App = props => {
               path='/seguimientoCalidad'
               layout={MainLayout}
               component={SeguimientoCalidad}
+            />
+            <LayoutRoute
+              exact
+              path='/devolucion-clasificacion'
+              layout={MainLayout}
+              component={ClasficacionProductos}
             />
             <Redirect to='/home' />
           </Switch>

@@ -18,6 +18,7 @@ import PrintOutlined from '@material-ui/icons/PrintOutlined';
 import { FaFileExcel } from "react-icons/fa";
 import FileSaver from 'file-saver';
 import XLSX from 'xlsx';
+import { useHistory } from 'react-router';
 
 import { APIURL } from 'utils/Enviroment';
 import { Loading } from 'components/Global/Loading';
@@ -25,6 +26,7 @@ import { IsAllow } from 'components/Seguridad/Permisos';
 import { ImprimirTrackingDevolucionCalidad } from 'components/Devoluciones/ImprimirTrackingDevolucionCalidad';
 
 export const SeguimientoCalidad = props => {
+    const history = useHistory();
     const [state, setState] = useState({
         error: false,
         isLoaded: false,
@@ -54,13 +56,13 @@ export const SeguimientoCalidad = props => {
             let Inicio = moment(fechainicio).format("YYYY-MM-DD");
             let Fin = moment(fechafin).format("YYYY-MM-DD");
             let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
-            let ruta = todos ? `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadas/${Inicio}/${Fin}/${estado}` : `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadas/${Inicio}/${Fin}/${estado}/${Asesor}`;
+            let ruta = todos ? `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadasEmpresa/${Inicio}/${Fin}/${estado}/${localStorage.getItem('empresa')}` : `${APIURL}/api/trackingDevolucionCalidad/obtenerDevolucionesAprobadas/${Inicio}/${Fin}/${estado}/${Asesor}`;
             const request = await axios.get(ruta, { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } }).catch(function (err) {
 
                 setState({
                     ...state,
                     isLoaded: true,
-                    devoluciones: []
+                    //devoluciones: []
                 });
 
                 let mensaje = "Ha ocurrido un error verifique su conexion a internet.";
@@ -85,6 +87,13 @@ export const SeguimientoCalidad = props => {
         } catch (err) {
 
         }
+    }
+
+    const generarPlantilla = async (devolucion) => {
+        try {
+            await axios.post(`${APIURL}/api/devolucion/clasificacion/generar/${devolucion}`);
+            await cargarDevoluvionesAprobadas(fechaInicio, fechaFin);
+        } catch (e) { }
     }
 
     const hidePrint = () => {
@@ -143,6 +152,13 @@ export const SeguimientoCalidad = props => {
                         <Button className='my-1' variant="outlined" size="large" onClick={() => { obtenerReporteDevolucionTracking(devolucion.NumDevolucion) }} color={"primary"}>
                             <FaFileExcel />
                         </Button>
+                    </span >
+                    <span className="ml-1">
+                        {devolucion.plantillaGenerada ? <Button className='my-1' variant="outlined" size="large" onClick={() => { history.push({ pathname: "/devolucion-clasificacion", state: devolucion.NumDevolucion }); }} color={"primary"}>
+                            Clasificación
+                        </Button> : <Button className='my-1' variant="outlined" size="large" onClick={() => { generarPlantilla(devolucion.NumDevolucion) }} color={"primary"}>
+                            Generar Plantilla
+                        </Button>}
                     </span >
                 </div>
             ]
