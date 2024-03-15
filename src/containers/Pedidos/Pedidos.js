@@ -1430,6 +1430,7 @@ if (this.props.LineaSeleccionada && this.props.coleccion) {
     enviarPeticionPedido = async (location, correlativo) => {
         let isOnline = await verificarConexion();
         let nuevoSubtotal = this.props.cliente.Codigo.IncluyeImpuesto ? this.props.TotalPedido - Number(localStorage.getItem('Impuesto')) : this.props.TotalPedido;
+        const configuracionBaseColorPais = this.props.configuracionBaseColor.filter(x => x.empresa === this.props.cliente.Codigo.split('-')[0]);
         let pedido = {
             NumeroReferencia: localStorage.getItem("CorrelativoPedido"),
             //PedidoCache:localStorage.getItem("isOffline"),
@@ -1488,6 +1489,16 @@ if (this.props.LineaSeleccionada && this.props.coleccion) {
                                             PorcentajeDescuento: "",
                                             Edad: edad.IdEdad
                                         };
+                                        
+                                        if (producto.atributo) {
+                                            let configuracionBaseColorImpuesto = configuracionBaseColorPais.find(x => x.codigobase === producto.atributo.codigo && x.color === color.CodigoColor);
+                                            if (configuracionBaseColorImpuesto) {
+                                                detalle["CodigoImpuesto"] = configuracionBaseColorImpuesto.codigoImpuesto;
+                                            }else{
+                                                detalle["CodigoImpuesto"] = "";
+                                            }
+                                        }
+
                                         if (tableValue[codigoGrupoTalla].Productos[codigoProducto].Colores[color.CodigoColor].Tallas[talla].Cantidad > 0) {
                                             pedido.DetallePedido.push(detalle);
                                             if (!isOnline || localStorage.getItem("Conexion") === "offline") {
@@ -1505,6 +1516,7 @@ if (this.props.LineaSeleccionada && this.props.coleccion) {
             }
         })
 
+
         let total = pedido.subtotal + pedido.Impuesto + pedido.Flete
         this.reducirDisponibleAcuerdo(pedido.CodigoCliente, total, pedido.TipoPedido.TipoPedido, pedido.AcuerdoVenta);
         if (!isOnline || localStorage.getItem("Conexion") === "offline" || pedido.NumeroReferencia === "") {
@@ -1521,12 +1533,7 @@ if (this.props.LineaSeleccionada && this.props.coleccion) {
             this.reducirStockBackground(productosReducir);
             localStorage.setItem("isOffline", true);
         }
-        /*else if (pedido.NumeroReferencia === "") {
-            const data = postPedidoStorage(pedido);
-            let numPedido = data.EncabezadoPedido.PedidoId;
-            this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-            this.props.onSetNumeroOrden(numPedido);
-        }*/
+        
         else {
             const { data, error } = await post(this.urlApi + "/api/PedidosXCliente", pedido, "SET_PEDIDOSINCRONIZAR");
             localStorage.setItem("isOffline", false);
@@ -1539,19 +1546,7 @@ if (this.props.LineaSeleccionada && this.props.coleccion) {
                         text: mensaje,
                     })
                     this.setState({ loadingRecibo: false });
-                }/*else {
-                    Swal.fire({
-                        type: 'warning',
-                        title: 'Error',
-                        text: "Ocurrió un error, el pedido se guardara en bandeja de salida.",
-                    });
-        
-                    const data = postPedidoStorage(pedido);
-                    let numPedido = data.EncabezadoPedido.PedidoId;
-                    this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
-                    this.props.onSetNumeroOrden(numPedido);
-                    localStorage.setItem("isOffline", true);
-                }*/
+                }
                 let numPedido = pedido.NumeroReferencia;
                 this.setState({ mostrarRecibo: true, loadingRecibo: false, NumPedido: numPedido });
             } else {
@@ -2838,7 +2833,8 @@ const mapStateToProps = state => {
         ClienteImpuestosGlobal: state.ClienteImpuestosGlobal,
         ProductoImpuestosGlobal: state.ProductoImpuestosGlobal,
         UsuarioOficina: state.Permisos[0].UsuarioOficina,
-        BodegaSeleccionada: state.BodegaSeleccionada
+        BodegaSeleccionada: state.BodegaSeleccionada,
+        configuracionBaseColor: state.configuracionBaseColor, 
     };
 };
 const mapDispatchToProps = dispatch => {

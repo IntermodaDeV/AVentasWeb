@@ -196,7 +196,8 @@ const navItems = [
             { to: '/configuracion-almacenes', name: 'Almacen', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  },
             { to: '/configuracion-ubicaciones', name: 'Ubicacion', dataTut: 'DataTut_SincLista', Icon: Home, backgroundColor:''  },
             { to: '/configuracion-RazonesNoVenta', name: 'Razones no venta', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
-            { to: '/configuracion-tiemposfuera', name: 'Motivos tiempo fuera', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  }
+            { to: '/configuracion-tiemposfuera', name: 'Motivos tiempo fuera', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
+            { to: '/configuracion-basecolor', name: 'Combinación base color', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  }
         ]
     }
 ];

@@ -40,6 +40,8 @@ const MatrizResumen = (props) => {
     const clienteImpuestos = useSelector(e=>e.ClienteImpuestos);
     const cliente = useSelector(e=>e.cliente);
     const clienteImpuesto = clienteImpuestos.find(x=>x.GRUPO===cliente.GrupoImpuesto);
+    const configuracionBaseColor = useSelector(x=>x.configuracionBaseColor);
+    const configuracionBaseColorPais = configuracionBaseColor.filter(x=>x.empresa===cliente.Codigo.split('-')[0]);
 
     const findProduct=(codigo)=>
     {
@@ -155,8 +157,8 @@ const MatrizResumen = (props) => {
                             if (props.tableValue[grupoTalla].Mostrar) {
                                 return (
                                     productos.map((codigoProducto, index1) => {
-                                        const prod = findProduct(codigoProducto);
-                                        const productoImpuesto = productoImpuestos.find(x=>x.GRUPO===prod.GrupoImpuesto).IMPUESTO;
+                                        const prod = findProduct(codigoProducto);                   
+                                        
                                         let producto = props.tableValue[grupoTalla].Productos[codigoProducto];
                                         producto = {...producto,CantidadMinima:prod.CantidadMinima,StockVisible:prod.StockVisible};
                                         let tallas = props.tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
@@ -166,12 +168,20 @@ const MatrizResumen = (props) => {
                                             Object.keys(producto.Colores).forEach((codigoColor) => {
                                                 let color = producto.Colores[codigoColor];
                                                 Object.keys(color.Tallas).forEach((codigoTalla) => {
+                                                    let productoImpuesto = productoImpuestos.find(x=>x.GRUPO===prod.GrupoImpuesto).IMPUESTO;
                                                     let valorTalla = color.Tallas[codigoTalla];
                                                     let precio = { Precio: (valorTalla.Precio? valorTalla.Precio:0) };                                                        
                                                     let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
                                                     productoConCantindad = productoConCantindad || (cantidadXTalla > 0);
                                                     unidadesTotales = parseInt(unidadesTotales, 10) + cantidadXTalla;
                                                     totalGlobal = (precio.Precio * cantidadXTalla) + totalGlobal;
+
+                                                    if (prod.atributo) {
+                                                        let configuracionBaseColorImpuesto = configuracionBaseColorPais.find(x => x.codigobase === prod.atributo.codigo && x.color === codigoColor);
+                                                        if (configuracionBaseColorImpuesto) {
+                                                            productoImpuesto = configuracionBaseColorImpuesto.impuesto;
+                                                        }
+                                                    }
 
                                                     if (clienteImpuesto.IMPUESTO !== 0) {
                                                         if (cliente.IncluyeImpuesto) {
@@ -180,6 +190,7 @@ const MatrizResumen = (props) => {
                                                             impuesto = nuevoImpuesto + impuesto;
                                                             localStorage.setItem('Impuesto', impuesto);
                                                         } else {
+                                                            
                                                             impuesto = ((precio.Precio * cantidadXTalla) * productoImpuesto) + impuesto;
                                                             localStorage.setItem('Impuesto', impuesto);
                                                         }
