@@ -29,6 +29,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import logo from './iconfinder_Close_2001866.png';
 import {numberWithCommas} from 'utils/common';
 import CachedIcon from '@material-ui/icons/Cached';
+import Business from '@material-ui/icons/Business';
 import RoomIcon from '@material-ui/icons/Room';
 import axios from 'axios';
 import { Loading } from 'components/Global/Loading';
@@ -74,6 +75,8 @@ const SelectCliente = (props) => {
     const clientesRecibo = useSelector(c=>c.Recibo);
     const permisos = useSelector(e=>e.Permisos[0]);
     const Configuraciones = useSelector(e=>e.Configuraciones);
+    const direccionEntrega = useSelector(e=>e.direccionEntrega);
+    const [openModalDirecciones,setOpenModalDirecciones] = useState(false);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -88,6 +91,16 @@ const SelectCliente = (props) => {
 
         // eslint-disable-next-line
     }, [props.clientes]);
+
+    useEffect(() => {
+        if (props.autocompleteValue) {
+            const direccionPrincipal = props.autocompleteValue.Direcciones.find(x => x.principal);
+            if (direccionPrincipal) {
+                dispatch({ type: "SET_DIRECCIONENTREGA", payload: direccionPrincipal });
+            }
+        }
+
+    }, [props.autocompleteValue]);
 
     const classes = useStyles();
     let infoCliente = null;
@@ -559,11 +572,21 @@ const SelectCliente = (props) => {
                                     </tr>                                                                      
                                     <tr>
                                         <td className={styles.InfoLabel}>
-                                            {'Direccion: '}
+                                            {'Dirección: '}
                                         </td>
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.Direccion}</td>
                                     </tr>
+                                    {(direccionEntrega !== null) && (
+                                        <tr>
+                                            <td className={styles.InfoLabel}>
+                                                {'Dirección entrega: '}
+                                            </td>
+                                            <td>
+                                                <b>{direccionEntrega.nombreDireccion}</b> - {direccionEntrega.direccion}
+                                            </td>
+                                        </tr>)
+                                    }
                                     {(permisos.AsesoresUsuario.length === 1 ) &&
                                         <tr>
                                             <td className={styles.InfoLabel}>
@@ -724,6 +747,7 @@ const SelectCliente = (props) => {
                                 Continuar
                                 </Button>
                                 <Button style={{marginLeft:15}} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon/></Button>
+                                <Button style={{marginLeft:15}} onClick={()=>setOpenModalDirecciones(true)} variant="contained" color="primary"><Business/></Button>
                         </div>
                     </div>
 
@@ -780,10 +804,51 @@ const SelectCliente = (props) => {
                 </Dialog>
             }
             <Loading open={loading} title={mensaje}/>
+            <ModalDirecciones cerrar={()=>setOpenModalDirecciones(false)} open={openModalDirecciones} direcciones={props.autocompleteValue == null?[]:props.autocompleteValue.Direcciones}/>
         </div>
         </>
     );
 }
+
+const ModalDirecciones = ({ open, direcciones, cerrar }) => {
+    const dispatch = useDispatch();
+
+    const onClickDireccion = (e) => {
+        dispatch({ type: "SET_DIRECCIONENTREGA", payload: e });
+        cerrar();
+    }
+
+    return (
+        <Dialog
+            scroll={'paper'}
+            open={open}
+            onClose={cerrar}
+        >
+            <DialogTitle className="text-center" id="scroll-dialog-title">
+                <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                    Seleccionar dirección entrega
+                </div>
+            </DialogTitle>
+            <DialogContent>
+
+                <div style={{ width: '100%' }}>
+                    <div style={{ display: 'inline-block' }}>
+                        <ul className="list-group">
+                            {direcciones.map(x => (<li style={{ cursor: 'pointer' }} onClick={() => onClickDireccion(x)} className={`list-group-item d-flex justify-content-between align-items-center mt-3`} key={x.postalAddress}>
+                                <div>
+                                    <p><b>Nombre dirección:</b> {x.nombreDireccion}</p>
+                                    <p><b>Dirección:</b> {x.direccion}</p>
+                                    <p><b>Tipo:</b> {x.principal ? "Principal" : "Secundaria"}</p>
+                                </div>
+                            </li>))}
+                        </ul>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 export default SelectCliente;
 
 

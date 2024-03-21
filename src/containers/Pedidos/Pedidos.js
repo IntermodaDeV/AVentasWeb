@@ -1457,7 +1457,8 @@ if (this.props.LineaSeleccionada && this.props.coleccion) {
             MonedaCliente: this.props.cliente.Moneda,
             BodegaEspecifica: !this.props.BodegaSeleccionada.BodegaPrincipal,
             Sitio: this.props.BodegaSeleccionada.CodigoSitio,
-            Almacen: this.props.BodegaSeleccionada.Almacen
+            Almacen: this.props.BodegaSeleccionada.Almacen,
+            DireccionEntrega: this.props.direccionEntrega.postalAddress,
         };
         let tableValue = this.props.TableValue[this.props.LineaSeleccionada.IdLinea][this.props.coleccion.CodigoColeccion];
         let productosReducir = [];
@@ -2834,7 +2835,8 @@ const mapStateToProps = state => {
         ProductoImpuestosGlobal: state.ProductoImpuestosGlobal,
         UsuarioOficina: state.Permisos[0].UsuarioOficina,
         BodegaSeleccionada: state.BodegaSeleccionada,
-        configuracionBaseColor: state.configuracionBaseColor, 
+        configuracionBaseColor: state.configuracionBaseColor,
+        direccionEntrega: state.direccionEntrega, 
     };
 };
 const mapDispatchToProps = dispatch => {
