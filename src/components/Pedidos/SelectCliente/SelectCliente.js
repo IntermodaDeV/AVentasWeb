@@ -577,16 +577,6 @@ const SelectCliente = (props) => {
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.Direccion}</td>
                                     </tr>
-                                    {(direccionEntrega !== null) && (
-                                        <tr>
-                                            <td className={styles.InfoLabel}>
-                                                {'Dirección entrega: '}
-                                            </td>
-                                            <td>
-                                                <b>{direccionEntrega.nombreDireccion}</b> - {direccionEntrega.direccion}
-                                            </td>
-                                        </tr>)
-                                    }
                                     {(permisos.AsesoresUsuario.length === 1 ) &&
                                         <tr>
                                             <td className={styles.InfoLabel}>
@@ -747,9 +737,17 @@ const SelectCliente = (props) => {
                                 Continuar
                                 </Button>
                                 <Button style={{marginLeft:15}} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon/></Button>
-                                <Button style={{marginLeft:15}} onClick={()=>setOpenModalDirecciones(true)} variant="contained" color="primary"><Business/></Button>
                         </div>
                     </div>
+
+                        {(props.autocompleteValue && direccionEntrega) && (<div className={'row mt-3'}>
+                            <div className={'col-xl-10 col-lg-10 col-sm-9 col-12 mt-2'} style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                <p><b>Dirección Entrega: </b> <b>{direccionEntrega.nombreDireccion}</b> - {direccionEntrega.direccion} </p>
+                            </div>
+                            <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
+                                <Button style={{ marginLeft: 15 }} onClick={() => setOpenModalDirecciones(true)} variant="contained" color="primary">Cambiar dirección entrega</Button>
+                            </div>
+                        </div>)}
 
                 </CardContent>
 
