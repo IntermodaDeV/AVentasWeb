@@ -88,7 +88,8 @@ const initialState = {
         tipoCreditoRecolocacion: "",
         pedidoRecolocacion: {}
     },
-    configuracionBaseColor:[]
+    configuracionBaseColor:[],
+    direccionEntrega: null,
 }
 
 const calcularLimite = (state) => {
@@ -949,6 +950,14 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             configuracionBaseColor: action.payload
+        }
+    }
+
+    if (action.type === 'SET_DIRECCIONENTREGA') {
+
+        return {
+            ...state,
+            direccionEntrega: action.payload
         }
     }
 

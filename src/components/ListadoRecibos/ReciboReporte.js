@@ -40,6 +40,22 @@ export const ReciboReporte = (props) => {
         }
     }
 
+    const mostrarDepositos = () => {
+        if (props.recibo.anulado) {
+            return <div></div>
+        }
+
+        return props.recibo.depositos.map(e => (
+            <div style={{ display: 'flex', flexDirection: 'column' }} key={e.id}>
+                <p style={{ color: "red", fontWeight: 'bold', fontSize: 35, textAlign: 'center' }}>{e.dpi}</p>
+                <img src={`${APIURL}/uploads/${e.deposito}`} />
+                <p style={{ fontSize: 20 }}>
+                    {moment(e.fecha).format('DD/MM/YYYY hh:mm a')}
+                </p>
+            </div>
+        ))
+    }
+
     useEffect(() => {
         obtenerFirmaRecibo();
     }, [])
@@ -251,15 +267,7 @@ export const ReciboReporte = (props) => {
 
                 </div>
 
-                {props.recibo.depositos.map(e => (
-                    <div style={{ display: 'flex', flexDirection: 'column' }} key={e.id}>
-                        <p style={{ color: "red", fontWeight: 'bold', fontSize: 35, textAlign: 'center' }}>{e.dpi}</p>
-                        <img src={`${APIURL}/uploads/${e.deposito}`} />
-                        <p style={{fontSize:20}}>
-                            {moment(e.fecha).format('DD/MM/YYYY hh:mm a')}
-                        </p>
-                    </div>
-                ))}
+                {mostrarDepositos()}
             </div>
         </>
     )
