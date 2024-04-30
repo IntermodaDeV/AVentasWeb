@@ -12,6 +12,7 @@ import { Loading } from 'components/Global/Loading';
 import { mostrarModal } from 'utils/common';
 import { useHistory } from 'react-router';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
+import { FiAlertTriangle } from 'react-icons/fi';
 
 export const ProductosDevolucion = (props) => {
     const history = useHistory();
@@ -36,6 +37,7 @@ export const ProductosDevolucion = (props) => {
     const [almaceneSelected, setAlmaceneSelected] = useState("");
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
+    const [mostrarAlertaCalidad, setMostrarAlertaCalidad] = useState(false);
     let totalCant = 0;
     let productosSinCantidad = false;
 
@@ -181,6 +183,11 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_MOTIVODEVOLUCION", payload: value });
         dispatch({ type: "SET_MOTIVODEVOLUCIONDETALLE", payload: "" });
         setMotivosDevolucionDetalle(detalle.detalle);
+
+        if(detalle){
+            const esDefectuoso = detalle.codigo.toUpperCase().includes('DEFECTUOSO');
+            setMostrarAlertaCalidad(esDefectuoso);
+        }
     }
 
     const handleChangeMotivoDetalle = (value) => {
@@ -882,6 +889,9 @@ export const ProductosDevolucion = (props) => {
                             />
                             <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
                         </div>
+                        {mostrarAlertaCalidad && <div style={{ textAlign: 'center', fontSize: '18px', marginTop: 15 }} className="alert alert-danger alert-dismissible fade show" role="alert">
+                            <FiAlertTriangle style={{ fontSize: '22px', color: 'red' }} /> Por el motivo seleccionado se requiere que entregue el producto en oficina.
+                        </div>}
                     </div>
                     {devolucionCompleta
                         ?
