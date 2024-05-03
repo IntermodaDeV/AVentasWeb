@@ -82,7 +82,7 @@ export const ProductosDevolucion = (props) => {
             setOpen(true);
             setTitle("Obteniendo producto");
             const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
-            agregarProducto(data.data, tallaTxt);
+            agregarProducto(data.data, tallaTxt,color);
             setOpen(false);
         } catch (err) {
             setOpen(false);
@@ -311,9 +311,9 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
     }
 
-    const agregarProducto = (producto, pTalla) => {
+    const agregarProducto = (producto, pTalla,pColor) => {
         let miTableValue = { ...tableValue };
-        let precioGeneral = 0;
+        let precioGeneral = 0;  
 
         if (producto.Precio.length > 0) {
             precioGeneral = producto.Precio[0].Precio;
@@ -329,6 +329,7 @@ export const ProductosDevolucion = (props) => {
             miTableValue[producto.GrupoTalla].ListaTallas = producto.ListaTalla;
         }
 
+        producto.ProductoId = `${producto.ProductoId}-${pColor}`;
         if (miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] === undefined) {
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] = {};
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores = {};
@@ -537,7 +538,7 @@ export const ProductosDevolucion = (props) => {
         const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${pCodigo}/${pColor}`)
         productosAgregados.push({ codigoBarra, codigo: pCodigo, color: pColor, talla: pTalla, grupoTalla: data.data.GrupoTalla });
         localStorage.setItem("productosAgregados", JSON.stringify(productosAgregados));
-        agregarProducto(data.data, pTalla);
+        agregarProducto(data.data, pTalla,pColor);
     }
 
     const obtenerAtributosBarra = async (e) => {

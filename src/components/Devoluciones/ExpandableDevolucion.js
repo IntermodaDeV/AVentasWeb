@@ -20,7 +20,8 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
 
     const obtenerFacturasCliente = async () => {
         try {
-            const data = await axios.get(`${APIURL}/api/devolucion/obtencionFacturas/${codigoProducto}/${clienteSelected.Codigo}`);
+            const partes = codigoProducto.split('-');
+            const data = await axios.get(`${APIURL}/api/devolucion/obtencionFacturas/${partes[0]}/${partes[1]}/${clienteSelected.Codigo}`);
             setFacturas(data.data);
         } catch (err) {
 
@@ -33,8 +34,8 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
                 actualizarProducto([], codigoProducto, grupoTalla, value);
                 return;
             }
-
-            const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${value.Factura}/${codigoProducto}`);
+            const partes = codigoProducto.split('-');
+            const data = await axios.get(`${APIURL}/api/productodevolucion/factura/${value.Factura}/${partes[0]}/${partes[1]}`);
             actualizarProducto(data.data, codigoProducto, grupoTalla, value);
         } catch (err) {
 
@@ -55,7 +56,6 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
         }
         // eslint-disable-next-line
     }, [devolucionCompleta])
-
     return (
         <div className="w-100 my-2 rounded">
             <ExpansionPanel expanded={expandir} onChange={() => { setExpandir(!expandir) }}>
@@ -68,7 +68,7 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
                             <Typography>{producto.NombreProducto}</Typography>
                         </div>
                         <div className="col-xl-3 px-xl-3 pb-xl-0 pb-2 col-6 px-0">
-                            <Typography>{codigoProducto}</Typography>
+                            <Typography>{codigoProducto.split('-')[0]}</Typography>
                         </div>
                         <div className="col-xl-3 px-xl-3 col-6 px-0">
                             <Typography className={styles.BorderHeader}>
