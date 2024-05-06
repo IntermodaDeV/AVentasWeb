@@ -82,7 +82,7 @@ export const ProductosDevolucion = (props) => {
             setOpen(true);
             setTitle("Obteniendo producto");
             const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
-            agregarProducto(data.data, tallaTxt,color);
+            agregarProducto(data.data, tallaTxt, color);
             setOpen(false);
         } catch (err) {
             setOpen(false);
@@ -184,7 +184,7 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_MOTIVODEVOLUCIONDETALLE", payload: "" });
         setMotivosDevolucionDetalle(detalle.detalle);
 
-        if(detalle){
+        if (detalle) {
             const esDefectuoso = detalle.codigo.toUpperCase().includes('DEFECTUOSO');
             setMostrarAlertaCalidad(esDefectuoso);
         }
@@ -311,9 +311,9 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
     }
 
-    const agregarProducto = (producto, pTalla,pColor) => {
+    const agregarProducto = (producto, pTalla, pColor) => {
         let miTableValue = { ...tableValue };
-        let precioGeneral = 0;  
+        let precioGeneral = 0;
 
         if (producto.Precio.length > 0) {
             precioGeneral = producto.Precio[0].Precio;
@@ -538,7 +538,7 @@ export const ProductosDevolucion = (props) => {
         const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${pCodigo}/${pColor}`)
         productosAgregados.push({ codigoBarra, codigo: pCodigo, color: pColor, talla: pTalla, grupoTalla: data.data.GrupoTalla });
         localStorage.setItem("productosAgregados", JSON.stringify(productosAgregados));
-        agregarProducto(data.data, pTalla,pColor);
+        agregarProducto(data.data, pTalla, pColor);
     }
 
     const obtenerAtributosBarra = async (e) => {
@@ -567,6 +567,23 @@ export const ProductosDevolucion = (props) => {
 
     const construirEncabezado = (productoFactura) => {
         if (productoFactura) {
+            const partesCliente = clienteSelected.Codigo.split("-");
+
+            if (partesCliente[0] === "IMHN") {
+                return {
+                    Correlativo: "",
+                    CodigoCliente: clienteSelected.Codigo,
+                    DetalleDevolucion: [],
+                    Moneda: clienteSelected.Moneda,
+                    MotivoDevolucion: motivoDevolucion,
+                    MotivoDevolucionDetalle: motivoDevolucionDetalle,
+                    Almacen: almaceneSelected,
+                    Linea: productoFactura.Linea,
+                    Empresa: clienteSelected.EmpresaId,
+                    SubTotal: 0
+                };
+            }
+
             return {
                 Correlativo: "",
                 CodigoCliente: clienteSelected.Codigo,
@@ -678,15 +695,29 @@ export const ProductosDevolucion = (props) => {
                         }
                     }
                 } else {
-                    const existeEncabezado = devoluciones.some(x => x.FacturaOriginal === factura.Factura);
+                    const partesCliente = clienteSelected.Codigo.split("-");
                     let indice = 0;
 
-                    if (existeEncabezado) {
-                        indice = devoluciones.findIndex(x => x.FacturaOriginal === factura.Factura);
+                    if (partesCliente[0] === "IMHN") {
+                        const existeEncabezado = devoluciones.some(x => x.Linea === factura.Linea);
+
+                        if (existeEncabezado) {
+                            indice = devoluciones.findIndex(x => x.Linea === factura.Linea);
+                        } else {
+                            let nuevoEncabezado = construirEncabezado(factura);
+                            devoluciones.push(nuevoEncabezado);
+                            indice = devoluciones.length - 1;
+                        }
                     } else {
-                        let nuevoEncabezado = construirEncabezado(factura);
-                        devoluciones.push(nuevoEncabezado);
-                        indice = devoluciones.length - 1;
+                        const existeEncabezado = devoluciones.some(x => x.FacturaOriginal === factura.Factura);
+
+                        if (existeEncabezado) {
+                            indice = devoluciones.findIndex(x => x.FacturaOriginal === factura.Factura);
+                        } else {
+                            let nuevoEncabezado = construirEncabezado(factura);
+                            devoluciones.push(nuevoEncabezado);
+                            indice = devoluciones.length - 1;
+                        }
                     }
 
                     for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
