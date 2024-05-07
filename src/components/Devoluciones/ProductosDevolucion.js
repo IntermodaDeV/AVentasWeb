@@ -734,6 +734,9 @@ export const ProductosDevolucion = (props) => {
                                     Unidad: "Und",
                                     PrecioUnitario: precio,
                                     CodigoTalla: talla,
+                                    Factura: factura.Factura,
+                                    Pedido: factura.NumeroPedido,
+                                    Paquete: factura.Paquete
                                 }
 
                                 devoluciones[indice].DetalleDevolucion.push(productoDevolver);
