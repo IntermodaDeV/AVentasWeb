@@ -87,6 +87,7 @@ export const ExpandableDevolucion = ({ producto, codigoProducto, tallas, grupoTa
                                     options={dataFacturas()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
+                                    style={{ zIndex: 999 }}
                                     multiple={false}
                                     onChange={(e, { value }) => { handleChangeFactura(value) }}
                                 />

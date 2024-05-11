@@ -30,8 +30,6 @@ export const ProductosDevolucion = (props) => {
     const [codigoBarra, setCodigoBarra] = useState("");
     const [tallaTxt, setTalla] = useState("");
     const [factura, setFactura] = useState({});
-    const [facturaDestino, setFacturaDestino] = useState("");
-    const [facturasDestino, setFacturasDestino] = useState([]);
     const [facturas, setFacturas] = useState([]);
     const [motivosDevolucionMaestro, setMotivosDevolucionMaestro] = useState([]);
     const [motivosDevolucionDetalle, setMotivosDevolucionDetalle] = useState([]);
@@ -140,14 +138,6 @@ export const ProductosDevolucion = (props) => {
         }
     }
 
-    const obtenerFacturasAbiertas = async () => {
-        try {
-            const data = await axios.get(`${APIURL}/api/factura/abiertas/${clienteSelected.Codigo}`);
-            setFacturasDestino(data.data);
-        } catch (err) {
-        }
-    }
-
     const obtenerAlmacenes = async () => {
         try {
             const data = await axios.get(`${APIURL}/api/devolucion/almacenes/${clienteSelected.EmpresaId}`);
@@ -208,10 +198,6 @@ export const ProductosDevolucion = (props) => {
         setAlmaceneSelected(value)
     }
 
-    const handleChangeFacturaDestino = (value) => {
-        setFacturaDestino(value)
-    }
-
     const dataFacturas = () => {
         return facturas.map(x => ({ key: x.factura, value: x, text: `${x.factura} - ${x.pedido}` }));
     }
@@ -227,16 +213,12 @@ export const ProductosDevolucion = (props) => {
     const dataAlmacen = () => {
         return almacenes.map(x => ({ key: x.Almacen, value: x.Almacen, text: x.Almacen + " - " + x.Nombre }));
     }
-    const dataFacturasAbiertas = () => {
-        return facturasDestino.map(x => ({ key: x.Factura, value: x.Factura, text: x.Factura }));
-    }
 
     useEffect(() => {
         obtenerFacturasCliente();
         obtenerMotivosDevolucion();
         obtenerCorrelativoDevolucion();
         obtenerAlmacenes();
-        obtenerFacturasAbiertas();
         // eslint-disable-next-line
     }, []);
 
@@ -595,7 +577,6 @@ export const ProductosDevolucion = (props) => {
                     Moneda: clienteSelected.Moneda,
                     MotivoDevolucion: motivoDevolucion,
                     MotivoDevolucionDetalle: motivoDevolucionDetalle,
-                    FacturaDestino: facturaDestino,
                     Almacen: almaceneSelected,
                     Linea: productoFactura.Linea,
                     Empresa: clienteSelected.EmpresaId,
@@ -611,7 +592,6 @@ export const ProductosDevolucion = (props) => {
                 MotivoDevolucion: motivoDevolucion,
                 MotivoDevolucionDetalle: motivoDevolucionDetalle,
                 Almacen: almaceneSelected,
-                FacturaDestino: facturaDestino,
                 FacturaOriginal: productoFactura.Factura,
                 PedidoOriginal: productoFactura.NumeroPedido,
                 Linea: productoFactura.Linea,
@@ -628,7 +608,6 @@ export const ProductosDevolucion = (props) => {
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
             Almacen: almaceneSelected,
-            FacturaDestino: facturaDestino,
             FacturaOriginal: factura.factura,
             PedidoOriginal: factura.pedido,
             Linea: factura.linea,
@@ -681,7 +660,6 @@ export const ProductosDevolucion = (props) => {
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
             Almacen: almaceneSelected,
-            FacturaDestino: facturaDestino,
             FacturaOriginal: "",
             PedidoOriginal: "",
             Linea: "DEN",
@@ -908,64 +886,43 @@ export const ProductosDevolucion = (props) => {
                 <CardContent>
                     <div>
                         <h5>Motivo devolución</h5>
-                        <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <Dropdown
-                                    placeholder="Seleccione un motivo devolución"
-                                    search
-                                    selection
-                                    options={dataMotivos()}
-                                    noResultsMessage={"No hay resultados"}
-                                    closeOnChange={true}
-                                    style={{ width: '28%' }}
-                                    multiple={false}
-                                    onChange={(e, { value }) => { handleChangeMotivo(value) }}
-                                />
-                                <Dropdown
-                                    placeholder="Seleccione detalle devolución"
-                                    search
-                                    selection
-                                    options={dataMotivosDetalle()}
-                                    noResultsMessage={"No hay resultados"}
-                                    closeOnChange={true}
-                                    style={{ width: '28%' }}
-                                    multiple={false}
-                                    onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
-                                    value={motivoDevolucionDetalle}
-                                />
-                                <div style={{ width: '28%' }}>
-                                    <label style={{ fontSize: 15, fontWeight: 'bold', alignSelf: 'center' }}>
-                                        <input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa
-                                    </label>
-                                </div>
-                            </div>
-                            <br></br>
-                            <div style={{ display: 'flex' }}>
-                                <Dropdown
-                                    placeholder="Seleccione almacen"
-                                    search
-                                    selection
-                                    options={dataAlmacen()}
-                                    noResultsMessage={"No hay resultados"}
-                                    closeOnChange={true}
-                                    style={{ width: '28%' }}
-                                    multiple={false}
-                                    onChange={(e, { value }) => { handleChangeAlmacen(value) }}
-                                    value={almaceneSelected}
-                                />
-                                <Dropdown
-                                    placeholder="Seleccione factura"
-                                    search
-                                    selection
-                                    options={dataFacturasAbiertas()}
-                                    noResultsMessage={"No hay resultados"}
-                                    closeOnChange={true}
-                                    style={{ width: '28%', marginLeft: '8%' }}
-                                    multiple={false}
-                                    onChange={(e, { value }) => { handleChangeFacturaDestino(value) }}
-                                    value={facturaDestino}
-                                />
-                            </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Dropdown
+                                placeholder="Seleccione un motivo devolución"
+                                search
+                                selection
+                                options={dataMotivos()}
+                                noResultsMessage={"No hay resultados"}
+                                closeOnChange={true}
+                                style={{ zIndex: 999, width: '28%' }}
+                                multiple={false}
+                                onChange={(e, { value }) => { handleChangeMotivo(value) }}
+                            />
+                            <Dropdown
+                                placeholder="Seleccione detalle devolución"
+                                search
+                                selection
+                                options={dataMotivosDetalle()}
+                                noResultsMessage={"No hay resultados"}
+                                closeOnChange={true}
+                                style={{ zIndex: 999, width: '28%' }}
+                                multiple={false}
+                                onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
+                                value={motivoDevolucionDetalle}
+                            />
+                            <Dropdown
+                                placeholder="Seleccione almacen"
+                                search
+                                selection
+                                options={dataAlmacen()}
+                                noResultsMessage={"No hay resultados"}
+                                closeOnChange={true}
+                                style={{ zIndex: 999, width: '28%' }}
+                                multiple={false}
+                                onChange={(e, { value }) => { handleChangeAlmacen(value) }}
+                                value={almaceneSelected}
+                            />
+                            <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
                         </div>
                         {mostrarAlertaCalidad && <div style={{ textAlign: 'center', fontSize: '18px', marginTop: 15 }} className="alert alert-danger alert-dismissible fade show" role="alert">
                             <FiAlertTriangle style={{ fontSize: '22px', color: 'red' }} /> Por el motivo seleccionado se requiere que entregue el producto en oficina.
@@ -984,7 +941,7 @@ export const ProductosDevolucion = (props) => {
                                     options={dataFacturas()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
-                                    style={{ width: '84%' }}
+                                    style={{ zIndex: 99, width: '84%' }}
                                     multiple={false}
                                     onChange={(e, { value }) => { setFactura(value) }}
                                 />

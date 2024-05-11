@@ -72,6 +72,7 @@ import { MotivosTiempoFuera } from 'containers/Agenda/MotivoTiempoFuera/MotivoTi
 import { TiemposFuera } from 'containers/Agenda/TiemposFuera/TiemposFuera'
 import { BaseColorImpuesto } from 'containers/BaseColorImpuesto/BaseColorImpuesto'
 import { ClasficacionProductos } from 'containers/Devoluciones/ClasificacionProductos'
+import { InventarioEspecifico } from 'containers/InventarioEspecifico/InventarioEspecifico'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -481,6 +482,12 @@ const App = props => {
               path='/devolucion-clasificacion'
               layout={MainLayout}
               component={ClasficacionProductos}
+            />
+            <LayoutRoute
+              exact
+              path='/configuracion-obtencion-inventario'
+              layout={MainLayout}
+              component={InventarioEspecifico}
             />
             <Redirect to='/home' />
           </Switch>
