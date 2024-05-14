@@ -169,6 +169,13 @@ export const ListadoDevolucion = (props) => {
             }
         },
         {
+            label: "Factura Destino:",
+            name: "facturaDestino",
+            options: {
+                filter: false,
+            }
+        },
+        {
             label: "Acciones",
             name: "acciones",
             options: {
@@ -255,6 +262,7 @@ export const ListadoDevolucion = (props) => {
                 p.EstadoBodega === 2 ? <span style={{ color: '#14DE19' }}><strong>Transferido a bodega</strong></span> :
                 <span style={{color: 'black'}}><strong>-</strong></span> ,
                 p.Estado === "No autorizado" ? p.UsuarioModifica : "",
+                p.FacturaDestino,
                 <div>
                     <span className="ml-1">
                         <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerDetalleDevolucion(p) }} color={"primary"}>

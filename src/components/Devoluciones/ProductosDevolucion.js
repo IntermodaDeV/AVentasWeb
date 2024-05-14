@@ -41,6 +41,7 @@ export const ProductosDevolucion = (props) => {
     const [title, setTitle] = useState("");
     const [mostrarAlertaCalidad, setMostrarAlertaCalidad] = useState(false);
     let totalCant = 0;
+    let totalUnid = 0;
     let productosSinCantidad = false;
 
     const existeVariante = (pCodigo, pColor, pTalla) => {
@@ -228,7 +229,7 @@ export const ProductosDevolucion = (props) => {
         return almacenes.map(x => ({ key: x.Almacen, value: x.Almacen, text: x.Almacen + " - " + x.Nombre }));
     }
     const dataFacturasAbiertas = () => {
-        return facturasDestino.map(x => ({ key: x.Factura, value: x.Factura, text: x.Factura }));
+        return facturasDestino.map(x => ({ key: x.Factura, value: x.Factura, text: x.Factura  + " - " + x.Abreviacion + numberWithCommasNoDec(x.Saldo)}));
     }
 
     useEffect(() => {
@@ -584,6 +585,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const construirEncabezado = (productoFactura) => {
+        let facDestino = facturaDestino.join(', ');
         if (productoFactura) {
             const partesCliente = clienteSelected.Codigo.split("-");
 
@@ -595,7 +597,7 @@ export const ProductosDevolucion = (props) => {
                     Moneda: clienteSelected.Moneda,
                     MotivoDevolucion: motivoDevolucion,
                     MotivoDevolucionDetalle: motivoDevolucionDetalle,
-                    FacturaDestino: facturaDestino,
+                    FacturaDestino: facDestino,
                     Almacen: almaceneSelected,
                     Linea: productoFactura.Linea,
                     Empresa: clienteSelected.EmpresaId,
@@ -611,7 +613,7 @@ export const ProductosDevolucion = (props) => {
                 MotivoDevolucion: motivoDevolucion,
                 MotivoDevolucionDetalle: motivoDevolucionDetalle,
                 Almacen: almaceneSelected,
-                FacturaDestino: facturaDestino,
+                FacturaDestino: facDestino,
                 FacturaOriginal: productoFactura.Factura,
                 PedidoOriginal: productoFactura.NumeroPedido,
                 Linea: productoFactura.Linea,
@@ -628,7 +630,7 @@ export const ProductosDevolucion = (props) => {
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
             Almacen: almaceneSelected,
-            FacturaDestino: facturaDestino,
+            FacturaDestino: facDestino,
             FacturaOriginal: factura.factura,
             PedidoOriginal: factura.pedido,
             Linea: factura.linea,
@@ -672,7 +674,7 @@ export const ProductosDevolucion = (props) => {
 
     const construirDevolucionParcial = () => {
         let devoluciones = [];
-
+        let facDestino = facturaDestino.join(', ');
         let devolucionSinFactura = {
             Correlativo: "",
             CodigoCliente: clienteSelected.Codigo,
@@ -681,7 +683,7 @@ export const ProductosDevolucion = (props) => {
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
             Almacen: almaceneSelected,
-            FacturaDestino: facturaDestino,
+            FacturaDestino: facDestino,
             FacturaOriginal: "",
             PedidoOriginal: "",
             Linea: "DEN",
@@ -789,7 +791,6 @@ export const ProductosDevolucion = (props) => {
         let devoluciones = construirDevolucionParcial();
         let devolucionSinProducto = devoluciones.some(x => x.DetalleDevolucion.length === 0);
         let correlativo = localStorage.getItem("CorrelativoDevolucion");
-
         for (let i = 0; i < devoluciones.length; i++) {
             if (i === 0) {
                 devoluciones[i].Correlativo = correlativo;
@@ -816,6 +817,13 @@ export const ProductosDevolucion = (props) => {
         if (motivoDevolucionDetalle === "") {
             mostrarModal('Motivo Devolución', 'Seleccione motivo de devolución.', "error");
             return;
+        }
+        if (facturaDestino != "") {
+            let total = facturasDestino.filter(item => facturaDestino.includes(item.Factura)).map((x) => x.Saldo).reduce((a, b) => a + b, 0);
+            if (total < totalCant) {
+                mostrarModal('Factura destino', 'La o las facturas seleccionadas no cubren el total de la devolución por favor seleccione otra factura.', "error");
+                return;
+            }
         }
         if (almaceneSelected === "") {
             mostrarModal('Almacen', 'Seleccione un almacen', "error");
@@ -954,14 +962,14 @@ export const ProductosDevolucion = (props) => {
                                     value={almaceneSelected}
                                 />
                                 <Dropdown
-                                    placeholder="Seleccione factura"
+                                    placeholder="Seleccione factura destino"
                                     search
                                     selection
                                     options={dataFacturasAbiertas()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
                                     style={{ width: '28%', marginLeft: '8%' }}
-                                    multiple={false}
+                                    multiple={true}
                                     onChange={(e, { value }) => { handleChangeFacturaDestino(value) }}
                                     value={facturaDestino}
                                 />
@@ -1015,15 +1023,19 @@ export const ProductosDevolucion = (props) => {
                                         let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
                                         let productoConCantidad = false;
                                         let { totalCantidad } = obtenerTotales(producto);
-                                        totalCant += totalCantidad;
+                                        totalUnid += totalCantidad;
                                         Object.keys(producto.Colores).forEach((codigoColor) => {
                                             let color = producto.Colores[codigoColor];
+                                            var totalXColor = 0;
+
                                             Object.keys(color.Tallas).forEach((codigoTalla) => {
                                                 let valorTalla = color.Tallas[codigoTalla];
-
                                                 let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+                                                let totalXTalla = cantidadXTalla * valorTalla.Precio;
+                                                totalXColor = parseInt(totalXColor, 10) + totalXTalla;
                                                 productoConCantidad = productoConCantidad || (cantidadXTalla > 0);
                                             });
+                                            totalCant += totalXColor;
                                         });
 
                                         productosSinCantidad = productosSinCantidad || (!productoConCantidad);
@@ -1048,7 +1060,10 @@ export const ProductosDevolucion = (props) => {
                             </form>
                             <div className={`row text-center ${styles['barra']}`} >
                                 <div className={`col ${styles['barraInner']}`}>
-                                    Total de Unidades: {numberWithCommasNoDec(totalCant)}
+                                    Total de Unidades: {numberWithCommasNoDec(totalUnid)}
+                                </div>
+                                <div className={`col ${styles['barraInner']}`}>
+                                    Total Cantidad: {numberWithCommasNoDec(totalCant)}
                                 </div>
                                 <div >
                                     <button onClick={finalizarDevolucion} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Finalizar devolución</button>

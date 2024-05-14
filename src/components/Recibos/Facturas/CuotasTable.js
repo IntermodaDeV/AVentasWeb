@@ -10,96 +10,96 @@ import { Button } from '@material-ui/core';
 import CustomFooter from "components/Recibos/Facturas/CustomFooter";
 import styles from "components/Recibos/Facturas/CuotasTable.module.css";
 import Swal from 'sweetalert2/dist/sweetalert2.js';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import 'sweetalert2/src/sweetalert2.scss';
 
 moment.locale('es')
-  const columns = [
+const columns = [
 
-    {
-      name: 'Tipo',
-      label: 'Tipo',
-  
-    },
-    {
-      name: 'Factura',
-      label: 'Factura',
-  
-    },
-    {
-      name: 'NumeroFEL',
-      label: 'Numero FEL',
-      options:{display: localStorage.getItem('empresa')==='IMGT'},
-  
-    },
-    {
-      name: 'Fecha',
-      label: 'Fecha',
-  
-    },
-    {
-      name: 'FechaVencimiento',
-      label: 'Vencimiento',
-  
-    },
-  
-    {
-      name: 'Dias',
-      label: 'Dias',
-  
-    },
-    {
-      name: 'FechaDescuento',
-      label: 'Fecha Descuento',
-  
-    },
-    {
-      name: 'DiasDescuento',
-      label: 'Dias Descuento',
-  
-    },
-    {
-      name: 'Valor',
-      label: 'Valor',
-      options: {
-        filter: true,
-        sort: false
-      }
-    },
-    {
-      name: 'ValorDescuento',
-      label: 'Valor Descuento',
-      options: {
-        filter: true,
-        sort: false
-      }
-    },
-    {
-      name: 'Saldo',
-      label: 'Saldo',
-  
-    },
-    {
-      name: 'APagar',
-      label: 'A Pagar',
-      options: {
-        filter: true,
-        sort: false
-      }
+  {
+    name: 'Tipo',
+    label: 'Tipo',
+
+  },
+  {
+    name: 'Factura',
+    label: 'Factura',
+
+  },
+  {
+    name: 'NumeroFEL',
+    label: 'Numero FEL',
+    options: { display: localStorage.getItem('empresa') === 'IMGT' },
+
+  },
+  {
+    name: 'Fecha',
+    label: 'Fecha',
+
+  },
+  {
+    name: 'FechaVencimiento',
+    label: 'Vencimiento',
+
+  },
+
+  {
+    name: 'Dias',
+    label: 'Dias',
+
+  },
+  {
+    name: 'FechaDescuento',
+    label: 'Fecha Descuento',
+
+  },
+  {
+    name: 'DiasDescuento',
+    label: 'Dias Descuento',
+
+  },
+  {
+    name: 'Valor',
+    label: 'Valor',
+    options: {
+      filter: true,
+      sort: false
     }
-  ];
+  },
+  {
+    name: 'ValorDescuento',
+    label: 'Valor Descuento',
+    options: {
+      filter: true,
+      sort: false
+    }
+  },
+  {
+    name: 'Saldo',
+    label: 'Saldo',
 
-  const CuotasTable = props => {
+  },
+  {
+    name: 'APagar',
+    label: 'A Pagar',
+    options: {
+      filter: true,
+      sort: false
+    }
+  }
+];
+
+const CuotasTable = props => {
   const [selectedRowsIndex, setSelectedRowsIndex] = useState([])
-  const clienteSeleccionado = useSelector(e=>e.Recibo.clienteSelected);
+  const clienteSeleccionado = useSelector(e => e.Recibo.clienteSelected);
   const data = [];
   let foundExpired = false;
   let Expired = [];
   const options = {
     filterType: 'multiselect',
-    isRowSelectable:(row)=>{
+    isRowSelectable: (row) => {
       const isVencido = localStorage.getItem('isVencido')
-      if(isVencido==='true') return data[row].IsVencida;
+      if (isVencido === 'true') return data[row].IsVencida;
       return true;
     },
     responsive: "scrollMaxHeight",
@@ -182,97 +182,102 @@ moment.locale('es')
     }
   }
 
-    if (clienteSeleccionado.IgnorarSecuenciaFactura) {
-      delete options.isRowSelectable;
-    }
+  if (clienteSeleccionado.IgnorarSecuenciaFactura) {
+    delete options.isRowSelectable;
+  }
 
- let Apagar  = 0;
- let Saldo = 0
+  let Apagar = 0;
+  let Saldo = 0
   props.Cuotas.forEach(fact => {
     fact.Acuerdos.forEach(acu => {
-      acu.Facturas.filter(f=> f.Saldo > 0).forEach(fact => {
-        fact.Cuotas.filter(c=> c.Saldo > 0).forEach(cuot => {
-          let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
-          let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
+      acu.Facturas.filter(f => f.Saldo > 0).forEach(fact => {
+        fact.Cuotas.filter(c => c.Saldo > 0).forEach(cuot => {
+          if (!fact.facturaEnTransito) {
+            let dias = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
+            let diasDescuento = moment(cuot.FechaMaxDescuento).diff(moment(new Date()), 'days') + 1;
 
-          let DiasVencido = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
-          let ValorDescuento = cuot.Descuento;
-          let isVencida = DiasVencido<0;
-          const excepcionDescuento = cuot.ExcepcionDescuento;
+            let DiasVencido = moment(cuot.FechaVencimiento).diff(moment(new Date()), 'days')
+            let ValorDescuento = cuot.Descuento;
+            let isVencida = DiasVencido < 0;
+            const excepcionDescuento = cuot.ExcepcionDescuento;
 
-          Apagar = diasDescuento < 0 ? cuot.Saldo : cuot.Saldo - ValorDescuento;
-          Saldo = Saldo + Apagar;
-          if (DiasVencido < 0) {
-            foundExpired = true;
+            Apagar = diasDescuento < 0 ? cuot.Saldo : cuot.Saldo - ValorDescuento;
+            Saldo = Saldo + Apagar;
+            if (DiasVencido < 0) {
+              foundExpired = true;
 
-            Expired.push({ IdSubFactura: cuot.IdSubFactura, Dias: dias });
-            data.push({
-              IdSubFactura: cuot.IdSubFactura,
-              Dias: <span className="text-danger font-weight-bold">{isNaN(DiasVencido) ? "": DiasVencido}</span>,
-              DiasDescuento: <span className="text-danger font-weight-bold"> {isNaN(diasDescuento) ? "": diasDescuento}</span>,
-              ValorDescuento: <span className="text-danger font-weight-bold">{ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
-              Tipo: <span className="text-danger font-weight-bold"> {cuot.TipoDocumento}</span>,
-              Factura: <span className="text-danger font-weight-bold"> {fact.Factura}</span>,
-              NumeroFEL: <span className="text-danger font-weight-bold"> {fact.NumeroFEL}</span>,
-              Fecha: <span className="text-danger font-weight-bold"> {moment(fact.FechaFactura).format("DD/MM/YYYY")}</span>,
-              FechaVencimiento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,
-              FechaDescuento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,
-              APagar: <span className="text-danger font-weight-bold">{(Apagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
-              Valor: <span className="text-danger font-weight-bold">{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
-              Saldo: <span className="text-danger font-weight-bold">{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
-              Cuota: cuot,
-              IsVencida:isVencida,
-              Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              Facturaa:fact.Factura,
-              DiasVencido,
-              excepcionDescuento
-            })
-          }
-          else if (DiasVencido >= 0 && DiasVencido <= 15) {
-            data.push({
-              IdSubFactura: cuot.IdSubFactura,
-              Dias: <span className={"font-weight-bold " + styles.WarnRecibo}>{isNaN(DiasVencido) ? "": DiasVencido}</span>,
-              DiasDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {isNaN(diasDescuento) ? "": diasDescuento}</span>,
-              ValorDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
-              Tipo: <span className={"font-weight-bold " + styles.WarnRecibo}> {cuot.TipoDocumento}</span>,
-              Factura: <span className={"font-weight-bold " + styles.WarnRecibo}> {fact.Factura}</span>,
-              NumeroFEL: <span className={"font-weight-bold " + styles.WarnRecibo}> {fact.NumeroFEL}</span>,
-              Fecha: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(fact.FechaFactura).format("DD/MM/YYYY")}</span>,
-              FechaVencimiento: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,
-              FechaDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,
-              APagar: <span className={"font-weight-bold " + styles.WarnRecibo}>{(Apagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
-              Valor: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
-              Saldo: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
-              Cuota: cuot,
-              IsVencida:isVencida,
-              Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              Facturaa:fact.Factura,
-              DiasVencido,
-              excepcionDescuento
-            })
-          }
-          else {
-            data.push({
-              IdSubFactura: cuot.IdSubFactura,
-              Dias: isNaN(DiasVencido) ? "": DiasVencido,
-              DiasDescuento: isNaN(diasDescuento) ? "": diasDescuento,
-              ValorDescuento: ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-              Tipo: cuot.TipoDocumento,
-              Factura: fact.Factura,
-              NumeroFEL: fact.NumeroFEL,
-              Fecha: moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
-              FechaDescuento:moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "", 
-              APagar: (Apagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-              Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-              Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
-              Cuota: cuot,
-              IsVencida:isVencida,
-              Fechaa:moment(fact.FechaFactura).format("DD/MM/YYYY"),
-              Facturaa:fact.Factura,
-              DiasVencido,
-              excepcionDescuento
-            })
+              Expired.push({ IdSubFactura: cuot.IdSubFactura, Dias: dias });
+              data.push({
+                IdSubFactura: cuot.IdSubFactura,
+                Dias: <span className="text-danger font-weight-bold">{isNaN(DiasVencido) ? "" : DiasVencido}</span>,
+                DiasDescuento: <span className="text-danger font-weight-bold"> {isNaN(diasDescuento) ? "" : diasDescuento}</span>,
+                ValorDescuento: <span className="text-danger font-weight-bold">{ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+                Tipo: <span className="text-danger font-weight-bold"> {cuot.TipoDocumento}</span>,
+                Factura: <span className="text-danger font-weight-bold"> {fact.Factura}</span>,
+                NumeroFEL: <span className="text-danger font-weight-bold"> {fact.NumeroFEL}</span>,
+                Fecha: <span className="text-danger font-weight-bold"> {moment(fact.FechaFactura).format("DD/MM/YYYY")}</span>,
+                FechaVencimiento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,
+                FechaDescuento: <span className="text-danger font-weight-bold"> {moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,
+                APagar: <span className="text-danger font-weight-bold">{(Apagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+                Valor: <span className="text-danger font-weight-bold">{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+                Saldo: <span className="text-danger font-weight-bold">{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+                Cuota: cuot,
+                IsVencida: isVencida,
+                Fechaa: moment(fact.FechaFactura).format("DD/MM/YYYY"),
+                Facturaa: fact.Factura,
+                facturaEnTransito: fact.facturaEnTransito,
+                DiasVencido,
+                excepcionDescuento
+              })
+            }
+            else if (DiasVencido >= 0 && DiasVencido <= 15) {
+              data.push({
+                IdSubFactura: cuot.IdSubFactura,
+                Dias: <span className={"font-weight-bold " + styles.WarnRecibo}>{isNaN(DiasVencido) ? "" : DiasVencido}</span>,
+                DiasDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {isNaN(diasDescuento) ? "" : diasDescuento}</span>,
+                ValorDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+                Tipo: <span className={"font-weight-bold " + styles.WarnRecibo}> {cuot.TipoDocumento}</span>,
+                Factura: <span className={"font-weight-bold " + styles.WarnRecibo}> {fact.Factura}</span>,
+                NumeroFEL: <span className={"font-weight-bold " + styles.WarnRecibo}> {fact.NumeroFEL}</span>,
+                Fecha: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(fact.FechaFactura).format("DD/MM/YYYY")}</span>,
+                FechaVencimiento: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(cuot.FechaVencimiento).format("DD/MM/YYYY")}</span>,
+                FechaDescuento: <span className={"font-weight-bold " + styles.WarnRecibo}> {moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : ""}</span>,
+                APagar: <span className={"font-weight-bold " + styles.WarnRecibo}>{(Apagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+                Valor: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+                Saldo: <span className={"font-weight-bold " + styles.WarnRecibo}>{cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
+                Cuota: cuot,
+                IsVencida: isVencida,
+                Fechaa: moment(fact.FechaFactura).format("DD/MM/YYYY"),
+                Facturaa: fact.Factura,
+                facturaEnTransito: fact.facturaEnTransito,
+                DiasVencido,
+                excepcionDescuento
+              })
+            }
+            else {
+              data.push({
+                IdSubFactura: cuot.IdSubFactura,
+                Dias: isNaN(DiasVencido) ? "" : DiasVencido,
+                DiasDescuento: isNaN(diasDescuento) ? "" : diasDescuento,
+                ValorDescuento: ValorDescuento.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                Tipo: cuot.TipoDocumento,
+                Factura: fact.Factura,
+                NumeroFEL: fact.NumeroFEL,
+                Fecha: moment(fact.FechaFactura).format("DD/MM/YYYY"),
+                FechaVencimiento: moment(cuot.FechaVencimiento).format("DD/MM/YYYY"),
+                FechaDescuento: moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") !== "Invalid date" ? moment(cuot.FechaMaxDescuento).format("DD/MM/YYYY") : "",
+                APagar: (Apagar).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                Valor: cuot.ValorCuota.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                Saldo: cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                Cuota: cuot,
+                IsVencida: isVencida,
+                Fechaa: moment(fact.FechaFactura).format("DD/MM/YYYY"),
+                Facturaa: fact.Factura,
+                facturaEnTransito: fact.facturaEnTransito,
+                DiasVencido,
+                excepcionDescuento
+              })
+            }
           }
         });
       });
@@ -280,45 +285,45 @@ moment.locale('es')
   })
   localStorage.setItem("totalCredito", (Saldo).toFixed(2));
   console.log(data);
-    data.sort((a, b) => {
-      if (moment(a.Fechaa, "DD/MM/YYYY").isAfter(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
-        return 1;
-      }
-      if (moment(a.Fechaa, "DD/MM/YYYY").isBefore(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
-        return -1;
-      }
-      if (moment(a.Fechaa, "DD/MM/YYYY").isSame(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
-        return 0;
-      }
-
+  data.sort((a, b) => {
+    if (moment(a.Fechaa, "DD/MM/YYYY").isAfter(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
+      return 1;
+    }
+    if (moment(a.Fechaa, "DD/MM/YYYY").isBefore(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
+      return -1;
+    }
+    if (moment(a.Fechaa, "DD/MM/YYYY").isSame(moment(b.Fechaa, "DD/MM/YYYY"), 'day')) {
       return 0;
-    });
+    }
 
-    data.sort((a, b) => {
-      if (a.Facturaa < b.Facturaa) {
+    return 0;
+  });
 
-        return -1;
-      }
-      if (a.Facturaa > b.Facturaa) {
+  data.sort((a, b) => {
+    if (a.Facturaa < b.Facturaa) {
 
-        return 1;
-      }
+      return -1;
+    }
+    if (a.Facturaa > b.Facturaa) {
 
-      return 0;
-    });
+      return 1;
+    }
 
-    data.sort((a, b) => {
-      if (a.DiasVencido < b.DiasVencido) {
+    return 0;
+  });
 
-        return -1;
-      }
-      if (a.DiasVencido > b.DiasVencido) {
+  data.sort((a, b) => {
+    if (a.DiasVencido < b.DiasVencido) {
 
-        return 1;
-      }
+      return -1;
+    }
+    if (a.DiasVencido > b.DiasVencido) {
 
-      return 0;
-    });
+      return 1;
+    }
+
+    return 0;
+  });
 
   const setCuotasAPagar = () => {
     let cuotasAPagar = [];
