@@ -585,7 +585,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const construirEncabezado = (productoFactura) => {
-        let facDestino = facturaDestino.join(', ');
+        let facDestino = facturaDestino === "" ? "" : facturaDestino.join(', ');
         if (productoFactura) {
             const partesCliente = clienteSelected.Codigo.split("-");
 
@@ -674,7 +674,7 @@ export const ProductosDevolucion = (props) => {
 
     const construirDevolucionParcial = () => {
         let devoluciones = [];
-        let facDestino = facturaDestino.join(', ');
+        let facDestino = facturaDestino === "" ? "" : facturaDestino.join(', ');
         let devolucionSinFactura = {
             Correlativo: "",
             CodigoCliente: clienteSelected.Codigo,
