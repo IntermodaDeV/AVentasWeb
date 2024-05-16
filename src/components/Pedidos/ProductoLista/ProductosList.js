@@ -119,13 +119,13 @@ const Productos = (props) => {
 
 
     props.coleccion.Edades.map((edad) => {
-        if (props.filtroEdad === null || props.filtroEdad === edad.IdEdad) {
+        if (props.filtroEdad === "Sueltas") {
             edad.ProductosXEdad.map((producto) => {
                 if (isFuture || !props.NoStock) {
                     let encontrado = searched(producto.NombreProducto, producto.ProductoId, props.buscador);
 
                     if (encontrado) {
-                        if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos)) {
+                        if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos) && producto.PiezaSuelta) {
                             cantidad++;
                             let productoConEdad = { ...producto, IdEdad: edad.IdEdad, Edad: edad.Edad };
                             productosList.push(productoConEdad);
@@ -140,7 +140,7 @@ const Productos = (props) => {
                         let encontrado = searched(producto.NombreProducto, producto.ProductoId, props.buscador);
 
                         if (encontrado) {
-                            if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos)) {
+                            if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos) && producto.PiezaSuelta) {
                                 cantidad++;
                                 let productoConEdad = { ...producto, IdEdad: edad.IdEdad, Edad: edad.Edad };
                                 productosList.push(productoConEdad);
@@ -153,8 +153,44 @@ const Productos = (props) => {
 
                 return false;
             })
+        } else {
+            if (props.filtroEdad === null || props.filtroEdad === edad.IdEdad) {
+                edad.ProductosXEdad.map((producto) => {
+                    if (isFuture || !props.NoStock) {
+                        let encontrado = searched(producto.NombreProducto, producto.ProductoId, props.buscador);
+
+                        if (encontrado) {
+                            if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos)) {
+                                cantidad++;
+                                let productoConEdad = { ...producto, IdEdad: edad.IdEdad, Edad: edad.Edad };
+                                productosList.push(productoConEdad);
+                                return true;
+                            }
+                        }
+                    }
+                    else {
+                        let Sold = SoldOut(producto);
+
+                        if (!Sold) {
+                            let encontrado = searched(producto.NombreProducto, producto.ProductoId, props.buscador);
+
+                            if (encontrado) {
+                                if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos)) {
+                                    cantidad++;
+                                    let productoConEdad = { ...producto, IdEdad: edad.IdEdad, Edad: edad.Edad };
+                                    productosList.push(productoConEdad);
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+
+
+                    return false;
+                })
+            }
+            return null;
         }
-        return null;
     });
 
     if (props.coleccion.ColeccionTipo !== "F" || props.coleccion.ColeccionTipo !== 'f') {

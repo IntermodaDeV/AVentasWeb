@@ -174,7 +174,10 @@ const Producto = (props) => {
         }
         {
           props.producto.Nuevo && <div className={styles.nuevo} >Nuevo</div>
-       }
+        }
+        {
+          props.producto.PiezaSuelta && <div className={styles.piezaSuelta} >Sueltas</div>
+        }
         <div className={selectableClassName}>
           <Img
             className="card-img-right"

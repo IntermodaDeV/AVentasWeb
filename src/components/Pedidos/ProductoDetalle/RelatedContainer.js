@@ -82,6 +82,41 @@ const Productos = (props) => {
     }
 
     props.coleccion.Edades.map((edad) => {
+        if(props.filtroEdad === "Sueltas"){
+            edad.ProductosXEdad.map((producto) => {
+
+                if (isFuture || !props.NoStock) {
+                    let encontrado = searched(producto, TextboxValue);
+
+                    if (encontrado) {
+                        if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos) && producto.PiezaSuelta) {
+                            let productoConEdad = { ...producto, IdEdad: edad.IdEdad, Edad: edad.Edad };
+                            productosList.push(productoConEdad);
+                            return true;
+                        }
+                    }
+                }
+                else {
+
+                    let Sold = SoldOut(producto);
+
+                    if (!Sold) {
+
+                        let encontrado = searched(producto, TextboxValue);
+
+                        if (encontrado) {
+                            if (props.Linea.IdLinea === producto.Linea.IdLinea && filtro(producto.AtributosXProducto, props.filtroAtributos) && producto.PiezaSuelta) {
+                                let productoConEdad = { ...producto, IdEdad: edad.IdEdad, Edad: edad.Edad };
+                                productosList.push(productoConEdad);
+                                return true;
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            })
+        }else{
         if (props.filtroEdad === null || props.filtroEdad === edad.IdEdad) {
             edad.ProductosXEdad.map((producto) => {
 
@@ -118,6 +153,7 @@ const Productos = (props) => {
             })
         }
         return null;
+    }
     });
 
 
