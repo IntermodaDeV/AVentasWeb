@@ -218,7 +218,7 @@ export const ProductosDevolucion = (props) => {
     }
 
     const dataMotivos = () => {
-        return motivosDevolucionMaestro.map(x => ({ key: x.codigo, value: x.id, text: `${x.codigo} - ${x.descripcion}` }));
+        return motivosDevolucionMaestro.filter(x=>!(x.codigo.includes('ERROR-FAC') || x.codigo.includes('ERROR FACT'))).map(x => ({ key: x.codigo, value: x.id, text: `${x.codigo} - ${x.descripcion}` }));
     }
 
     const dataMotivosDetalle = () => {
