@@ -537,10 +537,19 @@ const Recibos = (props) => {
       for (let Acuerdos of AcuerdosXTipoPedido.Acuerdos) {
         let acuerdosFacturas = Acuerdos.Facturas.filter(f => f.Descuento === 0);
 
-        for (let Facturas of Acuerdos.Facturas) { 
+        for (let Facturas of Acuerdos.Facturas) {
           Facturas.FechaVencimiento = moment(Facturas.FechaVencimiento).add(Facturas.DiasGracia, 'days');
+
+          if (Facturas.SinDescuento) {
+            Facturas.Descuento = 0;
+          }
+
           for (let Cuotas of Facturas.Cuotas) {
             Cuotas.FechaVencimiento = moment(Cuotas.FechaVencimiento).add(Cuotas.DiasGracia, 'days');
+
+            if (Cuotas.SinDescuento) {
+              Cuotas.Descuento = "0.00";
+            }
           }
         }
 
@@ -565,6 +574,11 @@ const Recibos = (props) => {
           };
 
           Facturas.Descuento = noAplicaDescuento ? 0 : Facturas.TotalFactura * (porcentajeDescuento / 100);
+
+          if (Facturas.SinDescuento) {
+            Facturas.Descuento = 0;
+          }
+
           for (let Cuotas of Facturas.Cuotas) {
 
             let valordescuento = 0;
@@ -601,10 +615,15 @@ const Recibos = (props) => {
                 const porcentajeDeduccion = 1.12;
                 totalfactura = totalfactura / porcentajeDeduccion;
               }
-              
+
               valordescuento = noAplicaDescuento ? 0 : totalfactura * (porcentajeDescuento / 100);
               Cuotas.Descuento = valordescuento.toFixed(2);
               Facturas.Descuento = valordescuento;
+
+              if (Cuotas.SinDescuento) {
+                Cuotas.Descuento = "0.00";
+                Facturas.Descuento = 0;
+              }
             }
           };
 
