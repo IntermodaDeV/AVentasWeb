@@ -21,7 +21,7 @@ export const SincronizacionEspecifica = (props) => {
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
     const [isLoading, setLoading] = useState(false);
     const [title, setTitle] = useState("");
-    const [acuerdo,setAcuerdo] = useState("");
+    const [acuerdo, setAcuerdo] = useState("");
 
     useEffect(() => {
         if (!IsAllow("/sincronizacionlista")) {
@@ -31,8 +31,8 @@ export const SincronizacionEspecifica = (props) => {
         setAsesores(asesoresMap);
     }, [])
 
-    const objectSincronizar = ["asesores", "rutasAsesores", "clientes","cuotas"];
-    const objectmsg = ["Asesores", "Rutas Asesores", "Clientes","Cuotas Acuerdo"];
+    const objectSincronizar = ["asesores", "rutasAsesores", "clientes", "cuotas", "acuerdosventa"];
+    const objectmsg = ["Asesores", "Rutas Asesores", "Clientes", "Cuotas Acuerdo"];
 
     const Sincronizar = (id) => {
         try {
@@ -57,6 +57,16 @@ export const SincronizacionEspecifica = (props) => {
                 return;
             }
 
+            if (id == objectSincronizar[4] && AsesorSelected == null) {
+                Swal.fire({
+                    title: 'Error',
+                    text: "Para sincronizar los acuerdos debe seleccionar un asesor!",
+                    type: 'error',
+                    confirmButtonText: 'Ok'
+                })
+                return;
+            }
+
             let url = `${APIURL}/api/sincronizar/${id}/`;
             let msgType = ""
 
@@ -74,6 +84,10 @@ export const SincronizacionEspecifica = (props) => {
                 case objectSincronizar[3]:
                     url = url + `${acuerdo}`;
                     msgType = objectmsg[3];
+                    break;
+                case objectSincronizar[4]:
+                    url = url + `${AsesorSelected}`;
+                    msgType = objectmsg[4];
                     break;
                 default:
                     url = "";
@@ -214,10 +228,36 @@ export const SincronizacionEspecifica = (props) => {
                                 </td>
                             </tr>
                             <tr key="3" style={{ textAlign: "center" }}>
+                                <td>Acuerdos</td>
+                                <td >
+                                    <div>
+                                        <Dropdown
+                                            placeholder="Asesor"
+                                            selection
+                                            onChange={(e, { value }) => handleOnChangeAsesor(value)}
+                                            options={asesores}
+                                            noResultsMessage={"No hay resultados"}
+                                            closeOnChange={true}
+                                            value={AsesorSelected}
+                                        />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <Button
+                                            onClick={() => { Sincronizar(objectSincronizar[4]) }}
+                                            variant="contained"
+                                            color="primary">
+                                            Sincronizar
+                                        </Button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr key="3" style={{ textAlign: "center" }}>
                                 <td>Cuotas Acuerdo</td>
                                 <td >
                                     <div>
-                                        <input type='text' placeholder='Acuerdo' onChange={(e)=>setAcuerdo(e.target.value)} className='form-control'/>
+                                        <input type='text' placeholder='Acuerdo' onChange={(e) => setAcuerdo(e.target.value)} className='form-control' />
                                     </div>
                                 </td>
                                 <td>

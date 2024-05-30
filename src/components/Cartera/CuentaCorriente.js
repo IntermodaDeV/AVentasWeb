@@ -25,7 +25,7 @@ export const CuentaCorriente = props => {
                         }
                         totalSaldo += cuot.Saldo;
                         totalAPagar += aPagar;
-                        let colorFuente = diasVencimiento < 0 ? "text-danger font-weight-bold" : diasVencimiento < 15 ? "font-weight-bold " + styles.WarnRecibo : "";
+                        let colorFuente = fact.facturaEnTransito ? "font-weight-bold " + styles.InfoText : diasVencimiento < 0 ? "text-danger font-weight-bold" : diasVencimiento < 15 ? "font-weight-bold " + styles.WarnRecibo : "";
                         if (localStorage.getItem('empresa') === 'IMGT') {
                             agrupacionCuentCorriente.push({
                                 Tipo: <span className={colorFuente}>{cuot.TipoDocumento}</span>, // Tipo
@@ -91,6 +91,7 @@ export const CuentaCorriente = props => {
                             Descuento: fact.Descuento,// Descuento
                             APagar: aPagar,// APagar
                             idmoneda: fact.IdMoneda,// idmoneda
+                            facturaEnTransito: fact.facturaEnTransito
                         });
                     }
                     else {
@@ -109,6 +110,7 @@ export const CuentaCorriente = props => {
                             Descuento: fact.Descuento,// Descuento
                             APagar: aPagar,// APagar
                             idmoneda: fact.IdMoneda,// idmoneda
+                            facturaEnTransito: fact.facturaEnTransito
                         });
                     }
                 });

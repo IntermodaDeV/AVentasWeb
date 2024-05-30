@@ -111,7 +111,7 @@ export const MotivosDevolucion = ({ agregarProducto, agregarDevolucionCompleta }
                                 options={dataFacturas()}
                                 noResultsMessage={"No hay resultados"}
                                 closeOnChange={true}
-                                style={{ zIndex: 999, width: '100%' }}
+                                style={{ width: '100%' }}
                                 multiple={false}
                                 onChange={(e, { value }) => { setFactura(value) }}
                             />

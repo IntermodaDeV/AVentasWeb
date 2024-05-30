@@ -31,6 +31,7 @@ const TablaVistaProducto = (props) => {
     const [isInOut, setIsInOut] = useState(false);
     const [isDeshabilitado, setisDeshabilitado] = useState(false);
     const [isNuevo, setisNuevo] = useState(false);
+    const [piezasSueltas, setPiezaSuelta] = useState(false);
     const [prioridadProducto, setPrioridadProducto] = useState(0);
     const permisos = useSelector(e => e.Permisos[0]);
     const Coleccion = useSelector(e => e.coleccion);
@@ -41,6 +42,7 @@ const TablaVistaProducto = (props) => {
         setisDeshabilitado(props.producto.Deshabilitado);
         setPrioridadProducto(props.producto.Prioridad);
         setisNuevo(props.producto.Nuevo);
+        setPiezaSuelta(props.producto.PiezaSuelta);
         calcularStockPorColor();
         ordenarColores();
         // eslint-disable-next-line
@@ -129,6 +131,23 @@ const TablaVistaProducto = (props) => {
                     }
                 })
                 setisNuevo(!isNuevo);
+            }
+        } catch (err) {
+            console.log("Ha ocurrido un error: " + err)
+        }
+    }
+
+    const piezaSuelta = async () => {
+        try {
+            let request = await axios.post(`${APIURL}/api/Product/actualizarPiezaSueltaProducto/${props.producto.ProductoId}/${Coleccion.CodigoColeccion}`);
+            if (request.status === 200) {
+                Coleccion.Edades.forEach(edad => {
+                    let producto = edad.ProductosXEdad.find(p => p.CodigoProducto === props.producto.CodigoProducto);
+                    if (producto) {
+                        producto.PiezaSuelta = !props.producto.PiezaSuelta;
+                    }
+                })
+                setPiezaSuelta(!piezasSueltas);
             }
         } catch (err) {
             console.log("Ha ocurrido un error: " + err)
@@ -391,6 +410,11 @@ const TablaVistaProducto = (props) => {
                             label="Nuevo"
                             style={{ marginLeft: '5px' }}
                             control={<Checkbox checked={isNuevo} onChange={nuevo} />}
+                        />
+                        <FormControlLabel
+                            label="Pieza Suelta"
+                            style={{ marginLeft: '5px' }}
+                            control={<Checkbox checked={piezasSueltas} onChange={piezaSuelta} />}
                         />
 
                         <Dropdown

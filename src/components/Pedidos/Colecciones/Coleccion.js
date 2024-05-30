@@ -62,8 +62,8 @@ const Coleccion = (props) => {
             })
           })
         })*/
-
-        dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: data });
+        let nuevaData = [...data, { Edad: "Piezas sueltas", IdEdad: "Sueltas", Orden: null, ProductosXEdad: [] }];
+        dispatch({ type: 'SET_PRODUCTOSCOLECCION', payload: nuevaData });
         localStorage.setItem("ColeccionSeleccionada", props.coleccion.CodigoColeccion)
         localStorage.setItem("HoraIngreso", moment(new Date()).format('YYYY-MM-DDTHH:mm'))
       }).catch(err=>{

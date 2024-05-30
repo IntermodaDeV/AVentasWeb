@@ -30,6 +30,7 @@ import { DiasGracia } from 'components/Cartera/DiasGracia';
 import { ChequesContabilizados } from 'components/Cartera/ChequesContabilizados';
 import moment from 'moment';
 import { ExcepcionDescuento } from 'components/Cartera/ExcepcionDescuento';
+import { RemoverDescuento } from 'components/Cartera/RemoverDescuento';
 
 export const Cartera = props => {
     const dispatch = useDispatch();
@@ -49,12 +50,21 @@ export const Cartera = props => {
             for (let Acuerdos of AcuerdosXTipoPedido.Acuerdos) {
                 let acuerdosFacturas = Acuerdos.Facturas.filter(f => f.Descuento === 0);
 
-                for (let Facturas of Acuerdos.Facturas) { 
+                for (let Facturas of Acuerdos.Facturas) {
                     Facturas.FechaVencimiento = moment(Facturas.FechaVencimiento).add(Facturas.DiasGracia, 'days');
-                    for (let Cuotas of Facturas.Cuotas) {
-                      Cuotas.FechaVencimiento = moment(Cuotas.FechaVencimiento).add(Cuotas.DiasGracia, 'days');
+
+                    if (Facturas.SinDescuento) {
+                        Facturas.Descuento = 0;
                     }
-                  }
+
+                    for (let Cuotas of Facturas.Cuotas) {
+                        Cuotas.FechaVencimiento = moment(Cuotas.FechaVencimiento).add(Cuotas.DiasGracia, 'days');
+
+                        if (Cuotas.SinDescuento) {
+                            Cuotas.Descuento = "0.00";
+                        }
+                    }
+                }
 
                 for (let Facturas of acuerdosFacturas) {
                     let Descuento = cliente.MaestroDescuento.length > 0 ? cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea) : [];
@@ -77,6 +87,11 @@ export const Cartera = props => {
                     };
 
                     Facturas.Descuento = noAplicaDescuento ? 0 : Facturas.TotalFactura * (porcentajeDescuento / 100);
+
+                    if (Facturas.SinDescuento) {
+                        Facturas.Descuento = 0;
+                    }
+
                     for (let Cuotas of Facturas.Cuotas) {
 
                         let valordescuento = 0;
@@ -116,6 +131,11 @@ export const Cartera = props => {
                             valordescuento = noAplicaDescuento ? 0 : totalfactura * (porcentajeDescuento / 100);
                             Cuotas.Descuento = valordescuento.toFixed(2);
                             Facturas.Descuento = valordescuento;
+
+                            if (Cuotas.SinDescuento) {
+                                Cuotas.Descuento = "0.00";
+                                Facturas.Descuento = 0;
+                            }
                         }
                     };
 
@@ -295,6 +315,10 @@ export const Cartera = props => {
         props.history.push('/cartera/dias-gracia');
     }
 
+    const redirecRemoverDescuento = () => {
+        props.history.push('/cartera/remover-descuento');
+    }
+
     const redirectExcepcionDescuento = () => {
         props.history.push('/cartera/excepcion-descuento');
     }
@@ -371,6 +395,7 @@ export const Cartera = props => {
                                 <Tab onClick={redirectChequesPosfechados} icon={<ContactMailIcon />} label="Cheques Posfechados" />
                                 {PermisoExcepcionDescuento() && <Tab onClick={redirectExcepcionDescuento} icon={<ContactMailIcon />} label="Excepción Descuento" />}
                                 {PermisoExcepcionDescuento() && <Tab onClick={redirectDiasGracia} icon={<ContactMailIcon />} label="Días de gracia" />}
+                                {PermisoExcepcionDescuento() && <Tab onClick={redirecRemoverDescuento} icon={<ContactMailIcon />} label="Remover Descuento" />}
                             </Tabs>
                         </Paper>
                         <div style={{ height: '90%' }} className="card">
@@ -380,6 +405,7 @@ export const Cartera = props => {
                                 <Route exact path={`${props.match.url}/facturas-reservadas`} render={(props) => <FacturasReservadas cliente={cliente} />} />
                                 <Route exact path={`${props.match.url}/cheques-posfechados`} render={(props) => <ChequesContabilizados cliente={cliente} />} />
                                 {PermisoExcepcionDescuento() && <Route exact path={`${props.match.url}/excepcion-descuento`} render={(props) => <ExcepcionDescuento cliente={cliente} />} />}
+                                {PermisoExcepcionDescuento() && <Route exact path={`${props.match.url}/remover-descuento`} render={(props) => <RemoverDescuento cliente={cliente} />} />}
                                 {PermisoExcepcionDescuento() && <Route exact path={`${props.match.url}/dias-gracia`} render={(props) => <DiasGracia cliente={cliente} />} />}
                             </Switch>
                         </div>

@@ -12,6 +12,7 @@ import { Loading } from 'components/Global/Loading';
 import { mostrarModal } from 'utils/common';
 import { useHistory } from 'react-router';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
+import { FiAlertTriangle } from 'react-icons/fi';
 
 export const ProductosDevolucion = (props) => {
     const history = useHistory();
@@ -29,6 +30,8 @@ export const ProductosDevolucion = (props) => {
     const [codigoBarra, setCodigoBarra] = useState("");
     const [tallaTxt, setTalla] = useState("");
     const [factura, setFactura] = useState({});
+    const [facturaDestino, setFacturaDestino] = useState("");
+    const [facturasDestino, setFacturasDestino] = useState([]);
     const [facturas, setFacturas] = useState([]);
     const [motivosDevolucionMaestro, setMotivosDevolucionMaestro] = useState([]);
     const [motivosDevolucionDetalle, setMotivosDevolucionDetalle] = useState([]);
@@ -36,7 +39,9 @@ export const ProductosDevolucion = (props) => {
     const [almaceneSelected, setAlmaceneSelected] = useState("");
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
+    const [mostrarAlertaCalidad, setMostrarAlertaCalidad] = useState(false);
     let totalCant = 0;
+    let totalUnid = 0;
     let productosSinCantidad = false;
 
     const existeVariante = (pCodigo, pColor, pTalla) => {
@@ -80,7 +85,7 @@ export const ProductosDevolucion = (props) => {
             setOpen(true);
             setTitle("Obteniendo producto");
             const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${codigo}/${color}`)
-            agregarProducto(data.data, tallaTxt);
+            agregarProducto(data.data, tallaTxt, color);
             setOpen(false);
         } catch (err) {
             setOpen(false);
@@ -136,6 +141,14 @@ export const ProductosDevolucion = (props) => {
         }
     }
 
+    const obtenerFacturasAbiertas = async () => {
+        try {
+            const data = await axios.get(`${APIURL}/api/factura/abiertas/${clienteSelected.Codigo}`);
+            setFacturasDestino(data.data);
+        } catch (err) {
+        }
+    }
+
     const obtenerAlmacenes = async () => {
         try {
             const data = await axios.get(`${APIURL}/api/devolucion/almacenes/${clienteSelected.EmpresaId}`);
@@ -181,6 +194,11 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_MOTIVODEVOLUCION", payload: value });
         dispatch({ type: "SET_MOTIVODEVOLUCIONDETALLE", payload: "" });
         setMotivosDevolucionDetalle(detalle.detalle);
+
+        if (detalle) {
+            const esDefectuoso = detalle.codigo.toUpperCase().includes('DEFECTUOSO');
+            setMostrarAlertaCalidad(esDefectuoso);
+        }
     }
 
     const handleChangeMotivoDetalle = (value) => {
@@ -191,12 +209,16 @@ export const ProductosDevolucion = (props) => {
         setAlmaceneSelected(value)
     }
 
+    const handleChangeFacturaDestino = (value) => {
+        setFacturaDestino(value)
+    }
+
     const dataFacturas = () => {
         return facturas.map(x => ({ key: x.factura, value: x, text: `${x.factura} - ${x.pedido}` }));
     }
 
     const dataMotivos = () => {
-        return motivosDevolucionMaestro.map(x => ({ key: x.codigo, value: x.id, text: `${x.codigo} - ${x.descripcion}` }));
+        return motivosDevolucionMaestro.filter(x=>!(x.codigo.includes('ERROR-FAC') || x.codigo.includes('ERROR FACT'))).map(x => ({ key: x.codigo, value: x.id, text: `${x.codigo} - ${x.descripcion}` }));
     }
 
     const dataMotivosDetalle = () => {
@@ -206,12 +228,16 @@ export const ProductosDevolucion = (props) => {
     const dataAlmacen = () => {
         return almacenes.map(x => ({ key: x.Almacen, value: x.Almacen, text: x.Almacen + " - " + x.Nombre }));
     }
+    const dataFacturasAbiertas = () => {
+        return facturasDestino.map(x => ({ key: x.Factura, value: x.Factura, text: x.Factura  + " - " + x.Abreviacion + numberWithCommasNoDec(x.Saldo)}));
+    }
 
     useEffect(() => {
         obtenerFacturasCliente();
         obtenerMotivosDevolucion();
         obtenerCorrelativoDevolucion();
         obtenerAlmacenes();
+        obtenerFacturasAbiertas();
         // eslint-disable-next-line
     }, []);
 
@@ -304,7 +330,7 @@ export const ProductosDevolucion = (props) => {
         dispatch({ type: "SET_TABLEVALUEDEVOLUCION", payload: miTableValue });
     }
 
-    const agregarProducto = (producto, pTalla) => {
+    const agregarProducto = (producto, pTalla, pColor) => {
         let miTableValue = { ...tableValue };
         let precioGeneral = 0;
 
@@ -322,6 +348,7 @@ export const ProductosDevolucion = (props) => {
             miTableValue[producto.GrupoTalla].ListaTallas = producto.ListaTalla;
         }
 
+        producto.ProductoId = `${producto.ProductoId}-${pColor}`;
         if (miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] === undefined) {
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] = {};
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores = {};
@@ -530,7 +557,7 @@ export const ProductosDevolucion = (props) => {
         const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${pCodigo}/${pColor}`)
         productosAgregados.push({ codigoBarra, codigo: pCodigo, color: pColor, talla: pTalla, grupoTalla: data.data.GrupoTalla });
         localStorage.setItem("productosAgregados", JSON.stringify(productosAgregados));
-        agregarProducto(data.data, pTalla);
+        agregarProducto(data.data, pTalla, pColor);
     }
 
     const obtenerAtributosBarra = async (e) => {
@@ -558,7 +585,26 @@ export const ProductosDevolucion = (props) => {
     }
 
     const construirEncabezado = (productoFactura) => {
+        let facDestino = facturaDestino === "" ? "" : facturaDestino.join(', ');
         if (productoFactura) {
+            const partesCliente = clienteSelected.Codigo.split("-");
+
+            if (partesCliente[0] === "IMHN") {
+                return {
+                    Correlativo: "",
+                    CodigoCliente: clienteSelected.Codigo,
+                    DetalleDevolucion: [],
+                    Moneda: clienteSelected.Moneda,
+                    MotivoDevolucion: motivoDevolucion,
+                    MotivoDevolucionDetalle: motivoDevolucionDetalle,
+                    FacturaDestino: facDestino,
+                    Almacen: almaceneSelected,
+                    Linea: productoFactura.Linea,
+                    Empresa: clienteSelected.EmpresaId,
+                    SubTotal: 0
+                };
+            }
+
             return {
                 Correlativo: "",
                 CodigoCliente: clienteSelected.Codigo,
@@ -567,6 +613,7 @@ export const ProductosDevolucion = (props) => {
                 MotivoDevolucion: motivoDevolucion,
                 MotivoDevolucionDetalle: motivoDevolucionDetalle,
                 Almacen: almaceneSelected,
+                FacturaDestino: facDestino,
                 FacturaOriginal: productoFactura.Factura,
                 PedidoOriginal: productoFactura.NumeroPedido,
                 Linea: productoFactura.Linea,
@@ -583,6 +630,7 @@ export const ProductosDevolucion = (props) => {
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
             Almacen: almaceneSelected,
+            FacturaDestino: facDestino,
             FacturaOriginal: factura.factura,
             PedidoOriginal: factura.pedido,
             Linea: factura.linea,
@@ -626,7 +674,7 @@ export const ProductosDevolucion = (props) => {
 
     const construirDevolucionParcial = () => {
         let devoluciones = [];
-
+        let facDestino = facturaDestino === "" ? "" : facturaDestino.join(', ');
         let devolucionSinFactura = {
             Correlativo: "",
             CodigoCliente: clienteSelected.Codigo,
@@ -635,6 +683,7 @@ export const ProductosDevolucion = (props) => {
             MotivoDevolucion: motivoDevolucion,
             MotivoDevolucionDetalle: motivoDevolucionDetalle,
             Almacen: almaceneSelected,
+            FacturaDestino: facDestino,
             FacturaOriginal: "",
             PedidoOriginal: "",
             Linea: "DEN",
@@ -670,15 +719,29 @@ export const ProductosDevolucion = (props) => {
                         }
                     }
                 } else {
-                    const existeEncabezado = devoluciones.some(x => x.FacturaOriginal === factura.Factura);
+                    const partesCliente = clienteSelected.Codigo.split("-");
                     let indice = 0;
 
-                    if (existeEncabezado) {
-                        indice = devoluciones.findIndex(x => x.FacturaOriginal === factura.Factura);
+                    if (partesCliente[0] === "IMHN") {
+                        const existeEncabezado = devoluciones.some(x => x.Linea === factura.Linea);
+
+                        if (existeEncabezado) {
+                            indice = devoluciones.findIndex(x => x.Linea === factura.Linea);
+                        } else {
+                            let nuevoEncabezado = construirEncabezado(factura);
+                            devoluciones.push(nuevoEncabezado);
+                            indice = devoluciones.length - 1;
+                        }
                     } else {
-                        let nuevoEncabezado = construirEncabezado(factura);
-                        devoluciones.push(nuevoEncabezado);
-                        indice = devoluciones.length - 1;
+                        const existeEncabezado = devoluciones.some(x => x.FacturaOriginal === factura.Factura);
+
+                        if (existeEncabezado) {
+                            indice = devoluciones.findIndex(x => x.FacturaOriginal === factura.Factura);
+                        } else {
+                            let nuevoEncabezado = construirEncabezado(factura);
+                            devoluciones.push(nuevoEncabezado);
+                            indice = devoluciones.length - 1;
+                        }
                     }
 
                     for (let color of Object.keys(tableValue[grupoTalla].Productos[producto].Colores)) {
@@ -695,6 +758,9 @@ export const ProductosDevolucion = (props) => {
                                     Unidad: "Und",
                                     PrecioUnitario: precio,
                                     CodigoTalla: talla,
+                                    Factura: factura.Factura,
+                                    Pedido: factura.NumeroPedido,
+                                    Paquete: factura.Paquete
                                 }
 
                                 devoluciones[indice].DetalleDevolucion.push(productoDevolver);
@@ -725,7 +791,6 @@ export const ProductosDevolucion = (props) => {
         let devoluciones = construirDevolucionParcial();
         let devolucionSinProducto = devoluciones.some(x => x.DetalleDevolucion.length === 0);
         let correlativo = localStorage.getItem("CorrelativoDevolucion");
-
         for (let i = 0; i < devoluciones.length; i++) {
             if (i === 0) {
                 devoluciones[i].Correlativo = correlativo;
@@ -752,6 +817,13 @@ export const ProductosDevolucion = (props) => {
         if (motivoDevolucionDetalle === "") {
             mostrarModal('Motivo Devolución', 'Seleccione motivo de devolución.', "error");
             return;
+        }
+        if (facturaDestino != "") {
+            let total = facturasDestino.filter(item => facturaDestino.includes(item.Factura)).map((x) => x.Saldo).reduce((a, b) => a + b, 0);
+            if (total < totalCant) {
+                mostrarModal('Factura destino', 'La o las facturas seleccionadas no cubren el total de la devolución por favor seleccione otra factura.', "error");
+                return;
+            }
         }
         if (almaceneSelected === "") {
             mostrarModal('Almacen', 'Seleccione un almacen', "error");
@@ -844,44 +916,68 @@ export const ProductosDevolucion = (props) => {
                 <CardContent>
                     <div>
                         <h5>Motivo devolución</h5>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <Dropdown
-                                placeholder="Seleccione un motivo devolución"
-                                search
-                                selection
-                                options={dataMotivos()}
-                                noResultsMessage={"No hay resultados"}
-                                closeOnChange={true}
-                                style={{ zIndex: 999, width: '28%' }}
-                                multiple={false}
-                                onChange={(e, { value }) => { handleChangeMotivo(value) }}
-                            />
-                            <Dropdown
-                                placeholder="Seleccione detalle devolución"
-                                search
-                                selection
-                                options={dataMotivosDetalle()}
-                                noResultsMessage={"No hay resultados"}
-                                closeOnChange={true}
-                                style={{ zIndex: 999, width: '28%' }}
-                                multiple={false}
-                                onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
-                                value={motivoDevolucionDetalle}
-                            />
-                            <Dropdown
-                                placeholder="Seleccione almacen"
-                                search
-                                selection
-                                options={dataAlmacen()}
-                                noResultsMessage={"No hay resultados"}
-                                closeOnChange={true}
-                                style={{ zIndex: 999, width: '28%' }}
-                                multiple={false}
-                                onChange={(e, { value }) => { handleChangeAlmacen(value) }}
-                                value={almaceneSelected}
-                            />
-                            <label style={{ fontSize: 15, fontWeight: 'bold' }}><input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa </label>
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <Dropdown
+                                    placeholder="Seleccione un motivo devolución"
+                                    search
+                                    selection
+                                    options={dataMotivos()}
+                                    noResultsMessage={"No hay resultados"}
+                                    closeOnChange={true}
+                                    style={{ width: '28%' }}
+                                    multiple={false}
+                                    onChange={(e, { value }) => { handleChangeMotivo(value) }}
+                                />
+                                <Dropdown
+                                    placeholder="Seleccione detalle devolución"
+                                    search
+                                    selection
+                                    options={dataMotivosDetalle()}
+                                    noResultsMessage={"No hay resultados"}
+                                    closeOnChange={true}
+                                    style={{ width: '28%' }}
+                                    multiple={false}
+                                    onChange={(e, { value }) => { handleChangeMotivoDetalle(value) }}
+                                    value={motivoDevolucionDetalle}
+                                />
+                                <div style={{ width: '28%' }}>
+                                    <label style={{ fontSize: 15, fontWeight: 'bold', alignSelf: 'center' }}>
+                                        <input type="checkbox" checked={devolucionCompleta} onChange={handleDevolucionCompleta} /> Devolución Completa
+                                    </label>
+                                </div>
+                            </div>
+                            <br></br>
+                            <div style={{ display: 'flex' }}>
+                                <Dropdown
+                                    placeholder="Seleccione almacen"
+                                    search
+                                    selection
+                                    options={dataAlmacen()}
+                                    noResultsMessage={"No hay resultados"}
+                                    closeOnChange={true}
+                                    style={{ width: '28%' }}
+                                    multiple={false}
+                                    onChange={(e, { value }) => { handleChangeAlmacen(value) }}
+                                    value={almaceneSelected}
+                                />
+                                <Dropdown
+                                    placeholder="Seleccione factura destino"
+                                    search
+                                    selection
+                                    options={dataFacturasAbiertas()}
+                                    noResultsMessage={"No hay resultados"}
+                                    closeOnChange={true}
+                                    style={{ width: '28%', marginLeft: '8%' }}
+                                    multiple={true}
+                                    onChange={(e, { value }) => { handleChangeFacturaDestino(value) }}
+                                    value={facturaDestino}
+                                />
+                            </div>
                         </div>
+                        {mostrarAlertaCalidad && <div style={{ textAlign: 'center', fontSize: '18px', marginTop: 15 }} className="alert alert-danger alert-dismissible fade show" role="alert">
+                            <FiAlertTriangle style={{ fontSize: '22px', color: 'red' }} /> Por el motivo seleccionado se requiere que entregue el producto en oficina.
+                        </div>}
                     </div>
                     {devolucionCompleta
                         ?
@@ -896,7 +992,7 @@ export const ProductosDevolucion = (props) => {
                                     options={dataFacturas()}
                                     noResultsMessage={"No hay resultados"}
                                     closeOnChange={true}
-                                    style={{ zIndex: 99, width: '84%' }}
+                                    style={{ width: '84%' }}
                                     multiple={false}
                                     onChange={(e, { value }) => { setFactura(value) }}
                                 />
@@ -927,15 +1023,19 @@ export const ProductosDevolucion = (props) => {
                                         let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
                                         let productoConCantidad = false;
                                         let { totalCantidad } = obtenerTotales(producto);
-                                        totalCant += totalCantidad;
+                                        totalUnid += totalCantidad;
                                         Object.keys(producto.Colores).forEach((codigoColor) => {
                                             let color = producto.Colores[codigoColor];
+                                            var totalXColor = 0;
+
                                             Object.keys(color.Tallas).forEach((codigoTalla) => {
                                                 let valorTalla = color.Tallas[codigoTalla];
-
                                                 let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+                                                let totalXTalla = cantidadXTalla * valorTalla.Precio;
+                                                totalXColor = parseInt(totalXColor, 10) + totalXTalla;
                                                 productoConCantidad = productoConCantidad || (cantidadXTalla > 0);
                                             });
+                                            totalCant += totalXColor;
                                         });
 
                                         productosSinCantidad = productosSinCantidad || (!productoConCantidad);
@@ -960,7 +1060,10 @@ export const ProductosDevolucion = (props) => {
                             </form>
                             <div className={`row text-center ${styles['barra']}`} >
                                 <div className={`col ${styles['barraInner']}`}>
-                                    Total de Unidades: {numberWithCommasNoDec(totalCant)}
+                                    Total de Unidades: {numberWithCommasNoDec(totalUnid)}
+                                </div>
+                                <div className={`col ${styles['barraInner']}`}>
+                                    Total Cantidad: {numberWithCommasNoDec(totalCant)}
                                 </div>
                                 <div >
                                     <button onClick={finalizarDevolucion} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Finalizar devolución</button>
