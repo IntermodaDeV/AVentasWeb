@@ -116,11 +116,14 @@ class Agenda extends Component {
 
         for (let dia of data) {
             for (let asignacion of dia.asignaciones) {
-                clientes.push(asignacion.cliente);
+                const existeCliente = clientes.find(x => x.Codigo === asignacion.cliente);
+                if (existeCliente===undefined) {
+                    clientes.push({ Codigo: asignacion.cliente, Nombre: asignacion.NombreCliente, Latitud: asignacion.Latitud, Longitud: asignacion.Longitud,Asesor:this.state.AsesorSelected })
+                }
             }
         }
 
-        return [...new Set(clientes)];
+        this.setState((prev) => ({ ...prev, clientes: clientes }))
     }
 
     cargarAsignaciones = async () => {
@@ -179,8 +182,7 @@ class Agenda extends Component {
                         'Bearer ' + localStorage.getItem('token'),
                 }
             });
-            let clientes = this.obtenerClientesUnicos(request.data);
-            await this.cargarClientes(clientes);
+            this.obtenerClientesUnicos(request.data);
             let eventos = this.setAsignaciones(request.data);
             this.setState({
                 Asignaciones: request.data,
