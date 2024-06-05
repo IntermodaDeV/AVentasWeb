@@ -10,6 +10,7 @@ import { FaPrint } from "react-icons/fa";
 import { useSelector } from 'react-redux';
 import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
+import { QRCodeSVG } from 'qrcode.react';
 import 'moment/locale/es';
 
 export const ImprimirPedidoDevolucion = (props) => {
@@ -88,7 +89,10 @@ export const ImprimirPedidoDevolucion = (props) => {
                                 </h3>
                             </div>
                             <div className={"col p-0 text-right m-auto font-weight-bold " + styles.Rtn}>
-                                {(!props.esDevolucion) && "Copia"}
+                                <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", }}>
+                                    <QRCodeSVG value={props.Pedido.NumDevolucion} style={{height:90,width:90}}/>
+                                    <div style={{ marginLeft: 15 }}> {(!props.esDevolucion) && "Copia"}</div>
+                                </div>
                             </div>
                         </div>
                     </div>

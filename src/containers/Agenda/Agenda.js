@@ -23,7 +23,7 @@ import styles from 'containers/Agenda/Agenda.module.css';
 import 'containers/Agenda/Agenda.css';
 import moment from "moment";
 import { connect } from 'react-redux';
-import { IsAllow } from 'components/Seguridad/Permisos';
+import { IsAllow, PermisoAdministradorVisita } from 'components/Seguridad/Permisos';
 //import { FaEye } from "react-icons/fa";
 import { get, verificarConexion } from 'utils/http';
 import axios from 'axios';
@@ -1030,6 +1030,20 @@ class Agenda extends Component {
         }
         return false;
     }
+
+    eliminarAsignacion = async (asignacionId) => {
+        try {
+            const result = window.confirm(`¿Esta seguro de eliminar la visita?`);
+            if (result) {
+                await axios.post(`${this.urlApi}/api/asignaciones/eliminar/${asignacionId}`)
+                alert("Asignación eliminada con exito.");
+            }
+
+        } catch (err) {
+            alert("No se pudo eliminar la asignación.");
+        }
+    }
+
     render() {
         this.accesoPineo();
         let tipoDisabled = false;
@@ -1125,7 +1139,10 @@ class Agenda extends Component {
                                                 </div>
                                             </div>
                                             <div className={'col-md-6 col-12'}>
-                                                <h5 className="font-weight-light">Información</h5>
+                                                    <div style={{display:"flex",justifyContent:"space-between"}}>
+                                                        <h5 className="font-weight-light">Información</h5>
+                                                        {PermisoAdministradorVisita() && <Button variant="outlined" onClick={() => { this.eliminarAsignacion(this.state.IdAsignacion) }} color="primary">Eliminar visita</Button>}
+                                                    </div>
                                                 <table className="table table-xl-responsive table-striped" style={{ border: '2px solid #ccc' }}>
                                                     <tbody>
                                                         <tr>

@@ -7,6 +7,7 @@ import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import { FiArrowRightCircle, FiPlusCircle } from "react-icons/fi";
 import { FaPrint } from "react-icons/fa";
 import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
+import { QRCodeSVG } from 'qrcode.react';
 
 export const ImprimirDevolucionOriginal = props => {
     const { Cliente, tableValue, ValoresPedido, Finalizar } = props;
@@ -217,6 +218,11 @@ export const ImprimirDevolucionOriginal = props => {
                             <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
                                 {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                             </h3>
+                        </div>
+                        <div className={"col p-0 text-right m-auto font-weight-bold " + styles.Rtn}>
+                            <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", }}>
+                                <QRCodeSVG value={ValoresPedido.Correlativo} style={{ height: 90, width: 90 }} />
+                            </div>
                         </div>
                     </div>
                 </div>
