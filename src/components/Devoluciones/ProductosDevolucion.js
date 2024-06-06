@@ -13,6 +13,7 @@ import { mostrarModal } from 'utils/common';
 import { useHistory } from 'react-router';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
 import { FiAlertTriangle } from 'react-icons/fi';
+import { PermisoUsuarioOficinaCreditos } from 'components/Seguridad/Permisos';
 
 export const ProductosDevolucion = (props) => {
     const history = useHistory();
@@ -159,7 +160,13 @@ export const ProductosDevolucion = (props) => {
 
     const obtenerCorrelativoDevolucion = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/devolucion/correlativo/${localStorage.getItem('empresa')}`, {
+            let url = `${APIURL}/api/devolucion/correlativo/${localStorage.getItem('empresa')}`;
+
+            if (PermisoUsuarioOficinaCreditos()) {
+                url = `${APIURL}/api/devolucion/correlativo/${clienteSelected.EmpresaId}`;
+            }
+
+            const request = await axios.get(url, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -218,7 +225,13 @@ export const ProductosDevolucion = (props) => {
     }
 
     const dataMotivos = () => {
-        return motivosDevolucionMaestro.filter(x=>!(x.codigo.includes('ERROR-FAC') || x.codigo.includes('ERROR FACT'))).map(x => ({ key: x.codigo, value: x.id, text: `${x.codigo} - ${x.descripcion}` }));
+        let motivosDevolucionFiltrado = motivosDevolucionMaestro;
+
+        if (!PermisoUsuarioOficinaCreditos()) {
+            motivosDevolucionFiltrado = motivosDevolucionMaestro.filter(x => !(x.codigo.includes('ERROR-FAC') || x.codigo.includes('ERROR FACT')));
+        }
+
+        return motivosDevolucionFiltrado.map(x => ({ key: x.codigo, value: x.id, text: `${x.codigo} - ${x.descripcion}` }));
     }
 
     const dataMotivosDetalle = () => {
