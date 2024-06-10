@@ -19,6 +19,7 @@ const initialState = {
     NumeroOrden: null,
     AsesorId: 80,
     TiposColeccion: [],
+    DetalleInventario: [],
     pedidoSelected: null,
     Recibo: {
         clientes: [],
@@ -42,6 +43,7 @@ const initialState = {
     Monedas: [],
     CuentaImprimir: [],
     Bloqueo: false,
+    Completado: true,
     Asignaciones: [],
     AbreviacionMonedas: [],
     Permisos: [],
@@ -76,6 +78,10 @@ const initialState = {
         motivoDevolucion: "",
         motivoDevolucionDetalle: ""
     },
+    Inventario: {
+        clienteSelected: null,
+        TableValue: {}
+    },
     CorrelativoReciboDiario: null,
     CorrelativoRecibo: null,
     TrasladoPedido: {
@@ -89,6 +95,7 @@ const initialState = {
         pedidoRecolocacion: {}
     },
     configuracionBaseColor:[],
+    ClienteInventario:[],
     direccionEntrega: null,
 }
 
@@ -755,6 +762,20 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if (action.type === 'SET_INVENTARIOCLIENTE') {
+        return {
+            ...state,
+            ClienteInventario: action.payload
+        }
+    }
+
+    if (action.type === 'SET_DETALLEINVENTARIO') {
+        return {
+            ...state,
+            DetalleInventario: action.payload
+        }
+    }
+
     if (action.type === 'SET_BODEGAALMACENES') {
         return {
             ...state,
@@ -787,6 +808,22 @@ const reducer = (state = initialState, action) => {
         }
     }
 
+    if (action.type === 'SET_TABLEVALUEINVENTARIO') {
+        return {
+            ...state,
+
+            Inventario: {
+                ...state.Inventario,
+                TableValue: action.payload
+            }
+        }
+    }
+    if (action.type === 'SET_INVENTARIOCOMPLETO') {
+        return {
+            ...state,
+            Completado: action.payload
+        }
+    }
     if (action.type === 'SET_DEVOLUCIONCOMPLETA') {
         return {
             ...state,

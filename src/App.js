@@ -11,6 +11,7 @@ import AuthModalPage from 'containers/Authorize/AuthModalPage'
 import AuthPage from 'containers/Authorize/AuthPage'
 import Pedidos from 'containers/Pedidos/Pedidos' 
 import {RecolocacionPedido} from 'containers/RecolocacionPedido/RecolocacionPedido' 
+import {Inventario} from 'containers/Inventario/Inventario' 
 import Recibos from 'containers/Recibos/Recibos'
 import Fotografia from 'containers/Fotografias/Fotografias'
 import CuentaCorriente from 'containers/CuentaCorriente/CuentaCorriente'
@@ -148,6 +149,11 @@ const App = props => {
               path='/recolocacion-pedido'
               layout={MainLayout}
               component={RecolocacionPedido}
+            />
+            <LayoutRoute
+              path='/inventario'
+              layout={MainLayout}
+              component={Inventario}
             />
             <LayoutRoute
               exact
