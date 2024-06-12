@@ -82,7 +82,7 @@ const CuotasAgrupadasExpandableRow = (props) => {
         let DiasDescuento = moment(cuotAgru.FechaMaxDescuento).diff(moment(new Date()), 'days')
         cuotAgru.Cuotas.forEach(factura=>{
              Fecha = factura.FechaFactura;
-             ValorDescuento = factura.Descuento;
+             ValorDescuento = factura.DescuentoBack;
              ValorDescuentoBack = factura.DescuentoBack;
         });
         seleccionado = cuotAgru.IdsSubFactura.some(idsub => {

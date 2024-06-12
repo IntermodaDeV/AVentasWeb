@@ -365,16 +365,22 @@ const DetalleRecibo = (props) => {
                             PagoAcumulado = 0;
 
                             if (aplicaADescuento) {
+                                cuotProc.ValorDescuento = descuentoAplicar;
                                 cuotProc.DescuentoAplicado = descuentoAplicar;
                                 descuentoAcumulado += Number(descuentoAplicar);
+                            }else{
+                                cuotProc.ValorDescuento = descuentoAplicar;
                             }
                         }
                         if (montoAPagar <= PagoAcumulado) {
                             cuotProc.PagoAplicado += montoAPagar;
                             PagoAcumulado -= montoAPagar;
                             if (aplicaADescuento) {
+                                cuotProc.ValorDescuento = descuentoAplicar;
                                 cuotProc.DescuentoAplicado = descuentoAplicar;
                                 descuentoAcumulado += Number(descuentoAplicar);
+                            }else{
+                                cuotProc.ValorDescuento = descuentoAplicar;
                             }
                         }
                         if (aplicaADescuento) {
@@ -382,9 +388,12 @@ const DetalleRecibo = (props) => {
                         }
                     } else {
                         if (aplicaADescuento) {
+                            cuotProc.ValorDescuento = descuentoAplicar;
                             cuotProc.DescuentoAplicado = descuentoAplicar;
                             descuentoAcumulado += Number(descuentoAplicar);
                             cuotProc.APagar = montoAPagar;
+                        }else{
+                            cuotProc.ValorDescuento = descuentoAplicar;
                         }
                     }
 
@@ -497,6 +506,7 @@ const DetalleRecibo = (props) => {
                             PagoAcumulado = 0;
 
                             if (aplicaADescuento) {
+                                cuotProc.ValorDescuento = descuentoAplicar;
                                 cuotProc.DescuentoAplicado = descuentoAplicar;
                                 descuentoAcumulado += Number(descuentoAplicar);
                             }
@@ -505,6 +515,7 @@ const DetalleRecibo = (props) => {
                             cuotProc.PagoAplicado += montoAPagar;
                             PagoAcumulado -= montoAPagar;
                             if (aplicaADescuento) {
+                                cuotProc.ValorDescuento = descuentoAplicar;
                                 cuotProc.DescuentoAplicado = descuentoAplicar;
                                 descuentoAcumulado += Number(descuentoAplicar);
                             }
@@ -514,6 +525,7 @@ const DetalleRecibo = (props) => {
                         }
                     } else {
                         if (aplicaADescuento) {
+                            cuotProc.ValorDescuento = descuentoAplicar;
                             cuotProc.DescuentoAplicado = descuentoAplicar;
                             descuentoAcumulado += Number(descuentoAplicar);
                             cuotProc.APagar = montoAPagar;
