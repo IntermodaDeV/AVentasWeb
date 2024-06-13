@@ -192,15 +192,17 @@ const ListaRecibos = (props) => {
         }
     }
 
-    const anularRecibo = async (numeroRecibo) => {
+    const anularRecibo = async (numeroRecibo, anulado) => {
+        const mensaje = anulado ? "activar" : "anular";
         try {
-            const result = window.confirm(`¿Esta seguro de anular el recibo ${numeroRecibo}?`);
+
+            const result = window.confirm(`¿Esta seguro de ${mensaje} el recibo ${numeroRecibo}?`);
             if (result) {
                 await axios.delete(`${APIURL}/api/recibo/anular/${numeroRecibo}`);
-                alert(`El recibo ${numeroRecibo} ha sido anulado con exito.`);
+                alert(`El recibo ${numeroRecibo} ha sido ${mensaje} con exito.`);
             }
         } catch (err) {
-            alert(`Ha ocurrido un error y no se pudo anular el recibo.`);
+            alert(`Ha ocurrido un error y no se pudo ${mensaje} el recibo.`);
         }
     }
      
@@ -241,8 +243,8 @@ const ListaRecibos = (props) => {
                             <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
                         </span> 
                         {PermisoUsuarioOficinaCreditos() && <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => anularRecibo(recib.NumeroRecibo)} size="small" color={"primary"}>
-                                Anular
+                            <Button className='my-1' variant="outlined" onClick={() => anularRecibo(recib.NumeroRecibo, recib.anulado)} size="small" color={"primary"}>
+                                {recib.anulado ? "Activar" : "Anular"}
                             </Button>
                         </span >}
                         <span className="ml-1">

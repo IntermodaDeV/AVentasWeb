@@ -76,10 +76,10 @@ export const ProductosDevolucion = (props) => {
                 return;
             }
 
-            const grupoTalla = existeVariante(codigo, color, tallaTxt);
+            const grupoTalla = existeVariante(`${codigo}-${color}`, color, tallaTxt);
 
             if (grupoTalla) {
-                aumentarCantidad(grupoTalla, codigo, color, tallaTxt);
+                aumentarCantidad(grupoTalla, `${codigo}-${color}`, color, tallaTxt);
                 return;
             }
 
@@ -242,7 +242,7 @@ export const ProductosDevolucion = (props) => {
         return almacenes.map(x => ({ key: x.Almacen, value: x.Almacen, text: x.Almacen + " - " + x.Nombre }));
     }
     const dataFacturasAbiertas = () => {
-        return facturasDestino.map(x => ({ key: x.Factura, value: x.Factura, text: x.Factura  + " - " + x.Abreviacion + numberWithCommasNoDec(x.Saldo)}));
+        return facturasDestino.map(x => ({ key: x.Factura, value: x.Factura, text: x.Factura + " - " + x.Abreviacion + numberWithCommasNoDec(x.Saldo) }));
     }
 
     useEffect(() => {
@@ -579,7 +579,7 @@ export const ProductosDevolucion = (props) => {
             const productoExiste = productosAgregados.find(x => x.codigoBarra === codigoBarra);
 
             if (productoExiste) {
-                aumentarCantidad(productoExiste.grupoTalla, productoExiste.codigo, productoExiste.color, productoExiste.talla);
+                aumentarCantidad(productoExiste.grupoTalla, `${productoExiste.codigo}-${productoExiste.color}`, productoExiste.color, productoExiste.talla);
                 limpiarCampos();
             } else {
                 try {
