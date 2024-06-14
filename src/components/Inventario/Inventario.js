@@ -16,7 +16,8 @@ import { FiAlertTriangle } from 'react-icons/fi';
 export const TomarInventario = (props) => {
     const history = useHistory();
     let tableValue = useSelector(e => e.Inventario.TableValue);
-    let completado = useSelector(e => e.Completado);
+    let nuevosProductos = { ...tableValue };
+    let anterior = useSelector(e => e.Anterior);
     let detalleInventario = useSelector(e => e.DetalleInventario);
     const dispatch = useDispatch();
     const clienteSelected = useSelector(e => e.ClienteInventario);
@@ -25,7 +26,6 @@ export const TomarInventario = (props) => {
     const [codigoBarra, setCodigoBarra] = useState("");
     const [tallaTxt, setTalla] = useState("");
     const [open, setOpen] = useState(false);
-    const [completo, setCompleto] = useState(false);
     const [title, setTitle] = useState("");
     let totalUnid = 0;
     let productosSinCantidad = false;
@@ -136,7 +136,7 @@ export const TomarInventario = (props) => {
     }
 
     const agregarProducto = (producto, pTalla, pColor, pCantidad, invCompleto) => {
-        let miTableValue = { ...tableValue };
+        let miTableValue = invCompleto ? nuevosProductos : { ...tableValue };
         if (miTableValue[producto.GrupoTalla] === undefined) {
             miTableValue[producto.GrupoTalla] = {};
         }
@@ -202,7 +202,10 @@ export const TomarInventario = (props) => {
             }
         }
         dispatch({ type: "SET_TABLEVALUEINVENTARIO", payload: miTableValue });
-        limpiarCampos();
+
+        if (!invCompleto) {
+            limpiarCampos();
+        }
     }
 
     const eliminarProducto = (grupoTalla, codigoProducto) => {
@@ -268,7 +271,7 @@ export const TomarInventario = (props) => {
     }
 
     const añadirScanner = async (pCodigo, pColor, pTalla, productosAgregados) => {
-        const data = await axios.get(`${APIURL}/api/producto/${clienteSelected.EmpresaId}/${clienteSelected.GrupoPrecio}/${pCodigo}/${pColor}`)
+        const data = await axios.get(`${APIURL}/api/productoInventario/${clienteSelected.EmpresaId}/${pCodigo}/${pColor}`)
         productosAgregados.push({ codigoBarra, codigo: pCodigo, color: pColor, talla: pTalla, grupoTalla: data.data.GrupoTalla });
         localStorage.setItem("productosAgregados", JSON.stringify(productosAgregados));
         agregarProducto(data.data, pTalla, pColor, 0, false);
@@ -280,7 +283,7 @@ export const TomarInventario = (props) => {
             const productoExiste = productosAgregados.find(x => x.codigoBarra === codigoBarra);
 
             if (productoExiste) {
-                aumentarCantidad(productoExiste.grupoTalla, productoExiste.codigo, productoExiste.color, productoExiste.talla);
+                aumentarCantidad(productoExiste.grupoTalla, `${productoExiste.codigo}-${productoExiste.color}`, productoExiste.color, productoExiste.talla);
                 limpiarCampos();
             } else {
                 try {
@@ -299,12 +302,12 @@ export const TomarInventario = (props) => {
     }
 
     useEffect(() => {
-        obtenerUltimoCorrelativo();
-        if (completado) {
-            dispatch({ type: "SET_TABLEVALUEINVENTARIO", payload: {} });
+        dispatch({ type: "SET_TABLEVALUEINVENTARIO", payload: {} });
+        if (anterior) {
+            cargarInventario();
         }
         else {
-            cargarInventario();
+            obtenerUltimoCorrelativo();
         }
     }, []);
 
@@ -325,7 +328,6 @@ export const TomarInventario = (props) => {
 
     const cargarInventario = async () => {
         try {
-            debugger;
             setOpen(true);
             setTitle("Obteniendo producto");
             for (const inv of detalleInventario) {
@@ -342,17 +344,6 @@ export const TomarInventario = (props) => {
             console.log(error);
         }
     };
-
-
-    const construirEncabezado = () => {
-        return {
-            CodigoCliente: clienteSelected.Codigo,
-            Correlativo: localStorage.getItem("CorrelativoInventario"),
-            Empresa: localStorage.getItem('empresa'),
-            Completo: completo,
-            DetalleInventario: [],
-        };
-    }
 
     const construirDetalleInventario = () => {
         let detalleInventario = [];
@@ -378,15 +369,21 @@ export const TomarInventario = (props) => {
         return [detalleInventario];
     }
 
-    const enviarInventario = async () => {
-        let inventario = construirEncabezado();
-        const [detalleInventario] = construirDetalleInventario();
+    const enviarInventario = async (completo) => {
+        let inventario = {
+            CodigoCliente: clienteSelected.Codigo,
+            Correlativo: detalleInventario.length > 0 ? detalleInventario[0].numInventario : localStorage.getItem("CorrelativoInventario"),
+            Empresa: localStorage.getItem('empresa'),
+            Completo: completo,
+            DetalleInventario: [],
+        };;
+        const [detalle] = construirDetalleInventario();
 
-        if (detalleInventario.length === 0) {
+        if (detalle.length === 0) {
             mostrarModal("Aviso", "No se puede crear el inventario ya que no se ha ingresado ningun producto.", "warning");
             return;
         }
-        inventario.DetalleInventario = detalleInventario;
+        inventario.DetalleInventario = detalle;
         try {
             setTitle("Guardando Inventario");
             setOpen(true);
@@ -397,12 +394,20 @@ export const TomarInventario = (props) => {
                 }
             });
             mostrarModal("Inventario", "Se ha guardado el inventario con exito", "success");
-            history.push({ pathname: "/inventario", state: JSON.stringify(inventario) });
+            history.push({ pathname: "/inventario/ImprimirDevolucion", state: JSON.stringify(inventario) });
             setOpen(false);
         } catch (err) {
             mostrarModal("Error", "No se pudo guardar el inventario.", "error");
             setOpen(false);
         }
+    }
+
+    const btnFinalizar = () => {
+        enviarInventario(true);
+    }
+
+    const btnGuardar = () => {
+        enviarInventario(false);
     }
 
     return (
@@ -466,8 +471,8 @@ export const TomarInventario = (props) => {
                                     Total de Unidades: {numberWithCommasNoDec(totalUnid)}
                                 </div>
                                 <div >
-                                    <button onClick={() => { setCompleto(true); enviarInventario(); }} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Finalizar inventario</button>
-                                    <button onClick={() => { setCompleto(false); enviarInventario(); }} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Guardar</button>
+                                    <button onClick={btnFinalizar} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Finalizar inventario</button>
+                                    <button onClick={btnGuardar} className="btn btn-secondary m-2" style={{ float: 'right', margin: '2em' }}>Guardar</button>
                                 </div>
                             </div>
                         </>

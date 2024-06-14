@@ -17,7 +17,7 @@ const ClienteSelected = (props) => {
     const [value, setValue] = useState();
     const clientes = useSelector(e => e.clientes);
     const dispatch = useDispatch();
-    const [inveIncompleto, setInveIncompleto] = useState(false);
+    const [invAnterior, setInvAnterior] = useState(false);
 
     const handleOnChange = async (value) => {
         setValue(value);
@@ -26,11 +26,11 @@ const ClienteSelected = (props) => {
             const request = await axios.get(`${APIURL}/api/inventarioIncompleto/${value.Codigo}`);
             if (request.data.length > 0) {
                 dispatch({ type: 'SET_DETALLEINVENTARIO', payload: request.data })
-                dispatch({ type: 'SET_INVENTARIOCOMPLETO', payload: false })
-                setInveIncompleto(true);
+                dispatch({ type: 'SET_INVENTARIOANTERIOR', payload: true })
+                setInvAnterior(true);
             } else {
-                setInveIncompleto(false);
-                dispatch({ type: 'SET_INVENTARIOCOMPLETO', payload: true })
+                setInvAnterior(false);
+                dispatch({ type: 'SET_INVENTARIOANTERIOR', payload: false })
             }
 
         } catch (err) {
@@ -79,7 +79,7 @@ const ClienteSelected = (props) => {
                                 />
                             </div>
                             <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
-                                {!inveIncompleto && (
+                                {!invAnterior && (
                                     <Button
                                         disabled={value ? false : true}
                                         onClick={() => continuarDevolucion(value)}
@@ -88,7 +88,7 @@ const ClienteSelected = (props) => {
                                         Nuevo
                                     </Button>
                                 )}
-                                {inveIncompleto && (
+                                {invAnterior && (
                                     <Button
                                         disabled={value ? false : true}
                                         onClick={() => continuarDevolucion(value)}

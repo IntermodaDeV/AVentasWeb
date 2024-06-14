@@ -6,7 +6,7 @@ const PieChart = (props) => {
     var inventario = props.data;
     const data = {
         labels: [
-            "Tejido de punto", "Denim", "Ropa", "Estampado"
+           "Denim", "Estampado", "Ropa", "Tejido de punto"
         ],
         datasets: [
             {

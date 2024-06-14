@@ -43,7 +43,7 @@ const initialState = {
     Monedas: [],
     CuentaImprimir: [],
     Bloqueo: false,
-    Completado: true,
+    Anterior: true,
     Asignaciones: [],
     AbreviacionMonedas: [],
     Permisos: [],
@@ -818,10 +818,10 @@ const reducer = (state = initialState, action) => {
             }
         }
     }
-    if (action.type === 'SET_INVENTARIOCOMPLETO') {
+    if (action.type === 'SET_INVENTARIOANTERIOR') {
         return {
             ...state,
-            Completado: action.payload
+            Anterior: action.payload
         }
     }
     if (action.type === 'SET_DEVOLUCIONCOMPLETA') {
