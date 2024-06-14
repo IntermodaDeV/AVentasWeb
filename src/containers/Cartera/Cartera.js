@@ -66,6 +66,7 @@ export const Cartera = props => {
                     }
                 }
 
+                let descuentoAplicadoCuotaAcuerdo = {};
                 for (let Facturas of acuerdosFacturas) {
                     let Descuento = cliente.MaestroDescuento.length > 0 ? cliente.MaestroDescuento[0].DescuentoDetalle.filter(d => d.Linea === Facturas.IdLinea) : [];
                     let noAplicaDescuento = Descuento.length === 0;
@@ -110,7 +111,13 @@ export const Cartera = props => {
                                     let totalfactura = consumidoCuota - totalDocumentosAplicados - Flete;
                                     valordescuento = totalfactura * (Acuerdos.DescuentoEnAcuerdos.Porcentaje / 100);
                                 }
-                                Cuotas.Descuento = valordescuento.toFixed(2);
+                                
+                                if (descuentoAplicadoCuotaAcuerdo[`${Cuotas.IdAcuerdoxCliente}-${Cuotas.NumeroCuota}`] === undefined) {
+                                    Cuotas.Descuento = valordescuento.toFixed(2);
+                                    descuentoAplicadoCuotaAcuerdo[`${Cuotas.IdAcuerdoxCliente}-${Cuotas.NumeroCuota}`] = true;
+                                } else {
+                                    Cuotas.Descuento = "0.00";
+                                }
                             }
                         }
                         else {
