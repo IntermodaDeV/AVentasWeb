@@ -22,6 +22,10 @@ const columns = [
         label: 'Saldo Disponible',
     },
     {
+        name: 'Descuento',
+        label: 'Descuento Cuota',
+    },
+    {
         name: 'FechaVencimiento',
         label: 'Fecha Vencimiento',
     },
@@ -38,6 +42,7 @@ const CuotasDeAcuerdos = (props) => {
                 Cuota:<span className="text-danger font-weight-bold">{cuota.NumCuota}</span>, 
                 ValorCuota: <span className="text-danger font-weight-bold">{Number(cuota.ValorCuota).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,  
                 Disponible: <span className="text-danger font-weight-bold">{Number(cuota.SaldoDisponible).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>, 
+                Descuento: <span className="text-danger font-weight-bold">{Number(cuota.Descuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')}</span>,
                 FechaVencimiento: <span className="text-danger font-weight-bold">{props.moment(cuota.FechaVencimiento).format("DD/MM/YYYY")}</span>, 
                 FacturasCuotas: cuota.FacturasCuotas,
             });
@@ -50,6 +55,7 @@ const CuotasDeAcuerdos = (props) => {
                 Cuota: cuota.NumCuota,
                 ValorCuota: Number(cuota.ValorCuota).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), 
                 Disponible: Number(cuota.SaldoDisponible).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
+                Descuento :Number(cuota.Descuento).toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'),
                 FechaVencimiento: props.moment(cuota.FechaVencimiento).format("DD/MM/YYYY"),
                 FacturasCuotas: cuota.FacturasCuotas,
             });
