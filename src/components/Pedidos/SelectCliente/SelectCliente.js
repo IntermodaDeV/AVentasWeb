@@ -550,6 +550,14 @@ const SelectCliente = (props) => {
                                     </tr>
                                     <tr>
                                         <td className={styles.InfoLabel}>
+                                            {'Conocido como:'}
+                                        </td>
+                                        <td className={styles.InfoLabelDetail}>
+                                            {props.autocompleteValue.Alias}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className={styles.InfoLabel}>
                                             {'Bloqueo Crediticio: '}
                                         </td>
                                         <td className={styles.InfoLabelDetail}>
@@ -567,9 +575,17 @@ const SelectCliente = (props) => {
                                             {'Departamento: '}
                                         </td>
                                         <td className={styles.InfoLabelDetail}>
-                                            {Depto}
+                                            {props.autocompleteValue.Departamento}
                                         </td>
-                                    </tr>                                                                      
+                                    </tr>
+                                    <tr>
+                                        <td className={styles.InfoLabel} >
+                                            {'Ciudad: '}
+                                        </td>
+                                        <td className={styles.InfoLabelDetail}>
+                                            {props.autocompleteValue.Ciudad}
+                                        </td>
+                                    </tr>                                                                        
                                     <tr>
                                         <td className={styles.InfoLabel}>
                                             {'Dirección: '}
