@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Card from '@material-ui/core/Card';
 import axios from 'axios'
 import { APIURL, APP_VERSION } from 'utils/Enviroment'
+import { useSelector } from 'react-redux';
 import CardContent from '@material-ui/core/CardContent';
 import PieChart from 'components/Inventario/PieChart';
 import moment from 'moment';
@@ -9,6 +10,7 @@ import 'moment/locale/es';
 
 export const InventarioAnterior = props => {
     const [inventario, setInventario] = useState([]);
+    const anterior = useSelector(e => e.Anterior);
 
     useEffect(() => {
         obtenerInventarioCliente(props.cliente.Codigo);
@@ -35,9 +37,10 @@ export const InventarioAnterior = props => {
                             <div className="h2 mb-0 font-weight-bold">CREADO: {moment(inventario[0].fechaCrea).format("DD-MM-YYYY")}</div>
                         </div>
                         <div className="col-md-6" style={{ textAlign: 'center' }}>
-                            <div className="h2 mb-0 font-weight-bold">MODIFICADO: {moment(inventario[0].fechaModificado).format("DD-MM-YYYY")}</div>
+                            <div className="h2 mb-0 font-weight-bold">{anterior ? "MODIFICADO:" : "FINALIZADO:"} {moment(inventario[0].fechaModificado).format("DD-MM-YYYY")}</div>
                         </div>
                     </div>
+                    <br></br>
                     <div className="row">
                         <div className="col-md-6">
                             <div className="row">
