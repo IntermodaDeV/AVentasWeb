@@ -487,13 +487,27 @@ export const ProductosDevolucion = (props) => {
 
                     for (const talla of producto.ListaTalla) {
                         const productoValores = productoDevolver.find(x => x.CodigoColor === color.CodigoColor && x.CodigoTalla.toUpperCase() === talla.Talla);
-
+                        
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla] = {}
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = productoValores ? productoValores.Cantidad : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = productoValores ? productoValores.Cantidad : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = productoValores ? productoValores.PrecioUnitario : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].PrecioGeneral = productoValores ? productoValores.PrecioGeneral : 0;
                         miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = true;
+                    }
+                }
+            } else {
+                for (const color of producto.ListaColores) {
+                    for (const talla of producto.ListaTalla) {
+                        const productoValores = productoDevolver.find(x => x.CodigoColor === color.CodigoColor && x.CodigoTalla.toUpperCase() === talla.Talla);
+                        if (productoValores !== undefined) {
+                            const DisponibleAnterior = miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad;
+                            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Disponible = productoValores.Cantidad + DisponibleAnterior;
+                            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Cantidad = productoValores.Cantidad + DisponibleAnterior;
+                            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Precio = productoValores.PrecioUnitario;
+                            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].PrecioGeneral = productoValores.PrecioGeneral;
+                            miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores[color.CodigoColor].Tallas[talla.Talla].Marcado = true;
+                        }
                     }
                 }
             }

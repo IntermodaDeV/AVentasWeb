@@ -131,6 +131,7 @@ const navItems = [
             { to: '/pedidos', name: 'Nuevo Pedido', dataTut: 'DataTut_NuevoPedido', Icon: PostAdd, backgroundColor:''  },
             { to: '/lista-pedidos', name: 'Listado Pedidos', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt, backgroundColor:''  },
             { to: '/recolocacion-pedido', name: 'Recolocar Pedido', dataTut: 'DataTut_ListadoPedidos', Icon: Sync, backgroundColor:''  },
+            { to: '/inventario', name: 'Inventario', dataTut: 'DataTut_ListadoPedidos', Icon: ListAlt, backgroundColor:''  },
         ]
     },
     {

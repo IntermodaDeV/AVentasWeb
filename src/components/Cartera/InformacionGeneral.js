@@ -30,7 +30,7 @@ export const InformacionGeneral = props => {
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
                 <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} /> {mensajeError()}
             </div>
-        )           
+        )
     }
     return (
         <Card>
@@ -60,6 +60,14 @@ export const InformacionGeneral = props => {
                                 </tr>
                                 <tr>
                                     <td className={styles.InfoLabel}>
+                                        {'Conocido como:'}
+                                    </td>
+                                    <td className={styles.InfoLabelDetail}>
+                                        {props.cliente.Alias}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className={styles.InfoLabel}>
                                         {'Bloqueo Crediticio: '}
                                     </td>
                                     <td className={styles.InfoLabelDetail}>
@@ -77,7 +85,15 @@ export const InformacionGeneral = props => {
                                         {'Departamento: '}
                                     </td>
                                     <td className={styles.InfoLabelDetail}>
-                                        {props.cliente.ComunidadAutonoma ? Comunidad.find(x => x.STATEID === props.cliente.ComunidadAutonoma).NAME : ''}
+                                        {props.cliente.Departamento}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td className={styles.InfoLabel} >
+                                        {'Ciudad: '}
+                                    </td>
+                                    <td className={styles.InfoLabelDetail}>
+                                        {props.cliente.Ciudad}
                                     </td>
                                 </tr>
                                 <tr>
