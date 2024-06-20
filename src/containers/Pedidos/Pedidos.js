@@ -1517,8 +1517,8 @@ if (this.props.LineaSeleccionada && this.props.coleccion) {
             }
         })
 
-
-        let total = pedido.subtotal + pedido.Impuesto + pedido.Flete
+        let impuestoFinal = this.props.cliente.Codigo.IncluyeImpuesto ? 0 : pedido.Impuesto;
+        let total = pedido.subtotal + impuestoFinal + pedido.Flete
         this.reducirDisponibleAcuerdo(pedido.CodigoCliente, total, pedido.TipoPedido.TipoPedido, pedido.AcuerdoVenta);
         if (!isOnline || localStorage.getItem("Conexion") === "offline" || pedido.NumeroReferencia === "") {
             Swal.fire({
