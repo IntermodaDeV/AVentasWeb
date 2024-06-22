@@ -57,6 +57,7 @@ class Asignacion extends Component {
         RutasSinFiltro: [],
         IdAsignacion: null,
         limpiarAsignacionesShow: false,
+        eliminarRangoAsignacionesShow:false,
     }
 
     setCargar = (show) => {
@@ -65,6 +66,10 @@ class Asignacion extends Component {
 
     limpiarAsignacionesShow = async (show) => {
         this.setState({ limpiarAsignacionesShow: show })
+    }
+
+    eliminarRangoAsignacionesShow = (show) => {
+        this.setState({ eliminarRangoAsignacionesShow: show })
     }
 
     mostrarAdvertencia = (title, text, type) => {
@@ -90,6 +95,15 @@ class Asignacion extends Component {
                 return;
             }
 
+        } catch (err) {
+            this.mostrarAdvertencia("Error", "No se pudo limpiar las asignaciones", "error");
+        }
+    }
+
+    eliminarRangoAsignaciones = async () => {
+        this.setState({ eliminarRangoAsignacionesShow: false })
+        try {
+            await axios.delete(`${APIURL}/api/asignaciones/eliminarasignaciones/${moment(this.state.startDate).format("YYYY-MM-DD").toString()}/${moment(this.state.endDate).format("YYYY-MM-DD").toString()}/${this.state.AsesorSelected}`);
         } catch (err) {
             this.mostrarAdvertencia("Error", "No se pudo limpiar las asignaciones", "error");
         }
@@ -473,8 +487,14 @@ class Asignacion extends Component {
                                             onClick={() => { this.limpiarAsignacionesShow(true) }}>
                                             Liberar Asignaciones
                                         </Button>
+                                        <Button
+                                            style={{ marginRight: 5 }}
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => { this.eliminarRangoAsignacionesShow(true) }}>
+                                            Eliminar rango visitas
+                                        </Button>
                                     </div>
-
                                 </div>
 
                                 {/* <LimpiarAsignaciones
@@ -510,7 +530,36 @@ class Asignacion extends Component {
                                             Limpiar
                                         </Button>
                                     </DialogContent>
-                                </Dialog> 
+                                </Dialog>
+                                <Dialog
+                                    open={this.state.eliminarRangoAsignacionesShow}
+                                >
+                                    <DialogTitle id="scroll-dialog-title">
+                                        <h2>Eliminar asignaciones</h2>
+                                    </DialogTitle>
+                                    <DialogContent>
+                                        <div >
+                                            <p>¿Estas seguro de eliminar las asignaciones de <strong>{this.state.AsesorSelected}</strong>?</p>
+                                        </div>
+                                        
+                                        <br></br>
+                                        <p>Desde: {moment(this.state.startDate).format("DD-MM-YYYY").toString()}</p>
+                                        <p>Hasta: {moment(this.state.endDate).format("DD-MM-YYYY").toString()}</p>
+
+                                        <Button
+                                            onClick={() => { this.eliminarRangoAsignacionesShow(false) }}
+                                            color="primary"
+                                            variant="outlined">
+                                            Cancelar
+                                        </Button>
+                                        <Button
+                                            onClick={() => { this.eliminarRangoAsignaciones() }}
+                                            color="primary"
+                                            variant="outlined">
+                                            Eliminar
+                                        </Button>
+                                    </DialogContent>
+                                </Dialog>  
 
                                 <div>
                                     {
