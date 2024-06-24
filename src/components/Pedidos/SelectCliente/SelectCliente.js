@@ -29,7 +29,6 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import logo from './iconfinder_Close_2001866.png';
 import {numberWithCommas} from 'utils/common';
 import CachedIcon from '@material-ui/icons/Cached';
-import Business from '@material-ui/icons/Business';
 import RoomIcon from '@material-ui/icons/Room';
 import axios from 'axios';
 import { Loading } from 'components/Global/Loading';
@@ -39,6 +38,7 @@ import { ObtenerCoordenadas } from 'utils/common';
 import{ reemplazarUrl } from 'utils/common';
 import FileSaver from 'file-saver';
 import XLSX from 'xlsx';
+import { ReservadoDetalleLinea } from './ReservadoDetalleLinea';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -77,6 +77,8 @@ const SelectCliente = (props) => {
     const Configuraciones = useSelector(e=>e.Configuraciones);
     const direccionEntrega = useSelector(e=>e.direccionEntrega);
     const [openModalDirecciones,setOpenModalDirecciones] = useState(false);
+    const [verPedidoPendientes, setVerPedidoPendientes] = useState(false);
+    const [detalleColeccion, setDetalleColeccion] = useState([]);
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -516,6 +518,56 @@ const SelectCliente = (props) => {
         EsVisible = true;
     }*/
 
+    const reservadoCliente = () => {
+        if (props.autocompleteValue.ReservadoClientePorLinea && props.autocompleteValue.ReservadoClientePorLinea.length === 0) {
+            return <h5 style={{ textAlign: "center", marginTop: 10 }}>Sin pedidos pendientes de facturar.</h5>
+        }
+
+        let Abreviacion = props.autocompleteValue.Moneda ? Monedas.find(e => e.IdMoneda === props.autocompleteValue.Moneda) ? Monedas.find(e => e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion : "" : "";
+
+        return (
+            <><span className={styles["TCenterContainer"]}>
+                <h5 className={styles["TCenter"]}>Pendiente Facturación</h5>
+            </span>
+                <table className="table table-responsive-xl">
+                    <thead>
+                        <tr>
+                            <th>Linea</th>
+                            <th>Monto</th>
+                            <th>Unidades</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {props.autocompleteValue.ReservadoClientePorLinea.map((reservado, index) => {
+
+                            return (
+                                <tr key={index}>
+                                    <td>{reservado.Linea}</td>
+                                    <td>{numberWithCommas(reservado.MontoPendiente)}</td>
+                                    <td>{numberWithCommas(reservado.UnidadesPendientes)}</td>
+                                    <td> <button onClick={() => { setVerPedidoPendientes(true); setDetalleColeccion(reservado) }} style={{ display: "block" }} className="btn btn-secondary">Ver detalle</button></td>
+
+                                </tr>
+                            )
+                        })}
+                        <tr>
+                            <td><b>Total Reservado</b></td>
+                            <td >{Abreviacion} {numberWithCommas(props.autocompleteValue.ReservadoClientePorLinea.reduce((prev, curr) => prev + curr.MontoPendiente, 0))}</td>
+                            <td >{numberWithCommas(props.autocompleteValue.ReservadoClientePorLinea.reduce((prev, curr) => prev + curr.UnidadesPendientes, 0))}</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                        <td style={{color:"red"}}><b>VALORES DE LOS PEDIDOS NO INCLUYEN ISV.</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+                        
+                <ReservadoDetalleLinea open={verPedidoPendientes} detalle={detalleColeccion} close={()=>{setVerPedidoPendientes(false)}} abreviacion={Abreviacion} />
+
+            </>)
+    }
+
     if (props.autocompleteValue) {
         let DisponibleTotal = 0;
         let ValorCreditoTotal = 0;
@@ -683,8 +735,15 @@ const SelectCliente = (props) => {
                                 </span>
                                 <button onClick={obtenerReporteAsignaciones} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
                             </div>
-                        </div>}
+                            <div className='mt-5'>
 
+                            {reservadoCliente()}
+                            </div>
+                        </div>}
+                        
+                        
+                            
+                                       
                     </div>
 
                 </CardContent>

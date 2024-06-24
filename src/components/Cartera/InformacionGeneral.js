@@ -1,14 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import styles from 'components/Pedidos/SelectCliente/SelectCliente.module.css';
 import { useSelector } from 'react-redux';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { numberWithCommas } from 'utils/common';
+import { ReservadoDetalleLinea } from 'components/Pedidos/SelectCliente/ReservadoDetalleLinea';
 
 export const InformacionGeneral = props => {
+    const [verPedidoPendientes, setVerPedidoPendientes] = useState(false);
+    const [detalleColeccion, setDetalleColeccion] = useState([]);
     const Monedas = useSelector(e => e.AbreviacionMonedas);
-    const Comunidad = useSelector(e => e.comunidadesAutonomas);
     let FacturacionEntrega = null;
     let DisponibleTotal = 0;
     let ValorCreditoTotal = 0;
@@ -23,6 +25,53 @@ export const InformacionGeneral = props => {
             if (props.cliente.FacturacionEntrega === "Factura") return "El cliente actualmente se encuentra deshabilitado por mora.";
             if (props.cliente.FacturacionEntrega === "Todo") return "El cliente actualmente se encuentra bloqueado.";
         }
+    }
+
+    const reservadoCliente = () => {
+        if (props.cliente.ReservadoClientePorLinea && props.cliente.ReservadoClientePorLinea.length === 0) {
+            return <h5 style={{ textAlign: "center", marginTop: 10 }}>No hay valores reservados.</h5>
+        }
+
+        var abreviacion = Monedas.find(e => e.IdMoneda === props.cliente.Moneda).Abreviacion;
+
+        return (
+            <><span className={styles["TCenterContainer"]}>
+                <h5 className={styles["TCenter"]}>Pendiente Facturación</h5>
+            </span>
+                <table className="table table-responsive-xl">
+                    <thead>
+                        <tr>
+                            <th>Colección</th>
+                            <th>Monto</th>
+                            <th>Unidades</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {props.cliente.ReservadoClientePorLinea.map((reservado, index) => {
+
+                            return (
+                                <tr key={index}>
+                                    <td>{reservado.Linea}</td>
+                                    <td>{numberWithCommas(reservado.MontoPendiente)}</td>
+                                    <td>{numberWithCommas(reservado.UnidadesPendientes)}</td>
+                                    <td> <button onClick={() => { setVerPedidoPendientes(true); setDetalleColeccion(reservado) }} style={{ display: "block" }} className="btn btn-secondary">Ver detalle</button></td>
+                                </tr>
+                            )
+                        })}
+                        <tr>
+                            <td><b>Total Reservado</b></td>
+                            <td >{abreviacion} {numberWithCommas(props.cliente.ReservadoClientePorLinea.reduce((prev, curr) => prev + curr.MontoPendiente, 0))}</td>
+                            <td >{numberWithCommas(props.cliente.ReservadoClientePorLinea.reduce((prev, curr) => prev + curr.UnidadesPendientes, 0))}</td>
+                        </tr>
+                        <tr>
+                            <td style={{color:"red"}}><b>VALORES DE LOS PEDIDOS NO INCLUYEN ISV.</b></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <ReservadoDetalleLinea open={verPedidoPendientes} detalle={detalleColeccion} close={() => { setVerPedidoPendientes(false) }} abreviacion={abreviacion} />
+
+            </>)
     }
 
     if ((props.cliente.FacturacionEntrega !== "No" && props.cliente.FacturacionEntrega !== "Nunca")) {
@@ -155,6 +204,9 @@ export const InformacionGeneral = props => {
                                 </tr>
                             </tbody>
                         </table>
+                        <div className='mt-5'>
+                            {reservadoCliente()}
+                        </div>
                     </div>
                 </div>
             </CardContent>
