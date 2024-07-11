@@ -11,7 +11,6 @@ import styles from "components/ListadoPedidos/ImprimirPedido.module.css";
 export const ImprimirInventario = props => {
     const { Cliente, tableValue, ValoresPedido, Finalizar } = props;
     const componentRef = useRef();
-    const Monedas = useSelector(e => e.AbreviacionMonedas);
     const empresas = useSelector(e => e.Empresas);
     const empresa = empresas.find(x => x.COMPANY_CODE === Cliente.EmpresaId);
     const gruposTalla = Object.keys(tableValue);
@@ -214,9 +213,7 @@ export const ImprimirInventario = props => {
                     gruposTalla.map((grupoTalla, index) => {
                         const productos = Object.keys(props.tableValue[grupoTalla].Productos);
                         const tallas = props.tableValue[grupoTalla].ListaTallas;
-
                         let result = getTableGroup(productos, tallas, grupoTalla, index);
-
                         return result.tabla;
                     })
                 }
@@ -237,11 +234,4 @@ export const ImprimirInventario = props => {
             </div>
         </div>
     )
-}
-
-const numberWithCommas = (x) => {
-    x = x.toFixed(2);
-    var parts = x.toString().split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join(".");
 }

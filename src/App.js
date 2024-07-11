@@ -9,9 +9,9 @@ import { getGeopostion } from './utils/geopostioning'
 import { EmptyLayout, LayoutRoute, MainLayout } from 'components/Layout'
 import AuthModalPage from 'containers/Authorize/AuthModalPage'
 import AuthPage from 'containers/Authorize/AuthPage'
-import Pedidos from 'containers/Pedidos/Pedidos' 
-import {RecolocacionPedido} from 'containers/RecolocacionPedido/RecolocacionPedido' 
-import {Inventario} from 'containers/Inventario/Inventario' 
+import Pedidos from 'containers/Pedidos/Pedidos'
+import { RecolocacionPedido } from 'containers/RecolocacionPedido/RecolocacionPedido'
+import { Inventario } from 'containers/Inventario/Inventario'
 import Recibos from 'containers/Recibos/Recibos'
 import Fotografia from 'containers/Fotografias/Fotografias'
 import CuentaCorriente from 'containers/CuentaCorriente/CuentaCorriente'
@@ -55,6 +55,7 @@ import { Ubicaciones } from 'containers/Ubicaciones/Ubicaciones';
 import { Devoluciones } from 'containers/Devoluciones/Devoluciones';
 import { MotivosDevolucion } from 'components/Devoluciones/MotivosDevolucion/MotivosDevolucion';
 import { ListadoDevolucion } from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucion';
+import { ListadoInventario } from 'containers/Inventario/ListadoInventario';
 import { AprobacionDevolucion } from 'containers/Devoluciones/ListadoDevolucion/AprobacionDevoluciones';
 import { ListadoDevolucionPendiente } from 'containers/Devoluciones/ListadoDevolucion/ListadoDevolucionPendiente'
 import { AcuerdosVenta } from 'containers/AcuerdosVenta/AcuerdoVenta'
@@ -226,11 +227,11 @@ const App = props => {
               component={Cartera}
             />
             {/*<LayoutRoute
-              exact
-              path='/coordenadas'
-              layout={MainLayout}
-              component={Coordenadas}
-              />*/}
+              exact
+              path='/coordenadas'
+              layout={MainLayout}
+              component={Coordenadas}
+              />*/}
             {<LayoutRoute
               exact
               path='/coordenadas-global'
@@ -277,6 +278,12 @@ const App = props => {
               path='/inventarios'
               layout={MainLayout}
               component={blank}
+            />
+            <LayoutRoute
+              exact
+              path='/ListadoInventario'
+              layout={MainLayout}
+              component={ListadoInventario}
             />
             <LayoutRoute
               exact

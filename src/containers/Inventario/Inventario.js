@@ -16,7 +16,7 @@ export const Inventario = (props) => {
         <Switch>
             <Route exact path={props.match.url} component={ClienteSelected} />
             <Route exact path={props.match.url + "/inventario"} component={TomarInventario} />
-            <Route exactpath={props.match.url + '/ImprimirDevolucion'}
+            <Route exactpath={props.match.url + '/ImprimirInventario'}
                 render={(routeProps) => {
                     return (
                         <ImprimirInventario

@@ -394,7 +394,7 @@ export const TomarInventario = (props) => {
                 }
             });
             mostrarModal("Inventario", "Se ha guardado el inventario con exito", "success");
-            history.push({ pathname: "/inventario/ImprimirDevolucion", state: JSON.stringify(inventario) });
+            history.push({ pathname: "/inventario/ImprimirInventario", state: JSON.stringify(inventario) });
             setOpen(false);
         } catch (err) {
             mostrarModal("Error", "No se pudo guardar el inventario.", "error");

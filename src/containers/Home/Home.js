@@ -9,7 +9,7 @@ import moment from 'moment';
 import axios from 'axios';
 import { FiAlertTriangle } from 'react-icons/fi';
 import { verificarConexion } from 'utils/http';
-import{ reemplazarUrl } from 'utils/common';
+import { reemplazarUrl } from 'utils/common';
 import update1 from 'assets/update1.jpeg';
 import update2 from 'assets/update2.jpeg';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -25,8 +25,8 @@ export const Home = (props) => {
     const [update, setUpdate] = useState(false);
     const Colecciones = useSelector(e => e.ListaPrecios);
     const [ModulosError, setModulosError] = useState([]);
-    const Configuraciones = useSelector(e=>e.Configuraciones);
-    const [velocidad,setVelocidad] = useState(0);
+    const Configuraciones = useSelector(e => e.Configuraciones);
+    const [velocidad, setVelocidad] = useState(0);
 
     useEffect(() => {
         cargarConfiguracionBaseColor();
@@ -494,7 +494,7 @@ export const Home = (props) => {
                 }
             });
             localStorage.setItem("CorrelativoReciboDiario", request.data)
-            dispatch({type:"SET_CORRELATIVORECIBODIARIO",payload:request.data});
+            dispatch({ type: "SET_CORRELATIVORECIBODIARIO", payload: request.data });
         }
         catch (error) {
             /*let step = ValoresModulos.filter(v => v.Nombre === "SincronizarRecibo")
@@ -727,7 +727,7 @@ export const Home = (props) => {
             e.Edades.forEach(async function (edades) {
                 let Edades;
                 if (coleccion !== undefined && coleccion.length > 0) {
-                    let imagenBlob = reemplazarUrl(coleccion[0].FotoPortada,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
+                    let imagenBlob = reemplazarUrl(coleccion[0].FotoPortada, Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                     if (imagenBlob) {
                         coleccion[0].FotoPortada = imagenBlob;
                     }
@@ -750,14 +750,14 @@ export const Home = (props) => {
                                 img.FotografiaProducto = imges[0].FotografiaProducto;
                             }
                             else {
-                                let imagenBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
+                                let imagenBlob = reemplazarUrl(img.FotografiaProducto, Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                 if (imagenBlob) {
                                     img.FotografiaProducto = imagenBlob;
                                 }
                             }
                         }
                         else {
-                            let imagenBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
+                            let imagenBlob = reemplazarUrl(img.FotografiaProducto, Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                             if (imagenBlob) {
                                 img.FotografiaProducto = imagenBlob;
                             }
@@ -781,14 +781,14 @@ export const Home = (props) => {
                                     img.FotografiaProducto = imgColor[0].FotografiaProducto;
                                 }
                                 else {
-                                    let imagenColorBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
+                                    let imagenColorBlob = reemplazarUrl(img.FotografiaProducto, Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                     if (imagenColorBlob) {
                                         img.FotografiaProducto = imagenColorBlob;
                                     }
                                 }
                             }
                             else {
-                                let imagenColorBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
+                                let imagenColorBlob = reemplazarUrl(img.FotografiaProducto, Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                 if (imagenColorBlob) {
                                     img.FotografiaProducto = imagenColorBlob;
                                 }
@@ -851,13 +851,30 @@ export const Home = (props) => {
         localStorage.setItem(`expiracion-Cartera`, moment(`${fecha} 23:59:59`))
     }
 
+    const verManual = async () => {
+        const isOnline = await verificarConexion();
+        if (isOnline) {
+            window.open('https://www.canva.com/design/DAGJ53R4Os0/gZy1q-yp4NpbVJVdWEp05w/view?utm_content=DAGJ53R4Os0&utm_campaign=designshare&utm_medium=link&utm_source=editor#1', '_blank');
+        }
+        else {
+            Swal.fire({
+                title: "Sin internet",
+                text: "Necesita internet para poder visualizar el manúal.",
+                type: "error",
+                confirmButtonText: 'Ok',
+            })
+        }
+    }
     /*--------------------------------------------------------------------------------------------------------------------*/
     return (
         <div style={{ height: '100%' }} className="container-fluid">
             <div class="card-body text-center">
                 <Loading open={loading} title={mensaje} />
                 <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
-                <h3 style={{color:velocidad<8?"red":"green"}}>Velocidad internet {velocidad} Mbps</h3>
+                {localStorage.getItem("UsuarioOficina") === "false" && (
+                    <a style={{ color: "blue", fontSize: "25px" }} target='__blank' onClick={verManual}>Manúal Eva</a>
+                )}
+                <h3 style={{ color: velocidad < 8 ? "red" : "green" }}>Velocidad internet {velocidad} Mbps</h3>
                 <hr />
                 <div>
                     {update && (
