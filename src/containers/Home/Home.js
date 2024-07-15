@@ -872,7 +872,7 @@ export const Home = (props) => {
                 <Loading open={loading} title={mensaje} />
                 <h1 class="card-title">¡Bienvenido(a) {localStorage.getItem('asesor')}!</h1>
                 {localStorage.getItem("UsuarioOficina") === "false" && (
-                    <a style={{ color: "blue", fontSize: "25px" }} target='__blank' onClick={verManual}>Manúal Eva</a>
+                    <a style={{ color: "blue", fontSize: "25px" }} target='__blank' onClick={verManual}>Manual Eva</a>
                 )}
                 <h3 style={{ color: velocidad < 8 ? "red" : "green" }}>Velocidad internet {velocidad} Mbps</h3>
                 <hr />
