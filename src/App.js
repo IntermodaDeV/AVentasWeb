@@ -75,6 +75,7 @@ import { TiemposFuera } from 'containers/Agenda/TiemposFuera/TiemposFuera'
 import { BaseColorImpuesto } from 'containers/BaseColorImpuesto/BaseColorImpuesto'
 import { ClasficacionProductos } from 'containers/Devoluciones/ClasificacionProductos'
 import { InventarioEspecifico } from 'containers/InventarioEspecifico/InventarioEspecifico'
+import { ListadoReportesVisita } from 'containers/IncidenciaVisita/ListadoIncidenciaVisita'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -449,6 +450,11 @@ const App = props => {
               path='/acuerdosVenta'
               layout={MainLayout}
               component={AcuerdosVenta}
+            />
+            <LayoutRoute
+              path='/listadoReportesVisita'
+              layout={MainLayout}
+              component={ListadoReportesVisita}
             />
             <LayoutRoute
               path='/GiraAsesores/Mantenimiento'

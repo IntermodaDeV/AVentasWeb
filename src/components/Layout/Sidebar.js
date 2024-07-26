@@ -112,6 +112,7 @@ const navItems = [
     { to: '/tiempofueraagenda', name: 'Tiempo Fuera Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
     { to: '/cartera', name: 'Cartera Clientes', dataTut: 'DataTut_Agenda', Icon: AccountBox },
     { to: '/acuerdosVenta', name: 'Acuerdos de Venta', dataTut: 'DataTut_Agenda', Icon: MonetizationOn },
+    { to: '/listadoReportesVisita', name: 'Reporte Visita', dataTut: 'DataTut_Agenda', Icon: EventNote },
     //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
     {
         to: '/encuesta', name: 'Encuesta', dataTut: 'DataTut_EncuetasGeneral', Icon: LibraryBooks,
