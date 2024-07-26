@@ -17,8 +17,11 @@ import { verificarConexion } from 'utils/http';
 
 export const SincronizacionEspecifica = (props) => {
     const [asesores, setAsesores] = useState([]);
+    const [empresas, setEmpresas] = useState([]);
     const [AsesorSelected, setAsesorSelected] = useState(null);
+    const [empresaSelected, setEmpresaSelected] = useState(null);
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
+    const empresasUsuario = useSelector(e => e.Permisos[0].EmpresasUsuarios);
     const [isLoading, setLoading] = useState(false);
     const [title, setTitle] = useState("");
     const [acuerdo, setAcuerdo] = useState("");
@@ -28,11 +31,13 @@ export const SincronizacionEspecifica = (props) => {
             props.history.push('/home');
         }
         let asesoresMap = AsesoresUsuario.map((Ase) => ({ key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }));
+        let empresasMap = empresasUsuario.map((emp) => ({ key: emp.EmpresaId, value: emp.EmpresaId, text: emp.EmpresaId}));
         setAsesores(asesoresMap);
+        setEmpresas(empresasMap);
     }, [])
 
-    const objectSincronizar = ["asesores", "rutasAsesores", "clientes", "cuotas", "acuerdosventa"];
-    const objectmsg = ["Asesores", "Rutas Asesores", "Clientes", "Cuotas Acuerdo"];
+    const objectSincronizar = ["asesores", "rutasAsesores", "clientes", "cuotas", "acuerdosventa", "direcciones"];
+    const objectmsg = ["Asesores", "Rutas Asesores", "Clientes", "Cuotas Acuerdo","Acuerdo de venta" ,"Direcciones cliente"];
 
     const Sincronizar = (id) => {
         try {
@@ -67,6 +72,16 @@ export const SincronizacionEspecifica = (props) => {
                 return;
             }
 
+            if (id == objectSincronizar[5] && empresaSelected == null) {
+                Swal.fire({
+                    title: 'Error',
+                    text: "Para sincronizar las direcciones del cliente debe seleccionar una empresa!",
+                    type: 'error',
+                    confirmButtonText: 'Ok'
+                })
+                return;
+            }
+
             let url = `${APIURL}/api/sincronizar/${id}/`;
             let msgType = ""
 
@@ -88,6 +103,10 @@ export const SincronizacionEspecifica = (props) => {
                 case objectSincronizar[4]:
                     url = url + `${AsesorSelected}`;
                     msgType = objectmsg[4];
+                    break;
+                case objectSincronizar[5]:
+                    url = url + `${empresaSelected}`;
+                    msgType = objectmsg[5];
                     break;
                 default:
                     url = "";
@@ -148,6 +167,10 @@ export const SincronizacionEspecifica = (props) => {
 
     const handleOnChangeAsesor = (value) => {
         setAsesorSelected(value);
+    }
+
+    const handleOnChangeEmpresa = (value) => {
+        setEmpresaSelected(value);
     }
 
     return (
@@ -271,7 +294,32 @@ export const SincronizacionEspecifica = (props) => {
                                     </div>
                                 </td>
                             </tr>
-
+                            <tr key="3" style={{ textAlign: "center" }}>
+                                <td>Direcciones Clientes</td>
+                                <td >
+                                    <div>
+                                        <Dropdown
+                                            placeholder="Empresa"
+                                            selection
+                                            onChange={(e, { value }) => handleOnChangeEmpresa(value)}
+                                            options={empresas}
+                                            noResultsMessage={"No hay resultados"}
+                                            closeOnChange={true}
+                                            value={empresaSelected}
+                                        />
+                                    </div>
+                                </td>
+                                <td>
+                                    <div>
+                                        <Button
+                                            onClick={() => { Sincronizar(objectSincronizar[5]) }}
+                                            variant="contained"
+                                            color="primary">
+                                            Sincronizar
+                                        </Button>
+                                    </div>
+                                </td>
+                            </tr>
                         </tbody>
                     </Table>
                 </CardContent>
