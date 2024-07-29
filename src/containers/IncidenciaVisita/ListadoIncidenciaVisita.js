@@ -25,9 +25,10 @@ import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import { Dropdown } from "semantic-ui-react";
 import { useSelector } from 'react-redux';
+import {IsAllow} from 'components/Seguridad/Permisos';
 
 
-export const ListadoReportesVisita = () => {
+export const ListadoReportesVisita = (props) => {
     const [incidencias, setIncidencias] = useState([]);
     const [showDialog, setShowDialog] = useState(false);
     const [incidenciaDetalle, setIncidenciaDetalle] = useState([]);
@@ -50,6 +51,9 @@ export const ListadoReportesVisita = () => {
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
 
     useEffect(() => {
+        if (!IsAllow("/listadoReportesVisita")) {
+            props.history.push('/home');
+        }
         obtenerEstados();
         asesoresData();
     }, [fechaInicio, fechaFin]);
