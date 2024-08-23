@@ -7,17 +7,17 @@ import {
     CardContent,
     Button,
 } from '@material-ui/core';
-import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios'
-import { APIURL, APP_VERSION } from 'utils/Enviroment'
+import { APIURL} from 'utils/Enviroment'
 
 
 const ClienteSelected = (props) => {
     const [value, setValue] = useState();
     const clientes = useSelector(e => e.clientes);
     const dispatch = useDispatch();
-    const [invAnterior, setInvAnterior] = useState(false);
+    let tableValue = useSelector(e => e.Inventario.TableValue);
+    const [invAnterior, setInvAnterior] = useState();
 
     const handleOnChange = async (value) => {
         setValue(value);
@@ -38,6 +38,11 @@ const ClienteSelected = (props) => {
         }
     }
 
+    useEffect(() => {
+        Object.keys(tableValue).forEach(key => delete tableValue[key]);
+        dispatch({ type: "SET_TABLEVALUEINVENTARIO", payload: {}});
+    }, []);
+    
     const obtenerClientes = () => {
         return clientes.map(el => ({ key: el.Codigo, value: el, text: `${el.Codigo}-${el.Nombre}` }))
     }

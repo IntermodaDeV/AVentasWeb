@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import {
     Card,
+    Button,
     CardContent,
 } from '@material-ui/core';
 import { useSelector, useDispatch } from 'react-redux';
 import { ExpandableInventario } from './ExpandableInventario';
+import { ExpandableNoEncontrados } from './ExpandableNoEncontrados';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { Loading } from 'components/Global/Loading';
 import { mostrarModal } from 'utils/common';
 import { useHistory } from 'react-router';
+import CargarInventario from 'components/Inventario/CargarInventario';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
-import { FiAlertTriangle } from 'react-icons/fi';
 
 export const TomarInventario = (props) => {
     const history = useHistory();
@@ -26,7 +28,9 @@ export const TomarInventario = (props) => {
     const [codigoBarra, setCodigoBarra] = useState("");
     const [tallaTxt, setTalla] = useState("");
     const [open, setOpen] = useState(false);
+    const [showDialog, setShowDialog] = useState(false);
     const [title, setTitle] = useState("");
+    const [noEncontrados, setNoEncontrados] = useState([]);
     let totalUnid = 0;
     let productosSinCantidad = false;
 
@@ -147,7 +151,7 @@ export const TomarInventario = (props) => {
             miTableValue[producto.GrupoTalla].ListaTallas = producto.ListaTalla;
         }
 
-        producto.ProductoId = `${producto.ProductoId}-${pColor}`;
+        producto.ProductoId = `${producto.ProductoId}`;
         if (miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] === undefined) {
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId] = {};
             miTableValue[producto.GrupoTalla]["Productos"][producto.ProductoId].Colores = {};
@@ -283,7 +287,7 @@ export const TomarInventario = (props) => {
             const productoExiste = productosAgregados.find(x => x.codigoBarra === codigoBarra);
 
             if (productoExiste) {
-                aumentarCantidad(productoExiste.grupoTalla, `${productoExiste.codigo}-${productoExiste.color}`, productoExiste.color, productoExiste.talla);
+                aumentarCantidad(productoExiste.grupoTalla, productoExiste.codigo, productoExiste.color, productoExiste.talla);
                 limpiarCampos();
             } else {
                 try {
@@ -302,7 +306,6 @@ export const TomarInventario = (props) => {
     }
 
     useEffect(() => {
-        dispatch({ type: "SET_TABLEVALUEINVENTARIO", payload: {} });
         if (anterior) {
             cargarInventario();
         }
@@ -369,14 +372,30 @@ export const TomarInventario = (props) => {
         return [detalleInventario];
     }
 
+    const handleInventarioCargado = (productos) => {
+        setTitle("Cargando información");
+        setOpen(true);
+        for (let data of productos) {
+            const grupoTalla = existeVariante(data.ProductoId, data.colorId, data.tallaId);
+            if (grupoTalla) {
+                aumentarCantidad(grupoTalla, data.ProductoId, data.colorId, data.tallaId);
+                continue;
+            }
+            agregarProducto(data, data.tallaId, data.colorId, data.cantidad, true);
+        }
+        setNoEncontrados(productos.filter(f => !(f.encontrado)) .map(m => ({CodBarra: m.CodBarra, cantidad: m.cantidad})));
+        setOpen(false);
+    };
+
     const enviarInventario = async (completo) => {
         let inventario = {
             CodigoCliente: clienteSelected.Codigo,
-            Correlativo: detalleInventario.length > 0 ? detalleInventario[0].numInventario : localStorage.getItem("CorrelativoInventario"),
+            Correlativo: anterior ? detalleInventario[0].numInventario : localStorage.getItem("CorrelativoInventario"),
             Empresa: localStorage.getItem('empresa'),
             Completo: completo,
             DetalleInventario: [],
-        };;
+            ProductosNoEncontrados: [],
+        };
         const [detalle] = construirDetalleInventario();
 
         if (detalle.length === 0) {
@@ -384,6 +403,7 @@ export const TomarInventario = (props) => {
             return;
         }
         inventario.DetalleInventario = detalle;
+        inventario.ProductosNoEncontrados = noEncontrados;
         try {
             setTitle("Guardando Inventario");
             setOpen(true);
@@ -413,10 +433,22 @@ export const TomarInventario = (props) => {
     return (
         <>
             <Loading open={open} title={title} />
-            <Card style={{ margin: '15px', minHeight: '70vh' }}>
+            <Card style={{ margin: '15px', minHeight: '70vh', overflowY: 'auto' }}>
                 <CardContent>
                     <hr />
-                    <h5>Agregar producto</h5>
+                    {(!anterior) &&
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <h5>Agregar producto </h5>
+                            <div className="col-lg-2 my-lg-0 col-6 my-1" style={{ paddingBottom: 10 }}>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={() => setShowDialog(true)}>
+                                    Cargar inventario
+                                </Button>
+                            </div>
+                        </div>
+                    }
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <input type="text" className="mr-5 form-control" placeholder="Codigo Producto" value={codigo} onChange={(e) => { setCodigo(e.target.value) }} />
                         <input type="text" className="mr-5 form-control" placeholder="Codigo Color" value={color} onChange={(e) => { setColor(e.target.value) }} />
@@ -424,48 +456,61 @@ export const TomarInventario = (props) => {
                         <input type="text" className="mr-5 form-control" placeholder="Codigo Barra" value={codigoBarra} onChange={(e) => { setCodigoBarra(e.target.value) }} onKeyPress={obtenerAtributosBarra} />
                         <button className="btn btn-success" onClick={añadir}>Añadir</button>
                     </div>
+
+                    {(Object.keys(noEncontrados).length > 0) &&
+                        <>
+                            <ExpandableNoEncontrados
+                                totalCantidad={noEncontrados
+                                    .filter(f => !f.encontrado)
+                                    .reduce((total, producto) => total + producto.cantidad, 0)}
+                                productos={noEncontrados}
+                            />
+                        </>
+                    }
                     {(Object.keys(tableValue).length > 0) &&
                         <>
                             <hr />
-                            <form>
-                                {Object.keys(tableValue).map((grupoTalla, index) => {
-                                    let productos = Object.keys(tableValue[grupoTalla].Productos);
-                                    return productos.map((codigoProducto, index1) => {
-                                        let producto = tableValue[grupoTalla].Productos[codigoProducto];
-                                        let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
-                                        let productoConCantidad = false;
-                                        let { totalCantidad } = obtenerTotales(producto);
-                                        totalUnid += totalCantidad;
-                                        Object.keys(producto.Colores).forEach((codigoColor) => {
-                                            let color = producto.Colores[codigoColor];
-                                            var totalXColor = 0;
+                            <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                                <form>
+                                    {Object.keys(tableValue).map((grupoTalla, index) => {
+                                        let productos = Object.keys(tableValue[grupoTalla].Productos);
+                                        return productos.map((codigoProducto, index1) => {
+                                            let producto = tableValue[grupoTalla].Productos[codigoProducto];
+                                            let tallas = tableValue[grupoTalla].Productos[codigoProducto].ListaTallas;
+                                            let productoConCantidad = false;
+                                            let { totalCantidad } = obtenerTotales(producto);
+                                            totalUnid += totalCantidad;
+                                            Object.keys(producto.Colores).forEach((codigoColor) => {
+                                                let color = producto.Colores[codigoColor];
+                                                var totalXColor = 0;
 
-                                            Object.keys(color.Tallas).forEach((codigoTalla) => {
-                                                let valorTalla = color.Tallas[codigoTalla];
-                                                let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
-                                                let totalXTalla = cantidadXTalla * valorTalla.Precio;
-                                                totalXColor = parseInt(totalXColor, 10) + totalXTalla;
-                                                productoConCantidad = productoConCantidad || (cantidadXTalla > 0);
+                                                Object.keys(color.Tallas).forEach((codigoTalla) => {
+                                                    let valorTalla = color.Tallas[codigoTalla];
+                                                    let cantidadXTalla = (isNaN(parseInt(valorTalla.Cantidad, 10)) ? 0 : parseInt(valorTalla.Cantidad, 10));
+                                                    let totalXTalla = cantidadXTalla * valorTalla.Precio;
+                                                    totalXColor = parseInt(totalXColor, 10) + totalXTalla;
+                                                    productoConCantidad = productoConCantidad || (cantidadXTalla > 0);
+                                                });
                                             });
-                                        });
-                                        productosSinCantidad = productosSinCantidad || (!productoConCantidad);
-                                        return (
-                                            <ExpandableInventario
-                                                key={codigoProducto}
-                                                grupoTalla={grupoTalla}
-                                                producto={producto}
-                                                codigoProducto={codigoProducto}
-                                                tallas={tallas}
-                                                totalCantidad={totalCantidad}
-                                                eliminarProducto={eliminarProducto}
-                                                eliminarColor={eliminarColor}
-                                                ingresoCantidad={ingresoCantidad}
-                                                actualizarProducto={actualizarProducto}
-                                            />
-                                        )
-                                    })
-                                })}
-                            </form>
+                                            productosSinCantidad = productosSinCantidad || (!productoConCantidad);
+                                            return (
+                                                <ExpandableInventario
+                                                    key={codigoProducto}
+                                                    grupoTalla={grupoTalla}
+                                                    producto={producto}
+                                                    codigoProducto={codigoProducto}
+                                                    tallas={tallas}
+                                                    totalCantidad={totalCantidad}
+                                                    eliminarProducto={eliminarProducto}
+                                                    eliminarColor={eliminarColor}
+                                                    ingresoCantidad={ingresoCantidad}
+                                                    actualizarProducto={actualizarProducto}
+                                                />
+                                            )
+                                        })
+                                    })}
+                                </form>
+                            </div>
                             <div className={`row text-center ${styles['barra']}`} >
                                 <div className={`col ${styles['barraInner']}`}>
                                     Total de Unidades: {numberWithCommasNoDec(totalUnid)}
@@ -479,6 +524,11 @@ export const TomarInventario = (props) => {
                     }
                 </CardContent>
             </Card>
+            <CargarInventario
+                showDialog={showDialog}
+                setDialog={() => setShowDialog(false)}
+                productosCargados={handleInventarioCargado}
+            />
         </>
     );
 }
