@@ -62,7 +62,7 @@ const CargarInventario = (props) => {
         let file = event.target.files[0];
         if (file !== undefined && file !== null) {
             const extension = file.name.split('.')[1];
-            if (extension !== "xlsx" && extension !== "xls") {
+            if (extension !== "xlsx" && extension !== "xls" && extension !== "csv") {
                 Swal.fire({
                     title: 'Error',
                     text: "El formato del archivo no es permitido",
@@ -214,7 +214,7 @@ const TablaAsignaciones = props => {
             <tbody>
                 {props.inventario.map((x, i) => (
                     <tr key={i} style={{ background: (x.error) ? "tomato" : "" }}>
-                        <td>{i + 2}</td>
+                        <td>{i + 1}</td>
                         <td style={style}>{x.CodBarra}</td>
                     </tr>
                 ))}

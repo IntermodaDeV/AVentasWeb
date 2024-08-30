@@ -21,14 +21,12 @@ export const ListadoInventario = (props) => {
     const [inventario, setInventario] = useState(null);
     const [detalleInventario, setDetalleInventario] = useState([]);
     const [asesores, setAsesores] = useState([]);
-    const [AsesorSelected, setAsesorSelected] = useState(null);
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
-    let Asesor = AsesoresUsuario.find(a => a.Usuario === localStorage.getItem('codigo')) || AsesoresUsuario[0].Usuario;
+    const asesor = AsesoresUsuario.find(a => a.Usuario === localStorage.getItem('codigo'));
+    const [AsesorSelected, setAsesorSelected] = useState(asesor ? asesor.Usuario : AsesoresUsuario[0].Usuario);
 
     useEffect(() => {
-        setAsesorSelected(Asesor.Usuario)
         ObtenerListadoInventarios();
-
         let asesoresMap = AsesoresUsuario.map((Ase) => ({ key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }));
         asesoresMap.unshift({ key: "Todo", value: "Todo", text: "Todo" });
         setAsesores(asesoresMap);
@@ -37,7 +35,7 @@ export const ListadoInventario = (props) => {
 
     const ObtenerListadoInventarios = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/Inventario/${Asesor.Usuario}`, {
+            const request = await axios.get(`${APIURL}/api/Inventario/${AsesorSelected}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -151,7 +149,7 @@ export const ListadoInventario = (props) => {
     const permisoEliminarInventario = () => {
         const globalState = store.getState();
         const Permisos = globalState["Permisos"];
-    
+
         for (const Permiso of Permisos) {
             for (const Roles of Permiso.RolesUsuarios) {
                 if (Roles.Nombre === "Eliminar inventario") {
@@ -159,7 +157,7 @@ export const ListadoInventario = (props) => {
                 }
             }
         }
-    
+
         return false;
     }
 
@@ -187,7 +185,7 @@ export const ListadoInventario = (props) => {
                 <div>
                     <span className="ml-1">
                         <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerDetalleInventario(p) }} color={"primary"}>
-                            <PrintOutlined />&nbsp;
+                            <PrintOutlined />
                         </Button>
                         {permisoEliminarInventario() > 0 &&
                             <>

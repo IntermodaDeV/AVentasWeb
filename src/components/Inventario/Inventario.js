@@ -383,7 +383,7 @@ export const TomarInventario = (props) => {
             }
             agregarProducto(data, data.tallaId, data.colorId, data.cantidad, true);
         }
-        setNoEncontrados(productos.filter(f => !(f.encontrado)) .map(m => ({CodBarra: m.CodBarra, cantidad: m.cantidad})));
+        setNoEncontrados(productos.filter(f => !(f.encontrado)) .map(m => ({codigoBarra: m.CodBarra, cantidad: m.cantidad})));
         setOpen(false);
     };
 
@@ -433,7 +433,7 @@ export const TomarInventario = (props) => {
     return (
         <>
             <Loading open={open} title={title} />
-            <Card style={{ margin: '15px', minHeight: '70vh', overflowY: 'auto' }}>
+            <Card style={{ margin: '15px', minHeight: '70vh', overflowY: 'visible' }}>
                 <CardContent>
                     <hr />
                     {(!anterior) &&
@@ -470,7 +470,7 @@ export const TomarInventario = (props) => {
                     {(Object.keys(tableValue).length > 0) &&
                         <>
                             <hr />
-                            <div style={{ maxHeight: '500px', overflowY: 'auto' }}>
+                            <div style={{ maxHeight: '550px', overflowY: 'auto' }}>
                                 <form>
                                     {Object.keys(tableValue).map((grupoTalla, index) => {
                                         let productos = Object.keys(tableValue[grupoTalla].Productos);
