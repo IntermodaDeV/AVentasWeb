@@ -52,8 +52,6 @@ export const MailCorreos = (props) => {
       }
   };
   const obtenerCorreos = async () => {
-   
-    debugger
     const query = new URLSearchParams(window.location.search);
     const modulo = query.get('modulo');
     setModuloId(modulo);
@@ -119,7 +117,7 @@ export const MailCorreos = (props) => {
     {
     
     try {
-        debugger
+      
         if (currentRow !== null)
         {
             await axios.put(`${APIURL}/api/mailreceptors/actualizar`, modalData,
@@ -163,7 +161,13 @@ export const MailCorreos = (props) => {
         const modulo = query.get('modulo');
         setModuloId(modulo);
         setOpen(false);
-        const response = await axios.get(`${APIURL}/api/mailreceptors/listar/${modulo}`);
+        const response = await axios.get(`${APIURL}/api/mailreceptors/listar/${modulo}`, 
+          {
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+          }
+      });
         setData(response.data);
       
       
@@ -179,10 +183,10 @@ export const MailCorreos = (props) => {
   };
 
   const handleDelete  = async (rowData) => {
-    debugger
+    
     const { ServicioID, EmpresaId, CorreoElectronico } = rowData;
     try {
-
+       
         await axios.delete(`${APIURL}/api/mailreceptors/eliminar`, {
             data: {
               ServicioID,
@@ -193,8 +197,17 @@ export const MailCorreos = (props) => {
 
         Swal.fire('Eliminado', 'Receptor de correo eliminado correctamente', 'success');
 
+        const query = new URLSearchParams(window.location.search);
+        const modulo = query.get('modulo');
+        setModuloId(modulo);
         setOpen(false);
-        const response = await axios.get(`${APIURL}/api/mailreceptors/listar`);
+        const response = await axios.get(`${APIURL}/api/mailreceptors/listar/${modulo}`, 
+          {
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + localStorage.getItem('token')
+          }
+      });
         setData(response.data);
     }
     catch (error) {
