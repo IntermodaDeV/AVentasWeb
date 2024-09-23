@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import GoogleMapReact from 'google-map-react';
-import { APIKEY } from 'utils/Enviroment';
+import { useSelector } from 'react-redux';
 import moment from "moment";
 import 'moment/locale/es';
 
 export const MapaAsesor = props => {
+
+    const APIKEY = useSelector(e => e.Configuraciones.ApiKey_GoogleMaps);
 
     return (
         <GoogleMapReact
@@ -33,6 +35,7 @@ const Marker = props => {
     const [visible, setVisible] = useState(false);
     const nombreApellido = props.ubicacion.asesor.split(' ').filter(x => x !== "");
     const iniciales = nombreApellido[0].charAt(0) + nombreApellido[1].charAt(0);
+    
 
     const handleVisibleClick = () => {
         setVisible(!visible);

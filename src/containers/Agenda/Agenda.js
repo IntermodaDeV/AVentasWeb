@@ -5,7 +5,7 @@ import GoogleMapReact from 'google-map-react';
 import { ScaleLoader } from 'react-spinners';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import TextField from '@material-ui/core/TextField';
-import { APIURL, APIKEY } from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import FacturasModal from "components/Recibos/FacturasModal/FacturasModal";
 import Dialog from '@material-ui/core/Dialog';
 import DialogTitle from '@material-ui/core/DialogTitle';
@@ -13,28 +13,30 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import Button from '@material-ui/core/Button';
 import FormGroup from '@material-ui/core/FormGroup';
-//import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import MenuItem from '@material-ui/core/MenuItem';
-//import Checkbox from '@material-ui/core/Checkbox';
 import InputLabel from '@material-ui/core/InputLabel';
 import styles from 'containers/Agenda/Agenda.module.css';
 import 'containers/Agenda/Agenda.css';
 import moment from "moment";
 import { connect } from 'react-redux';
 import { IsAllow, PermisoAdministradorVisita } from 'components/Seguridad/Permisos';
-//import { FaEye } from "react-icons/fa";
 import { get, verificarConexion } from 'utils/http';
 import axios from 'axios';
 import { ObtenerCoordenadas } from 'utils/common';
 import { KeyboardDatePicker } from "@material-ui/pickers";
+import { useSelector } from 'react-redux';
 moment.locale('es');
+
+
+
 class Agenda extends Component {
     urlApi = APIURL;
     state = {
         TiemposFuera:[],
         Asignaciones: [],
+        Configuraciones : [],
         mostrarAcciones: true,
         isLoaded: false,
         Eventos: [],
@@ -76,6 +78,7 @@ class Agenda extends Component {
 
     myRef = React.createRef();
     refCoordenadas = React.createRef();
+
 
     cargarAsesores = () => {
         let asesores = this.props.Permisos[0].AsesoresUsuario.map(s => s.Usuario);
@@ -821,6 +824,10 @@ class Agenda extends Component {
         if (error) {
             console.log(error);
         } else {
+
+            this.setState({
+                Configuraciones: data
+            });
             this.props.onSaveConfiguraciones(data);
         }
     }
@@ -1048,12 +1055,12 @@ class Agenda extends Component {
         this.accesoPineo();
         let tipoDisabled = false;
         let causaDisabled = false;
-        //let observacionDisabled = false;
+        let APIKEY = this.state.Configuraciones.ApiKey_GoogleMaps;
 
         if (!this.state.mostrarAcciones && !this.state.noAtendido) {
             causaDisabled = true;
             tipoDisabled = true;
-            //observacionDisabled = true;
+  
         }
 
         if (!this.state.tipoSelected) {

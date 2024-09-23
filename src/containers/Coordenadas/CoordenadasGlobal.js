@@ -1,15 +1,15 @@
 import React, { useRef, useEffect, useState } from 'react';
 import axios from 'axios';
 import GoogleMapReact from 'google-map-react';
-import { APIURL, APIKEY } from 'utils/Enviroment';
+import { APIURL } from 'utils/Enviroment';
 import { Dropdown } from "semantic-ui-react/";
-
+import { useSelector } from 'react-redux';
 import {
     /*Button,*/
     Col,
     Row,
 } from 'reactstrap';
-import { string } from 'prop-types';
+
 
 const paises =
     [
@@ -55,6 +55,9 @@ const CoordenadasGlobal = (props) => {
         cargarRutas();
         cargarAsesores();
     }, [])
+
+    const APIKEY = useSelector(e => e.Configuraciones.ApiKey_GoogleMaps);
+
 
     const cargarRutas = () => {
         axios({
@@ -236,7 +239,7 @@ const CoordenadasGlobal = (props) => {
     }
 
     if (coordenadas.length === 0) {
-        return <h1>Coordenadas no disponbles</h1>
+        return <h1>Coordenadas no disponibles</h1>
     }
 
     return (

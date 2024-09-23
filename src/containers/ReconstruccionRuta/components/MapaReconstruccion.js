@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { GoogleMap, useJsApiLoader, Polyline, Marker, InfoWindow } from '@react-google-maps/api';
-import { APIKEY } from 'utils/Enviroment';
+//import { APIKEY } from 'utils/Enviroment';
 import moment from "moment";
 import 'moment/locale/es';
+import { useSelector } from 'react-redux';
 
 //components
 import { PedidoMarker } from './PedidoMarker';
@@ -17,6 +18,8 @@ const MapaReconstruccion = props => {
     let lastCoors = { lat: coordenadas[coordenadas.length - 1].lat, lng: coordenadas[coordenadas.length - 1].lng };
     const [inicioruta, setInicio] = useState(false);
     const [finalruta, setFinal] = useState(false);
+    const APIKEY = useSelector(e => e.Configuraciones.ApiKey_GoogleMaps);
+
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
