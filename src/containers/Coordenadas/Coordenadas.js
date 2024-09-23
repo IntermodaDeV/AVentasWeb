@@ -5,13 +5,16 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import styles from 'containers/Coordenadas/Coordenadas.module.css';
-import {APIURL,APIKEY} from 'utils/Enviroment';
+import {APIURL} from 'utils/Enviroment';
+
+
 // const CustomMarker = ({ text }) => <div>{text}</div>;
 export default class Coordenadas extends Component {
-    urlApi = APIURL;
+    urlApi = APIURL; 
     state = {
         isLoaded: false,
         Eventos: [],
+        Configuraciones : [],
         mostarEvento: false,
         isModalLoaded: false,
         Acciones: [],
@@ -23,6 +26,7 @@ export default class Coordenadas extends Component {
     }
     componentDidMount() {
         this.cargarRutas();
+        this.cargarConfiguraciones();
     }
     cargarRutas = async () => {
         fetch(this.urlApi + "/api/coordenadasXCliente", {
@@ -60,6 +64,19 @@ export default class Coordenadas extends Component {
                 }
 
             })
+    }
+
+
+    cargarConfiguraciones = async () => {
+        const { data, error } = await get(`${APIURL}/api/configuraciones`, "Configuraciones");
+        if (error) {
+            console.log(error);
+        } else {
+
+            this.setState({
+                Configuraciones: data
+            });
+        }
     }
 
 
@@ -112,6 +129,8 @@ export default class Coordenadas extends Component {
     }
     render() {
         const { error, isLoaded } = this.state;
+        let APIKEY = this.state.Configuraciones.ApiKey_GoogleMaps;
+        
         if (error) {
             return <div>Error: {error.message}</div>;
         } else if (!isLoaded) {
@@ -197,4 +216,8 @@ export default class Coordenadas extends Component {
 
     }
 }
+
+
+
+
 
