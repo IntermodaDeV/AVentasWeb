@@ -127,7 +127,7 @@ export const MailEjecucion = (props) => {
 
     try 
     {
-      debugger
+     
       if (currentRow) {
         // Actualizar Servicio
         await axios.put(`${APIURL}/api/mailproexe/actualizar`, modalData,
@@ -188,8 +188,6 @@ export const MailEjecucion = (props) => {
 
   const handleDelete = async (rowData) => {
     const { Id, ServicioID } = rowData;
-
-    debugger
 
     try 
     {

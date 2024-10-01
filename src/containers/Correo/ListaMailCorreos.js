@@ -42,7 +42,7 @@ export const MailCorreos = (props) => {
     {
         const response = await axios.get(`${APIURL}/api/empresa/Empresas`);
         setDataEmpresas(response.data);
-        console.log(response.data);
+        
       } catch (error) {
         Swal.fire({
           icon: 'error',
