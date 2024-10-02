@@ -50,10 +50,11 @@ export const MailServicios = (props) => {
       try 
       {
         const response = await axios.get(`${APIURL}/api/mailservicios/obtener/${modulo}`);
-      
         setData(response.data);
-      } catch (error) {
-        console.error('Error al obtener los datos:', error);
+      } 
+      
+      catch (error) 
+      {
         Swal.fire({
           icon: 'error',
           title: 'Oops...',
@@ -144,7 +145,7 @@ export const MailServicios = (props) => {
     setWarningMessage('');  // Limpiar mensajes de advertencia
 
     try {
-    debugger
+    
       if (currentRow) {
         // Actualizar Servicio
         await axios.put(`${APIURL}/api/mailservicios/actualizar`, modalData);
@@ -193,9 +194,8 @@ export const MailServicios = (props) => {
      setData(response.data);
 
 
-    } catch (error) {
-
-        console.log(error);
+    } catch (error) 
+    {
       Swal.fire('Error', 'Hubo un problema al eliminar el servicio', 'error');
     }
   };
