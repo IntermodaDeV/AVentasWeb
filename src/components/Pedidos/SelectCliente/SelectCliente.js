@@ -607,7 +607,7 @@ const SelectCliente = (props) => {
 
     let optionsMap = null;
     let color = "#FF0000";
-    let zoom = 20;
+    let zoom = 17;
 
     if (locationAsesor.latitude && locationAsesor.longitude) {
         let distancia = CalcularDistancia(locationAsesor.latitude, locationAsesor.longitude, locationCliente.latitude, locationCliente.longitude)
@@ -991,7 +991,7 @@ const SelectCliente = (props) => {
 
                             <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                                 {
-                                    (permisos.UsuarioOficina && localStorage.getItem('codigo') == Configuraciones.UsuarioTest || (gpsActivo && distancia > 0 && distancia <= parseInt(Configuraciones.DistPermitidaPedido))) && (
+                                    (permisos.UsuarioOficina && localStorage.getItem('codigo') == Configuraciones.UsuarioTest || ((gpsActivo && distancia >= 0 && distancia <= parseInt(Configuraciones.DistPermitidaPedido)) &&  locationCliente.latitude != null )) && (
                                         <Button
                                             disabled={props.autocompleteValue ? false : true}
                                             onClick={validacionPedidosCache}
