@@ -59,15 +59,15 @@ const ListaPedidos = (props) => {
 
     const cargarPedidos = async (FechaInicio, FechaFin) => {
         let isOnline = await verificarConexion();
-        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
                 title: "Sin internet",
                 text: "Necesita internet para poder visualizar esta pagina.",
                 type: "warning",
                 confirmButtonText: 'Ok',
             });
-            setState((prevState)=>({...prevState,isLoaded:true}))
-        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+            setState((prevState) => ({ ...prevState, isLoaded: true }))
+        } else if (localStorage.getItem("Conexion") === "Online" && isOnline) {
             var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
             var Fin = moment(FechaFin).format("YYYY-MM-DD");
             let Asesor = AsesorSelected == null ? AsesoresUsuario[0].Usuario : AsesorSelected;
@@ -156,7 +156,7 @@ const ListaPedidos = (props) => {
                 [pedido.NumeroPedido, pedido.Sincronizado],
                 [pedido.Linea.Linea, pedido.Sincronizado],
                 [pedido.NombreColeccion, pedido.Sincronizado],
-                (pedido.BodegaEspecifica===null?"No":pedido.BodegaEspecifica?"Si":"No"),
+                (pedido.BodegaEspecifica === null ? "No" : pedido.BodegaEspecifica ? "Si" : "No"),
                 [pedido.TotalUnidades, pedido.Sincronizado],
                 [pedido.TotalXPedido, pedido.TotalXPedido],
                 [moment(pedido.FechaEntrega).format('DD/MM/YYYY'), pedido.Sincronizado],
@@ -224,7 +224,7 @@ const ListaPedidos = (props) => {
     const handleOnChangeAsesor = (value) => {
         setAsesorSelected(value);
     }
-    const guardarExcel = csvData => {
+    const guardarExcel = (csvData, titulo) => {
         const fileName = `Reporte de pedidos`;
         const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
         const fileExtension = '.xlsx';
@@ -235,7 +235,7 @@ const ListaPedidos = (props) => {
         FileSaver.saveAs(data, fileName + fileExtension);
     }
 
-    const mostrarAdvertencia = (title,text,type)=>{
+    const mostrarAdvertencia = (title, text, type) => {
         Swal.fire({
             title: title,
             text: text,
@@ -243,8 +243,8 @@ const ListaPedidos = (props) => {
             confirmButtonText: 'Ok',
         })
     }
-   
-    const obtenerReportePedidos = async () => {
+
+    const obtenerReporteDistanciaPedido = async () => {
         try {
             var Inicio = moment(fechaInicio).format("YYYY-MM-DD");
             var Fin = moment(fechaFin).format("YYYY-MM-DD");
@@ -255,9 +255,49 @@ const ListaPedidos = (props) => {
                 return;
             }
 
-            guardarExcel(request.data);
+            guardarExcel(request.data, `Reporte de distancia pedido`);
             mostrarAdvertencia("¡Documento Descargado!", "Revise su panel de notificaciones o su carpeta de descargas.", "success");
 
+        } catch (err) {
+            mostrarAdvertencia("Error", "No se pudo obtener los registros", "error");
+        }
+    }
+
+    const obtenerReportePedidos = async () => {
+        try {
+            if (state.pedidos.length === 0) {
+                mostrarAdvertencia("Pedidos", "No se han encontrado registros para este rango de fechas", "warning")
+                return;
+            }
+            else {
+                let dataTable = [];
+                state.pedidos.map(pedido => {
+                    let data = {
+                        Nombre: pedido.PedidoId,
+                        CodigoCliente: pedido.Cliente.Codigo,
+                        NombreCliente: pedido.Cliente.Nombre,
+                        FechaActual: moment(pedido.FechaActual).format('DD/MM/YYYY'),
+                        Sincronizado: pedido.Sincronizado,
+                        NumeroPedido: pedido.NumeroPedido,
+                        Linea: pedido.Linea.Linea,
+                        NombreColeccion: pedido.NombreColeccion,
+                        BodegaEspecifica: pedido.BodegaEspecifica === null ? "No" : pedido.BodegaEspecifica ? "Si" : "No",
+                        TotalUnidades: pedido.TotalUnidades,
+                        TotalXPedido: pedido.TotalXPedido,
+                        FechaEntrega: moment(pedido.FechaEntrega).format('DD/MM/YYYY'),
+                        EstadoPedido: pedido.SaleStatus
+                    }
+                    dataTable.push(data);
+                    return false;
+                });
+
+                if (dataTable.length === 0) {
+                    mostrarAdvertencia("Pedidos", "No se han encontrado registros para este rango de fechas", "warning")
+                    return;
+                }
+                guardarExcel(dataTable, `Reporte de pedidos`);
+                mostrarAdvertencia("¡Documento Descargado!", "Revise su panel de notificaciones o su carpeta de descargas.", "success");
+            }
         } catch (err) {
             mostrarAdvertencia("Error", "No se pudo obtener los registros", "error");
         }
@@ -323,13 +363,18 @@ const ListaPedidos = (props) => {
                             variant="outlined"
                             color="primary"
                             onClick={() => cargarPedidos(fechaInicio, fechaFin)}>Obtener
-                    </Button>
+                        </Button>
                     </div>
                     <div>
-                    <div style={{ paddingTop: 10 }}>
-                        <button onClick={() => obtenerReportePedidos()} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
+                        <div style={{ paddingTop: 10 }}>
+                            <button onClick={() => obtenerReporteDistanciaPedido()} style={{ display: "block" }} className="btn btn-primary">Distancia pedido</button>
+                        </div>
                     </div>
-                </div>
+                    <div>
+                        <div style={{ paddingTop: 10, paddingLeft: 20 }}>
+                            <button onClick={() => obtenerReportePedidos()} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
+                        </div>
+                    </div>
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>
@@ -498,7 +543,7 @@ const HeadersListaPedidos = [
     {
         name: "Estado AX",
         options: {
-            filter: true           
+            filter: true
         }
     },
     {
@@ -514,7 +559,7 @@ const DatatableOptions = {
     filter: true,
     filterType: "dropdown",
     responsive: "scrollMaxHeight",
-    print: false,
+    print: true,
     download: false,
     selectableRows: 'none',
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
