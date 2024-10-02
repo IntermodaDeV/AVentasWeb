@@ -88,7 +88,7 @@ const SelectCliente = (props) => {
 
     const { isLoaded } = useJsApiLoader({
         id: 'google-map-script',
-        googleMapsApiKey: APIKEY
+        googleMapsApiKey: Configuraciones.ApiKey_GoogleMaps
     });
 
     useEffect(() => {
