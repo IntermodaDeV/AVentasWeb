@@ -5,14 +5,15 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import Button from '@material-ui/core/Button';
 import { APIURL } from 'utils/Enviroment';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
+import { mostrarAlerta } from 'utils/common';
 import { Loading } from 'components/Global/Loading';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import moment from "moment";
 import axios from 'axios';
 import xlsx from 'xlsx';
 
 const CargarInventario = (props) => {
-    const { showDialog, setDialog, productosCargados } = props;
+    const { showDialog, setDialog, productosCargados, asesor, fecha } = props;
     const [initialData, setInitialData] = useState([]);
     const [isDisabled, setIsDisabled] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -99,7 +100,8 @@ const CargarInventario = (props) => {
             return;
         }
         try {
-            const res = await axios.post(`${APIURL}/api/inventario/cargar/${clienteSelected.EmpresaId}`,
+            var fechaInv = moment(fecha).format("YYYY-MM-DD");
+            const res = await axios.post(`${APIURL}/api/inventario/cargar/${asesor}/${clienteSelected.Codigo}/${fechaInv}`,
                 JSON.stringify(initialData),
                 {
                     headers: {
@@ -108,13 +110,15 @@ const CargarInventario = (props) => {
                     }
                 }
             );
+
             if (res.status === 200) {
                 closeDialog();
                 productosCargados(res.data);
+                setIsDisabled(false);
                 setLoading(false);
                 Swal.fire({
                     title: 'Confirmado',
-                    text: res.Message,
+                    text: "El archivo fue cargado con éxito.",
                     type: 'success',
                     confirmButtonText: 'Ok',
                     target: context.current
@@ -124,36 +128,28 @@ const CargarInventario = (props) => {
             }
 
             if (res.status === 400) {
+                closeDialog();
                 setIsDisabled(false);
-                let inventario = [...new Set(res.Lista)];
-                let copiaAsignaciones = initialData;
-
-                for (let asignacion of inventario) {
-                    copiaAsignaciones[asignacion].error = true;
-                }
-
+                setLoading(false);
                 Swal.fire({
                     title: 'Error',
-                    text: res.Message,
+                    text: "El archivo no se pudo cargar.",
                     type: 'error',
                     confirmButtonText: 'Ok',
                     target: context.current
+                }).then(e => {
                 })
-
-                res.json()
-                    .then(resultado => {
-                        Swal.fire({
-                            title: 'Error',
-                            text: resultado.Message,
-                            type: 'error',
-                            confirmButtonText: 'Ok',
-                            target: context.current
-                        })
-                    });
             }
         }
-        catch (error) {
-            console.log(error);
+        catch (err) {
+            let mensaje = "No se pudo obtener los registros.";
+            let error = "FCPI04";
+
+            if (err.response.data) {
+                mensaje = err.response.data.Message;
+                error = err.response.data.ErrorCode;
+            }
+            mostrarAlerta("Error " + error, mensaje, "error");
         }
     };
 

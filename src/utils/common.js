@@ -47,3 +47,21 @@ export const mostrarModal = (title, text, type, step, textConfirmation, textCanc
         confirmButtonText: 'Ok',
     });
 }
+
+export const mostrarAlerta = (title, text, type) => {
+    Swal.fire({
+        title: title,
+        text: text,
+        type: type,
+        confirmButtonText: 'Ok',
+    })
+}
+
+export const numberWithCommasNoDec = (x) => {
+    if (x > 1000) {
+        var parts = x.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
+    }
+    return x;
+}

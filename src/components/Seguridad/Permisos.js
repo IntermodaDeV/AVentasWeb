@@ -90,3 +90,18 @@ export const PermisoAdministradorVisita = () => {
 
     return false;
 }
+
+export const permisoEliminarInventario = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "Eliminar inventario") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}

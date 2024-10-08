@@ -10,9 +10,8 @@ import { ExpandableNoEncontrados } from './ExpandableNoEncontrados';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { Loading } from 'components/Global/Loading';
-import { mostrarModal } from 'utils/common';
+import { mostrarModal, numberWithCommasNoDec, mostrarAlerta } from 'utils/common';
 import { useHistory } from 'react-router';
-import CargarInventario from 'components/Inventario/CargarInventario';
 import styles from 'components/Pedidos/MatrizResumen/MatrizResumenExpandable.module.css';
 
 export const TomarInventario = (props) => {
@@ -28,7 +27,6 @@ export const TomarInventario = (props) => {
     const [codigoBarra, setCodigoBarra] = useState("");
     const [tallaTxt, setTalla] = useState("");
     const [open, setOpen] = useState(false);
-    const [showDialog, setShowDialog] = useState(false);
     const [title, setTitle] = useState("");
     const [noEncontrados, setNoEncontrados] = useState([]);
     let totalUnid = 0;
@@ -372,21 +370,6 @@ export const TomarInventario = (props) => {
         return [detalleInventario];
     }
 
-    const handleInventarioCargado = (productos) => {
-        setTitle("Cargando información");
-        setOpen(true);
-        for (let data of productos) {
-            const grupoTalla = existeVariante(data.ProductoId, data.colorId, data.tallaId);
-            if (grupoTalla) {
-                aumentarCantidad(grupoTalla, data.ProductoId, data.colorId, data.tallaId);
-                continue;
-            }
-            agregarProducto(data, data.tallaId, data.colorId, data.cantidad, true);
-        }
-        setNoEncontrados(productos.filter(f => !(f.encontrado)) .map(m => ({codigoBarra: m.CodBarra, cantidad: m.cantidad})));
-        setOpen(false);
-    };
-
     const enviarInventario = async (completo) => {
         let inventario = {
             CodigoCliente: clienteSelected.Codigo,
@@ -417,7 +400,14 @@ export const TomarInventario = (props) => {
             history.push({ pathname: "/inventario/ImprimirInventario", state: JSON.stringify(inventario) });
             setOpen(false);
         } catch (err) {
-            mostrarModal("Error", "No se pudo guardar el inventario.", "error");
+            let mensaje = "No se guardaron los registros.";
+            let error = "FCPI03";
+            if (err.response) {
+                mensaje = err.response.data.Message;
+                error = err.response.data.ErrorCode;
+            }
+
+            mostrarAlerta("Error " + error, mensaje, "error");
             setOpen(false);
         }
     }
@@ -436,19 +426,6 @@ export const TomarInventario = (props) => {
             <Card style={{ margin: '15px', minHeight: '70vh', overflowY: 'visible' }}>
                 <CardContent>
                     <hr />
-                    {(!anterior) &&
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <h5>Agregar producto </h5>
-                            <div className="col-lg-2 my-lg-0 col-6 my-1" style={{ paddingBottom: 10 }}>
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={() => setShowDialog(true)}>
-                                    Cargar inventario
-                                </Button>
-                            </div>
-                        </div>
-                    }
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                         <input type="text" className="mr-5 form-control" placeholder="Codigo Producto" value={codigo} onChange={(e) => { setCodigo(e.target.value) }} />
                         <input type="text" className="mr-5 form-control" placeholder="Codigo Color" value={color} onChange={(e) => { setColor(e.target.value) }} />
@@ -524,18 +501,6 @@ export const TomarInventario = (props) => {
                     }
                 </CardContent>
             </Card>
-            <CargarInventario
-                showDialog={showDialog}
-                setDialog={() => setShowDialog(false)}
-                productosCargados={handleInventarioCargado}
-            />
         </>
     );
 }
-
-const numberWithCommasNoDec = (x) => {
-    var parts = x.toString().split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join(".");
-}
-

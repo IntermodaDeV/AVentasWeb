@@ -11,7 +11,8 @@ import PrintOutlined from '@material-ui/icons/PrintOutlined';
 import { Dropdown } from "semantic-ui-react";
 import { useSelector } from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
-import store from 'store/store';
+import { mostrarAlerta } from 'utils/common';
+import { permisoEliminarInventario } from 'components/Seguridad/Permisos';
 import { ImprimirInventarioDetalle } from 'components/Inventario/ImprimirInventarioDetalle';
 import moment from 'moment';
 
@@ -44,22 +45,38 @@ export const ListadoInventario = (props) => {
             console.log(request.data)
             setInventarios(request.data);
         } catch (err) {
-            console.log(err)
+            let mensaje = "No se pudo obtener los registros.";
+            let error = "FCTI01";
+
+            if (err.response.data) {
+                mensaje = err.response.data.Message;
+                error = err.response.data.ErrorCode;
+            }
+            mostrarAlerta("Error " + error, mensaje, "error");
         }
     }
 
-    const eliminarInventario = async (value) => {
+    const eliminarInventario = async (inventario) => {
         try {
 
-            await axios.get(`${APIURL}/api/eliminarInventario/${value}`, {
+            await axios.get(`${APIURL}/api/eliminarInventario/${inventario}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 }
             });
+            mostrarAlerta("Exito", "El inventario " + inventario + " se elimino correctamente", "success");
             ObtenerListadoInventarios();
         } catch (err) {
-            console.log(err)
+            let mensaje = "No se pudo obtener los registros.";
+            let error = "FCTI02";
+
+            if (err.response.data) {
+                mensaje = err.response.data.Message;
+                error = err.response.data.ErrorCode;
+            }
+
+            mostrarAlerta("Error " + error, mensaje, "error");
         }
     }
 
@@ -146,21 +163,6 @@ export const ListadoInventario = (props) => {
         setShowDialog(false);
     }
 
-    const permisoEliminarInventario = () => {
-        const globalState = store.getState();
-        const Permisos = globalState["Permisos"];
-
-        for (const Permiso of Permisos) {
-            for (const Roles of Permiso.RolesUsuarios) {
-                if (Roles.Nombre === "Eliminar inventario") {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     const obtenerDetalleInventario = async (inventario) => {
         try {
             const request = await axios.get(`${APIURL}/api/detalleInventario/${inventario.numInventario}`);
@@ -168,6 +170,15 @@ export const ListadoInventario = (props) => {
             setDetalleInventario(request.data);
             setShowDialog(true);
         } catch (err) {
+            let mensaje = "No se pudo obtener los registros.";
+            let error = "FCPI05";
+
+            if (err.response.data) {
+                mensaje = err.response.data.Message;
+                error = err.response.data.ErrorCode;
+            }
+
+            mostrarAlerta("Error " + error, mensaje, "error");
 
         }
     }
@@ -187,9 +198,9 @@ export const ListadoInventario = (props) => {
                         <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerDetalleInventario(p) }} color={"primary"}>
                             <PrintOutlined />
                         </Button>
-                        {permisoEliminarInventario() > 0 &&
+                        {permisoEliminarInventario() &&
                             <>
-                                <Button size="small" variant="outlined" style={{ color: 'red', borderColor: 'red' }} onClick={() => eliminarInventario(p.numInventario)}>Eliminar</Button>
+                                <Button size="small" variant="outlined" style={{ color: 'red', borderColor: 'red', marginLeft: '5px' }} onClick={() => eliminarInventario(p.numInventario)}>Eliminar</Button>
                             </>
                         }
                     </span >

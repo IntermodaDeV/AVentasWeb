@@ -19,7 +19,6 @@ const ClienteSelected = (props) => {
     const [showDialog, setShowDialog] = useState(false);
     const [invAnterior, setInvAnterior] = useState();
     const [pendienteProcesar, setPendienteProcesar] = useState([]);
-    const [procesar, setProcesar] = useState();
     const [asesores, setAsesores] = useState([]);
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
     const asesor = AsesoresUsuario.find(a => a.Usuario === localStorage.getItem('codigo'));
@@ -34,9 +33,8 @@ const ClienteSelected = (props) => {
                 const request = await axios.get(`${APIURL}/api/pendienteProcesar/${value.Codigo}`);
                 if (request.data) {
                     setPendienteProcesar(request.data);
-                    setProcesar(true);
                 } else {
-                    setProcesar(false);
+                    setPendienteProcesar([]);
                 }
             }
             const request = await axios.get(`${APIURL}/api/inventarioIncompleto/${value.Codigo}`);
@@ -53,7 +51,7 @@ const ClienteSelected = (props) => {
             let mensaje = "No se pudo obtener los registros.";
             let error = "FCPI02";
 
-            if (err.response) {
+            if (err.response.data) {
                 mensaje = err.response.data.Message;
                 error = err.response.data.ErrorCode;
             }
@@ -90,10 +88,6 @@ const ClienteSelected = (props) => {
 
     const handleInventarioCargado = (informacion) => {
         setPendienteProcesar(informacion);
-        if (informacion.NoProcesados > 0)
-            setProcesar(true)
-        else
-            setProcesar(false);
     };
 
     return (
@@ -182,7 +176,7 @@ const ClienteSelected = (props) => {
                                     value={fechaInicio}
                                     onChange={(date) => handleFechaInicio(date)}
                                 />
-                                {!procesar && (
+                                {!(pendienteProcesar.length > 0) && (
                                     <Button
                                         style={{ marginLeft: '10px' }}
                                         disabled={!value}
@@ -206,7 +200,9 @@ const ClienteSelected = (props) => {
             />
             {pendienteProcesar.length > 0 && (
                 <div style={{ marginTop: 20 }}>
-                    <ResumenExcel informacion={pendienteProcesar} />
+                    <ResumenExcel
+                        informacion={pendienteProcesar[0]}
+                        cliente={value} />
                 </div>
             )}
             {value && (

@@ -7,20 +7,24 @@ import { mostrarAlerta, numberWithCommasNoDec } from 'utils/common';
 import 'moment/locale/es';
 
 export const ResumenExcel = props => {
-    const info = props.informacion;
+    const [info, setInfo] = useState(props.informacion);
     const [loading, setLoading] = useState(false);
 
-    const obtenerInventarioCliente = async (cliente) => {
+    const sincronizarInventario = async () => {
         try {
-            const request = await axios.get(`${APIURL}/api/pendientePro8cesar/${cliente}`);
-            //setInventario(request.data);
+            setLoading(true);
+            const request = await axios.get(`${APIURL}/api/inventario/sincronizarInventario/${props.cliente.Codigo}`);
+            if (request.data) {
+                setInfo(request.data[0]);
+            }
+            setLoading(false);
         } catch (err) {
-            let mensaje = "";
-            let error = "";
+            let mensaje = "No se pudo procesar la información.";
+            let error = "FCPI06";
 
-            if (err.response) {
-                mensaje = err.response.data.Message ? err.response.data.Message : "No se pudo obtener los registros.";
-                error = err.response.data.ErrorCode ? err.response.data.ErrorCode : "FCP";
+            if (err.response.data) {
+                mensaje = err.response.data.Message;
+                error = err.response.data.ErrorCode;
             }
             mostrarAlerta("Error: " + error, mensaje, "error");
         }
@@ -34,7 +38,7 @@ export const ResumenExcel = props => {
                         <div className="h2 mb-0 font-weight-bold">Número Inventario: {info.NumInventario}</div>
                         {info.NoProcesados > 0 && <Button
                             style={{ marginLeft: '10px' }}
-                            onClick={() => setLoading(true)}
+                            onClick={() => sincronizarInventario()}
                             variant="contained"
                             color="secondary">
                             Sincronizar Inventario
