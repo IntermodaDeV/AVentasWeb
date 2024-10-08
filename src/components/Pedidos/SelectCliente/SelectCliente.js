@@ -20,14 +20,14 @@ import {
     Typography,
     Snackbar
 } from '@material-ui/core';
-import Dialog        from '@material-ui/core/Dialog';
+import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle   from '@material-ui/core/DialogTitle';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import ClienteContado from './ClienteContado';
-import {useDispatch,useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import logo from './iconfinder_Close_2001866.png';
-import {numberWithCommas} from 'utils/common';
+import { numberWithCommas } from 'utils/common';
 import CachedIcon from '@material-ui/icons/Cached';
 import RoomIcon from '@material-ui/icons/Room';
 import axios from 'axios';
@@ -35,10 +35,11 @@ import { Loading } from 'components/Global/Loading';
 import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
 import { ObtenerCoordenadas } from 'utils/common';
-import{ reemplazarUrl } from 'utils/common';
+import { reemplazarUrl } from 'utils/common';
 import FileSaver from 'file-saver';
 import XLSX from 'xlsx';
 import { ReservadoDetalleLinea } from './ReservadoDetalleLinea';
+import { GoogleMap, useJsApiLoader, Marker, Circle } from '@react-google-maps/api';
 
 const TransitionGrow = React.forwardRef(function Transition(props, ref) {
     return <Grow ref={ref} {...props} />;
@@ -61,24 +62,33 @@ const useStyles = makeStyles(theme => ({
 const SelectCliente = (props) => {
     const [open, setOpen] = useState(false);
     const [Value, setValue] = useState(null);
-    const [openContado,setOpenContado] = useState(false);
+    const [openContado, setOpenContado] = useState(false);
     const dispatch = useDispatch();
-    const clienteContado = useSelector(e=>e.clienteContado);
-    const clientes = useSelector(e=>e.clientesContado);
-    const Monedas = useSelector(e=>e.AbreviacionMonedas);
-    const Comunidad = useSelector(e=>e.comunidadesAutonomas);
-    const BloqueoCredito = useSelector(e=>e.Permisos[0].BloqueoCredito);
-    const [loading,setLoading] = useState(false);
-    const [mensaje,setMensaje] = useState("Cargando clientes")
-    const PedidosCache = useSelector(p=>p.PedidoSincronizar);
-    const clientesPedido = useSelector(c=>c.clientes);
-    const clientesRecibo = useSelector(c=>c.Recibo);
-    const permisos = useSelector(e=>e.Permisos[0]);
-    const Configuraciones = useSelector(e=>e.Configuraciones);
-    const direccionEntrega = useSelector(e=>e.direccionEntrega);
-    const [openModalDirecciones,setOpenModalDirecciones] = useState(false);
+    const clienteContado = useSelector(e => e.clienteContado);
+    const clientes = useSelector(e => e.clientesContado);
+    const Monedas = useSelector(e => e.AbreviacionMonedas);
+    const Comunidad = useSelector(e => e.comunidadesAutonomas);
+    const BloqueoCredito = useSelector(e => e.Permisos[0].BloqueoCredito);
+    const [loading, setLoading] = useState(false);
+    const [mensaje, setMensaje] = useState("Cargando clientes")
+    const PedidosCache = useSelector(p => p.PedidoSincronizar);
+    const clientesPedido = useSelector(c => c.clientes);
+    const clientesRecibo = useSelector(c => c.Recibo);
+    const permisos = useSelector(e => e.Permisos[0]);
+    const Configuraciones = useSelector(e => e.Configuraciones);
+    const direccionEntrega = useSelector(e => e.direccionEntrega);
+    const [openModalDirecciones, setOpenModalDirecciones] = useState(false);
     const [verPedidoPendientes, setVerPedidoPendientes] = useState(false);
     const [detalleColeccion, setDetalleColeccion] = useState([]);
+    const [locationAsesor, setLocationAsesor] = useState({ latitude: null, longitude: null });
+    const [locationCliente, setLocationCliente] = useState({ latitude: null, longitude: null });
+    const [distancia, setDistancia] = useState(0.00);
+    const [gpsActivo, setGPSActivo] = useState(false);
+
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: Configuraciones.ApiKey_GoogleMaps
+    });
 
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -90,7 +100,7 @@ const SelectCliente = (props) => {
                 props.onSelect((cliente));
             }
         }
-
+        validarGPSInicio();
         // eslint-disable-next-line
     }, [props.clientes]);
 
@@ -104,6 +114,28 @@ const SelectCliente = (props) => {
 
     }, [props.autocompleteValue]);
 
+
+    const validarGPSInicio = () => {
+
+        if (!permisos.UsuarioOficina && localStorage.getItem('codigo') == Configuraciones.UsuarioTest) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        setGPSActivo(true)
+                    },
+                    (error) => {
+                        setLocationAsesor({ latitude: null, longitude: null });
+                        setGPSActivo(false)
+                    }
+                );
+            } else {
+                setGPSActivo(false)
+            }
+        } else {
+            setGPSActivo(true)
+        }
+    }
+
     const classes = useStyles();
     let infoCliente = null;
     let FacturacionEntrega = null;
@@ -112,7 +144,7 @@ const SelectCliente = (props) => {
     //var EsVisible = false;
     var options = [];
 
-    const mostrarAdvertencia = (title,text,type)=>{
+    const mostrarAdvertencia = (title, text, type) => {
         Swal.fire({
             title: title,
             text: text,
@@ -121,7 +153,7 @@ const SelectCliente = (props) => {
         })
     }
 
-    const recargarClientes = async () =>{
+    const recargarClientes = async () => {
         let isOnline = await verificarConexion();
         if (localStorage.getItem("Conexion") === "offline") {
             mostrarAdvertencia("Modo Offline", "Se encuentra en modo offline, no puede actualizar registros.", "warning");
@@ -139,7 +171,6 @@ const SelectCliente = (props) => {
                     dispatch({ type: 'STORE_CLIENTES', clientes: data.data })
                     recargarListaPrecios(data.data);
                 }).catch(err => {
-                    console.log(err);
                     setLoading(false)
                 })
             }
@@ -160,24 +191,24 @@ const SelectCliente = (props) => {
                 Paises: paises
             }
         })
-            .then(data => { 
+            .then(data => {
                 setMensaje("Cargando Imagenes")
                 let listaPrecios = data.data;
                 listaPrecios.forEach(e => {
                     e.Edades.forEach(edades => {
                         edades.ProductosXEdad.forEach(prod => {
-                             ///Imagenes generales del producto
-                            prod.ListaImagenes.forEach(async function (img){
-                                let imagenBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
+                            ///Imagenes generales del producto
+                            prod.ListaImagenes.forEach(async function (img) {
+                                let imagenBlob = reemplazarUrl(img.FotografiaProducto, Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                 if (imagenBlob) {
                                     img.FotografiaProducto = imagenBlob;
                                 }
                             })
-        
-                              ///Imagenes por color del producto
-                              prod.ListaColores.forEach(color => {
-                                color.ListaImagenes.forEach( async function (img) {
-                                    let imagenColorBlob = reemplazarUrl(img.FotografiaProducto,Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
+
+                            ///Imagenes por color del producto
+                            prod.ListaColores.forEach(color => {
+                                color.ListaImagenes.forEach(async function (img) {
+                                    let imagenColorBlob = reemplazarUrl(img.FotografiaProducto, Configuraciones.UrlImages, Configuraciones.UrlImagesOffline);
                                     if (imagenColorBlob) {
                                         img.FotografiaProducto = imagenColorBlob;
                                     }
@@ -187,15 +218,14 @@ const SelectCliente = (props) => {
                     })
                 })
                 //setTimeout(()=>{
-                    dispatch({type:'SET_LISTAPRECIOS',payload:listaPrecios});
-                    setLoading(false);
-                    setMensaje("Cargando clientes")
+                dispatch({ type: 'SET_LISTAPRECIOS', payload: listaPrecios });
+                setLoading(false);
+                setMensaje("Cargando clientes")
                 //},75000)
-              
+
             })
             .catch(err => {
                 setLoading(false);
-                console.log(err)
             });
     }
 
@@ -259,7 +289,7 @@ const SelectCliente = (props) => {
         }
     }
 
-    const handleRecarga = ()=>{
+    const handleRecarga = () => {
         Swal.fire({
             title: 'Aviso',
             text: '¿Desea actualizar la información en el modulo de pedidos?',
@@ -300,7 +330,7 @@ const SelectCliente = (props) => {
                     props.setCliente();
                 }
             })
-        } else if (props.autocompleteValue.Credito[0].Disponible <= 1  && props.autocompleteValue.FacturacionEntrega === "Factura") {
+        } else if (props.autocompleteValue.Credito[0].Disponible <= 1 && props.autocompleteValue.FacturacionEntrega === "Factura") {
             Swal.fire({
                 title: 'Aviso',
                 text: 'El cliente actualmente se encuentra deshabilitado y sin credito disponible, su cuenta esta en mora. El pedido no sera autorizado automticamente.',
@@ -315,7 +345,7 @@ const SelectCliente = (props) => {
                     props.setCliente();
                 }
             })
-        } else if (props.autocompleteValue.Credito[0].Disponible > 1  && props.autocompleteValue.FacturacionEntrega === "Factura") {
+        } else if (props.autocompleteValue.Credito[0].Disponible > 1 && props.autocompleteValue.FacturacionEntrega === "Factura") {
             Swal.fire({
                 title: 'Aviso',
                 text: 'El cliente actualmente se encuentra deshabilitado, su cuenta esta en mora. El pedido no sera autorizado automáticamente.',
@@ -340,16 +370,16 @@ const SelectCliente = (props) => {
         localStorage.removeItem("ColeccionSeleccionada");
     }
 
-    const validacionPedidosCache = ()=>{
+    const validacionPedidosCache = () => {
         if (PedidosCache.length > 0 && localStorage.getItem("Conexion") === "Online") {
             Swal.fire({
-              title: 'Pendiente a Sincronizar',
-              text: 'Tiene pedidos en bandeja de salida, debera sincronizar para poder registrar un nuevo pedido.',
-              type: 'error',
-              confirmButtonText: 'OK',
-          });
+                title: 'Pendiente a Sincronizar',
+                text: 'Tiene pedidos en bandeja de salida, debera sincronizar para poder registrar un nuevo pedido.',
+                type: 'error',
+                confirmButtonText: 'OK',
+            });
         }
-        else{
+        else {
             continuarPedido();
         }
     }
@@ -363,10 +393,67 @@ const SelectCliente = (props) => {
 
         setValue(value);
         props.onSelect(val);
-        dispatch({type:'DELETE_CLIENTECONTADO'});
-        dispatch({type:'DELETE_REQUIEREENTREGA'});
-        dispatch({type:'DELETE_FLETE'});
-        localStorage.setItem('Impuesto',0);
+        dispatch({ type: 'DELETE_CLIENTECONTADO' });
+        dispatch({ type: 'DELETE_REQUIEREENTREGA' });
+        dispatch({ type: 'DELETE_FLETE' });
+        localStorage.setItem('Impuesto', 0);
+        if (!permisos.UsuarioOficina && localStorage.getItem('codigo') == Configuraciones.UsuarioTest) {
+            CalcularDistaciaCoordenadas(val.Latitud, val.Longitud)
+        }
+    }
+
+    const CalcularDistaciaCoordenadas = (Latitud, Longitud) => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const latitudAsesor = position.coords.latitude;
+                    const longitudAsesor = position.coords.longitude;
+
+                    setLocationAsesor({
+                        latitude: latitudAsesor,
+                        longitude: longitudAsesor,
+                    });
+
+                    console.log(Latitud)
+                    console.log(Longitud)
+
+                    setLocationCliente({
+                        latitude: Latitud,
+                        longitude: Longitud,
+                    });
+
+                    const distancia = CalcularDistancia(Latitud, Longitud, latitudAsesor, longitudAsesor);
+                    setDistancia(distancia)
+                    setGPSActivo(true)
+                },
+                (error) => {
+                    setLocationAsesor({ latitude: null, longitude: null });
+                    setGPSActivo(false)
+                }
+            );
+        } else {
+            setGPSActivo(false)
+        }
+    }
+
+
+
+    const rad = (x) => {
+        return x * Math.PI / 180;
+    }
+
+    const CalcularDistancia = (lat1, lon1, lat2, lon2) => {
+        if (lat1 === null || lon1 === null || lat2 === null || lon2 === null) {
+            return 0;
+        }
+
+        var R = 6378.137;//Radio de la tierra en km
+        var dLat = rad(lat2 - lat1);
+        var dLong = rad(lon2 - lon1);
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(dLong / 2) * Math.sin(dLong / 2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var d = R * c;
+        return 1000 * d.toFixed(3);//Retorna valor en metros
     }
 
     props.clientes.forEach(el => {
@@ -374,7 +461,7 @@ const SelectCliente = (props) => {
         options.push(cliente);
     })
 
-    if(props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Todo"){
+    if (props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Todo") {
         FacturacionEntrega = (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
                 <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra bloqueado.
@@ -386,7 +473,7 @@ const SelectCliente = (props) => {
         }
     }
 
-    if(props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Factura"){
+    if (props.autocompleteValue != null && props.autocompleteValue.FacturacionEntrega === "Factura") {
         FacturacionEntrega = (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
                 <FiAlertTriangle style={{ fontSize: '20px', color: 'red' }} />  El cliente actualmente se encuentra deshabilitado por mora.
@@ -518,6 +605,88 @@ const SelectCliente = (props) => {
         EsVisible = true;
     }*/
 
+    let optionsMap = null;
+    let color = "#FF0000";
+    let zoom = 17;
+
+    if (locationAsesor.latitude && locationAsesor.longitude) {
+        let distancia = CalcularDistancia(locationAsesor.latitude, locationAsesor.longitude, locationCliente.latitude, locationCliente.longitude)
+        if (distancia <= parseInt(Configuraciones.DistPermitidaPedido)) {
+            color = "#1ECE39";
+        } 
+
+        optionsMap = {
+            strokeColor: color,
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: color,
+            fillOpacity: 0.35,
+            clickable: false,
+            draggable: false,
+            editable: false,
+            visible: true,
+            radius: 30000,
+            zIndex: 1,
+        }
+    }
+
+    const mapLocation = () => {
+
+        let initialCoors = { lat: locationCliente.latitude, lng: locationCliente.longitude };
+        return (
+            <>
+
+                <h5 className={"font-weight-light"}>
+                    Ubicación:
+                </h5>
+                { locationCliente.latitude != null && gpsActivo && isLoaded ?
+                    <div style={{ height: '800px', width: '100%' }}>
+
+                        {/* <p>{locationCliente.latitude}</p>
+                        <p>{locationCliente.longitude}</p>
+
+                        <p>{locationAsesor.latitude}</p>
+                        <p>{locationAsesor.longitude}</p> */}
+
+                        <p> Distancia: {distancia} mtrs</p>
+
+                        <GoogleMap zoom={zoom} center={initialCoors} mapContainerStyle={{ height: '90vh' }}>
+                            {(locationAsesor.latitude !== null && locationAsesor.longitude !== null) && <Marker label={{
+                                text: "Asesor",
+                                color: "black",
+                                fontSize: "20px",
+                                fontWeight: "bold",
+                                display: "block"
+                            }} clickable position={{ lat: locationAsesor.latitude, lng: locationAsesor.longitude }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_red.png" }} />}
+
+                            {(locationCliente.latitude !== null && locationCliente.longitude !== null) && (<>
+                                <Circle
+                                    center={initialCoors}
+                                    radius={distancia}
+                                    options={optionsMap}
+                                />
+                                <Marker label={{
+                                    text: "Cliente",
+                                    color: "black",
+                                    fontSize: "20px",
+                                    fontWeight: "bold",
+                                    display: "block"
+                                }} clickable position={{ lat: locationCliente.latitude, lng: locationCliente.longitude }} icon={{ url: "https://raw.githubusercontent.com/Concept211/Google-Maps-Markers/master/images/marker_blue.png" }} />
+                            </>)}
+
+                        </GoogleMap>
+                    </div>
+                    :
+                    <div>
+                        Ubicación no disponible
+                    </div>
+                }
+
+
+            </>
+        )
+    }
+
     const reservadoCliente = () => {
         if (props.autocompleteValue.ReservadoClientePorLinea && props.autocompleteValue.ReservadoClientePorLinea.length === 0) {
             return <h5 style={{ textAlign: "center", marginTop: 10 }}>Sin pedidos pendientes de facturar.</h5>
@@ -558,12 +727,12 @@ const SelectCliente = (props) => {
                             <td></td>
                         </tr>
                         <tr>
-                        <td style={{color:"red"}}><b>VALORES DE LOS PEDIDOS NO INCLUYEN ISV.</b></td>
+                            <td style={{ color: "red" }}><b>VALORES DE LOS PEDIDOS NO INCLUYEN ISV.</b></td>
                         </tr>
                     </tbody>
                 </table>
-                        
-                <ReservadoDetalleLinea open={verPedidoPendientes} detalle={detalleColeccion} close={()=>{setVerPedidoPendientes(false)}} abreviacion={Abreviacion} />
+
+                <ReservadoDetalleLinea open={verPedidoPendientes} detalle={detalleColeccion} close={() => { setVerPedidoPendientes(false) }} abreviacion={Abreviacion} />
 
             </>)
     }
@@ -572,11 +741,24 @@ const SelectCliente = (props) => {
         let DisponibleTotal = 0;
         let ValorCreditoTotal = 0;
         let CXCTotal = 0;
-        let Depto = props.autocompleteValue.ComunidadAutonoma? Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma) ? Comunidad.find(x=>x.STATEID===props.autocompleteValue.ComunidadAutonoma).NAME : '' : '';
-        let Abreviacion = props.autocompleteValue.Moneda ? Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda) ? Monedas.find(e=>e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion : "" : "";
+        let Depto = props.autocompleteValue.ComunidadAutonoma ? Comunidad.find(x => x.STATEID === props.autocompleteValue.ComunidadAutonoma) ? Comunidad.find(x => x.STATEID === props.autocompleteValue.ComunidadAutonoma).NAME : '' : '';
+        let Abreviacion = props.autocompleteValue.Moneda ? Monedas.find(e => e.IdMoneda === props.autocompleteValue.Moneda) ? Monedas.find(e => e.IdMoneda === props.autocompleteValue.Moneda).Abreviacion : "" : "";
         infoCliente = (
             <Card>
                 <CardContent>
+                    {distancia > parseInt(Configuraciones.DistPermitidaPedido) && !permisos.UsuarioOficina && localStorage.getItem('codigo') == Configuraciones.UsuarioTest &&
+                        <span className={styles["TCenterContainer"]}>
+                            <h3 className={styles["TCenter"]}> No puede realizar el pedido, su distancia con el cliente es mayor a {Configuraciones.DistPermitidaPedido} metros - Distancia actual {distancia} metros</h3>
+                        </span>
+                    }
+
+                    {locationCliente.latitude == null  &&
+                        <span className={styles["TCenterContainer"]}>
+                            <h3 className={styles["TCenter"]}> El cliente no tiene una ubicación registrada. Por favor, regístrela y actualice la página.</h3>
+                        </span>
+
+                    }
+
                     <div className="row">
                         <div className="col-md-6">
                             <span className={styles["TCenterContainer"]}>
@@ -637,7 +819,7 @@ const SelectCliente = (props) => {
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.Ciudad}
                                         </td>
-                                    </tr>                                                                        
+                                    </tr>
                                     <tr>
                                         <td className={styles.InfoLabel}>
                                             {'Dirección: '}
@@ -645,7 +827,8 @@ const SelectCliente = (props) => {
                                         <td className={styles.InfoLabelDetail}>
                                             {props.autocompleteValue.Direccion}</td>
                                     </tr>
-                                    {(permisos.AsesoresUsuario.length === 1 ) &&
+                                    {/* {(permisos.AsesoresUsuario.length === 1 && locationCliente.latitude > 0 && locationCliente.longitude > 0) && */}
+                                    {(locationCliente.latitude == null || locationCliente.longitude == null) &&
                                         <tr>
                                             <td className={styles.InfoLabel}>
                                                 Pinear Coordenada
@@ -664,87 +847,90 @@ const SelectCliente = (props) => {
 
                         </div>
                         {(!BloqueoCredito) &&
-                        <div className="col-md-6">
-                            <span className={styles["TCenterContainer"]}>
-                                <h5 className={styles["TCenter"]}>Información Crediticia</h5>
-                            </span>                           
-                            <table className="table table-responsive-xl">
-                                <thead>
-                                    <tr>
-                                        <th>
-                                            Tipo
-                                    </th>
-                                        <th>
-                                            Valor Credito
-                                    </th>
-                                    <th>
-                                            Saldo CxC
-                                    </th>
-                                        <th>
-                                            Disponible
-                                    </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {props.autocompleteValue.Credito.map((credito, index) => {
-                                        DisponibleTotal = DisponibleTotal + credito.Disponible;
-                                        ValorCreditoTotal = ValorCreditoTotal + credito.Valor;
-                                        CXCTotal = CXCTotal + credito.SaldoTotal;
-                                        return (
-                                            <tr key={index}>
-
-                                                <td>{credito.Tipo}</td>
-                                                <td style={{color:credito.Valor>0?'green':'red'}}>{credito.Valor ? numberWithCommas(credito.Valor) : 0}</td>
-                                                <td>{credito.SaldoTotal ? numberWithCommas(credito.SaldoTotal) : 0}</td>
-                                                <td style={{color:credito.Disponible>0?'green':'red'}}>{credito.Disponible ? numberWithCommas(credito.Disponible) : 0}</td>
-                                            </tr>
-                                        )
-                                    })}
-                                    <tr>
-                                        <td>{<b>Total</b>}</td>
-                                        <td style={{color:parseFloat(numberWithCommas(ValorCreditoTotal))>0?'green':'red'}}>{Abreviacion} {numberWithCommas(ValorCreditoTotal)}</td>
-                                        <td>{Abreviacion} {numberWithCommas(CXCTotal)}</td>
-                                        <td style={{color:parseFloat(numberWithCommas(DisponibleTotal))>0?'green':'red'}}>{Abreviacion} {numberWithCommas(DisponibleTotal)}</td>
-                                    </tr>
-                                    <tr>
-                                        {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={()=>setOpenContado(true)} variant="contained" color="primary">{(clienteContado===null)?'Crear cliente contado':'Editar cliente contado'}</Button></td>}
-                                        {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td>
-                                        <Dropdown
-                                                placeholder="Seleccione cliente contado"
-                                                fluid
-                                                search
-                                                selection
-                                                onChange={(e, { value }) =>{
-                                                    let cliente = clientes.find(x=>x.id===value);
-                                                    dispatch({type:'SET_CLIENTECONTADO',payload:cliente});
-                                                }}
-                                                options={clientes.map(cliente => {
-                                                    return {key:cliente.id, value:cliente.id,text:cliente.Nombre}
-                                                })}
-                                                noResultsMessage={"No hay resultados"}
-                                                closeOnChange={true}
-                                        />
-                                            </td>}
-                                        {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td>Cliente Seleccionado: {clienteContado===null?'Ninguno':clienteContado.Nombre}</td>}
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div>
+                            <div className="col-md-6">
                                 <span className={styles["TCenterContainer"]}>
-                                    <h5 className={styles["TCenter"]}>Reporte visitas</h5>
+                                    <h5 className={styles["TCenter"]}>Información Crediticia</h5>
                                 </span>
-                                <button onClick={obtenerReporteAsignaciones} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
-                            </div>
-                            <div className='mt-5'>
+                                <table className="table table-responsive-xl">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                Tipo
+                                            </th>
+                                            <th>
+                                                Valor Credito
+                                            </th>
+                                            <th>
+                                                Saldo CxC
+                                            </th>
+                                            <th>
+                                                Disponible
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {props.autocompleteValue.Credito.map((credito, index) => {
+                                            DisponibleTotal = DisponibleTotal + credito.Disponible;
+                                            ValorCreditoTotal = ValorCreditoTotal + credito.Valor;
+                                            CXCTotal = CXCTotal + credito.SaldoTotal;
+                                            return (
+                                                <tr key={index}>
 
-                            {reservadoCliente()}
-                            </div>
-                        </div>}
-                        
-                        
-                            
-                                       
+                                                    <td>{credito.Tipo}</td>
+                                                    <td style={{ color: credito.Valor > 0 ? 'green' : 'red' }}>{credito.Valor ? numberWithCommas(credito.Valor) : 0}</td>
+                                                    <td>{credito.SaldoTotal ? numberWithCommas(credito.SaldoTotal) : 0}</td>
+                                                    <td style={{ color: credito.Disponible > 0 ? 'green' : 'red' }}>{credito.Disponible ? numberWithCommas(credito.Disponible) : 0}</td>
+                                                </tr>
+                                            )
+                                        })}
+                                        <tr>
+                                            <td>{<b>Total</b>}</td>
+                                            <td style={{ color: parseFloat(numberWithCommas(ValorCreditoTotal)) > 0 ? 'green' : 'red' }}>{Abreviacion} {numberWithCommas(ValorCreditoTotal)}</td>
+                                            <td>{Abreviacion} {numberWithCommas(CXCTotal)}</td>
+                                            <td style={{ color: parseFloat(numberWithCommas(DisponibleTotal)) > 0 ? 'green' : 'red' }}>{Abreviacion} {numberWithCommas(DisponibleTotal)}</td>
+                                        </tr>
+                                        <tr>
+                                            {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td><Button onClick={() => setOpenContado(true)} variant="contained" color="primary">{(clienteContado === null) ? 'Crear cliente contado' : 'Editar cliente contado'}</Button></td>}
+                                            {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td>
+                                                <Dropdown
+                                                    placeholder="Seleccione cliente contado"
+                                                    fluid
+                                                    search
+                                                    selection
+                                                    onChange={(e, { value }) => {
+                                                        let cliente = clientes.find(x => x.id === value);
+                                                        dispatch({ type: 'SET_CLIENTECONTADO', payload: cliente });
+                                                    }}
+                                                    options={clientes.map(cliente => {
+                                                        return { key: cliente.id, value: cliente.id, text: cliente.Nombre }
+                                                    })}
+                                                    noResultsMessage={"No hay resultados"}
+                                                    closeOnChange={true}
+                                                />
+                                            </td>}
+                                            {props.autocompleteValue.Nombre.includes('CONSUMIDOR FINAL') && <td>Cliente Seleccionado: {clienteContado === null ? 'Ninguno' : clienteContado.Nombre}</td>}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div>
+                                    <span className={styles["TCenterContainer"]}>
+                                        <h5 className={styles["TCenter"]}>Reporte visitas</h5>
+                                    </span>
+                                    <button onClick={obtenerReporteAsignaciones} style={{ display: "block" }} className="btn btn-secondary">Generar reporte</button>
+                                </div>
+                                <div className='mt-5'>
+
+                                    {reservadoCliente()}
+                                </div>
+                            </div>}
                     </div>
+
+                    {!permisos.UsuarioOficina && localStorage.getItem('codigo') == Configuraciones.UsuarioTest &&
+                        <div>
+                            {mapLocation()}
+                        </div>
+                    }
+
 
                 </CardContent>
             </Card>
@@ -752,68 +938,72 @@ const SelectCliente = (props) => {
     }
     return (
         <>
-        {
-            PedidosCache.length > 0 && localStorage.getItem("Conexion") === "Online" &&
-            <div style={{ textAlign: 'center', fontSize: '24px' }} className="alert alert-danger alert-dismissible fade show" role="alert">
-                <FiAlertTriangle style={{ fontSize: '28px', color: 'red' }} /> Tiene pedidos en bandeja de salida, necesita sincronizar para poder registrar un nuevo pedido.
-            </div>
-        }
-        <div className="col">
-            <Dialog
-            disableBackdropClick 
-            scroll={'paper'}
-            open={openContado}
-            >
-                <img alt="closeicon" src={logo} style={{width:'30px',height:'30px',marginLeft:'500px'}} onClick={()=>{setOpenContado(false)}}/>
-                <DialogTitle className="text-center" id="scroll-dialog-title">
-                    <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
-                        Cliente Contado
-                    </div>
-                </DialogTitle>
-                <DialogContent>
-                
-                   { props.autocompleteValue!==null && <ClienteContado cliente={clienteContado} validacion={false}/>}
-                    
-                </DialogContent>
-        </Dialog>
-            <Card style={{ overflow: 'unset' }}>
+            {
+                PedidosCache.length > 0 && localStorage.getItem("Conexion") === "Online" &&
+                <div style={{ textAlign: 'center', fontSize: '24px' }} className="alert alert-danger alert-dismissible fade show" role="alert">
+                    <FiAlertTriangle style={{ fontSize: '28px', color: 'red' }} /> Tiene pedidos en bandeja de salida, necesita sincronizar para poder registrar un nuevo pedido.
+                </div>
+            }
+            <div className="col">
+                <Dialog
+                    disableBackdropClick
+                    scroll={'paper'}
+                    open={openContado}
+                >
+                    <img alt="closeicon" src={logo} style={{ width: '30px', height: '30px', marginLeft: '500px' }} onClick={() => { setOpenContado(false) }} />
+                    <DialogTitle className="text-center" id="scroll-dialog-title">
+                        <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
+                            Cliente Contado
+                        </div>
+                    </DialogTitle>
+                    <DialogContent>
 
-                <CardContent>
-                    <div className="row mt-2">
-                        <div className="col">
-                            <h5 className="font-weight-light">
-                                Nuevo Pedido
+                        {props.autocompleteValue !== null && <ClienteContado cliente={clienteContado} validacion={false} />}
+
+                    </DialogContent>
+                </Dialog>
+                <Card style={{ overflow: 'unset' }}>
+
+                    <CardContent>
+                        <div className="row mt-2">
+                            <div className="col">
+                                <h5 className="font-weight-light">
+                                    Nuevo Pedido
                                 </h5>
-                            <hr />
+                                <hr />
+                            </div>
                         </div>
-                    </div>
-                    <div className={'row mb-3'}>
-                        <div className={'col-xl-10 col-lg-10 col-sm-9 col-12 mt-2'} >
-                            <Dropdown
-                                className="Holis"
-                                placeholder="Ingrese Cliente"
-                                fluid
-                                search
-                                selection
-                                onChange={(e, { value }) => handleOnChange(value)}
-                                options={options}
-                                noResultsMessage={"No hay resultados"}
-                                closeOnChange={true}
-                                value={Value}
-                            />
-                        </div>
+                        <div className={'row mb-3'}>
+                            <div className={'col-xl-10 col-lg-10 col-sm-9 col-12 mt-2'} >
+                                <Dropdown
+                                    className="Holis"
+                                    placeholder="Ingrese Cliente"
+                                    fluid
+                                    search
+                                    selection
+                                    onChange={(e, { value }) => handleOnChange(value)}
+                                    options={options}
+                                    noResultsMessage={"No hay resultados"}
+                                    closeOnChange={true}
+                                    value={Value}
+                                />
+                            </div>
 
-                        <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
-                            <Button
-                                disabled={props.autocompleteValue ? false : true}
-                                onClick={validacionPedidosCache}
-                                variant="contained"
-                                color="primary">
-                                Continuar
-                                </Button>
-                                <Button style={{marginLeft:15}} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon/></Button>
+                            <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
+                                {
+                                    (permisos.UsuarioOficina && localStorage.getItem('codigo') == Configuraciones.UsuarioTest || ((gpsActivo && distancia >= 0 && distancia <= parseInt(Configuraciones.DistPermitidaPedido)) &&  locationCliente.latitude != null )) && (
+                                        <Button
+                                            disabled={props.autocompleteValue ? false : true}
+                                            onClick={validacionPedidosCache}
+                                            variant="contained"
+                                            color="primary">
+                                            Continuar
+                                        </Button>
+                                    )}
+
+                                <Button style={{ marginLeft: 15 }} onClick={handleRecarga} variant="contained" color="primary"><CachedIcon /></Button>
+                            </div>
                         </div>
-                    </div>
 
                         {(props.autocompleteValue && direccionEntrega) && (<div className={'row mt-3'}>
                             <div className={'col-xl-10 col-lg-10 col-sm-9 col-12 mt-2'} style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -824,61 +1014,67 @@ const SelectCliente = (props) => {
                             </div>
                         </div>)}
 
-                </CardContent>
+                        {!gpsActivo && !permisos.UsuarioOficina && localStorage.getItem('codigo') == Configuraciones.UsuarioTest &&
+                            <span className={styles["TCenterContainer"]}>
+                                <h3 className={styles["TCenter"]}> Para continuar con el pedido, por favor active el GPS y actualice la página para actualizar su ubicación.</h3>
+                            </span>
+                        }
+
+                    </CardContent>
 
 
-            </Card>
+                </Card>
 
-            {/* <div>
+                {/* <div>
                         <SignatureCanvas canvasProps={{width: 400, height: 400, className: 'sigCanvas'}}
                             ref={sigPad} />
                     </div> */}
-            <div style={{ textAlign: "center", marginTop: '25px' }}>
-                <SyncLoader
-                    size={20}
-                    color={'#31547C'}
-                    loading={props.loading} />
-            </div>
-            {infoCliente}
+                <div style={{ textAlign: "center", marginTop: '25px' }}>
+                    <SyncLoader
+                        size={20}
+                        color={'#31547C'}
+                        loading={props.loading} />
+                </div>
+                {infoCliente}
 
-            <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={alerta} TransitionComponent={TransitionGrow}>
-                <MySnackbarContentWrapper
-                    variant="error"
-                    message={mensajeError()}
-                />
+                <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'center' }} style={{ zIndex: 10 }} open={alerta} TransitionComponent={TransitionGrow}>
+                    <MySnackbarContentWrapper
+                        variant="error"
+                        message={mensajeError()}
+                    />
                 </Snackbar>
 
-            {/*<Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} style={{ zIndex: 10 }} open={EsVisible} TransitionComponent={TransitionGrow}>
+                {/*<Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} style={{ zIndex: 10 }} open={EsVisible} TransitionComponent={TransitionGrow}>
                         <MySnackbarContentWrapper
                             variant="error"
                             message="El cliente seleccionado no pertenece a su pais"
                         />
                 </Snackbar>*/}
 
-            {
-                props.autocompleteValue &&
-                <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={TransitionSlide}>
-                    <AppBar className={classes.appBar}>
-                        <Toolbar>
-                            <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
-                                <CloseIcon />
-                            </IconButton>
-                            <Typography variant="h6" className={classes.title}>
-                                Histórico
-                            </Typography>
-                            <Button color="inherit" onClick={handleClose}>
-                                Cerrar
-                            </Button>
-                        </Toolbar>
-                    </AppBar>
+                {
+                    props.autocompleteValue &&
+                    <Dialog fullScreen open={open} onClose={handleClose} TransitionComponent={TransitionSlide}>
+                        <AppBar className={classes.appBar}>
+                            <Toolbar>
+                                <IconButton edge="start" color="inherit" onClick={handleClose} aria-label="close">
+                                    <CloseIcon />
+                                </IconButton>
+                                <Typography variant="h6" className={classes.title}>
+                                    Histórico
+                                </Typography>
+                                <Button color="inherit" onClick={handleClose}>
+                                    Cerrar
+                                </Button>
+                            </Toolbar>
+                        </AppBar>
 
-                    <Historico nombre={props.autocompleteValue.Nombre} />
+                        <Historico nombre={props.autocompleteValue.Nombre} />
 
-                </Dialog>
-            }
-            <Loading open={loading} title={mensaje}/>
-            <ModalDirecciones cerrar={()=>setOpenModalDirecciones(false)} open={openModalDirecciones} direcciones={props.autocompleteValue == null?[]:props.autocompleteValue.Direcciones}/>
-        </div>
+                    </Dialog>
+                }
+                <Loading open={loading} title={mensaje} />
+                <ModalDirecciones cerrar={() => setOpenModalDirecciones(false)} open={openModalDirecciones} direcciones={props.autocompleteValue == null ? [] : props.autocompleteValue.Direcciones} />
+            </div>
         </>
     );
 }
