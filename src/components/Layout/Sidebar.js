@@ -59,7 +59,8 @@ import {
     History,
     AirplanemodeActive,
     Settings,
-    Cancel
+    Cancel,
+    MailOutline
 } from '@material-ui/icons';
 import AssessmentIcon from '@material-ui/icons/Assessment';
 import CloudQueueIcon from '@material-ui/icons/CloudQueue';
@@ -112,7 +113,18 @@ const navItems = [
     { to: '/tiempofueraagenda', name: 'Tiempo Fuera Agenda', dataTut: 'DataTut_Agenda', Icon: EventNote },
     { to: '/cartera', name: 'Cartera Clientes', dataTut: 'DataTut_Agenda', Icon: AccountBox },
     { to: '/acuerdosVenta', name: 'Acuerdos de Venta', dataTut: 'DataTut_Agenda', Icon: MonetizationOn },
-    //{ to: '/dashboard', name: 'Dashboard', dataTut: 'DataTut_Dashboard', Icon: DashboardOutlined },
+    { to: '/listadoReportesVisita', name: 'Reporte Visita', dataTut: 'DataTut_Agenda', Icon: EventNote },
+    
+    
+    { to: '/CorreosMain', name: 'Configuracion Correos', dataTut: 'DataTut_Agenda', Icon:  MailOutline,
+
+        expanded: [
+            { to: '/MailServicios', name: 'Configuracion Servicios', dataTut: 'DataTut_Agenda', Icon: LocalLibrary, backgroundColor:'' },
+           ]
+
+     },
+
+    
     {
         to: '/encuesta', name: 'Encuesta', dataTut: 'DataTut_EncuetasGeneral', Icon: LibraryBooks,
         expanded: [

@@ -16,7 +16,6 @@ import Recibos from 'containers/Recibos/Recibos'
 import Fotografia from 'containers/Fotografias/Fotografias'
 import CuentaCorriente from 'containers/CuentaCorriente/CuentaCorriente'
 import EstadisticaVisita from 'containers/EstadisticaVisita/EstadisticaVisita'
-//import Coordenadas from 'containers/Coordenadas/Coordenadas'
 import CoordenadasGlobal from 'containers/Coordenadas/CoordenadasGlobal'
 import ListaPedidos from 'containers/ListaPedidos/ListaPedidos'
 import ListaRecibos from 'containers/ListaRecibos/ListaRecibos'
@@ -75,6 +74,11 @@ import { TiemposFuera } from 'containers/Agenda/TiemposFuera/TiemposFuera'
 import { BaseColorImpuesto } from 'containers/BaseColorImpuesto/BaseColorImpuesto'
 import { ClasficacionProductos } from 'containers/Devoluciones/ClasificacionProductos'
 import { InventarioEspecifico } from 'containers/InventarioEspecifico/InventarioEspecifico'
+import { ListadoReportesVisita } from 'containers/IncidenciaVisita/ListadoIncidenciaVisita'
+import { CorreosMain } from 'containers/Correo/ListadoModulos'
+import { MailServicios } from 'containers/Correo/ListaMailServicios';
+import { MailCorreos } from 'containers/Correo/ListaMailCorreos';
+import { MailEjecucion } from 'containers/Correo/ListaEjecucionCorreos';
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -450,6 +454,35 @@ const App = props => {
               layout={MainLayout}
               component={AcuerdosVenta}
             />
+            <LayoutRoute
+              path='/listadoReportesVisita'
+              layout={MainLayout}
+              component={ListadoReportesVisita}
+            />
+            <LayoutRoute
+              path='/CorreosMain'
+              layout={MainLayout}
+              component={CorreosMain}
+            />
+
+            <LayoutRoute
+              path='/MailServicios'
+              layout={MainLayout}
+              component={MailServicios}
+            />
+
+            <LayoutRoute
+              path='/MailCorreos'
+              layout={MainLayout}
+              component={MailCorreos}
+            />  
+
+            <LayoutRoute
+              path='/MailEjecucion'
+              layout={MainLayout}
+              component={MailEjecucion}
+            />  
+
             <LayoutRoute
               path='/GiraAsesores/Mantenimiento'
               layout={MainLayout}

@@ -12,11 +12,13 @@ import {
 } from '@material-ui/core';
 import PopupState, { bindTrigger, bindPopover } from 'material-ui-popup-state';
 import { InfoOutlined } from "@material-ui/icons";
-import { APIKEY } from 'utils/Enviroment';
+import { useSelector } from 'react-redux';
 moment.locale('es');
 
 
 const DetallePedido = (props) => {
+    const APIKEY = useSelector(e => e.Configuraciones.ApiKey_GoogleMaps);
+
     let initialCoors = { lat: props.pedido.locationCliente.latitude, lng: props.pedido.locationCliente.longitude };
     let longitudCliente = props.pedido.locationCliente.longitude;
     let latitudCliente = props.pedido.locationCliente.latitude;

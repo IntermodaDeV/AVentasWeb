@@ -7,16 +7,20 @@ import {DepositosModal} from './DepositosModal';
 import moment from "moment";
 import "moment/locale/es";
 import styles from "components/ListadoRecibos/DetalleRecibo.module.css";
-import {APIKEY} from 'utils/Enviroment';
+import { useSelector } from 'react-redux';
+
 
 const DetalleRecibo = (props) => {
   const { recibo } = props;
-  // eslint-disable-next-line
   const [maps, setMaps] = useState({ map: null, maps: null });
   const [openModal,setOpenModal] = useState(false);
+  const APIKEY = useSelector(e => e.Configuraciones.ApiKey_GoogleMaps);
+
   let initialCoors = { lat: recibo.locationCliente.latitude,lng: recibo.locationCliente.longitude };
   let longitudCliente = recibo.locationCliente.longitude;
   let latitudCliente = recibo.locationCliente.latitude;
+
+
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: APIKEY
