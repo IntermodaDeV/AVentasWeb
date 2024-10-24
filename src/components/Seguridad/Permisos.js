@@ -4,45 +4,39 @@ export const IsAllow = (Ruta, expanded) => {
     let ModoOffline = localStorage.getItem("Conexion") === "Online" ? false : true;
     const globalState = store.getState();
     const Permisos = globalState["Permisos"];
-        for(let usu of Permisos){
-            for(let rol of usu.RolesUsuarios){
-                for(let fun of rol.RolesFunciones){
-                    for(let pan of fun.PantallasFunciones){
-                        if(expanded === true){
-                            if(pan.Ruta.toUpperCase() === Ruta.toUpperCase())
-                            {
-                                if(ModoOffline)
-                                {
-                                    if(pan.ModoOffline === true)
-                                    {
-                                        return true;
-                                    } 
-                                }
-                                else{
+    for (let usu of Permisos) {
+        for (let rol of usu.RolesUsuarios) {
+            for (let fun of rol.RolesFunciones) {
+                for (let pan of fun.PantallasFunciones) {
+                    if (expanded === true) {
+                        if (pan.Ruta.toUpperCase() === Ruta.toUpperCase()) {
+                            if (ModoOffline) {
+                                if (pan.ModoOffline === true) {
                                     return true;
                                 }
                             }
-                        }
-                        else{
-                            if(pan.Ruta.toUpperCase().includes(Ruta.toUpperCase()))
-                            {
-                                if(ModoOffline)
-                                {
-                                    if(pan.ModoOffline === true)
-                                    {
-                                        return true;
-                                    } 
-                                }
-                                else{
-                                    return true;
-                                }
+                            else {
+                                return true;
                             }
                         }
-                        
                     }
+                    else {
+                        if (pan.Ruta.toUpperCase().includes(Ruta.toUpperCase())) {
+                            if (ModoOffline) {
+                                if (pan.ModoOffline === true) {
+                                    return true;
+                                }
+                            }
+                            else {
+                                return true;
+                            }
+                        }
+                    }
+
                 }
             }
         }
+    }
     return false;
 };
 
@@ -75,6 +69,22 @@ export const PermisoUsuarioOficinaCreditos = () => {
 
     return false;
 }
+
+export const PermisoHabilitarReimpresion = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "Habilitar reimpresion") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 
 export const PermisoAdministradorVisita = () => {
     const globalState = store.getState();
