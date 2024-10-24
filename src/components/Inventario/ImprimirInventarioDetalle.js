@@ -52,23 +52,7 @@ export const ImprimirInventarioDetalle = (props) => {
     return (
         <>
             <DialogTitle id="scroll-dialog-title">
-                {(props.esDevolucion) ?
-                    <div style={{ float: 'right' }}>
-                        <ReactToPrint
-                            trigger={() =>
-                                <Button variant="contained" size="large" color="primary" endIcon={<FaPrint />}>
-                                    Imprimir
-                                </Button>
-                            }
-                            content={() => componentRef.current}
-                        />
-
-                        <Button onClick={props.hidePrint} variant="contained" size="large" color="primary" style={{ marginLeft: '10px' }} endIcon={<FiArrowRightCircle />}>
-                            Finalizar
-                        </Button>
-                    </div>
-                    : "Vista Previa Pedido"
-                }
+                Información Inventario
             </DialogTitle>
             <DialogContent dividers={true} ref={componentRef} style={{ width: '100%' }}>
                 <div id={"invoice-POS"} style={{ boxShadow: 'unset' }}>
@@ -103,7 +87,7 @@ export const ImprimirInventarioDetalle = (props) => {
                                     <h2>Inventario {props.Pedido.numInventario}</h2>
                                     <p>
                                         Creado: {moment(props.Pedido.creado).format('DD/MM/YYYY hh:mm a')}<br />
-                                        {props.Pedido.completado == true ? "Terminado" : "Modificado"}: { moment(props.Pedido.creado).format('DD/MM/YYYY hh:mm a')}<br />
+                                        {props.Pedido.completado == true ? "Terminado" : "Modificado"}: {moment(props.Pedido.creado).format('DD/MM/YYYY hh:mm a')}<br />
                                     </p>
                                 </div>
                             </div >
@@ -205,7 +189,7 @@ export const ImprimirInventarioDetalle = (props) => {
 
                                                                                 TotalXTalla = dist.Cantidad * det.Cantidad;
                                                                                 TotalXProducto += TotalXTalla;
-                                                                               
+
                                                                                 let cant = 0;
                                                                                 if (color.DetallesXPedido.length === 1) {
                                                                                     totalcant = dist.Cantidad * det.Cantidad;
@@ -267,7 +251,7 @@ export const ImprimirInventarioDetalle = (props) => {
                                                                 width: `${cellSize}%`,
                                                             }}>{TotalXProducto !== 0 ? TotalXProducto : color.CantidadXColor}</td>
                                                         </tr>
-                                                        
+
                                                     )
                                                 })}
                                             </React.Fragment>
@@ -307,11 +291,4 @@ export const ImprimirInventarioDetalle = (props) => {
             </DialogActions>
         </>
     )
-}
-
-const numberWithCommas = (x) => {
-    x = x.toFixed(2);
-    var parts = x.toString().split(".");
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-    return parts.join(".");
 }

@@ -11,6 +11,8 @@ import PrintOutlined from '@material-ui/icons/PrintOutlined';
 import { Dropdown } from "semantic-ui-react";
 import { useSelector } from 'react-redux';
 import { APIURL } from 'utils/Enviroment';
+import { mostrarAlerta } from 'utils/common';
+import { permisoEliminarInventario } from 'components/Seguridad/Permisos';
 import { ImprimirInventarioDetalle } from 'components/Inventario/ImprimirInventarioDetalle';
 import moment from 'moment';
 
@@ -20,26 +22,21 @@ export const ListadoInventario = (props) => {
     const [inventario, setInventario] = useState(null);
     const [detalleInventario, setDetalleInventario] = useState([]);
     const [asesores, setAsesores] = useState([]);
-    const [AsesorSelected, setAsesorSelected] = useState(null);
-
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
+    const asesor = AsesoresUsuario.find(a => a.Usuario === localStorage.getItem('codigo'));
+    const [AsesorSelected, setAsesorSelected] = useState(asesor ? asesor.Usuario : AsesoresUsuario[0].Usuario);
 
     useEffect(() => {
-        setAsesorSelected(AsesoresUsuario[0].Usuario);
         ObtenerListadoInventarios();
-
         let asesoresMap = AsesoresUsuario.map((Ase) => ({ key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }));
         asesoresMap.unshift({ key: "Todo", value: "Todo", text: "Todo" });
         setAsesores(asesoresMap);
-        // eslint-disable-next-line
     }, [])
 
 
     const ObtenerListadoInventarios = async () => {
         try {
-            let asesor = AsesorSelected ? AsesorSelected : AsesoresUsuario[0].Usuario;
-            let hola = APIURL;
-            const request = await axios.get(`${APIURL}/api/Inventario/${asesor}`, {
+            const request = await axios.get(`${APIURL}/api/Inventario/${AsesorSelected}`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -48,7 +45,38 @@ export const ListadoInventario = (props) => {
             console.log(request.data)
             setInventarios(request.data);
         } catch (err) {
-            console.log(err)
+            let mensaje = "No se pudo obtener los registros.";
+            let error = "FCTI01";
+
+            if (err.response.data) {
+                mensaje = err.response.data.Message;
+                error = err.response.data.ErrorCode;
+            }
+            mostrarAlerta("Error " + error, mensaje, "error");
+        }
+    }
+
+    const eliminarInventario = async (inventario) => {
+        try {
+
+            await axios.get(`${APIURL}/api/eliminarInventario/${inventario}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            });
+            mostrarAlerta("Exito", "El inventario " + inventario + " se elimino correctamente", "success");
+            ObtenerListadoInventarios();
+        } catch (err) {
+            let mensaje = "No se pudo obtener los registros.";
+            let error = "FCTI02";
+
+            if (err.response.data) {
+                mensaje = err.response.data.Message;
+                error = err.response.data.ErrorCode;
+            }
+
+            mostrarAlerta("Error " + error, mensaje, "error");
         }
     }
 
@@ -142,6 +170,15 @@ export const ListadoInventario = (props) => {
             setDetalleInventario(request.data);
             setShowDialog(true);
         } catch (err) {
+            let mensaje = "No se pudo obtener los registros.";
+            let error = "FCPI05";
+
+            if (err.response.data) {
+                mensaje = err.response.data.Message;
+                error = err.response.data.ErrorCode;
+            }
+
+            mostrarAlerta("Error " + error, mensaje, "error");
 
         }
     }
@@ -154,13 +191,18 @@ export const ListadoInventario = (props) => {
                 p.empresa,
                 moment(p.creado).format('DD/MM/YYYY'),
                 moment(p.modificado).format('DD/MM/YYYY'),
-                p.completado == 1? "Sí":"No",
+                p.completado == 1 ? "Sí" : "No",
                 p.unidades,
                 <div>
                     <span className="ml-1">
                         <Button className='my-1' variant="outlined" size="small" onClick={() => { obtenerDetalleInventario(p) }} color={"primary"}>
                             <PrintOutlined />
                         </Button>
+                        {permisoEliminarInventario() &&
+                            <>
+                                <Button size="small" variant="outlined" style={{ color: 'red', borderColor: 'red', marginLeft: '5px' }} onClick={() => eliminarInventario(p.numInventario)}>Eliminar</Button>
+                            </>
+                        }
                     </span >
                 </div>
             ]
@@ -263,7 +305,6 @@ export const ListadoInventario = (props) => {
                 scroll={'paper'}
                 aria-labelledby="scroll-dialog-title"
             >
-
                 {
                     inventario && detalleInventario &&
                     <ImprimirInventarioDetalle

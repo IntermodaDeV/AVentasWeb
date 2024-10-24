@@ -287,7 +287,7 @@ const CuentaCorrienteTable = props => {
             </>)}
             {(cuentaCorriente.length > 0 && props.visible) && (<div style={{ display: 'inline' }}>
                 <Button onClick={generatePDF} style={{ marginBottom: '10px' }} variant="contained" color="primary">Generar Reporte</Button>
-                <DescargarCuentaExcel cliente={props.clienteSelected.Codigo} />
+               {/*<DescargarCuentaExcel cliente={props.clienteSelected.Codigo} />*/}
             </div>)}
             <MUIDataTable
                 title={''}
