@@ -49,10 +49,10 @@ export const ListadoSTP = (props) => {
     const [proximaEjecucionGenerarArchivoDisable, setProximaEjecucionGenerarArchivoDisable] = useState(true);
 
     useEffect(() => {
-        // if (!IsAllow("/listadoReportesVisita")) {
-        //     props.history.push('/home');
-        // }
-        // obtenerEstados();
+        if (!IsAllow("/ServiciosTareas")) {
+            props.history.push('/home');
+        }
+        obtenerEstados();
         obtenerServiciosYTareas();
     }, []);
 
@@ -68,10 +68,17 @@ export const ListadoSTP = (props) => {
         setUltimaEjecucionGenerarArchivo(p.UltimaEjecucionGenerarArchivo);
         setAutomatico(p.Automatico);
         setActivo(p.Activo);
-        setReIniciar(p.reIniciar);
+        setReIniciar(p.ReIniciar);
         setReIniciarGenerarcionArchivo(p.ReIniciarGenerarcionArchivo);
         setNumeroEjecucion(p.NumeroEjecucion)
         setShowDialog(true)
+        if (p.ReIniciar) {
+            setProximaEjecucionEnvioDisable(false);
+        }
+
+        if (p.ReIniciarGenerarcionArchivo) {
+            setProximaEjecucionGenerarArchivoDisable(false);
+        }
     }
 
     const actualizarServicio = async () => {
@@ -97,7 +104,7 @@ export const ListadoSTP = (props) => {
 
             Swal.fire({
                 title: 'Exito',
-                text: "Servicio Modicado Correctamente",
+                text: "Servicio Modificado Correctamente",
                 type: 'success',
                 confirmButtonText: 'Ok',
                 target: context.current
@@ -329,7 +336,7 @@ export const ListadoSTP = (props) => {
                                                     checked={reIniciar}
                                                     name="UltimaEjecucionEnvioCheck"
                                                     color="primary"
-                                                    onChange={() => setProximaEjecucionEnvioDisable(!proximaEjecucionEnvioDisable)}
+                                                    onChange={() => { setReIniciar(!reIniciar); setProximaEjecucionEnvioDisable(!proximaEjecucionEnvioDisable) }}
                                                 />
                                             }
                                             label="ReIniciar Envio"
@@ -346,22 +353,22 @@ export const ListadoSTP = (props) => {
                                             autoOk
                                             label={"-"}
                                             variant="inline"
-                                            format={"DD/MM/YYYY HH:mm"} 
+                                            format={"DD/MM/YYYY HH:mm"}
                                             value={proximaEjecucionEnvio ? new Date(proximaEjecucionEnvio) : null}
                                             onChange={(date) => { //setProximaEjecucionEnvio(date)
-                                                 if (date) {
-                                                     // Crear una nueva instancia de Date
-                                                     const updatedDate = new Date(date);
-                                                     // Establecer la hora a las 12:00 AM en la zona horaria local
-                                                     updatedDate.setHours(0, 0, 0, 0);
+                                                if (date) {
+                                                    // Crear una nueva instancia de Date
+                                                    const updatedDate = new Date(date);
+                                                    // Establecer la hora a las 12:00 AM en la zona horaria local
+                                                    updatedDate.setHours(0, 0, 0, 0);
 
-                                                     // Convertir a formato ISO ajustado a UTC-6 (Honduras)
-                                                     const utcDate = new Date(updatedDate.getTime() - (6 * 60 * 60 * 1000)); // Ajustar a UTC-6
-                                                     const formattedDate = utcDate.toISOString().replace('Z', ''); // Quitar la 'Z' que indica UTC
+                                                    // Convertir a formato ISO ajustado a UTC-6 (Honduras)
+                                                    const utcDate = new Date(updatedDate.getTime() - (6 * 60 * 60 * 1000)); // Ajustar a UTC-6
+                                                    const formattedDate = utcDate.toISOString().replace('Z', ''); // Quitar la 'Z' que indica UTC
 
-                                                     // Guardar la fecha en el formato "2024-10-24T06:00:00"
-                                                     setProximaEjecucionEnvio(formattedDate);
-                                                 }
+                                                    // Guardar la fecha en el formato "2024-10-24T06:00:00"
+                                                    setProximaEjecucionEnvio(formattedDate);
+                                                }
                                             }}
                                         />
                                     </Grid>
@@ -405,20 +412,20 @@ export const ListadoSTP = (props) => {
                                             autoOk
                                             label={"-"}
                                             variant="inline"
-                                            format={"DD/MM/YYYY HH:mm"} 
+                                            format={"DD/MM/YYYY HH:mm"}
                                             value={proximaEjecucionGenerarArchivo ? new Date(proximaEjecucionGenerarArchivo) : null}
                                             onChange={(date) => {
-                                                if (date) {                                                   
+                                                if (date) {
                                                     if (date) {
                                                         // Crear una nueva instancia de Date
                                                         const updatedDate = new Date(date);
                                                         // Establecer la hora a las 12:00 AM en la zona horaria local
                                                         updatedDate.setHours(0, 0, 0, 0);
-   
+
                                                         // Convertir a formato ISO ajustado a UTC-6 (Honduras)
                                                         const utcDate = new Date(updatedDate.getTime() - (6 * 60 * 60 * 1000)); // Ajustar a UTC-6
                                                         const formattedDate = utcDate.toISOString().replace('Z', ''); // Quitar la 'Z' que indica UTC
-   
+
                                                         // Guardar la fecha en el formato "2024-10-24T06:00:00"
                                                         setProximaEjecucionGenerarArchivo(formattedDate);
                                                     }
@@ -445,7 +452,7 @@ export const ListadoSTP = (props) => {
                                         <FormControlLabel
                                             control={
                                                 <Checkbox
-                                                disabled
+                                                    disabled
                                                     checked={automatico}
                                                     name="Automatico"
                                                     color="primary"
@@ -459,7 +466,7 @@ export const ListadoSTP = (props) => {
                                         <FormControlLabel
                                             control={
                                                 <Checkbox
-                                                disabled
+                                                    disabled
                                                     checked={activo}
                                                     name="Automatico"
                                                     color="primary"
