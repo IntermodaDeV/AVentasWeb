@@ -613,7 +613,7 @@ const SelectCliente = (props) => {
         let distancia = CalcularDistancia(locationAsesor.latitude, locationAsesor.longitude, locationCliente.latitude, locationCliente.longitude)
         if (distancia <= parseInt(Configuraciones.DistPermitidaPedido)) {
             color = "#1ECE39";
-        } 
+        }
 
         optionsMap = {
             strokeColor: color,
@@ -639,7 +639,7 @@ const SelectCliente = (props) => {
                 <h5 className={"font-weight-light"}>
                     Ubicación:
                 </h5>
-                { locationCliente.latitude != null && gpsActivo && isLoaded ?
+                {locationCliente.latitude != null && gpsActivo && isLoaded ?
                     <div style={{ height: '800px', width: '100%' }}>
 
                         {/* <p>{locationCliente.latitude}</p>
@@ -752,7 +752,7 @@ const SelectCliente = (props) => {
                         </span>
                     }
 
-                    {locationCliente.latitude == null  &&
+                    {locationCliente.latitude == null &&  localStorage.getItem('codigo') == Configuraciones.UsuarioTest &&
                         <span className={styles["TCenterContainer"]}>
                             <h3 className={styles["TCenter"]}> El cliente no tiene una ubicación registrada. Por favor, regístrela y actualice la página.</h3>
                         </span>
@@ -828,7 +828,7 @@ const SelectCliente = (props) => {
                                             {props.autocompleteValue.Direccion}</td>
                                     </tr>
                                     {/* {(permisos.AsesoresUsuario.length === 1 && locationCliente.latitude > 0 && locationCliente.longitude > 0) && */}
-                                    {(locationCliente.latitude == null || locationCliente.longitude == null) &&
+                                    {((locationCliente.latitude == null || locationCliente.longitude == null) && localStorage.getItem('codigo') == Configuraciones.UsuarioTest) &&
                                         <tr>
                                             <td className={styles.InfoLabel}>
                                                 Pinear Coordenada
@@ -991,7 +991,24 @@ const SelectCliente = (props) => {
 
                             <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                                 {
-                                    (permisos.UsuarioOficina && localStorage.getItem('codigo') == Configuraciones.UsuarioTest || ((gpsActivo && distancia >= 0 && distancia <= parseInt(Configuraciones.DistPermitidaPedido)) &&  locationCliente.latitude != null )) && (
+
+                                    localStorage.getItem('codigo') == Configuraciones.UsuarioTest ? (
+
+                                        (gpsActivo && distancia >= 0 && distancia <= parseInt(Configuraciones.DistPermitidaPedido) && locationCliente.latitude != null) ? (
+                                            <div>
+                                                <Button
+                                                    disabled={props.autocompleteValue ? false : true}
+                                                    onClick={validacionPedidosCache}
+                                                    variant="contained"
+                                                    color="primary">
+                                                    Continuar
+                                                </Button>
+                                            </div>
+                                        ) : (
+
+                                            <p></p>
+                                        )
+                                    ) : (
                                         <Button
                                             disabled={props.autocompleteValue ? false : true}
                                             onClick={validacionPedidosCache}

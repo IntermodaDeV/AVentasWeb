@@ -18,6 +18,7 @@ import { Loading } from 'components/Global/Loading';
 import Swal from 'sweetalert2/dist/sweetalert2.js';
 import { FormControlLabel, Checkbox } from '@material-ui/core/';
 import moment from 'moment';
+import { IsAllow } from 'components/Seguridad/Permisos';
 import { DatePicker } from "@material-ui/pickers";
 
 
@@ -52,7 +53,6 @@ export const ListadoSTP = (props) => {
         if (!IsAllow("/ServiciosTareas")) {
             props.history.push('/home');
         }
-        obtenerEstados();
         obtenerServiciosYTareas();
     }, []);
 
