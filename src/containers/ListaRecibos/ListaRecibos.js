@@ -6,17 +6,17 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import { Button } from "@material-ui/core";
 import DetalleRecibo from 'components/ListadoRecibos/DetalleRecibo';
-import { PrintOutlined,Image } from '@material-ui/icons';
+import { PrintOutlined, Image } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
 import { APIURL } from 'utils/Enviroment';
 import Listado from 'components/ListadoRecibos/Listado';
 import LoadingModal from './../../components/Global/LoadingModal';
-import  TableFooter from "@material-ui/core/TableFooter";
-import  TableRow from "@material-ui/core/TableRow";
-import  TablePagination from "@material-ui/core/TablePagination";
+import TableFooter from "@material-ui/core/TableFooter";
+import TableRow from "@material-ui/core/TableRow";
+import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
-import {IsAllow, PermisoUsuarioOficinaCreditos} from 'components/Seguridad/Permisos';
+import { IsAllow, PermisoUsuarioOficinaCreditos, PermisoHabilitarReimpresion } from 'components/Seguridad/Permisos';
 import { useSelector } from 'react-redux';
 import { verificarConexion } from 'utils/http';
 import axios from 'axios';
@@ -25,31 +25,30 @@ moment.locale('es');
 const ListaRecibos = (props) => {
     const urlApi = APIURL;
 
-    const [showModalUpload,setShowModalUpload] = useState(false);
-    const [numeroRecibo,setNumeroRecibo] = useState("");
-    const [imagenDepositos,setImagenDepositos] = useState();
+    const [showModalUpload, setShowModalUpload] = useState(false);
+    const [numeroRecibo, setNumeroRecibo] = useState("");
+    const [imagenDepositos, setImagenDepositos] = useState();
     const [error, setError] = useState(false);
     const [isLoaded, setIsLoaded] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
-    const [startDate, setStartDate] =  useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()-30));
-    const [endDate, setEndDate] = useState( new Date(new Date().getFullYear(), new Date().getMonth(),  new Date().getDate()));
+    const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 30));
+    const [endDate, setEndDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()));
     const [recibos, setRecibos] = useState([]);
     const [recibo, setRecibo] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
     const [DialogRecibo, setDialogRecibo] = useState(null);
-    const [isLoading,setLoading] = useState(false);
+    const [isLoading, setLoading] = useState(false);
     const [Asesores, setAsesores] = useState([]);
     const [AsesorSelected, setAsesorSelected] = useState(null);
     const [nombreAsesor, setNombreAsesor] = useState(null);
-    const AsesoresUsuario = useSelector(e=>e.Permisos[0].AsesoresUsuario);
+    const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
 
     useEffect(() => {
-        if(!IsAllow("/lista-recibos"))
-        {
+        if (!IsAllow("/lista-recibos")) {
             props.history.push('/home');
         }
-            cargarRecibos("1900-01-01", "1900-01-01");
+        cargarRecibos("1900-01-01", "1900-01-01");
         let Asesores = [];
-            AsesoresUsuario.map((Ase) => {
+        AsesoresUsuario.map((Ase) => {
             let Valores = { key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }
             Asesores.push(Valores);
             return true;
@@ -60,14 +59,14 @@ const ListaRecibos = (props) => {
         //cargarClientes();
         // eslint-disable-next-line
     }, []);
-   
+
     const cambiarRecibo = (recibo) => {
-         setRecibo(recibo);
-     }
+        setRecibo(recibo);
+    }
 
     const cargarRecibos = async (FechaInicio, FechaFin) => {
         const isOnline = await verificarConexion();
-        if (!isOnline || localStorage.getItem("Conexion")==="offline") {
+        if (!isOnline || localStorage.getItem("Conexion") === "offline") {
             Swal.fire({
                 title: "Sin internet",
                 text: "Necesita internet para poder visualizar esta pagina.",
@@ -75,7 +74,7 @@ const ListaRecibos = (props) => {
                 confirmButtonText: 'Ok',
             });
             setLoading(true);
-        } else if(localStorage.getItem("Conexion")==="Online" && isOnline){
+        } else if (localStorage.getItem("Conexion") === "Online" && isOnline) {
             setLoading(true);
             var Inicio = moment(FechaInicio).format("YYYY-MM-DD");
             var Fin = moment(FechaFin).format("YYYY-MM-DD");
@@ -160,12 +159,12 @@ const ListaRecibos = (props) => {
         }
     }
 
-    const handleOpenModal=(numeroRecibo)=>{
+    const handleOpenModal = (numeroRecibo) => {
         setShowModalUpload(true);
         setNumeroRecibo(numeroRecibo);
     }
 
-    const handleFilesChange=(e)=>{
+    const handleFilesChange = (e) => {
         setImagenDepositos(e.target.files);
     }
 
@@ -205,7 +204,28 @@ const ListaRecibos = (props) => {
             alert(`Ha ocurrido un error y no se pudo ${mensaje} el recibo.`);
         }
     }
-     
+
+    const habilitarReimpresion = async (numeroRecibo, activado) => {
+        const mensaje = activado ? "desactivar" : "activar";
+        try {
+            const result = await Swal.fire({
+                title: 'Confirmado',
+                text: `¿Está seguro de ${mensaje} la reimpresión del recibo ${numeroRecibo}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: mensaje,
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.value) {
+                await axios.put(`${APIURL}/api/recibo/reimpresion/${numeroRecibo}`);
+                Swal.fire('Éxito', `El recibo ${numeroRecibo} ha sido ${mensaje} con éxito.`, 'success');
+            }
+        } catch (err) {
+            Swal.fire('Error', `Ha ocurrido un error y no se pudo ${mensaje} el recibo.`, 'error');
+        }
+    }
+
     const DataRecibos = () => {
         let DataRecibos = [];
 
@@ -221,55 +241,61 @@ const ListaRecibos = (props) => {
 
             if (moment(fechaIni) < moment(recib.Fecha) && moment(recib.Fecha) < moment(fechaFin)) {
                 let data =
-                [
-                    [recib.NumeroRecibo,recib.Sincronizado],
-                    [recib.CodigoCliente,recib.Sincronizado],
-                    [recib.Cliente.Nombre,recib.Sincronizado],
-                    [moment(recib.Fecha).format('DD/MM/YYYY'),recib.Sincronizado],
-                    [recib.TipoPago.Descripcion,recib.Sincronizado],
-                    [recib.Referencia,recib.Sincronizado],
-                    [moment(recib.Fecha).format('DD/MM/YYYY'),recib.Sincronizado],
-                    [recib.DescripcionBanco,recib.Sincronizado],
-                    [recib.Valor,recib.Sincronizado],
-                    [recib.IdMoneda,recib.Sincronizado],
-                    [recib.Sincronizado],
-                    [recib.CodigoAsesor,recib.Sincronizado],
-                    [recib.DetalleRecibo[0].Factura,recib.Sincronizado],
-                    [recib.Descuento,recib.Sincronizado],
-                    <div style={{ color: "white", fontWeight: "bold", backgroundColor: recib.depositos.length === 0 ? "red" : "green", textAlign: "center" }}>{recib.depositos.length === 0 ? "No" : "Si"}</div>,
-                    <div>
+                    [
+                        [recib.NumeroRecibo, recib.Sincronizado],
+                        [recib.CodigoCliente, recib.Sincronizado],
+                        [recib.Cliente.Nombre, recib.Sincronizado],
+                        [moment(recib.Fecha).format('DD/MM/YYYY'), recib.Sincronizado],
+                        [recib.TipoPago.Descripcion, recib.Sincronizado],
+                        [recib.Referencia, recib.Sincronizado],
+                        [moment(recib.Fecha).format('DD/MM/YYYY'), recib.Sincronizado],
+                        [recib.DescripcionBanco, recib.Sincronizado],
+                        [recib.Valor, recib.Sincronizado],
+                        [recib.IdMoneda, recib.Sincronizado],
+                        [recib.Sincronizado],
+                        [recib.CodigoAsesor, recib.Sincronizado],
+                        [recib.DetalleRecibo[0].Factura, recib.Sincronizado],
+                        [recib.Descuento, recib.Sincronizado],
+                        <div style={{ color: "white", fontWeight: "bold", backgroundColor: recib.depositos.length === 0 ? "red" : "green", textAlign: "center" }}>{recib.depositos.length === 0 ? "No" : "Si"}</div>,
+                        <div>
 
-                        <span className="mr-1">
-                            <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
-                        </span> 
-                        {PermisoUsuarioOficinaCreditos() && <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => anularRecibo(recib.NumeroRecibo, recib.anulado)} size="small" color={"primary"}>
-                                {recib.anulado ? "Activar" : "Anular"}
-                            </Button>
-                        </span >}
-                        <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
-                                <PrintOutlined />
-                            </Button>
-                        </span >
-                        <span className="ml-1">
-                            <Button className='my-1' variant="outlined" onClick={() => handleOpenModal(recib.NumeroRecibo)} size="small" color={"primary"}>
-                                <Image />
-                            </Button>
-                        </span >
-                    </div>
-                        
-                ]
+                            <span className="mr-1">
+                                <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
+                            </span>
+                            {PermisoUsuarioOficinaCreditos() && <span className="ml-1">
+                                <Button className='my-1' variant="outlined" onClick={() => anularRecibo(recib.NumeroRecibo, recib.anulado)} size="small" color={"primary"}>
+                                    {recib.anulado ? "Activar" : "Anular"}
+                                </Button>
+                            </span >}
+                            {PermisoHabilitarReimpresion() && <span className="ml-1">
+                                <Button className='my-1' variant="outlined" style={{ borderColor: recib.Reimpresion ? 'green' : 'red', color: recib.Reimpresion ? 'green' : 'red' }} onClick={() => habilitarReimpresion(recib.NumeroRecibo, recib.Reimpresion)} size="small">
+                                    Reimpresión
+                                </Button>
+                            </span >}
+                            {(PermisoUsuarioOficinaCreditos() || recib.Reimpresion) && <span className="ml-1">
+                                <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
+                                    <PrintOutlined />
+                                </Button>
+                            </span >}
+
+                            <span className="ml-1">
+                                <Button className='my-1' variant="outlined" onClick={() => handleOpenModal(recib.NumeroRecibo)} size="small" color={"primary"}>
+                                    <Image />
+                                </Button>
+                            </span >
+                        </div>
+
+                    ]
 
                 DataRecibos.push(data);
             }
             return false;
 
         });
-        
-        DataRecibos.sort((a,b) => (a[0][0] > b[0][0]) ? -1 : ((b[0][0] > a[0][0]) ? 1 : 0));
+
+        DataRecibos.sort((a, b) => (a[0][0] > b[0][0]) ? -1 : ((b[0][0] > a[0][0]) ? 1 : 0));
         return DataRecibos;
-       
+
     }
 
     const showPrint = async (recibo) => {
@@ -303,7 +329,7 @@ const ListaRecibos = (props) => {
         return <div>Error: {error.message}</div>;
     }
     if (recibo != null) {
-        
+
         return (
             <DetalleRecibo
                 recibo={recibo}
@@ -325,7 +351,7 @@ const ListaRecibos = (props) => {
                             multiple
                             onChange={handleFilesChange}
                         />
-                        {imagenDepositos!==undefined && <Button
+                        {imagenDepositos !== undefined && <Button
                             onClick={uploadDepositos}
                             color="primary"
                             variant="outlined"
@@ -335,7 +361,7 @@ const ListaRecibos = (props) => {
                     </DialogContent>
                 </Dialog>
                 <Listado
-                recibos={recibos}
+                    recibos={recibos}
                     startDate={startDate}
                     endDate={endDate}
                     handleFechaInicio={handleFechaInicio}
@@ -370,9 +396,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -383,9 +409,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -396,9 +422,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -409,9 +435,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -422,9 +448,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -435,9 +461,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -448,9 +474,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -461,9 +487,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -474,9 +500,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -487,9 +513,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -500,9 +526,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[0])?'green':'orange',fontWeight:'bold'}}>{value[0]?"Si":"No"}</p>
+                    <p style={{ color: (value[0]) ? 'green' : 'orange', fontWeight: 'bold' }}>{value[0] ? "Si" : "No"}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -513,9 +539,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -526,9 +552,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -539,9 +565,9 @@ const HeadersListaRecibos = [
             sort: true,
             customBodyRender: (value, tableMeta, updateValue) => {
                 return (
-                    <p style={{color:(value[1])?'black':'orange',fontWeight:(value[1])?'normal':'bold'}}>{value[0]}</p>
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
                 );
-              }
+            }
         }
     },
     {
@@ -570,20 +596,20 @@ const DatatableOptions = {
     selectableRows: 'none',
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
         <TableFooter>
-              <TableRow>
+            <TableRow>
                 <TablePagination
-                  count={count}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={(_, page) => changePage(page)}
-                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
-                  rowsPerPageOptions={[10, 15, 100]}
-                  ActionsComponent={CustomFooter}
-                  labelRowsPerPage="Filas por página:"
+                    count={count}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onChangePage={(_, page) => changePage(page)}
+                    onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                    rowsPerPageOptions={[10, 15, 100]}
+                    ActionsComponent={CustomFooter}
+                    labelRowsPerPage="Filas por página:"
                 />
-              </TableRow>
-            </TableFooter>
-      ),
+            </TableRow>
+        </TableFooter>
+    ),
     textLabels: {
         body: {
             noMatch: "No se han encontrado recibos",

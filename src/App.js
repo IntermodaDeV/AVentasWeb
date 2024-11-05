@@ -79,6 +79,7 @@ import { CorreosMain } from 'containers/Correo/ListadoModulos'
 import { MailServicios } from 'containers/Correo/ListaMailServicios';
 import { MailCorreos } from 'containers/Correo/ListaMailCorreos';
 import { MailEjecucion } from 'containers/Correo/ListaEjecucionCorreos';
+import {ListadoSTP} from 'containers/ServiciosYTareasProgramadas/ListadoSTP';
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -534,6 +535,12 @@ const App = props => {
               path='/configuracion-obtencion-inventario'
               layout={MainLayout}
               component={InventarioEspecifico}
+            />
+            <LayoutRoute
+              exact
+              path='/ServiciosTareas'
+              layout={MainLayout}
+              component={ListadoSTP}
             />
             <Redirect to='/home' />
           </Switch>

@@ -61,6 +61,8 @@ const Recibo = (props) => {
         try {
             const request = await axios.post(`${APIURL}/api/logImpresionRecibo`, data);
             setNumeroCopia((prev) => (prev + 1));
+            props.hidePrint();
+            props.refreshPage();
             return request.data;
         } catch (err) {
             console.log(err);
@@ -71,7 +73,10 @@ const Recibo = (props) => {
     return (
         <>
             <DialogTitle id="scroll-dialog-title">Vista Previa Recibo</DialogTitle>
-            <DialogContent dividers={true} ref={componentRef} style={{ width: '100%' }}>
+            <DialogContent dividers={true} ref={componentRef} style={{ width: '100%', position: 'relative' }}>
+                <div className={styles.Watermark}>
+                    {props.recibo.NumeroRecibo}
+                </div>
                 <div id={"invoice-POS"} style={{ boxShadow: 'unset' }}>
                     <div id="top">
                         <div className="row">
@@ -81,13 +86,13 @@ const Recibo = (props) => {
                                     <h2 className={"m-0 " + styles.Title}>
                                         {empresa.NAME}
                                     </h2>
-                                    <h4 style={{ fontWeight: 'bolder' }}>{(numeroCopia <= 4 ? "Original" : "Copia")}</h4>
+                                    <h4 style={{ fontWeight: 'bolder' }}>Copia</h4>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
                                         {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                                     </h3>
-                                    <h5 style={{ fontWeight: 'bolder' }}> Impresión No. {numeroCopia}</h5>
+                                    {/*<h5 style={{ fontWeight: 'bolder' }}> Impresión No. {numeroCopia}</h5>*/}
                                 </div>
                             </div>
                         </div>
@@ -100,7 +105,7 @@ const Recibo = (props) => {
                             <div className="col p-0 text-center">
                                 <h2 className={"font-weight-bold " + styles.Title + styles.LineHeight_1_5}>
                                     {'No. ' + props.recibo.NumeroRecibo}
-                                    {props.recibo.anulado && <span className={"font-weight-bold " + styles.Title + styles.LineHeight_1_5} style={{color:"red"}}> ANULADO</span>}
+                                    {props.recibo.anulado && <span className={"font-weight-bold " + styles.Title + styles.LineHeight_1_5} style={{ color: "red" }}> ANULADO</span>}
                                 </h2>
                             </div>
                         </div>

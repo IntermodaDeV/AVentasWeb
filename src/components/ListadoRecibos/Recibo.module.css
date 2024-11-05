@@ -27,6 +27,28 @@
     border-top: 1px solid #000;
     width: 100%;
 }
+
 .Size {
-    font-size: 1px  !important;
+    font-size: 1px !important;
+}
+
+/* Marca de agua predeterminada */
+.Watermark {
+    position: absolute;
+    top: 400px;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-35deg);
+    font-size: 1000%;
+    color: rgba(0, 0, 0, 0.1); 
+    z-index: 1;
+    pointer-events: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+@media print {
+    .Watermark-visible {
+        display: none;
+    }
 }

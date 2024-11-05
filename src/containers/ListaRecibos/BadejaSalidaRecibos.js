@@ -6,20 +6,20 @@ import { PrintOutlined } from '@material-ui/icons';
 import moment from "moment";
 import 'moment/locale/es';
 import { APIURL } from 'utils/Enviroment';
-import  TableFooter from "@material-ui/core/TableFooter";
-import  TableRow from "@material-ui/core/TableRow";
-import  TablePagination from "@material-ui/core/TablePagination";
+import TableFooter from "@material-ui/core/TableFooter";
+import TableRow from "@material-ui/core/TableRow";
+import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import { Dialog } from "@material-ui/core";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import MUIDataTable from "mui-datatables";
-import {IsAllow} from 'components/Seguridad/Permisos';
+import { IsAllow } from 'components/Seguridad/Permisos';
 import ImpresionBandejaSalida from "components/ListadoRecibos/ImpresionBandejaSalida";
-import {useSelector,useDispatch} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { FiAlertTriangle } from 'react-icons/fi';
 import axios from 'axios';
 import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle   from '@material-ui/core/DialogTitle';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { verificarConexion } from 'utils/http';
 moment.locale('es');
@@ -30,13 +30,12 @@ const BadejaSalidaRecibos = (props) => {
     const [recibo, setRecibo] = useState(null);
     const [showDialog, setShowDialog] = useState(false);
     const [DialogRecibo, setDialogRecibo] = useState(null);
-    const [isLoading,setLoading] = useState(false);
-    const RecibosCache = useSelector(r=> r.RecibosEnCache);
+    const [isLoading, setLoading] = useState(false);
+    const RecibosCache = useSelector(r => r.RecibosEnCache);
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if(!IsAllow("/lista-recibos-BandejaSalida"))
-        {
+        if (!IsAllow("/lista-recibos-BandejaSalida")) {
             props.history.push('/home');
         }
         setRecibos(RecibosCache);
@@ -60,7 +59,7 @@ const BadejaSalidaRecibos = (props) => {
         }
     })
 
-    const mostrarAdvertencia = (title,text,type)=>{
+    const mostrarAdvertencia = (title, text, type) => {
         Swal.fire({
             title: title,
             text: text,
@@ -85,7 +84,7 @@ const BadejaSalidaRecibos = (props) => {
                     if (!isOnline) {
                         mostrarAdvertencia('Sin internet', 'Necesita internet para poder actualizar los registros.', 'warning');
                     } else {
-                        localStorage.setItem("Operando","Si");
+                        localStorage.setItem("Operando", "Si");
                         setLoading(true);
                         const recibo = RecibosCache.find(x => x.ReciboId === reciboId);
                         let Ruta = recibo.EsAnticipo ? '/api/Recibo/Anticipo' : '/api/proforma';
@@ -97,7 +96,7 @@ const BadejaSalidaRecibos = (props) => {
                         });
 
                         if (request.data) {
-                            localStorage.setItem("Operando","No");
+                            localStorage.setItem("Operando", "No");
                             setLoading(false);
                             const nuevosRecibos = RecibosCache.filter(x => x.ReciboId !== reciboId);
                             dispatch({ type: "SET_RESETRECIBOSENCACHE", payload: nuevosRecibos });
@@ -121,7 +120,7 @@ const BadejaSalidaRecibos = (props) => {
                 }
             }
             catch (err) {
-                localStorage.setItem("Operando","No");
+                localStorage.setItem("Operando", "No");
                 let mensaje = "Ha ocurrido un error y no se ha registrado el recibo.";
 
                 if (err.response) {
@@ -143,36 +142,35 @@ const BadejaSalidaRecibos = (props) => {
 
         recibos.map(recib => {
 
-                let data = {
-                    NumeroRecibo: recib.CodigoUltimoRecibo,
-                    CodigoCliente: recib.CodigoCliente,
-                    NombreCliente : recib.NombreCliente,
-                    Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
-                    FechaCheque: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
-                    IdBanco: recib.Pagos[0].Banco,
-                    IdCuentaBancaria: "",
-                    Valor: recib.Total,
-                    IdMoneda: recib.Pagos[0].IdMoneda,
-                    Sincronizado: "No",
-                    CodigoAsesor: recib.Asesor,
-                    IdFactura: recib.Facturas[0].IdFactura,
-                    Descuento: recib.Facturas[0].Parcial2,
-                    Acciones:
-                        <div>
+            let data = {
+                NumeroRecibo: recib.CodigoUltimoRecibo,
+                CodigoCliente: recib.CodigoCliente,
+                NombreCliente: recib.NombreCliente,
+                Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
+                FechaCheque: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
+                IdBanco: recib.Pagos[0].Banco,
+                IdCuentaBancaria: "",
+                Valor: recib.Total,
+                IdMoneda: recib.Pagos[0].IdMoneda,
+                Sincronizado: "No",
+                CodigoAsesor: recib.Asesor,
+                IdFactura: recib.Facturas[0].IdFactura,
+                Descuento: recib.Facturas[0].Parcial2,
+                Acciones:
+                    <div>
 
-                             <span className="mr-1">
-                                <Button className='my-1' variant="outlined" onClick={() => Sincronizar(recib.ReciboId,recib.CodigoUltimoRecibo)} size="small" color={"primary"}>Sincronizar</Button>
-                            </span> 
-
-                            <span className="ml-1">
+                        <span className="mr-1">
+                            <Button className='my-1' variant="outlined" onClick={() => Sincronizar(recib.ReciboId, recib.CodigoUltimoRecibo)} size="small" color={"primary"}>Sincronizar</Button>
+                        </span>
+                        {/*<span className="ml-1">
                                 <Button className='my-1' variant="outlined" onClick={() => Imprimir(recib)} size="small" color={"primary"}>
                                     <PrintOutlined />
                                 </Button>
-                            </span >
-                        </div>
-                }
+                            </span >*/}
+                    </div>
+            }
 
-                DataRecibos.push(data);
+            DataRecibos.push(data);
             return false;
         });
 
@@ -193,9 +191,9 @@ const BadejaSalidaRecibos = (props) => {
     const RegresarListaRecibos = () => {
         setRecibo(null);
     }
-    
+
     if (recibo != null) {
-        
+
         return (
             <DetalleRecibo
                 recibo={recibo}
@@ -204,58 +202,58 @@ const BadejaSalidaRecibos = (props) => {
     } else {
         return (
             <>
-             <div className="px-3">
-             <Dialog
-                    disableBackdropClick 
-                    scroll={'paper'}
-                    open={isLoading}
+                <div className="px-3">
+                    <Dialog
+                        disableBackdropClick
+                        scroll={'paper'}
+                        open={isLoading}
                     >
                         <DialogTitle className="text-center" id="scroll-dialog-title">
                             <div style={{ fontWeight: 300, fontSize: '24px', fontFamily: 'Poppins, Roboto, "Helvetica Neue", Arial, sans-serif' }}>
                                 Sincronizando
-                        </div>
+                            </div>
                         </DialogTitle>
                         <DialogContent>
-                        
-                        <div className="d-flex flex-grow-1 align-items-center justify-content-center">
+
+                            <div className="d-flex flex-grow-1 align-items-center justify-content-center">
                                 <div className="row">
                                     <div className="col-12 text-center">
-                                        <CircularProgress disableShrink/>
+                                        <CircularProgress disableShrink />
                                     </div>
                                 </div>
                             </div>
-                        
-                            
-                        </DialogContent>
-                </Dialog>
-                <div style ={{textAlign:'center',fontSize: '28px'}} className="alert alert-danger alert-dismissible fade show" role="alert">
-                    <FiAlertTriangle style={{ fontSize: '32px', color: 'red'}} /> Los recibos mostrados en esta pantalla están registrados únicamente en su dispositivo.
-                </div>
-                <div>
-                    <MuiThemeProvider theme={getMuiTheme()}>
-                        <MUIDataTable
-                            title={"Listado Recibos"}
-                            data={DataRecibos()}
-                            columns={HeadersListaRecibos}
-                            options={DatatableOptions}
-                        />
-                    </MuiThemeProvider>
-                </div>
 
-                <Dialog
-                    open={showDialog}
-                    onClose={() => hidePrint()}
-                    scroll={'paper'}
-                    aria-labelledby="scroll-dialog-title">
-                    {
-                        DialogRecibo &&
-                        <ImpresionBandejaSalida
-                            hidePrint={hidePrint}
-                            recibo={DialogRecibo}
-                        />
-                    }
-                </Dialog >
-            </div>
+
+                        </DialogContent>
+                    </Dialog>
+                    <div style={{ textAlign: 'center', fontSize: '28px' }} className="alert alert-danger alert-dismissible fade show" role="alert">
+                        <FiAlertTriangle style={{ fontSize: '32px', color: 'red' }} /> Los recibos mostrados en esta pantalla están registrados únicamente en su dispositivo.
+                    </div>
+                    <div>
+                        <MuiThemeProvider theme={getMuiTheme()}>
+                            <MUIDataTable
+                                title={"Listado Recibos"}
+                                data={DataRecibos()}
+                                columns={HeadersListaRecibos}
+                                options={DatatableOptions}
+                            />
+                        </MuiThemeProvider>
+                    </div>
+
+                    <Dialog
+                        open={showDialog}
+                        onClose={() => hidePrint()}
+                        scroll={'paper'}
+                        aria-labelledby="scroll-dialog-title">
+                        {
+                            DialogRecibo &&
+                            <ImpresionBandejaSalida
+                                hidePrint={hidePrint}
+                                recibo={DialogRecibo}
+                            />
+                        }
+                    </Dialog >
+                </div>
             </>
         );
     }
@@ -386,20 +384,20 @@ const DatatableOptions = {
     selectableRows: 'none',
     customFooter: (count, page, rowsPerPage, changeRowsPerPage, changePage) => (
         <TableFooter>
-              <TableRow>
+            <TableRow>
                 <TablePagination
-                  count={count}
-                  rowsPerPage={rowsPerPage}
-                  page={page}
-                  onChangePage={(_, page) => changePage(page)}
-                  onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
-                  rowsPerPageOptions={[10, 15, 100]}
-                  ActionsComponent={CustomFooter}
-                  labelRowsPerPage="Filas por página:"
+                    count={count}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onChangePage={(_, page) => changePage(page)}
+                    onChangeRowsPerPage={event => changeRowsPerPage(event.target.value)}
+                    rowsPerPageOptions={[10, 15, 100]}
+                    ActionsComponent={CustomFooter}
+                    labelRowsPerPage="Filas por página:"
                 />
-              </TableRow>
-            </TableFooter>
-      ),
+            </TableRow>
+        </TableFooter>
+    ),
     textLabels: {
         body: {
             noMatch: "No se han encontrado recibos",

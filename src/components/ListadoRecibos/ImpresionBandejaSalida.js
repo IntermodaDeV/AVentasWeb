@@ -5,19 +5,19 @@ import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/ListadoRecibos/Recibo.module.css";
 import moment from "moment";
 import 'moment/locale/es';
-import {useSelector,useDispatch} from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { ObtenerCoordenadas } from 'utils/common';
 
 const ImpresionBandejaSalida = (props) => {
-    const [numeroCopia,setNumeroCopia] = useState(props.recibo.LogImpresion.length);
-    const Monedas = useSelector(e=>e.AbreviacionMonedas);
-    const empresas = useSelector(e=>e.Empresas);
+    const [numeroCopia, setNumeroCopia] = useState(props.recibo.LogImpresion.length);
+    const Monedas = useSelector(e => e.AbreviacionMonedas);
+    const empresas = useSelector(e => e.Empresas);
     let NombreCliente = props.recibo.NombreCliente;
-    let DireccionCliente=props.recibo.Direccion;
-    const empresaCliente = props.recibo.CodigoCliente.split("-")[0]; 
-    const empresa = empresas.find(x=>x.COMPANY_CODE === empresaCliente.toUpperCase());
-    const moneda = Monedas.find(e=>e.IdMoneda === props.recibo.Pagos[0].IdMoneda).Abreviacion;
-    const RecibosEnCache = useSelector(e=>e.RecibosEnCache);
+    let DireccionCliente = props.recibo.Direccion;
+    const empresaCliente = props.recibo.CodigoCliente.split("-")[0];
+    const empresa = empresas.find(x => x.COMPANY_CODE === empresaCliente.toUpperCase());
+    const moneda = Monedas.find(e => e.IdMoneda === props.recibo.Pagos[0].IdMoneda).Abreviacion;
+    const RecibosEnCache = useSelector(e => e.RecibosEnCache);
     const dispatch = useDispatch();
 
     const componentRef = React.useRef();
@@ -49,13 +49,17 @@ const ImpresionBandejaSalida = (props) => {
         let indice = copiaEstado.map(x => x.CodigoUltimoRecibo).indexOf(data.numRecibo);
         copiaEstado[indice].LogImpresion = [...copiaEstado[indice].LogImpresion, data];
         dispatch({ type: "SET_RECIBOSENCACHELOG", payload: copiaEstado });
-        setNumeroCopia((prev)=>(prev+1));
+        setNumeroCopia((prev) => (prev + 1));
+        props.hidePrint();
     }
 
     return (
         <>
             <DialogTitle id="scroll-dialog-title">Vista Previa Recibo</DialogTitle>
-            <DialogContent dividers={true} ref={componentRef} style={{ width: '100%' }}>
+            <DialogContent dividers={true} ref={componentRef} style={{ width: '100%', position: 'relative' }}>
+                <div className={styles.Watermark}>
+                    {props.recibo.NumeroRecibo}
+                </div>
                 <div id={"invoice-POS"} style={{ boxShadow: 'unset' }}>
                     <div id="top">
                         <div className="row">
@@ -65,13 +69,13 @@ const ImpresionBandejaSalida = (props) => {
                                     <h2 className={"m-0 " + styles.Title}>
                                         {empresa.NAME}
                                     </h2>
-                                    <h4 style={{ fontWeight: 'bolder' }}>{(numeroCopia <= 4 ? "Original" : "Copia")}</h4>
+                                    <h4 style={{ fontWeight: 'bolder' }}>Copia</h4>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
                                         {empresa.FISCAL_DOCUMENT}: {empresa.NIFCIF}
                                     </h3>
-                                    <h5 style={{ fontWeight: 'bolder' }}> Impresión No. {numeroCopia+1}</h5>
+                                    {/*<h5 style={{ fontWeight: 'bolder' }}> Impresión No. {numeroCopia + 1}</h5>*/}
                                 </div>
                             </div>
                         </div>
@@ -116,46 +120,46 @@ const ImpresionBandejaSalida = (props) => {
                                         <tr>
                                             <th>
                                                 Tipo Pago
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Esp. Pago
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Fecha
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Referencia
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Banco
-                                                    </th>
+                                            </th>
                                             <th>
                                                 Monto
-                                                    </th>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {props.recibo.Pagos.map((pag, index) => (
-                                        <tr className={styles.TableRow}>
-                                            <td>
-                                                {pag.TipoPago}
-                                            </td>
-                                            <td>
-                                                {pag.EspecificacionPago}
-                                            </td>
-                                            <td>
-                                                {moment(props.recibo.Fecha).format("DD/MM/YYYY")}
-                                            </td>
-                                            <td>
-                                                {pag.Referencia}
-                                            </td>
-                                            <td>
-                                                {pag.Banco}
-                                            </td>
-                                            <td className={styles.TableCellAmmount}>
-                                                {numberWithCommas(pag.Monto)}
-                                            </td>
-                                        </tr>
+                                            <tr className={styles.TableRow}>
+                                                <td>
+                                                    {pag.TipoPago}
+                                                </td>
+                                                <td>
+                                                    {pag.EspecificacionPago}
+                                                </td>
+                                                <td>
+                                                    {moment(props.recibo.Fecha).format("DD/MM/YYYY")}
+                                                </td>
+                                                <td>
+                                                    {pag.Referencia}
+                                                </td>
+                                                <td>
+                                                    {pag.Banco}
+                                                </td>
+                                                <td className={styles.TableCellAmmount}>
+                                                    {numberWithCommas(pag.Monto)}
+                                                </td>
+                                            </tr>
                                         ))}
                                     </tbody>
                                 </table>
@@ -198,14 +202,14 @@ const ImpresionBandejaSalida = (props) => {
                                                                 {moment(factu.Fecha).format("DD/MM/YYYY")}
                                                             </td>
                                                             <td>
-                                                             {factu.EsAbono === true && "Abono"}
-                                                             {factu.EsAbono === false && "Cancelado"}
+                                                                {factu.EsAbono === true && "Abono"}
+                                                                {factu.EsAbono === false && "Cancelado"}
                                                             </td>
                                                             <td>
 
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
-                                                            {numberWithCommas(factu.Parcial)}
+                                                                {numberWithCommas(factu.Parcial)}
                                                             </td>
                                                             <td className={styles.TableCellAmmount}>
 
@@ -214,9 +218,9 @@ const ImpresionBandejaSalida = (props) => {
                                                         <tr className={styles.TableRow + " " + styles.TableRowNoBorder}>
                                                             <td>
                                                                 {factu.IdFactura}
-                                                                {factu.NumeroFEL !== "" && factu.NumeroFEL !== null  && 
-                                                                " - FEL: " + factu.NumeroFEL                                                    
-                                                                } 
+                                                                {factu.NumeroFEL !== "" && factu.NumeroFEL !== null &&
+                                                                    " - FEL: " + factu.NumeroFEL
+                                                                }
                                                             </td>
                                                             <td>
                                                                 {"Dias: " + factu.Dias}
@@ -254,8 +258,8 @@ const ImpresionBandejaSalida = (props) => {
                                     <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
                                         {localStorage.getItem('asesor')}
                                     </h4>
-                                    <br/>
-                                   <h4 style={{textAlign:'center',fontWeight:'bolder'}}>Proforma Provisional</h4>
+                                    <br />
+                                    <h4 style={{ textAlign: 'center', fontWeight: 'bolder' }}>Proforma Provisional</h4>
                                 </div>
                             </div>
                         </div>
@@ -268,14 +272,14 @@ const ImpresionBandejaSalida = (props) => {
                     trigger={() =>
                         <Button color="primary">
                             Imprimir
-                            </Button>
+                        </Button>
                     }
                     content={() => componentRef.current}
                     onAfterPrint={(e) => RegistrarLogs()}
                 />
                 <Button onClick={() => props.hidePrint()} color="primary">
                     Finalizar
-                        </Button>
+                </Button>
             </DialogActions>
         </>
     )
