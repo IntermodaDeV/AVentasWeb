@@ -226,6 +226,27 @@ const ListaRecibos = (props) => {
         }
     }
 
+    const habilitarReimpresionOriginal = async (numeroRecibo, activado) => {
+        const mensaje = activado ? "desactivar" : "activar";
+        try {
+            const result = await Swal.fire({
+                title: 'Confirmado',
+                text: `¿Está seguro de ${mensaje} la reimpresión original del recibo ${numeroRecibo}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: mensaje,
+                cancelButtonText: 'Cancelar'
+            });
+
+            if (result.value) {
+                await axios.put(`${APIURL}/api/recibo/original/${numeroRecibo}`);
+                Swal.fire('Éxito', `El recibo ${numeroRecibo} ha sido ${mensaje} como original con éxito.`, 'success');
+            }
+        } catch (err) {
+            Swal.fire('Error', `Ha ocurrido un error y no se pudo ${mensaje} el recibo.`, 'error');
+        }
+    }
+
     const DataRecibos = () => {
         let DataRecibos = [];
 
@@ -271,6 +292,9 @@ const ListaRecibos = (props) => {
                                 <Button className='my-1' variant="outlined" style={{ borderColor: recib.Reimpresion ? 'green' : 'red', color: recib.Reimpresion ? 'green' : 'red' }} onClick={() => habilitarReimpresion(recib.NumeroRecibo, recib.Reimpresion)} size="small">
                                     Reimpresión
                                 </Button>
+                                <Button className='my-1' variant="outlined" style={{ borderColor: recib.Original ? 'green' : 'red', color: recib.Original ? 'green' : 'red' }} onClick={() => habilitarReimpresionOriginal(recib.NumeroRecibo, recib.Reimpresion)} size="small">
+                                    Original
+                                </Button>
                             </span >}
                             {(PermisoUsuarioOficinaCreditos() || recib.Reimpresion) && <span className="ml-1">
                                 <Button className='my-1' variant="outlined" onClick={() => showPrint(recib)} size="small" color={"primary"}>
@@ -284,13 +308,10 @@ const ListaRecibos = (props) => {
                                 </Button>
                             </span >
                         </div>
-
                     ]
-
                 DataRecibos.push(data);
             }
             return false;
-
         });
 
         DataRecibos.sort((a, b) => (a[0][0] > b[0][0]) ? -1 : ((b[0][0] > a[0][0]) ? 1 : 0));

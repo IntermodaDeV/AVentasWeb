@@ -1099,7 +1099,7 @@ const DetalleRecibo = (props) => {
                             (result) => {
                                 Swal.fire({
                                     type: 'error',
-                                    title: 'Error',
+                                    title: 'Error ' + result.ErrorCode,
                                     text: result.Message,
                                 })
                                 setLoading(false);

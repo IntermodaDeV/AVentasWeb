@@ -85,7 +85,6 @@ export const PermisoHabilitarReimpresion = () => {
     return false;
 }
 
-
 export const PermisoAdministradorVisita = () => {
     const globalState = store.getState();
     const Permisos = globalState["Permisos"];

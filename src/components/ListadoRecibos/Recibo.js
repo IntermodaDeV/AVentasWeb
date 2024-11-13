@@ -62,8 +62,8 @@ const Recibo = (props) => {
             const request = await axios.post(`${APIURL}/api/logImpresionRecibo`, data);
             setNumeroCopia((prev) => (prev + 1));
             props.hidePrint();
-            props.refreshPage();
             return request.data;
+            //props.cargarRecibos;
         } catch (err) {
             console.log(err);
             return null;
@@ -73,7 +73,7 @@ const Recibo = (props) => {
     return (
         <>
             <DialogTitle id="scroll-dialog-title">Vista Previa Recibo</DialogTitle>
-            <DialogContent dividers={true} ref={componentRef} style={{ width: '100%', position: 'relative' }}>
+            <DialogContent dividers={true} ref={componentRef} style={{ width: '100%', position: 'relative', zIndex: 400 }}>
                 <div className={styles.Watermark}>
                     {props.recibo.NumeroRecibo}
                 </div>
@@ -86,7 +86,7 @@ const Recibo = (props) => {
                                     <h2 className={"m-0 " + styles.Title}>
                                         {empresa.NAME}
                                     </h2>
-                                    <h4 style={{ fontWeight: 'bolder' }}>Copia</h4>
+                                    <h4 style={{ fontWeight: 'bolder' }}>{props.recibo.Original ? "Original" : "Copia"}</h4>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <h3 className={"font-weight-normal " + styles.LineHeight_Normal}>
@@ -130,8 +130,7 @@ const Recibo = (props) => {
                                 </p>
                             </div>
                             <div className="col-12 p-0">
-                                <table className="table table-striped table-xl-responsive">
-
+                                <table className="table-xl-responsive">
                                     <thead>
                                         <tr>
                                             <th>
@@ -165,7 +164,7 @@ const Recibo = (props) => {
                                             <td>
                                                 {moment(props.recibo.FechaPago).format("DD/MM/YYYY")}
                                             </td>
-                                            <td>
+                                            <td className={styles.tdTableAdjustText}>
                                                 {props.recibo.Referencia}
                                             </td>
                                             <td>
@@ -179,7 +178,7 @@ const Recibo = (props) => {
                                 </table>
                             </div>
                             <div className="col-12 p-0">
-                                <table className="table table-striped table-xl-responsive">
+                                <table className="table-xl-responsive">
                                     <thead>
                                         <tr>
                                             <th>
@@ -279,7 +278,6 @@ const Recibo = (props) => {
                                 </div>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </DialogContent >

@@ -114,8 +114,7 @@ const ImpresionBandejaSalida = (props) => {
                                 </p>
                             </div>
                             <div className="col-12 p-0">
-                                <table className="table table-striped table-xl-responsive">
-
+                                <table className="table-xl-responsive">
                                     <thead>
                                         <tr>
                                             <th>
@@ -165,7 +164,7 @@ const ImpresionBandejaSalida = (props) => {
                                 </table>
                             </div>
                             <div className="col-12 p-0">
-                                <table className="table table-striped table-xl-responsive">
+                                <table className="table-xl-responsive">
                                     <thead>
                                         <tr>
                                             <th>
