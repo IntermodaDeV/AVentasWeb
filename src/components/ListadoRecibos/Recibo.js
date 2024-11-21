@@ -63,7 +63,6 @@ const Recibo = (props) => {
             setNumeroCopia((prev) => (prev + 1));
             props.hidePrint();
             return request.data;
-            //props.cargarRecibos;
         } catch (err) {
             console.log(err);
             return null;

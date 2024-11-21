@@ -5,6 +5,7 @@ import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
+import { PermisoAprobarFlotantes } from 'components/Seguridad/Permisos';
 import { DatePicker } from "@material-ui/pickers";
 import MUIDataTable from "mui-datatables";
 import { Dropdown } from "semantic-ui-react";
@@ -203,26 +204,28 @@ export const ListaRecibosFlotante = props => {
                     IdMoneda: recib.IdMoneda,
                     ReciboGenerado: recib.ReciboGenerado,
                     CodigoAsesor: recib.CodigoAsesor,
+                    RazonFlotante: recib.RazonFlotante,
                     Acciones:
                         <div>
                             <span className="mr-1">
                                 <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
                             </span>
-                            {recib.Estado === 0 && <>
-                                <span className="ml-1">
-                                    <Button className='my-1' variant="outlined" size="small" color={"primary"} onClick={() => { peticionSincronizarRecibo(recib.Id, recib.NumeroRecibo) }}>
-                                        Aprobar
-                                </Button>
-                                </span >
-                                <span className="ml-1">
-                                    <Button className='my-1' variant="outlined" size="small" color={"primary"} onClick={() => { peticionCancelarRecibo(recib.Id, recib.NumeroRecibo) }}>
-                                        Cancelar
-                                </Button>
-                                </span >
-                            </>}
+                            {PermisoAprobarFlotantes() && <span className="ml-1">
+                                {recib.Estado === 0 && <>
+                                    <span className="ml-1">
+                                        <Button className='my-1' variant="outlined" size="small" color={"primary"} onClick={() => { peticionSincronizarRecibo(recib.Id, recib.NumeroRecibo) }}>
+                                            Aprobar
+                                        </Button>
+                                    </span >
+                                    <span className="ml-1">
+                                        <Button className='my-1' variant="outlined" size="small" color={"primary"} onClick={() => { peticionCancelarRecibo(recib.Id, recib.NumeroRecibo) }}>
+                                            Cancelar
+                                        </Button>
+                                    </span >
+                                </>}
+                            </span >}
                         </div>
                 }
-
                 DataRecibos.push(data);
             }
         });
@@ -294,18 +297,21 @@ export const ListaRecibosFlotante = props => {
                             value={estado}
                         />
                     </div>
-                    <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked={todos} onClick={() => { setTodos((prev) => (!prev)) }} />
-                            <label class="form-check-label" for="flexCheckDefault">
-                                Todos los asesores
-                            </label>
-                        </div>
-                    </div>
+                    {PermisoAprobarFlotantes() &&
+                        <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked={todos} onClick={() => { setTodos((prev) => (!prev)) }} />
+                                <label class="form-check-label" for="flexCheckDefault">
+                                    Todos los asesores
+                                </label>
+                            </div>
+                        </div> 
+                    }
                     <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
                         <Dropdown
                             placeholder="Asesor"
                             selection
+                            search
                             disabled={todos}
                             style={{ zIndex: 999 }}
                             onChange={(e, { value }) => setAsesorSelected(value)}
@@ -321,13 +327,13 @@ export const ListaRecibosFlotante = props => {
                             color="primary"
                             onClick={() => cargarRecibosFlotantes(startDate, endDate)}
                         >Obtener
-                    </Button>
+                        </Button>
                     </div>
                 </div>
                 <div>
                     <MuiThemeProvider theme={getMuiTheme()}>
                         <MUIDataTable
-                            title={"Listado Recibos"}
+                            title={"Listado Recibos Flotantes"}
                             data={DataRecibos()}
                             columns={HeadersListaRecibos}
                             options={DatatableOptions}
@@ -399,6 +405,14 @@ const HeadersListaRecibos = [
     {
         name: "CodigoAsesor",
         label: "Codigo Asesor",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
+        name: "RazonFlotante",
+        label: "Razón Flotante",
         options: {
             filter: true,
             sort: true,

@@ -55,6 +55,36 @@ export const PermisoExcepcionDescuento = () => {
     return false;
 }
 
+export const PermisoCuentaCorrientePDF = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "Cuenta corriente PDF") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export const PermisoCuentaCorrienteExcel = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "Cuenta corriente EXCEL") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 export const PermisoUsuarioOficinaCreditos = () => {
     const globalState = store.getState();
     const Permisos = globalState["Permisos"];
@@ -77,6 +107,21 @@ export const PermisoHabilitarReimpresion = () => {
     for (const Permiso of Permisos) {
         for (const Roles of Permiso.RolesUsuarios) {
             if (Roles.Nombre === "Habilitar reimpresion") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export const PermisoAprobarFlotantes = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "Aprobar flotantes") {
                 return true;
             }
         }
