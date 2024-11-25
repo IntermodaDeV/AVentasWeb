@@ -198,8 +198,11 @@ export const ListaRecibosFlotante = props => {
                 {
                     NumeroRecibo: recib.NumeroRecibo,
                     CodigoCliente: recib.CodigoCliente,
-                    Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY') : "",
+                    NombreCliente: recib.Cliente.Nombre,
+                    Fecha: moment(recib.Fecha).format('DD/MM/YYYY') !== "Invalid date" ? moment(recib.Fecha).format('DD/MM/YYYY HH:mm') : "",
                     IdTipoPago: recib.TipoPago.Descripcion,
+                    Banco: recib.DescripcionBanco,
+                    Referencia: recib.Referencia,
                     Valor: recib.Valor,
                     IdMoneda: recib.IdMoneda,
                     ReciboGenerado: recib.ReciboGenerado,
@@ -364,7 +367,15 @@ const HeadersListaRecibos = [
     },
     {
         name: "CodigoCliente",
-        label: "Codigo Cliente",
+        label: "Código Cliente",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
+        name: "NombreCliente",
+        label: "Nombre Cliente",
         options: {
             filter: true,
             sort: true,
@@ -373,6 +384,22 @@ const HeadersListaRecibos = [
     {
         name: "IdTipoPago",
         label: "TipoPago",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
+        name: "Banco",
+        label: "Banco",
+        options: {
+            filter: true,
+            sort: true,
+        }
+    },
+    {
+        name: "Referencia",
+        label: "Referencia",
         options: {
             filter: true,
             sort: true,
