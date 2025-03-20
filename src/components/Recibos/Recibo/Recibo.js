@@ -158,7 +158,7 @@ const Recibo = (props) => {
                         </DialogContent>
                     </Dialog>
                     <Dialog open={true} scroll={'paper'} aria-labelledby="scroll-dialog-title">
-                        <DialogContent dividers={true} ref={componentRef} style={{ width: '100%', position: 'relative' }}>
+                        <DialogContent dividers={true} ref={componentRef} style={{ width: '100%', position: 'relative', zIndex: 100 }}>
                             <div id={"invoice-POS"} ref={componentRef} style={{ boxShadow: 'unset' }}>
                                 <div id="top">
                                     <div className={style.Watermark}>
@@ -217,8 +217,7 @@ const Recibo = (props) => {
                                             </p>
                                         </div>
                                         <div className="col-12 p-0">
-                                            <table className="table table-striped table-xl-responsive">
-
+                                            <table className="table-xl-responsive">
                                                 <thead>
                                                     <tr>
                                                         <th>
@@ -254,7 +253,7 @@ const Recibo = (props) => {
                                                             <td>
                                                                 {moment(pag.Fecha).format("DD/MM/YYYY")}
                                                             </td>
-                                                            <td>
+                                                            <td className={style.tdTableAdjustText}>
                                                                 {pag.Referencia}
                                                             </td>
                                                             <td>
@@ -269,7 +268,7 @@ const Recibo = (props) => {
                                             </table>
                                         </div>
                                         <div className="col-12 p-0">
-                                            <table className="table table-striped table-xl-responsive">
+                                            <table className="table-xl-responsive">
                                                 <thead>
                                                     <tr>
                                                         <th>

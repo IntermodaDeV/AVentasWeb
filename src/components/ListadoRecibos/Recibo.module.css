@@ -32,6 +32,13 @@
     font-size: 1px !important;
 }
 
+.tdTableAdjustText{
+    word-wrap: break-word; /* Opción para ajustar líneas */
+    word-break: break-word; /* Opción para dividir las palabras largas */
+    max-width: 350px; /* Define un ancho máximo para limitar el tamaño de la celda */
+    white-space: normal; /* Permite que el texto se divida en múltiples líneas */
+}
+
 /* Marca de agua predeterminada */
 .Watermark {
     position: absolute;
@@ -39,8 +46,8 @@
     left: 50%;
     transform: translate(-50%, -50%) rotate(-35deg);
     font-size: 1000%;
-    color: rgba(0, 0, 0, 0.1); 
-    z-index: 1;
+    color: rgba(135, 135, 135, 0.8);
+    z-index: 0;
     pointer-events: none;
     font-weight: bold;
     text-transform: uppercase;

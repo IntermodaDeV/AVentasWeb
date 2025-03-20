@@ -10,6 +10,7 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import "jspdf-autotable";
 import 'moment/locale/es';
 import { DescargarCuentaExcel } from 'components/Cartera/DescargarCuentaExcel';
+import { PermisoCuentaCorrientePDF, PermisoCuentaCorrienteExcel } from 'components/Seguridad/Permisos';
 import axios from 'axios';
 import { APIURL } from 'utils/Enviroment';
 import { verificarConexion } from 'utils/http';
@@ -286,8 +287,8 @@ const CuentaCorrienteTable = props => {
                 {(permisos.AsesoresUsuario.length === 1) && <Button onClick={verificarObtencionCoordenadas} style={{ marginBottom: '10px', marginRight: 5 }} variant="contained" color="primary">Guardar coordenadas</Button>}
             </>)}
             {(cuentaCorriente.length > 0 && props.visible) && (<div style={{ display: 'inline' }}>
-                <Button onClick={generatePDF} style={{ marginBottom: '10px' }} variant="contained" color="primary">Generar Reporte</Button>
-               {/*<DescargarCuentaExcel cliente={props.clienteSelected.Codigo} />*/}
+                {PermisoCuentaCorrientePDF() && <Button onClick={generatePDF} style={{ marginBottom: '10px' }} variant="contained" color="primary">Generar Reporte</Button>}
+                {PermisoCuentaCorrienteExcel() && <DescargarCuentaExcel cliente={props.clienteSelected.Codigo} />}
             </div>)}
             <MUIDataTable
                 title={''}

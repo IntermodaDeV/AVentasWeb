@@ -1097,9 +1097,10 @@ const DetalleRecibo = (props) => {
                     res.json()
                         .then(
                             (result) => {
+                                props.history.replace('/recibos');
                                 Swal.fire({
                                     type: 'error',
-                                    title: 'Error',
+                                    title: 'Error ' + result.ErrorCode,
                                     text: result.Message,
                                 })
                                 setLoading(false);
