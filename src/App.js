@@ -80,6 +80,7 @@ import { MailServicios } from 'containers/Correo/ListaMailServicios';
 import { MailCorreos } from 'containers/Correo/ListaMailCorreos';
 import { MailEjecucion } from 'containers/Correo/ListaEjecucionCorreos';
 import {ListadoSTP} from 'containers/ServiciosYTareasProgramadas/ListadoSTP';
+import Traslado from 'components/Pedidos/Traslado/Traslado'
 
 const isLogged = () => {
   var token = localStorage.getItem('token')
@@ -160,6 +161,12 @@ const App = props => {
               path='/inventario'
               layout={MainLayout}
               component={Inventario}
+            />
+            <LayoutRoute
+              exact
+              path='/traslado'
+              layout={MainLayout}
+              component={Traslado}
             />
             <LayoutRoute
               exact
