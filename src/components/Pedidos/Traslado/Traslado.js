@@ -27,6 +27,7 @@ const Traslado = () => {
 
   const [procesandoArchivo, setProcesandoArchivo] = useState(false);
   const [enviandoCorreo, setEnviandoCorreo] = useState(false);
+  const [correoUsuario, setCorreoUsuario] = useState('');
 
   const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
 
@@ -34,27 +35,79 @@ const Traslado = () => {
     getEmail(pedidoOrigen);
   };
 
-  const handleUploadSubmit = (pedidoOrigen) => {
+  const handleUploadSubmit = async (pedidoOrigen) => {
 
     setProcesandoArchivo(true);
     
+    let correo = correoUsuario;
+    if (!correo) {
+      correo = await fetchCorreoUsuario();
+      if (correo) {
+        setCorreoUsuario(correo)
+      }else{
+        setProcesandoArchivo(false);
+        return;
+      };
+    }
 
+    
     let data = new FormData();
     data.append('archivo', archivoSeleccionado);
     data.append('codigoDelVendedor', localStorage.getItem('codigo') || '');
     data.append('nombreDelVendedor', localStorage.getItem('asesor') || '');
     data.append('company', localStorage.getItem('empresa') || '');
+    data.append('correoUsuario', correo || '');
 
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
         url: `${APIURL}/api/traslado/postSincronizarPlantillaAX`,
-        headers: {
-            // No establezcas 'Content-Type', axios lo hace automáticamente para FormData
-        },
+        headers: {},
         data: data
     };
 
+   await postSincronizarPlantillaAX(config);
+
+
+  };
+
+  const fetchCorreoUsuario = async () => {
+    try {
+      const asesor = localStorage.getItem('codigo');
+      const response = await axios.get(`${APIURL}/api/asesor/byCodigo/${asesor}`);
+      if (response.data && response.data.CorreoUsuario) {
+        return response.data.CorreoUsuario;
+      } else {
+        Swal.fire({
+          title: "Correo no encontrado",
+          text: "No se pudo obtener el correo del usuario.",
+        });
+        return null;
+      }
+    } catch (error) {
+      console.error("Error al obtener el correo:", error);
+      Swal.fire({
+        title: "Error",
+        text: "No fue posible obtener el correo del usuario.",
+      });
+      return null;
+    }
+  };
+
+
+  const getEmail = async  (pedidoOrigen) => {
+    setEnviandoCorreo(true);
+    const correo = await fetchCorreoUsuario();
+    if (correo) {
+      setCorreoUsuario(correo);
+      await postSendEmailConPedidoDeVenta(pedidoOrigen, correo);
+    }else{
+
+      setEnviandoCorreo(false);
+    }
+  };
+
+  const postSincronizarPlantillaAX = async (config) => {
     axios.request(config)
       .then((response) => {
             setProcesandoArchivo(false);
@@ -97,9 +150,7 @@ const Traslado = () => {
           confirmButtonText: "Ok",
         });
       })
-
-
-  };
+  }
 
   const handleArchivoChange = (e) => {
     const file = e.target.files[0];
@@ -122,32 +173,10 @@ const Traslado = () => {
   };
 
 
-const getEmail = (pedidoOrigen) => {
-  setEnviandoCorreo(true);
 
-  const asesor = localStorage.getItem('codigo');
-  
-  axios.get(`${APIURL}/api/asesor/byCodigo/${asesor}`) 
-    .then(response => {
-      if(response.data){
-
-        postSendEmailConPedidoDeVenta(pedidoOrigen, response.data.CorreoUsuario);
-      }else{
-        setEnviandoCorreo(false);
-
-        Swal.fire({
-          title: "error",
-          text: "No se pudo obtener el correo del usuario.",
-        });
-      
-    }})
-    .catch(error => {
-      setEnviandoCorreo(false);
-      console.error('Error al obtener el correo:', error);
-    });
-};
 
 const postSendEmailConPedidoDeVenta = (pedidoOrigen, email) => {
+    setEnviandoCorreo(true);
 
     const body = {
         "pedido": pedidoOrigen,
@@ -221,12 +250,12 @@ const postSendEmailConPedidoDeVenta = (pedidoOrigen, email) => {
                 <Card>
                     <CardContent>
                         <Typography variant="h5" gutterBottom>
-                            Pedido Base de Traslado
+                            Pedido Origen de Traslado
                         </Typography>
 
                         <div className="mb-4 rounded border p-1" style={{display:'flex',  fontSize: '12px', gap: '4px'}} >
                             <InfoOutlined style={{opacity: '0.6'}} />
-                            <span style={{opacity: '0.6'}}>Completa la información del pedido base. Una vez creado, se generará y enviará automáticamente la plantilla por correo.</span>
+                            <span style={{opacity: '0.6'}}>Completa la información del pedido origen. Una vez creado, se generará y enviará automáticamente la plantilla por correo.</span>
                         </div>
                 
                         <Field name="pedidoOrigen">
