@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef  } from "react";
 import { Formik, Form, Field } from "formik";
 import {
   TextField,
@@ -30,6 +30,12 @@ const Traslado = () => {
   const [correoUsuario, setCorreoUsuario] = useState('');
 
   const [archivoSeleccionado, setArchivoSeleccionado] = useState(null);
+
+  const formikRef = useRef();
+
+  const limpiarFormulario = () => {
+    formikRef.current.resetForm();
+  };
 
   const handleEnviarCorreo = (pedidoOrigen) => {
     getEmail(pedidoOrigen);
@@ -94,7 +100,6 @@ const Traslado = () => {
     }
   };
 
-
   const getEmail = async  (pedidoOrigen) => {
     setEnviandoCorreo(true);
     const correo = await fetchCorreoUsuario();
@@ -129,6 +134,9 @@ const Traslado = () => {
                     type: "success",
                     confirmButtonText: "Ok",
                 });
+                
+                setArchivoSeleccionado(null);
+                document.getElementById("file-input").value = "";
             } else {
                 Swal.fire({
                     title: "No se completo el traslado",
@@ -172,49 +180,47 @@ const Traslado = () => {
     setArchivoSeleccionado(file);
   };
 
+  const postSendEmailConPedidoDeVenta = (pedidoOrigen, email) => {
+      setEnviandoCorreo(true);
 
+      const body = {
+          "pedido": pedidoOrigen,
+          "emailDestino": email,
+          "dataAreaId": localStorage.getItem("empresa") || "",
+      }
 
+      axios.post(`${apiUrl}/api/traslado/postEnviarExcelCorreo`, body, {
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          maxBodyLength: Infinity
+      })
+      .then(response => {
 
-const postSendEmailConPedidoDeVenta = (pedidoOrigen, email) => {
-    setEnviandoCorreo(true);
+          setEnviandoCorreo(false);
 
-    const body = {
-        "pedido": pedidoOrigen,
-        "emailDestino": email,
-        "dataAreaId": localStorage.getItem("empresa") || "",
-    }
-
-    axios.post(`${apiUrl}/api/traslado/postEnviarExcelCorreo`, body, {
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        maxBodyLength: Infinity
-    })
-    .then(response => {
-
+          if(response.data.isComplete){
+              Swal.fire({
+                  title: "Enviado",
+                  text: `${response.data.message}`,
+                  type: "success",
+                  confirmButtonText: "Ok",
+              });
+              limpiarFormulario();
+          }else{
+              Swal.fire({
+                  title: "No Enviado",
+                  text: `${response.data.message}`,
+                  type: "error",
+                  confirmButtonText: "Ok",
+              });
+          }
+      })
+      .catch(error => {
         setEnviandoCorreo(false);
-
-        if(response.data.isComplete){
-            Swal.fire({
-                title: "Enviado",
-                text: `${response.data.message}`,
-                type: "success",
-                confirmButtonText: "Ok",
-            });
-        }else{
-            Swal.fire({
-                title: "No Enviado",
-                text: `${response.data.message}`,
-                type: "error",
-                confirmButtonText: "Ok",
-            });
-        }
-    })
-    .catch(error => {
-      setEnviandoCorreo(false);
-      console.error('Error al enviar el correo:', error);
-    });
-}
+        console.error('Error al enviar el correo:', error);
+      });
+  }
 
 
   return (
@@ -239,6 +245,7 @@ const postSendEmailConPedidoDeVenta = (pedidoOrigen, email) => {
         
 
         <Formik
+          innerRef={formikRef}
           type="multipart/form-data"
           initialValues={{ pedidoOrigen: "" }}
           validationSchema={validationSchema}
