@@ -571,7 +571,7 @@ const DetalleRecibo = (props) => {
                     const excepcionDescuento = cuotProc.ExcepcionDescuento;
                     let isChequePosFechado = pago.indexTiposPago === 0 && pago.indexTiposdePagoDetalle === 1;
                     let aplicaADescuento = (moment(fechaPago).isSameOrBefore(cuotProc.FechaDescuento, 'days') || excepcionDescuento) && !isChequePosFechado;
-                    let montoAPagar = aplicaADescuento ? (cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento) : (cuotProc.Saldo - cuotProc.PagoAplicado);
+                    let montoAPagar = aplicaADescuento ? parseFloat((cuotProc.Saldo - cuotProc.PagoAplicado - cuotProc.ValorDescuento).toFixed(2)) : parseFloat((cuotProc.Saldo - cuotProc.PagoAplicado).toFixed(2));
                     
                     //if(calculo.current===2){
                         valorPagos += montoAPagar;  
