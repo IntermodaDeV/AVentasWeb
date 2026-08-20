@@ -1,9 +1,12 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { STATE_LOGIN } from 'components/Authorize/AuthForm'
 import componentQueries from 'react-component-queries'
 import { BrowserRouter as Router, Redirect, Switch } from 'react-router-dom'
 import { SnackbarProvider } from 'notistack'
 import { getGeopostion } from './utils/geopostioning'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTools } from '@fortawesome/free-solid-svg-icons'
+import logoImage from 'assets/img/logo/Barra.png'
 
 // pages
 import { EmptyLayout, LayoutRoute, MainLayout } from 'components/Layout'
@@ -91,7 +94,79 @@ const isLogged = () => {
   // localStorage.setItem(id, JSON.stringify(array));
 }
 
+const MANTENIMIENTO_AX_INTERVALO = 30000
+
 const App = props => {
+  const [enMantenimientoAX, setEnMantenimientoAX] = useState(false)
+
+  useEffect(() => {
+    let vigente = true
+    const verificarMantenimientoAX = async () => {
+      try {
+        const request = await axios.get(`${APIURL}/api/configuraciones`)
+        if (vigente) {
+          setEnMantenimientoAX(request.data.MatenimientoAX === "1")
+        }
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    verificarMantenimientoAX()
+    const interval = setInterval(verificarMantenimientoAX, MANTENIMIENTO_AX_INTERVALO)
+    return () => {
+      vigente = false
+      clearInterval(interval)
+    }
+  }, [])
+
+  if (enMantenimientoAX) {
+    return (
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: '#243746',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px',
+        zIndex: 99999
+      }}>
+        <div style={{
+          backgroundColor: '#fff',
+          borderRadius: 12,
+          padding: '48px 40px',
+          maxWidth: 480,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.35)'
+        }}>
+          <img src={logoImage} alt="logo" style={{ width: 150, marginBottom: 36 }} />
+          <div style={{
+            width: 96,
+            height: 96,
+            borderRadius: '50%',
+            backgroundColor: '#fdf0dc',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 28
+          }}>
+            <FontAwesomeIcon icon={faTools} style={{ fontSize: 40, color: '#f0ad4e' }} />
+          </div>
+          <h2 style={{ margin: 0, fontWeight: 600, color: '#243746' }}>Sistema en mantenimiento</h2>
+          <p style={{ marginTop: 16, fontSize: 16, color: '#5a6b78', lineHeight: 1.5 }}>
+            El sistema se encuentra temporalmente fuera de servicio debido a un mantenimiento extendido de AX. El acceso se restablecerá automáticamente al finalizar.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   if (isLogged()) {
     window.setInterval(() => {
       getGeopostion()
