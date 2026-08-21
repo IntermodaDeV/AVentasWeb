@@ -40,6 +40,8 @@ const ListaRecibos = (props) => {
     const [Asesores, setAsesores] = useState([]);
     const [AsesorSelected, setAsesorSelected] = useState(null);
     const [nombreAsesor, setNombreAsesor] = useState(null);
+    const [UsuariosCreadores, setUsuariosCreadores] = useState([]);
+    const [UsuarioCreadorSelected, setUsuarioCreadorSelected] = useState(null);
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
 
     useEffect(() => {
@@ -151,6 +153,23 @@ const ListaRecibos = (props) => {
         }
     }
 
+    useEffect(() => {
+        const creadoresUnicos = [];
+        const codigosAgregados = new Set();
+        recibos.forEach(recib => {
+            if (recib.UsuarioCreacion && !codigosAgregados.has(recib.UsuarioCreacion)) {
+                codigosAgregados.add(recib.UsuarioCreacion);
+                creadoresUnicos.push({ key: recib.UsuarioCreacion, value: recib.UsuarioCreacion, text: recib.NombreUsuarioCreacion || recib.UsuarioCreacion });
+            }
+        });
+        setUsuariosCreadores([{ key: '', value: '', text: 'Todos' }, ...creadoresUnicos]);
+        setUsuarioCreadorSelected(null);
+    }, [recibos]);
+
+    const handleOnChangeUsuarioCreador = (value) => {
+        setUsuarioCreadorSelected(value === '' ? null : value);
+    }
+
     const handleOnChangeAsesor = (value) => {
         setAsesorSelected(value);
         const asesorFiltadro = AsesoresUsuario.find(x => x.Usuario === value);
@@ -254,7 +273,11 @@ const ListaRecibos = (props) => {
 
         }
 
-        recibos.map(recib => {
+        const recibosFiltrados = UsuarioCreadorSelected
+            ? recibos.filter(recib => recib.UsuarioCreacion === UsuarioCreadorSelected)
+            : recibos;
+
+        recibosFiltrados.map(recib => {
 
             let fechaIni = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
             let fechaFin = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
@@ -275,6 +298,7 @@ const ListaRecibos = (props) => {
                         [recib.IdMoneda, recib.Sincronizado],
                         [recib.Sincronizado],
                         [recib.CodigoAsesor, recib.Sincronizado],
+                        [recib.NombreUsuarioCreacion || recib.UsuarioCreacion, recib.Sincronizado],
                         [recib.DetalleRecibo[0].Factura, recib.Sincronizado],
                         [recib.Descuento, recib.Sincronizado],
                         <div style={{ color: "white", fontWeight: "bold", backgroundColor: recib.depositos.length === 0 ? "red" : "green", textAlign: "center" }}>{recib.depositos.length === 0 ? "No" : "Si"}</div>,
@@ -397,6 +421,9 @@ const ListaRecibos = (props) => {
                     AsesorSelected={AsesorSelected}
                     nombreAsesor={nombreAsesor}
                     handleOnChangeAsesor={handleOnChangeAsesor}
+                    UsuariosCreadores={UsuariosCreadores}
+                    UsuarioCreadorSelected={UsuarioCreadorSelected}
+                    handleOnChangeUsuarioCreador={handleOnChangeUsuarioCreador}
                     cargarRecibos={cargarRecibos}
                     mostrarGenerarReporte={true}
                 />
@@ -555,6 +582,19 @@ const HeadersListaRecibos = [
     {
         name: "CodigoAsesor",
         label: "Codigo Asesor",
+        options: {
+            filter: true,
+            sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
+        }
+    },
+    {
+        name: "UsuarioCreacion",
+        label: "Creado por",
         options: {
             filter: true,
             sort: true,

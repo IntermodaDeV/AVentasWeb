@@ -96,6 +96,18 @@ const Listado = (props) => {
                         value={props.AsesorSelected}
                     />
                  </div>
+                 <div className='col-lg-2 my-lg-0 col-6 my-1' style={{ paddingTop: 10 }}>
+                    <Dropdown
+                        placeholder="Creado por"
+                        selection
+                        style={{zIndex:999}}
+                        onChange={(e, { value }) =>  props.handleOnChangeUsuarioCreador(value)}
+                        options={props.UsuariosCreadores}
+                        noResultsMessage={"No hay resultados"}
+                        closeOnChange={true}
+                        value={props.UsuarioCreadorSelected || ''}
+                    />
+                 </div>
                  <div className="col-lg-1 col-sm-2 col-4"  style={{ paddingTop: 10 }}>
                     <Button
                         variant="outlined"
