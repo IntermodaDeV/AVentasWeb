@@ -359,8 +359,11 @@ const Recibo = (props) => {
                                             {(localStorage.getItem("firmarecibo") !== null && localStorage.getItem("firmarecibo") !== "") && <img alt="Firma asesor" src={localStorage.getItem("firmarecibo")} style={{ height: 150, alignSelf: "center" }} />}
                                             <div className={styles.FirmaContainer} style={{ marginTop: (localStorage.getItem("firmarecibo") !== null && localStorage.getItem("firmarecibo") !== "") ? 16 : 160 }}>
                                                 <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
-                                                    {localStorage.getItem('asesor')}
+                                                    {props.RecibosAplicados.NombreAsesor || localStorage.getItem('asesor')}
                                                 </h4>
+                                                {props.RecibosAplicados.NombreCreador && <h5 className={"text-center " + styles.LineHeight_Normal}>
+                                                    {props.RecibosAplicados.NombreCreador}
+                                                </h5>}
                                                 <br />
                                                 {props.RecibosAplicados.ReciboProforma && <h4 style={{ textAlign: 'center', fontWeight: 'bolder' }}>Proforma Provisional</h4>}
                                             </div>

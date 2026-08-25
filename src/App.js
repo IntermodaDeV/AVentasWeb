@@ -145,7 +145,7 @@ const App = props => {
           textAlign: 'center',
           boxShadow: '0 20px 60px rgba(0, 0, 0, 0.35)'
         }}>
-          <img src={logoImage} alt="logo" style={{ width: 150, marginBottom: 36 }} />
+          
           <div style={{
             width: 96,
             height: 96,
@@ -162,6 +162,7 @@ const App = props => {
           <p style={{ marginTop: 16, fontSize: 16, color: '#5a6b78', lineHeight: 1.5 }}>
             El sistema se encuentra temporalmente fuera de servicio debido a un mantenimiento extendido de AX. El acceso se restablecerá automáticamente al finalizar.
           </p>
+        <img src={logoImage} alt="logo" style={{ width: 100, marginTop: 25 }} />
         </div>
       </div>
     )

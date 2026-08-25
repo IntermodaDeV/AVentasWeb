@@ -2,4 +2,4 @@
 // export const APIURL = 'http://localhost:62632';
 export const APIURL = 'https://dbs.intermoda.hn:41443';
 export const APIKEY = 'AIzaSyCpnDhF1L7k1MJdu7UJLElTUnlAhFMi1_0';
-export const APP_VERSION = "2.9.9";
+export const APP_VERSION = "3.0.0";

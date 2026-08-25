@@ -9,6 +9,7 @@ import { APIURL } from 'utils/Enviroment';
 
 export const ReciboReporte = (props) => {
     const [nombreAsesor, setNombreAsesor] = useState('');
+    const [nombreCreador, setNombreCreador] = useState('');
     const [firmaAsesor, setFirmaAsesor] = useState('');
     const Monedas = useSelector(e => e.AbreviacionMonedas);
     const clientesContado = useSelector(e => e.clientesContado);
@@ -34,6 +35,7 @@ export const ReciboReporte = (props) => {
         try {
             const request = await axios.get(`${APIURL}/api/Recibo/obtenerfirma/${props.recibo.NumeroRecibo}`);
             setNombreAsesor(request.data.nombreAsesor);
+            setNombreCreador(request.data.nombreCreador);
             setFirmaAsesor(request.data.firma);
         } catch (err) {
 
@@ -261,6 +263,9 @@ export const ReciboReporte = (props) => {
                                 <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
                                     {nombreAsesor}
                                 </h4>
+                                {nombreCreador && <h5 className={"text-center " + styles.LineHeight_Normal}>
+                                    {nombreCreador}
+                                </h5>}
                             </div>
                         </div>
                     </div>

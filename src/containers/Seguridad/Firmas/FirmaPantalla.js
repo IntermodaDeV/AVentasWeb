@@ -8,8 +8,25 @@ import CustomFooter from 'components/Layout/CustomFooter';
 import MUIDataTable from "mui-datatables";
 import { createMuiTheme, MuiThemeProvider } from '@material-ui/core/styles';
 import { useEffect } from "react";
+import Paper from '@material-ui/core/Paper';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
-export const FirmaPantalla = () => {
+const createBase64Image = (fileObject) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            resolve(reader.result);
+        };
+
+        reader.onerror = () => {
+            reject()
+        };
+        reader.readAsDataURL(fileObject);
+    })
+}
+
+const FirmaAsesores = () => {
     const [asesores, setAsesores] = useState([]);
 
     const obtenerAsesoresActivos = async () => {
@@ -19,24 +36,10 @@ export const FirmaPantalla = () => {
         } catch (e) { }
     }
 
-    const createBase64Image = (fileObject) => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-                resolve(reader.result);
-            };
-
-            reader.onerror = () => {
-                reject()
-            };
-            reader.readAsDataURL(fileObject);
-        })
-    }
-
     const onFileChange = async (id, e) => {
         try {
             const IMG_EXTENSION = ["jpg", "png", "jpeg", "gif"];
-            const extension = e.target.files[0].name.split('.')[1];
+            const extension = e.target.files[0].name.split('.').pop();
 
             if (!IMG_EXTENSION.includes(extension.toLowerCase())) {
                 alert("El archivo seleccionado no es imagen.");
@@ -58,12 +61,72 @@ export const FirmaPantalla = () => {
     return (
         <MuiThemeProvider theme={getMuiTheme()}>
             <MUIDataTable
-                title={"Listado Firmas"}
+                title={"Listado Firmas de Asesores"}
                 data={asesores.map(asesor => [asesor.id, asesor.codigo, asesor.nombre, asesor.empresa, asesor.firma === null ? "Sin Firma" : <img alt="Firma asesor" style={{ height: 150 }} src={`data:image/png;base64,${asesor.firma}`} />, <input type="file" accept="image/*" onChange={(e) => onFileChange(asesor.id, e)} />])}
                 columns={HeadersListaPedidos}
                 options={DatatableOptions}
             />
         </MuiThemeProvider>
+    )
+}
+
+const FirmaUsuarios = () => {
+    const [usuarios, setUsuarios] = useState([]);
+
+    const obtenerUsuariosActivos = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/usuario/activosconfirma`);
+            setUsuarios(request.data);
+        } catch (e) { }
+    }
+
+    const onFileChange = async (id, e) => {
+        try {
+            const IMG_EXTENSION = ["jpg", "png", "jpeg", "gif"];
+            const extension = e.target.files[0].name.split('.').pop();
+
+            if (!IMG_EXTENSION.includes(extension.toLowerCase())) {
+                alert("El archivo seleccionado no es imagen.");
+                return
+            }
+
+            const fileBase = await createBase64Image(e.target.files[0]);
+            await axios.post(`${APIURL}/api/usuario/firma`, { id: id, firma: fileBase });
+            obtenerUsuariosActivos();
+        } catch (e) {
+            alert("Ocurrio un error y no se pudo actualizar la fotografia.");
+        }
+    }
+
+    useEffect(() => {
+        obtenerUsuariosActivos();
+    }, [])
+
+    return (
+        <MuiThemeProvider theme={getMuiTheme()}>
+            <MUIDataTable
+                title={"Listado Firmas de Usuarios"}
+                data={usuarios.map(usuario => [usuario.id, usuario.codigo, usuario.nombre, usuario.firma === null ? "Sin Firma" : <img alt="Firma usuario" style={{ height: 150 }} src={`data:image/png;base64,${usuario.firma}`} />, <input type="file" accept="image/*" onChange={(e) => onFileChange(usuario.id, e)} />])}
+                columns={HeadersListaUsuarios}
+                options={DatatableOptions}
+            />
+        </MuiThemeProvider>
+    )
+}
+
+export const FirmaPantalla = () => {
+    const [tab, setTab] = useState(0);
+
+    return (
+        <div>
+            <Paper square>
+                <Tabs value={tab} indicatorColor="primary" textColor="primary" onChange={(e, value) => setTab(value)}>
+                    <Tab label="Asesores" />
+                    <Tab label="Usuarios" />
+                </Tabs>
+            </Paper>
+            {tab === 0 ? <FirmaAsesores /> : <FirmaUsuarios />}
+        </div>
     )
 }
 
@@ -89,6 +152,20 @@ const HeadersListaPedidos = [
     "Codigo",
     "Nombre",
     "Empresa",
+    "Firma",
+    {
+        label: "Acciones",
+        options: {
+            filter: false,
+            sort: false,
+        }
+    },
+];
+
+const HeadersListaUsuarios = [
+    "Id",
+    "Usuario",
+    "Nombre",
     "Firma",
     {
         label: "Acciones",

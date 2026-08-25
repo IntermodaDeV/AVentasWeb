@@ -185,6 +185,7 @@ export const Home = (props) => {
         cargarMaestroBodega();
         /////Configuracion De Recibos
         cargarCorrelativoRecibo();
+        cargarFirmaRecibo();
         cargarBancos();
         cargarTipoPago();
         cargarTipoVisitasOficina();

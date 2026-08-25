@@ -348,6 +348,7 @@ const ListaRecibos = (props) => {
             const request = await axios.get(`${APIURL}/api/Recibo/obtenerfirma/${recibo.NumeroRecibo}`);
             let copyRecibo = { ...recibo };
             copyRecibo.NombreAsesor = request.data.nombreAsesor;
+            copyRecibo.NombreCreador = request.data.nombreCreador;
             copyRecibo.firma = request.data.firma;
             setDialogRecibo(copyRecibo);
             setShowDialog(true);

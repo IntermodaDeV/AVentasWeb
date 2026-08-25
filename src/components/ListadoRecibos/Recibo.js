@@ -274,6 +274,9 @@ const Recibo = (props) => {
                                     <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
                                         {props.recibo.NombreAsesor}
                                     </h4>
+                                    {props.recibo.NombreCreador && <h5 className={"text-center " + styles.LineHeight_Normal}>
+                                        {props.recibo.NombreCreador}
+                                    </h5>}
                                 </div>
                             </div>
                         </div>
