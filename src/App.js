@@ -13,6 +13,7 @@ import { EmptyLayout, LayoutRoute, MainLayout } from 'components/Layout'
 import AuthModalPage from 'containers/Authorize/AuthModalPage'
 import AuthPage from 'containers/Authorize/AuthPage'
 import Pedidos from 'containers/Pedidos/Pedidos'
+import PedidosExcel from 'containers/PedidosExcel/PedidosExcel'
 import { RecolocacionPedido } from 'containers/RecolocacionPedido/RecolocacionPedido'
 import { Inventario } from 'containers/Inventario/Inventario'
 import Recibos from 'containers/Recibos/Recibos'
@@ -227,6 +228,12 @@ const App = props => {
               path='/pedidos'
               layout={MainLayout}
               component={Pedidos}
+            />
+            <LayoutRoute
+              exact
+              path='/pedidos-excel'
+              layout={MainLayout}
+              component={PedidosExcel}
             />
             <LayoutRoute
               path='/recolocacion-pedido'
