@@ -99,7 +99,7 @@ const convertirFila = fila => ({
     numAcuerdo: String(buscarCampo(fila, ['NUM ACUERDO', 'NUMERO ACUERDO', 'NÚMERO ACUERDO']) || '').trim(),
     codigoArticulo: String(buscarCampo(fila, ['CODIGOARTICULO', 'CÓDIGO ARTICULO', 'CODIGO ARTICULO']) || '').trim(),
     categoria: String(buscarCampo(fila, ['CATEGORIA', 'CATEGORÍA']) || '').trim(),
-    color: String(buscarCampo(fila, ['COLOR']) || '').trim(),
+    color: String(buscarCampo(fila, ['CODIGO COLOR', 'CÓDIGO COLOR', 'CODIGOCOLOR', 'COLOR']) || '').trim(),
     talla: String(buscarCampo(fila, ['TALLA']) || '').trim(),
     cantidad: buscarCampo(fila, ['CANTIDAD']),
 });
@@ -174,7 +174,11 @@ const resolverLinea = (detalleFila, productosEdades, grupoPrecio, productoImpues
         return { ok: false, error: `El producto ${detalleFila.codigoArticulo} no pertenece al paquete ${detalleFila.paquete}.` };
     }
 
-    const color = (producto.ListaColores || []).find(c => normalizarTexto(c.NombreColor) === normalizarTexto(detalleFila.color));
+    // El Excel puede traer el código del color (ej. "T1") o su nombre (ej. "Indigo Oscuro"),
+    // según la plantilla — se prueba primero por código y, si no matchea, por nombre.
+    const colorBuscado = normalizarTexto(detalleFila.color);
+    const color = (producto.ListaColores || []).find(c => normalizarTexto(c.CodigoColor) === colorBuscado)
+        || (producto.ListaColores || []).find(c => normalizarTexto(c.NombreColor) === colorBuscado);
     if (!color || color.Deshabilitado) {
         return { ok: false, error: `El color ${detalleFila.color} no existe para el producto ${detalleFila.codigoArticulo}.` };
     }
@@ -281,6 +285,13 @@ const construirPedido = (grupo, contexto, indice, numeroReferencia) => {
         errores.push(`El paquete ${grupo.paquete} no existe para la empresa ${cliente.EmpresaId}.`);
     }
 
+    // El acuerdo debe corresponder a la misma línea del paquete que se está pidiendo (un acuerdo
+    // no está atado a un paquete/colección puntual, sino a una línea de producto).
+    if (acuerdo && infoPaquete && acuerdo.Linea && infoPaquete.Linea
+        && String(acuerdo.Linea).toUpperCase() !== String(infoPaquete.Linea).toUpperCase()) {
+        errores.push(`El acuerdo ${grupo.numAcuerdo} es de la línea ${acuerdo.Linea}, pero el paquete ${grupo.paquete} es de la línea ${infoPaquete.Linea}.`);
+    }
+
     // Tienda: TIENDA en el Excel es el postalAddress de una dirección del cliente.
     // - Si la fila NO trae tienda, se usa la dirección principal del cliente (sin error).
     // - Si SÍ trae una tienda pero no le corresponde a ese cliente, es un error: no se
@@ -349,6 +360,16 @@ const construirPedido = (grupo, contexto, indice, numeroReferencia) => {
     const tipoPedidoNombre = acuerdo ? (tiposPedidoPorId.get(acuerdo.IdTipoPedido) || '') : '';
     const modoVenta = tipoPedidoNombre === 'Contado' ? 'Contado' : 'Credito';
     const subtotal = detalle.reduce((acc, d) => acc + (parseFloat(d.PrecioUnitario) * parseInt(d.Cantidad, 10)), 0);
+
+    // El total del pedido no puede sobrepasar el saldo disponible del acuerdo (mismo total que
+    // calcula el backend: si el precio ya incluye impuesto, el impuesto no se suma aparte).
+    if (acuerdo && acuerdo.Saldo != null) {
+        const totalPedido = cliente.IncluyeImpuesto ? subtotal : (subtotal + impuestoTotal);
+        if (totalPedido > acuerdo.Saldo) {
+            errores.push(`El total del pedido (${totalPedido.toFixed(2)}) supera el saldo disponible del acuerdo ${grupo.numAcuerdo} (${Number(acuerdo.Saldo).toFixed(2)}).`);
+        }
+    }
+
     const valido = errores.length === 0;
 
     const pedidoPost = valido ? {
