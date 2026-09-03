@@ -17,6 +17,8 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Chip from '@material-ui/core/Chip';
 import Typography from '@material-ui/core/Typography';
+import TextField from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
@@ -35,6 +37,7 @@ const COLOR_OK_BG = '#e8f5e9';
 const COLOR_ERROR = '#c62828';
 const COLOR_ERROR_BG = '#fdecea';
 const COLOR_PRIMARY = '#1a6ba0';
+const ALMACEN_POR_DEFECTO = '22'; // Bodega de Honduras
 
 const CONCURRENCIA_ENVIO = 4;
 
@@ -247,7 +250,7 @@ const resolverLinea = (detalleFila, productosEdades, grupoPrecio, productoImpues
 const construirPedido = (grupo, contexto, indice, numeroReferencia) => {
     const {
         clientesPorCodigo, infoPorPaquete, productosPorCombo, bodegaMaestro,
-        tiposPedidoPorId, empresaUsuarioAsesor, clienteImpuestos, productoImpuestos
+        tiposPedidoPorId, empresaUsuarioAsesor, clienteImpuestos, productoImpuestos, almacenSeleccionado
     } = contexto;
 
     const id = `${indice}-${grupo.codigoCliente}-${grupo.paquete}-${grupo.tienda}`;
@@ -346,15 +349,11 @@ const construirPedido = (grupo, contexto, indice, numeroReferencia) => {
         }
     }
 
-    // Bodega: preferir la específica de la empresa del cliente, si no la principal del sistema
-    let bodega = (bodegaMaestro || []).find(b => b.EmpresaId === cliente.EmpresaId && b.Estatus === true && !b.BodegaPrincipal);
-    let bodegaEspecifica = true;
+    // Bodega: la elige el usuario en la pantalla (por defecto la de Honduras, almacén 22) y se
+    // aplica igual a todos los pedidos del archivo. BodegaEspecifica siempre va en false.
+    const bodega = (bodegaMaestro || []).find(b => b.Almacen === almacenSeleccionado && b.Estatus === true);
     if (!bodega) {
-        bodega = (bodegaMaestro || []).find(b => b.BodegaPrincipal === true && b.Estatus === true);
-        bodegaEspecifica = false;
-    }
-    if (!bodega) {
-        errores.push('No hay bodega configurada para procesar el pedido.');
+        errores.push(`La bodega seleccionada (${almacenSeleccionado}) no es válida.`);
     }
 
     const tipoPedidoNombre = acuerdo ? (tiposPedidoPorId.get(acuerdo.IdTipoPedido) || '') : '';
@@ -392,9 +391,9 @@ const construirPedido = (grupo, contexto, indice, numeroReferencia) => {
         subtotal,
         Impuesto: impuestoTotal,
         RequiereEntrega: false,
-        BodegaEspecifica: bodegaEspecifica,
-        Sitio: bodega.CodigoSitio,
-        Almacen: bodega.Almacen,
+        BodegaEspecifica: false,
+        Sitio: bodega ? bodega.CodigoSitio : '',
+        Almacen: bodega ? bodega.Almacen : '',
         Ubicacion: '',
         DireccionEntrega: postalAddress,
         Observacion: 'Carga masiva Excel',
@@ -451,6 +450,8 @@ const PedidosExcel = () => {
     const [clavesCreadas, setClavesCreadas] = useState(() => new Set());
     // Huellas de archivos ya subidos en esta sesión, para avisar si se sube el mismo Excel dos veces.
     const [hashesSubidos, setHashesSubidos] = useState(() => new Set());
+    // Bodega desde la que se procesan todos los pedidos del archivo. Por defecto, la de Honduras (22).
+    const [almacenSeleccionado, setAlmacenSeleccionado] = useState(ALMACEN_POR_DEFECTO);
     const bodegaMaestro = useSelector(state => state.MaestroBodegaAlmacenes);
 
     useEffect(() => {
@@ -597,7 +598,7 @@ const PedidosExcel = () => {
 
             const contexto = {
                 clientesPorCodigo, infoPorPaquete, productosPorCombo, bodegaMaestro,
-                tiposPedidoPorId, empresaUsuarioAsesor,
+                tiposPedidoPorId, empresaUsuarioAsesor, almacenSeleccionado,
                 clienteImpuestos: clienteImpuestos || [], productoImpuestos: productoImpuestos || [],
             };
 
@@ -700,6 +701,28 @@ const PedidosExcel = () => {
 
             <Card variant="outlined" style={{ borderRadius: 8 }}>
                 <CardContent>
+                    <div style={{ marginBottom: 16 }}>
+                        <TextField
+                            select
+                            variant="outlined"
+                            size="small"
+                            label="Bodega para procesar el pedido"
+                            value={almacenSeleccionado}
+                            onChange={e => setAlmacenSeleccionado(e.target.value)}
+                            disabled={cargando || enviando}
+                            style={{ minWidth: 320 }}
+                            InputLabelProps={{ shrink: true }}
+                        >
+                            {(bodegaMaestro || []).filter(b => b.Estatus === true).map(b => (
+                                <MenuItem key={b.Almacen} value={b.Almacen}>
+                                    {(b.Etiqueta || b.Nombre || b.Almacen)} (Almacén {b.Almacen})
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                        <Typography variant="caption" color="textSecondary" style={{ display: 'block', marginTop: 4 }}>
+                            Se aplica a todos los pedidos de este archivo. Por defecto, la bodega de Honduras (22).
+                        </Typography>
+                    </div>
                     <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
                         <Button variant="outlined" color="primary" startIcon={<GetAppIcon />} onClick={descargarPlantilla}>
                             Descargar plantilla
