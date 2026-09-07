@@ -4,7 +4,8 @@ import Swal from 'sweetalert2/dist/sweetalert2.js';
 import Dialog from '@material-ui/core/Dialog';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import { Button } from "@material-ui/core";
+import DialogActions from '@material-ui/core/DialogActions';
+import { Button, FormControl, InputLabel, Select, MenuItem, TextField } from "@material-ui/core";
 import DetalleRecibo from 'components/ListadoRecibos/DetalleRecibo';
 import { PrintOutlined, Image } from '@material-ui/icons';
 import moment from "moment";
@@ -16,7 +17,7 @@ import TableFooter from "@material-ui/core/TableFooter";
 import TableRow from "@material-ui/core/TableRow";
 import TablePagination from "@material-ui/core/TablePagination";
 import CustomFooter from 'components/Layout/CustomFooter';
-import { IsAllow, PermisoUsuarioOficinaCreditos, PermisoHabilitarReimpresion } from 'components/Seguridad/Permisos';
+import { IsAllow, PermisoUsuarioOficinaCreditos, PermisoHabilitarReimpresion, PermisoAnularRecibo } from 'components/Seguridad/Permisos';
 import { useSelector } from 'react-redux';
 import { verificarConexion } from 'utils/http';
 import axios from 'axios';
@@ -42,13 +43,28 @@ const ListaRecibos = (props) => {
     const [nombreAsesor, setNombreAsesor] = useState(null);
     const [UsuariosCreadores, setUsuariosCreadores] = useState([]);
     const [UsuarioCreadorSelected, setUsuarioCreadorSelected] = useState(null);
+    const [motivosAnulacion, setMotivosAnulacion] = useState([]);
+    const [mostrarModalAnular, setMostrarModalAnular] = useState(false);
+    const [reciboAAnular, setReciboAAnular] = useState(null);
+    const [motivoSeleccionado, setMotivoSeleccionado] = useState('');
+    const [comentarioAnulacion, setComentarioAnulacion] = useState('');
     const AsesoresUsuario = useSelector(e => e.Permisos[0].AsesoresUsuario);
+
+    const cargarMotivosAnulacion = async () => {
+        try {
+            const request = await axios.get(`${APIURL}/api/motivoanulacion/activos`);
+            setMotivosAnulacion(request.data);
+        } catch (err) {
+            // Si falla, simplemente no se podrá anular hasta que se recargue la página.
+        }
+    }
 
     useEffect(() => {
         if (!IsAllow("/lista-recibos")) {
             props.history.push('/home');
         }
         cargarRecibos("1900-01-01", "1900-01-01");
+        cargarMotivosAnulacion();
         let Asesores = [];
         AsesoresUsuario.map((Ase) => {
             let Valores = { key: Ase.Usuario, value: Ase.Usuario, text: Ase.Usuario }
@@ -211,17 +227,90 @@ const ListaRecibos = (props) => {
     }
 
     const anularRecibo = async (numeroRecibo, anulado) => {
-        const mensaje = anulado ? "activar" : "anular";
-        try {
+        if (anulado) {
+            const result = await Swal.fire({
+                title: 'Confirmar',
+                text: `¿Está seguro de activar el recibo ${numeroRecibo}?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sí, activar',
+                cancelButtonText: 'Cancelar'
+            });
 
-            const result = window.confirm(`¿Esta seguro de ${mensaje} el recibo ${numeroRecibo}?`);
-            if (result) {
-                await axios.delete(`${APIURL}/api/recibo/anular/${numeroRecibo}`);
-                alert(`El recibo ${numeroRecibo} ha sido ${mensaje} con exito.`);
+            if (result.value) {
+                ejecutarAnulacion(numeroRecibo, null);
             }
-        } catch (err) {
-            alert(`Ha ocurrido un error y no se pudo ${mensaje} el recibo.`);
+            return;
         }
+
+        setReciboAAnular(numeroRecibo);
+        setMotivoSeleccionado('');
+        setComentarioAnulacion('');
+        setMostrarModalAnular(true);
+    }
+
+    const ejecutarAnulacion = async (numeroRecibo, body) => {
+        const accion = body ? "anulado" : "activado";
+
+        Swal.fire({
+            title: 'Procesando...',
+            text: 'Por favor espere.',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            const response = await axios.delete(`${APIURL}/api/recibo/anular/${numeroRecibo}`, { data: body });
+
+            if (body && response.data && response.data.correoEnviado === false) {
+                await Swal.fire({
+                    title: `Recibo ${accion}`,
+                    icon: 'warning',
+                    html: `El recibo <b>${numeroRecibo}</b> ha sido ${accion} con éxito.<br/><br/>El correo de anulación no se pudo enviar:<br/><i>${response.data.mensajeCorreo}</i>`,
+                    confirmButtonText: 'Ok',
+                });
+            } else {
+                await Swal.fire({
+                    title: `Recibo ${accion}`,
+                    icon: 'success',
+                    text: `El recibo ${numeroRecibo} ha sido ${accion} con éxito.`,
+                    confirmButtonText: 'Ok',
+                });
+            }
+
+            cargarRecibos(startDate, endDate);
+        } catch (err) {
+            let mensaje = `Ha ocurrido un error y no se pudo ${body ? "anular" : "activar"} el recibo.`;
+
+            if (err.response && err.response.data) {
+                mensaje = err.response.data.Message || err.response.data;
+            }
+
+            Swal.fire({
+                title: 'Error',
+                icon: 'error',
+                text: mensaje,
+                confirmButtonText: 'Ok',
+            });
+        }
+    }
+
+    const confirmarAnulacion = () => {
+        if (!motivoSeleccionado) {
+            alert("Seleccione un motivo de anulación.");
+            return;
+        }
+
+        setMostrarModalAnular(false);
+        ejecutarAnulacion(reciboAAnular, {
+            MotivoAnulacionId: motivoSeleccionado,
+            Comentario: comentarioAnulacion,
+            Usuario: localStorage.getItem('codigo')
+        });
     }
 
     const habilitarReimpresion = async (numeroRecibo, activado) => {
@@ -301,13 +390,17 @@ const ListaRecibos = (props) => {
                         [recib.NombreUsuarioCreacion || recib.UsuarioCreacion, recib.Sincronizado],
                         [recib.DetalleRecibo[0].Factura, recib.Sincronizado],
                         [recib.Descuento, recib.Sincronizado],
+                        [recib.MotivoAnulacionDescripcion, recib.Sincronizado],
+                        [recib.FechaAnulacion ? moment(recib.FechaAnulacion).format('DD/MM/YYYY HH:mm') : '', recib.Sincronizado],
+                        [recib.ComentarioAnulacion, recib.Sincronizado],
+                        [recib.UsuarioAnulacion, recib.Sincronizado],
                         <div style={{ color: "white", fontWeight: "bold", backgroundColor: recib.depositos.length === 0 ? "red" : "green", textAlign: "center" }}>{recib.depositos.length === 0 ? "No" : "Si"}</div>,
                         <div>
 
                             <span className="mr-1">
                                 <Button className='my-1' variant="outlined" onClick={() => cambiarRecibo(recib)} size="small" color={"primary"}>Detalle</Button>
                             </span>
-                            {PermisoUsuarioOficinaCreditos() && <span className="ml-1">
+                            {PermisoAnularRecibo() && <span className="ml-1">
                                 <Button className='my-1' variant="outlined" onClick={() => anularRecibo(recib.NumeroRecibo, recib.anulado)} size="small" color={"primary"}>
                                     {recib.anulado ? "Activar" : "Anular"}
                                 </Button>
@@ -405,6 +498,39 @@ const ListaRecibos = (props) => {
                             Cargar depositos
                         </Button>}
                     </DialogContent>
+                </Dialog>
+                <Dialog
+                    open={mostrarModalAnular}
+                    onClose={() => setMostrarModalAnular(false)}>
+                    <DialogTitle>Motivo de Anulación</DialogTitle>
+                    <DialogContent>
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel id="motivo-anulacion-label">Motivo</InputLabel>
+                            <Select
+                                labelId="motivo-anulacion-label"
+                                value={motivoSeleccionado}
+                                onChange={(e) => setMotivoSeleccionado(e.target.value)}
+                                style={{ minWidth: '350px' }}
+                            >
+                                {motivosAnulacion.map(motivo => (
+                                    <MenuItem key={motivo.Id} value={motivo.Id}>{motivo.Codigo} - {motivo.Descripcion}</MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+                        <TextField
+                            label="Comentario (opcional)"
+                            multiline
+                            rows={3}
+                            fullWidth
+                            margin="normal"
+                            value={comentarioAnulacion}
+                            onChange={(e) => setComentarioAnulacion(e.target.value)}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setMostrarModalAnular(false)} color="primary">Cancelar</Button>
+                        <Button onClick={confirmarAnulacion} color="primary" variant="contained">Anular</Button>
+                    </DialogActions>
                 </Dialog>
                 <Listado
                     recibos={recibos}
@@ -622,6 +748,58 @@ const HeadersListaRecibos = [
     {
         name: "Descuento",
         label: "Descuento",
+        options: {
+            filter: true,
+            sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
+        }
+    },
+    {
+        name: "MotivoAnulacion",
+        label: "Motivo Anulación",
+        options: {
+            filter: true,
+            sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
+        }
+    },
+    {
+        name: "FechaAnulacion",
+        label: "Fecha Anulación",
+        options: {
+            filter: true,
+            sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
+        }
+    },
+    {
+        name: "ComentarioAnulacion",
+        label: "Comentario Anulación",
+        options: {
+            filter: true,
+            sort: true,
+            customBodyRender: (value, tableMeta, updateValue) => {
+                return (
+                    <p style={{ color: (value[1]) ? 'black' : 'orange', fontWeight: (value[1]) ? 'normal' : 'bold' }}>{value[0]}</p>
+                );
+            }
+        }
+    },
+    {
+        name: "UsuarioAnulacion",
+        label: "Usuario Anulación",
         options: {
             filter: true,
             sort: true,
