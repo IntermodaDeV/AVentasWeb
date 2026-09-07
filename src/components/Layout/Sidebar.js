@@ -68,7 +68,7 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 //components
 import Logo from 'assets/img/logo/Barra.png';
 import styles from 'components/Layout/Layout.module.css';
-import {IsAllow} from 'components/Seguridad/Permisos';
+import {IsAllow, PermisoListadoConfiguracionCorreo, PermisoGrupoRecibosMotivoAnulacion, PermisoListadoMotivoAnulacion} from 'components/Seguridad/Permisos';
 
 
 
@@ -151,7 +151,7 @@ const navItems = [
         ]
     },
     {
-        to: '/recibos', name: 'Recibos', dataTut: 'DataTut_Recibos', Icon: Receipt,
+        to: '/recibos', name: 'Recibos', dataTut: 'DataTut_Recibos', Icon: Receipt, permisoExtra: PermisoGrupoRecibosMotivoAnulacion,
         expanded: [
             { to: '/lista-recibos-BandejaSalida', name: 'Bandeja Salida', dataTut: 'DataTut_BandejaSalida', Icon: Input, backgroundColor:'#c41021' },
             { to: '/lista-recibos-pendientes', name: 'Pendientes AX', dataTut: 'DataTut_BandejaSalida', Icon: AllInbox, backgroundColor:'#d49008' },
@@ -159,7 +159,8 @@ const navItems = [
             { to: '/recibos', name: 'Nuevo Recibo', dataTut: 'DataTut_NuevoRecibo', Icon: AddBoxOutlined, backgroundColor:''  },
             { to: '/lista-recibos', name: 'Listado Recibos', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:''  },
             { to: '/lista-recibos-creditos', name: 'Resincronización recibos', dataTut: 'DataTut_ListadoRecibos', Icon: SyncAlt, backgroundColor:''  },
-            { to: '/lista-recibos-proforma', name: 'Recibos Proforma', dataTut: 'DataTut_ListadoRecibosProforma', Icon: ListAlt, backgroundColor:''  }
+            { to: '/lista-recibos-proforma', name: 'Recibos Proforma', dataTut: 'DataTut_ListadoRecibosProforma', Icon: ListAlt, backgroundColor:''  },
+            { to: '/motivo-anulacion', name: 'Motivos de Anulación', dataTut: 'DataTut_ListadoRecibos', Icon: ListAlt, backgroundColor:'', permisoExtra: PermisoListadoMotivoAnulacion }
         ]
     },
     {
@@ -206,7 +207,7 @@ const navItems = [
         ]
     },
     {
-        to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build,
+        to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build, permisoExtra: PermisoListadoConfiguracionCorreo,
         expanded: [
             { to: '/configuracion-paquete-bodega', name: 'Paquete bodega especifico', dataTut: 'DataTut_SincLista', Icon: AllInboxOutlined, backgroundColor:''  },
             { to: '/configuracion-sitio', name: 'Sitio', dataTut: 'DataTut_SincLista', Icon: HomeWork, backgroundColor:''  },
@@ -216,7 +217,9 @@ const navItems = [
             { to: '/configuracion-tiemposfuera', name: 'Motivos tiempo fuera', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
             { to: '/configuracion-basecolor', name: 'Combinación base color', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
             { to: '/configuracion-obtencion-inventario', name: 'Configuración obtención inventario', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
-            { to: '/ServiciosTareas', name: 'Servicios y tareas programadas', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  }
+            { to: '/ServiciosTareas', name: 'Servicios y tareas programadas', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
+            { to: '/configuracion-tipo-correo', name: 'Tipos Configuración Correo', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
+            { to: '/configuracion-correo', name: 'Configuración de Correo', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:'', permisoExtra: PermisoListadoConfiguracionCorreo  }
         ]
     }
 ];
@@ -299,7 +302,7 @@ const Sidebar = (props) => {
                     // eslint-disable-next-line
                     navItems.map((menu, index) => {
                         if (menu.expanded && menu.expanded !== null && menu.expanded !== undefined) {
-                            if(IsAllow(menu.name))
+                            if(IsAllow(menu.name) || (menu.permisoExtra && menu.permisoExtra()))
                             {
                             return (
                                 <React.Fragment key={index}>
@@ -316,7 +319,7 @@ const Sidebar = (props) => {
                                                 // eslint-disable-next-line
                                                 menu.expanded.map((submenu, ind) => {
 
-                                                    if(IsAllow(submenu.to, true))
+                                                    if(submenu.permisoExtra ? submenu.permisoExtra() : IsAllow(submenu.to, true))
                                                     {
                                                           return (
                                                             /*<ListItemLink

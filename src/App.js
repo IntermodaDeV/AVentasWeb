@@ -82,6 +82,9 @@ import { ListadoReportesVisita } from 'containers/IncidenciaVisita/ListadoIncide
 import { CorreosMain } from 'containers/Correo/ListadoModulos'
 import { MailServicios } from 'containers/Correo/ListaMailServicios';
 import { MailCorreos } from 'containers/Correo/ListaMailCorreos';
+import { TipoConfiguracionCorreo } from 'containers/ConfiguracionCorreo/TipoConfiguracionCorreo';
+import { ConfiguracionCorreo } from 'containers/ConfiguracionCorreo/ConfiguracionCorreo';
+import { MotivoAnulacion } from 'containers/MotivoAnulacion/MotivoAnulacion';
 import { MailEjecucion } from 'containers/Correo/ListaEjecucionCorreos';
 import {ListadoSTP} from 'containers/ServiciosYTareasProgramadas/ListadoSTP';
 import Traslado from 'components/Pedidos/Traslado/Traslado'
@@ -631,6 +634,24 @@ const App = props => {
               path='/ServiciosTareas'
               layout={MainLayout}
               component={ListadoSTP}
+            />
+            <LayoutRoute
+              exact
+              path='/configuracion-tipo-correo'
+              layout={MainLayout}
+              component={TipoConfiguracionCorreo}
+            />
+            <LayoutRoute
+              exact
+              path='/configuracion-correo'
+              layout={MainLayout}
+              component={ConfiguracionCorreo}
+            />
+            <LayoutRoute
+              exact
+              path='/motivo-anulacion'
+              layout={MainLayout}
+              component={MotivoAnulacion}
             />
             <Redirect to='/home' />
           </Switch>
