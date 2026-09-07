@@ -100,6 +100,21 @@ export const PermisoUsuarioOficinaCreditos = () => {
     return false;
 }
 
+export const PermisoAnularRecibo = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "Anular Recibos") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 export const PermisoHabilitarReimpresion = () => {
     const globalState = store.getState();
     const Permisos = globalState["Permisos"];
@@ -137,6 +152,96 @@ export const PermisoAdministradorVisita = () => {
     for (const Permiso of Permisos) {
         for (const Roles of Permiso.RolesUsuarios) {
             if (Roles.Nombre === "Administrador de Visitas") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export const PermisoListadoConfiguracionCorreo = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "listadoConfiguracionCorreo") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export const PermisoGrupoConfiguracionCorreo = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "grupoConfiguracionCorreo") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export const PermisoDesactivarConfiguracionCorreo = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "permisoDesactivarConfiguracionCorreo") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export const PermisoGrupoRecibosMotivoAnulacion = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "grupoRecibosMotivoAnulacion") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export const PermisoListadoMotivoAnulacion = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "listadoMotivoAnulacion") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+export const PermisoDesactivarMotivoAnulacion = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "permisoDesactivarMotivoAnulacion") {
                 return true;
             }
         }
