@@ -508,7 +508,7 @@ const Recibos = (props) => {
       let isOnline = await verificarConexion();
       if (isOnline) {
         try {
-          const request = await axios.get(`${urlApi}/api/recibos/correlativo/${localStorage.getItem('empresa')}`, {
+          const request = await axios.get(`${urlApi}/api/recibos/correlativo/${localStorage.getItem('empresa')}?codigoCliente=${props.clienteSelected.Codigo}`, {
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + localStorage.getItem('token')
