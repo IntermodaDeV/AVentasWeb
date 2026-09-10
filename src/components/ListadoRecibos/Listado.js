@@ -88,6 +88,7 @@ const Listado = (props) => {
                     <Dropdown
                         placeholder="Asesor"
                         selection
+                        search
                         style={{zIndex:999}}
                         onChange={(e, { value }) =>  props.handleOnChangeAsesor(value)}
                         options={props.Asesores}
