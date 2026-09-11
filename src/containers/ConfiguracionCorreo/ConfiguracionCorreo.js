@@ -6,6 +6,7 @@ import { Button, IconButton, Modal, TextField, Paper, Grid, Select, MenuItem, Fo
 import { Edit, Block, CheckCircle } from '@material-ui/icons';
 import Swal from 'sweetalert2';
 import { PermisoListadoConfiguracionCorreo, PermisoGrupoConfiguracionCorreo, PermisoDesactivarConfiguracionCorreo } from 'components/Seguridad/Permisos';
+import { EmailChipInput } from 'components/ConfiguracionCorreo/EmailChipInput';
 
 const usuarioActual = () => localStorage.getItem('codigo');
 
@@ -86,6 +87,10 @@ export const ConfiguracionCorreo = (props) => {
 
     const handleInputChange = (e) => {
         setModalData({ ...modalData, [e.target.name]: e.target.value });
+    };
+
+    const handleCorreosChange = (name, value) => {
+        setModalData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleAdd = () => {
@@ -270,25 +275,21 @@ export const ConfiguracionCorreo = (props) => {
                             </FormControl>
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField
+                            <EmailChipInput
                                 label="Correos Destino"
                                 name="CorreosDestino"
                                 value={modalData.CorreosDestino}
-                                onChange={handleInputChange}
-                                helperText="Separe varios correos con coma"
-                                fullWidth
-                                margin="normal"
+                                onChange={handleCorreosChange}
+                                helperText="Escriba un correo y presione Enter para agregarlo"
                             />
                         </Grid>
                         <Grid item xs={12}>
-                            <TextField
+                            <EmailChipInput
                                 label="Correos en Copia"
                                 name="CorreosCopia"
                                 value={modalData.CorreosCopia}
-                                onChange={handleInputChange}
-                                helperText="Separe varios correos con coma"
-                                fullWidth
-                                margin="normal"
+                                onChange={handleCorreosChange}
+                                helperText="Escriba un correo y presione Enter para agregarlo"
                             />
                         </Grid>
                         <Grid item xs={12}>
