@@ -381,7 +381,7 @@ const ListaRecibos = (props) => {
                         [moment(recib.Fecha).format('DD/MM/YYYY'), recib.Sincronizado],
                         [recib.TipoPago.Descripcion, recib.Sincronizado],
                         [recib.Referencia, recib.Sincronizado],
-                        [moment(recib.Fecha).format('DD/MM/YYYY'), recib.Sincronizado],
+                        [recib.FechaPago ? moment(recib.FechaPago).format('DD/MM/YYYY') : '', recib.Sincronizado],
                         [recib.DescripcionBanco, recib.Sincronizado],
                         [recib.Valor, recib.Sincronizado],
                         [recib.IdMoneda, recib.Sincronizado],
@@ -392,8 +392,8 @@ const ListaRecibos = (props) => {
                         [recib.Descuento, recib.Sincronizado],
                         [recib.MotivoAnulacionDescripcion, recib.Sincronizado],
                         [recib.FechaAnulacion ? moment(recib.FechaAnulacion).format('DD/MM/YYYY HH:mm') : '', recib.Sincronizado],
+                        [recib.NombreUsuarioAnulacion || recib.UsuarioAnulacion, recib.Sincronizado],
                         [recib.ComentarioAnulacion, recib.Sincronizado],
-                        [recib.UsuarioAnulacion, recib.Sincronizado],
                         <div style={{ color: "white", fontWeight: "bold", backgroundColor: recib.depositos.length === 0 ? "red" : "green", textAlign: "center" }}>{recib.depositos.length === 0 ? "No" : "Si"}</div>,
                         <div>
 
@@ -785,8 +785,8 @@ const HeadersListaRecibos = [
         }
     },
     {
-        name: "ComentarioAnulacion",
-        label: "Comentario Anulación",
+        name: "UsuarioAnulacion",
+        label: "Usuario Anulación",
         options: {
             filter: true,
             sort: true,
@@ -798,8 +798,8 @@ const HeadersListaRecibos = [
         }
     },
     {
-        name: "UsuarioAnulacion",
-        label: "Usuario Anulación",
+        name: "ComentarioAnulacion",
+        label: "Comentario Anulación",
         options: {
             filter: true,
             sort: true,
