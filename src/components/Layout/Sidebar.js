@@ -68,7 +68,7 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 //components
 import Logo from 'assets/img/logo/Barra.png';
 import styles from 'components/Layout/Layout.module.css';
-import {IsAllow, PermisoListadoConfiguracionCorreo, PermisoGrupoRecibosMotivoAnulacion, PermisoListadoMotivoAnulacion} from 'components/Seguridad/Permisos';
+import {IsAllow, PermisoListadoConfiguracionCorreo, PermisoGrupoRecibosMotivoAnulacion, PermisoListadoMotivoAnulacion, PermisoListadoConfiguracionesSistema} from 'components/Seguridad/Permisos';
 
 
 
@@ -207,7 +207,7 @@ const navItems = [
         ]
     },
     {
-        to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build, permisoExtra: PermisoListadoConfiguracionCorreo,
+        to: '/configuracion', name: 'Configuracion', dataTut: 'DataTut_Sinc', Icon: Build, permisoExtra: () => PermisoListadoConfiguracionCorreo() || PermisoListadoConfiguracionesSistema(),
         expanded: [
             { to: '/configuracion-paquete-bodega', name: 'Paquete bodega especifico', dataTut: 'DataTut_SincLista', Icon: AllInboxOutlined, backgroundColor:''  },
             { to: '/configuracion-sitio', name: 'Sitio', dataTut: 'DataTut_SincLista', Icon: HomeWork, backgroundColor:''  },
@@ -219,7 +219,8 @@ const navItems = [
             { to: '/configuracion-obtencion-inventario', name: 'Configuración obtención inventario', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
             { to: '/ServiciosTareas', name: 'Servicios y tareas programadas', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
             { to: '/configuracion-tipo-correo', name: 'Tipos Configuración Correo', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:''  },
-            { to: '/configuracion-correo', name: 'Configuración de Correo', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:'', permisoExtra: PermisoListadoConfiguracionCorreo  }
+            { to: '/configuracion-correo', name: 'Configuración de Correo', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:'', permisoExtra: PermisoListadoConfiguracionCorreo  },
+            { to: '/configuraciones-sistema', name: 'Configuraciones del Sistema', dataTut: 'DataTut_RazonesNoVenta', Icon: ListAlt, backgroundColor:'', permisoExtra: PermisoListadoConfiguracionesSistema  }
         ]
     }
 ];

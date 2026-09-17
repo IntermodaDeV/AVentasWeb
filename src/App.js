@@ -84,6 +84,7 @@ import { MailServicios } from 'containers/Correo/ListaMailServicios';
 import { MailCorreos } from 'containers/Correo/ListaMailCorreos';
 import { TipoConfiguracionCorreo } from 'containers/ConfiguracionCorreo/TipoConfiguracionCorreo';
 import { ConfiguracionCorreo } from 'containers/ConfiguracionCorreo/ConfiguracionCorreo';
+import { Configuraciones } from 'containers/Configuraciones/Configuraciones';
 import { MotivoAnulacion } from 'containers/MotivoAnulacion/MotivoAnulacion';
 import { MailEjecucion } from 'containers/Correo/ListaEjecucionCorreos';
 import {ListadoSTP} from 'containers/ServiciosYTareasProgramadas/ListadoSTP';
@@ -646,6 +647,12 @@ const App = props => {
               path='/configuracion-correo'
               layout={MainLayout}
               component={ConfiguracionCorreo}
+            />
+            <LayoutRoute
+              exact
+              path='/configuraciones-sistema'
+              layout={MainLayout}
+              component={Configuraciones}
             />
             <LayoutRoute
               exact
