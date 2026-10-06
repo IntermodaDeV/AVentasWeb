@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -19,9 +19,10 @@ const Calendario = props => {
         return h;
     }
 
+    const calendarRef = useRef(null);
+
     useEffect(()=>{
         var calendarEl = document.getElementById('calendar');
-        var eventos = props.asignaciones;
 
         var calendar = new Calendar(calendarEl, {
             plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
@@ -58,10 +59,12 @@ const Calendario = props => {
             eventLimit: true,
             eventSources: [
                 {
-                    // events: [{
-                    //     extendedProps
-                    // }]
-                    events: eventos
+                    // Se piden al API solo las visitas del rango visible
+                    events: (info, successCallback, failureCallback) => {
+                        props.obtenerEventos(info.start, info.end)
+                            .then(successCallback)
+                            .catch(failureCallback);
+                    }
                 }
             ],
             eventTimeFormat: {
@@ -74,12 +77,20 @@ const Calendario = props => {
         });
 
         calendar.render();
+        calendarRef.current = calendar;
 
         return ()=>{
             calendar.destroy();
+            calendarRef.current = null;
         }
         // eslint-disable-next-line
-    },[props.asignaciones])
+    },[props.AsesorSelected])
+
+    useEffect(()=>{
+        if (props.versionEventos > 0 && calendarRef.current) {
+            calendarRef.current.refetchEvents();
+        }
+    },[props.versionEventos])
 
 
     return <div id="calendar" className="CalendarioAgenda"></div>;

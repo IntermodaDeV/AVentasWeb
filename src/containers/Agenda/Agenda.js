@@ -39,7 +39,6 @@ class Agenda extends Component {
         Configuraciones : [],
         mostrarAcciones: true,
         isLoaded: false,
-        Eventos: [],
         mostarEvento: false,
         isModalLoaded: false,
         ShowModalFacturas: false,
@@ -66,6 +65,8 @@ class Agenda extends Component {
         checkout: null,
         Asesores: [],
         AsesorSelected: null,
+        AsesorCalendario: null,
+        versionEventos: 0,
         OpenModalAsesor: false,
         OpenModalPromesaPago: false,
         date: new Date(),
@@ -85,6 +86,7 @@ class Agenda extends Component {
         this.setState({
             Asesores: asesores,
             AsesorSelected: asesores[0],
+            AsesorCalendario: asesores[0],
         });
     }
 
@@ -121,7 +123,7 @@ class Agenda extends Component {
             for (let asignacion of dia.asignaciones) {
                 const existeCliente = clientes.find(x => x.Codigo === asignacion.cliente);
                 if (existeCliente===undefined) {
-                    clientes.push({ Codigo: asignacion.cliente, Nombre: asignacion.NombreCliente, Latitud: asignacion.Latitud, Longitud: asignacion.Longitud,Asesor:this.state.AsesorSelected })
+                    clientes.push({ Codigo: asignacion.cliente, Nombre: asignacion.NombreCliente, Latitud: asignacion.Latitud, Longitud: asignacion.Longitud,Asesor:this.state.AsesorCalendario })
                 }
             }
         }
@@ -129,25 +131,25 @@ class Agenda extends Component {
         this.setState((prev) => ({ ...prev, clientes: clientes }))
     }
 
-    cargarAsignaciones = async () => {
-        try {
-            let { Inicio, Fin } = this.getFechas(1);
-            let request = await axios.get(`${this.urlApi}/api/Asignaciones`, {
-                params: { FechaInicio: Inicio, FechaFin: Fin, Asesor: this.state.AsesorSelected }, headers: {
-                    'Authorization':
-                        'Bearer ' + localStorage.getItem('token'),
-                }
-            });
-            let eventos = this.setAsignaciones(request.data);
-            this.setState({
-                Asignaciones: request.data,
-                ShowTable: true,
-                isLoaded: true,
-                Eventos: eventos,
-            });
-        } catch (err) {
+    // Lo llama el calendario cada vez que cambia el rango visible (fin es exclusivo)
+    obtenerEventos = async (inicio, fin) => {
+        let request = await axios.get(`${this.urlApi}/api/Asignaciones`, {
+            params: {
+                FechaInicio: moment(inicio).format(),
+                FechaFin: moment(fin).subtract(1, 'day').format(),
+                Asesor: this.state.AsesorCalendario
+            }, headers: {
+                'Authorization':
+                    'Bearer ' + localStorage.getItem('token'),
+            }
+        });
+        this.obtenerClientesUnicos(request.data);
+        this.setState({ Asignaciones: request.data });
+        return this.setAsignaciones(request.data);
+    }
 
-        }
+    recargarEventos = () => {
+        this.setState(prev => ({ versionEventos: prev.versionEventos + 1 }));
     }
 
     obtenerTiemposFueraAsesorDia = async () => {
@@ -173,28 +175,6 @@ class Agenda extends Component {
             this.setState({
                 error: true
             });
-        }
-    }
-
-    cargarAsignacionesConClientes = async () => {
-        try {
-            let { Inicio, Fin } = this.getFechas(1);
-            let request = await axios.get(`${this.urlApi}/api/Asignaciones`, {
-                params: { FechaInicio: Inicio, FechaFin: Fin, Asesor: this.state.AsesorSelected }, headers: {
-                    'Authorization':
-                        'Bearer ' + localStorage.getItem('token'),
-                }
-            });
-            this.obtenerClientesUnicos(request.data);
-            let eventos = this.setAsignaciones(request.data);
-            this.setState({
-                Asignaciones: request.data,
-                ShowTable: true,
-                isLoaded: true,
-                Eventos: eventos,
-            });
-        } catch (err) {
-
         }
     }
 
@@ -275,7 +255,7 @@ class Agenda extends Component {
                             })
                         });
 
-                    this.cargarAsignaciones();
+                    this.recargarEventos();
 
                 }
 
@@ -425,7 +405,7 @@ class Agenda extends Component {
         asignaciones.map(dia => {
             // eslint-disable-next-line
             dia.asignaciones.map(asignacion => {
-                if (asignacion.Asesor === this.state.AsesorSelected) {
+                if (asignacion.Asesor === this.state.AsesorCalendario) {
                     let prioridad = asignacion.IdPrioridad;
                     let textColor = 'white';
                     let color = asignacion.ColorRelleno;
@@ -685,14 +665,11 @@ class Agenda extends Component {
     }
 
     onChangeAsesor = () => {
-        /*this.cargarClientes();
-        var eventos = this.setAsignaciones(this.state.Asignaciones);
+        // Al cambiar AsesorCalendario el calendario se vuelve a crear y pide las visitas del nuevo asesor
         this.setState({
-            Eventos: eventos,
+            AsesorCalendario: this.state.AsesorSelected,
             OpenModalAsesor: false,
-            clienteActivo : false
-        })*/
-        this.cargarAsignacionesConClientes();
+        });
     }
 
     handleOnChangeAsesor = (event) => {
@@ -791,7 +768,7 @@ class Agenda extends Component {
                         mostarNoAtendido: false,
                     });
 
-                    this.cargarAsignaciones();
+                    this.recargarEventos();
 
                     Toast.fire({
                         type: 'success',
@@ -857,7 +834,6 @@ class Agenda extends Component {
             this.setState((prevState) => ({ ...prevState, isLoaded: true }))
         } else if (localStorage.getItem("Conexion") === "Online" && isOnline) {
             this.cargarAsesores()
-            this.cargarAsignacionesConClientes();
             this.cargarRazonNoVenta();
             this.cargarListadoRazonNoVenta();
             this.cargarTipoVisitas();
@@ -934,10 +910,7 @@ class Agenda extends Component {
         copiaClientes[indice].Latitud = request.data.latitud;
         copiaClientes[indice].Longitud = request.data.longitud;
         this.setState((prevState) => ({ ...prevState, clientes: copiaClientes }));
-        let eventos = this.setAsignaciones(this.state.Asignaciones);
-        this.setState({
-            Eventos: eventos,
-        })
+        this.recargarEventos();
 
         this.actualizarDataExterna(request);
     }
@@ -1040,14 +1013,37 @@ class Agenda extends Component {
 
     eliminarAsignacion = async (asignacionId) => {
         try {
-            const result = window.confirm(`¿Esta seguro de eliminar la visita?`);
-            if (result) {
+            const result = await Swal.fire({
+                title: 'Confirmar',
+                text: '¿Está seguro de eliminar la visita?',
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#06bf53',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
+                target: this.myRef.current
+            });
+            if (result.value) {
                 await axios.post(`${this.urlApi}/api/asignaciones/eliminar/${asignacionId}`)
-                alert("Asignación eliminada con exito.");
+                this.setState({ mostarEvento: false });
+                this.recargarEventos();
+                Swal.fire({
+                    title: 'Confirmado',
+                    text: 'Asignación eliminada con éxito.',
+                    type: 'success',
+                    confirmButtonText: 'Ok'
+                });
             }
 
         } catch (err) {
-            alert("No se pudo eliminar la asignación.");
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudo eliminar la asignación.',
+                type: 'error',
+                confirmButtonText: 'Ok',
+                target: this.myRef.current
+            });
         }
     }
 
@@ -1074,7 +1070,7 @@ class Agenda extends Component {
                         {
                             this.state.isLoaded ?
                                 <div className="col-12">
-                                    <Calendar onClickAgenda={this.onClickAgenda} asignaciones={this.state.Eventos} onClickEvento={this.onClickEvento} onClickAsignacion={this.onClickAsignacion} onClickAsesores={this.onClickAsesores} AsesorSelected={this.state.AsesorSelected} />
+                                    <Calendar onClickAgenda={this.onClickAgenda} obtenerEventos={this.obtenerEventos} versionEventos={this.state.versionEventos} onClickEvento={this.onClickEvento} onClickAsignacion={this.onClickAsignacion} onClickAsesores={this.onClickAsesores} AsesorSelected={this.state.AsesorCalendario} />
                                 </div>
                                 :
                                 <div style={{ marginTop: 15 }}>
@@ -1122,7 +1118,7 @@ class Agenda extends Component {
                                                         ?
                                                         <div ref={this.refCoordenadas}>
                                                             <h1 className="font-weight-light">No hay coordenadas disponibles</h1>
-                                                            {this.state.AsesorSelected === localStorage.getItem('codigo') && <Button onClick={this.verificarObtencionCoordenadas} variant="contained" color="primary" style={{ display: 'block', margin: '0 auto' }}>Obtener coordenadas</Button>}
+                                                            {this.state.AsesorCalendario === localStorage.getItem('codigo') && <Button onClick={this.verificarObtencionCoordenadas} variant="contained" color="primary" style={{ display: 'block', margin: '0 auto' }}>Obtener coordenadas</Button>}
                                                         </div>
                                                         :
                                                         <GoogleMapReact
