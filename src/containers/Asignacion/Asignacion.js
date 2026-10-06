@@ -56,6 +56,7 @@ class Asignacion extends Component {
         AsesorSelected: null,
         RutasSinFiltro: [],
         IdAsignacion: null,
+        EliminandoAsignacion: false,
         limpiarAsignacionesShow: false,
         eliminarRangoAsignacionesShow:false,
     }
@@ -367,13 +368,44 @@ class Asignacion extends Component {
         }
     }
 
+    refDialogEditar = React.createRef();
+
     eliminarAsignacion = async () => {
         try {
+            const result = await Swal.fire({
+                title: 'Confirmar',
+                text: '¿Está seguro de eliminar la visita?',
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#06bf53',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No',
+                target: this.refDialogEditar.current
+            });
+            if (!result.value) {
+                return;
+            }
+            this.setState({ EliminandoAsignacion: true });
             await axios.post(`${APIURL}/api/asignaciones/eliminar/${this.state.IdAsignacion}`)
+            this.setState({ EliminandoAsignacion: false });
             this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion);
-            alert("Asignación eliminada con exito.");
+            Swal.fire({
+                title: 'Confirmado',
+                text: 'Asignación eliminada con éxito.',
+                type: 'success',
+                confirmButtonText: 'Ok'
+            });
         } catch (err) {
-            alert("No se pudo eliminar la asignación.");
+            console.log("err", err);
+            this.setState({ EliminandoAsignacion: false });
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudo eliminar la asignación.',
+                type: 'error',
+                confirmButtonText: 'Ok',
+                target: this.refDialogEditar.current
+            });
         }
     }
 
@@ -482,17 +514,24 @@ class Asignacion extends Component {
 
                                     <div style={{ paddingTop: 15 }}>
                                         <Button
+                                            style={{ marginRight: 10 }}
                                             variant="outlined"
                                             color="primary"
                                             onClick={() => { this.limpiarAsignacionesShow(true) }}>
                                             Liberar Asignaciones
                                         </Button>
                                         <Button
-                                            style={{ marginRight: 5 }}
+                                            style={{ marginRight: 10 }}
                                             variant="outlined"
                                             color="primary"
                                             onClick={() => { this.eliminarRangoAsignacionesShow(true) }}>
                                             Eliminar rango visitas
+                                        </Button>
+                                        <Button
+                                            variant="outlined"
+                                            color="primary"
+                                            onClick={() => { this.props.history.push('/agenda') }}>
+                                            Ver Agenda
                                         </Button>
                                     </div>
                                 </div>
@@ -518,6 +557,7 @@ class Asignacion extends Component {
                                         </br>
 
                                         <Button
+                                            style={{ marginRight: 10 }}
                                             onClick={() => { this.limpiarAsignacionesShow(false) }}
                                             color="primary"
                                             variant="outlined">
@@ -547,6 +587,7 @@ class Asignacion extends Component {
                                         <p>Hasta: {moment(this.state.endDate).format("DD-MM-YYYY").toString()}</p>
 
                                         <Button
+                                            style={{ marginRight: 10 }}
                                             onClick={() => { this.eliminarRangoAsignacionesShow(false) }}
                                             color="primary"
                                             variant="outlined">
@@ -598,9 +639,10 @@ class Asignacion extends Component {
                             paper: styles.PaperDialog
                         }}
                         open={this.state.ShowDialog}
-                        onClose={() => this.setDialog(false)}
+                        onClose={() => !this.state.EliminandoAsignacion && this.setDialog(false)}
                         scroll={'paper'}
                         aria-labelledby="scroll-dialog-title"
+                        ref={this.refDialogEditar}
                     >
                         <DialogTitle id="scroll-dialog-title">
                             {
@@ -750,22 +792,28 @@ class Asignacion extends Component {
                         </DialogContent>
                         <DialogActions>
                             <div className="row justify-content-around w-100 m-0">
-                                <Button onClick={() => this.setDialog(false)} color="primary">
+                                <Button disabled={this.state.EliminandoAsignacion} onClick={() => this.setDialog(false)} color="primary">
                                     Cancelar
                                 </Button>
                                 {
                                     this.state.ButtonQuitarDisabled ? null :
                                         <>
-                                            <Button onClick={() => this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion)} color="primary">
+                                            <Button disabled={this.state.EliminandoAsignacion} onClick={() => this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion)} color="primary">
                                                 Quitar
                                             </Button>
-                                            {this.state.IdAsignacion && (<Button onClick={this.eliminarAsignacion} color="primary">
-                                                Eliminar
+                                            {this.state.IdAsignacion && (<Button disabled={this.state.EliminandoAsignacion} onClick={this.eliminarAsignacion} color="primary">
+                                                {this.state.EliminandoAsignacion ?
+                                                    <ScaleLoader
+                                                        css={{ height: '25px', bottom: '5px', position: 'relative', transform: 'scale(0.6)' }}
+                                                        size={'20px'}
+                                                        color={'#3f51b5'}
+                                                        loading={this.state.EliminandoAsignacion} /> : 'Eliminar'
+                                                }
                                             </Button>)}
                                         </>
                                 }
 
-                                <Button onClick={() => this.state.ButtonQuitarDisabled ? this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion) : this.handleInputEdit(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion)} color="primary">
+                                <Button disabled={this.state.EliminandoAsignacion} onClick={() => this.state.ButtonQuitarDisabled ? this.handleInputChange(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion) : this.handleInputEdit(this.state.ButtonQuitarDisabled, this.state.ClienteCodigo, this.state.fechaAsignacion)} color="primary">
                                     Guardar
                                 </Button>
                             </div>
@@ -941,6 +989,7 @@ class Asignacion extends Component {
                                     this.setState({
                                         GuardarAsignacion: false,
                                     });
+                                    this.cargarAsignaciones(this.state.startDate, this.state.endDate);
                                 },
                             )
                     }
@@ -948,6 +997,7 @@ class Asignacion extends Component {
                         this.setState({
                             GuardarAsignacion: false,
                         })
+                        this.cargarAsignaciones(this.state.startDate, this.state.endDate);
 
                         const Toast = Swal.mixin({
                             toast: true,
@@ -1003,6 +1053,7 @@ class Asignacion extends Component {
         var tipoVisita = '';
         var tiempoEstimado = '';
         var asignaciones = [...this.state.Asignaciones];
+        this.setState({ IdAsignacion: null });
         if (!evento) {
             if (asignaciones.length > 0) {
                 var index = 0;
