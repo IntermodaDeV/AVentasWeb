@@ -111,16 +111,46 @@ const SelectCliente = (props) => {
         })
     }
 
-    const handleOnChange = (value) => {
+    const handleOnChange = async (value) => {
         var val = JSON.parse(value);
 
         setValue(value);
-        props.onSelect(val);
         localStorage.setItem('isVencido',false);
         localStorage.setItem('isAnticipo',false);
         localStorage.setItem('isFavor',false);
         localStorage.setItem("saldoFavor",0);
         dispatch({type:'delete_pedidoselected'});
+
+        // Se limpia la seleccion/cuotas del cliente anterior de inmediato (antes de traer los datos frescos del
+        // nuevo cliente) para que la tabla de facturas quede vacia mientras carga, en vez de seguir mostrando por
+        // un momento las facturas del cliente anterior como si ya fueran del cliente recien seleccionado.
+        dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'});
+        dispatch({type:'DELETE_RECIBO_CLIENTESELECTED'});
+
+        // El listado de clientes (props.clientes) se carga una sola vez al entrar al modulo, asi que puede traer
+        // saldos/facturas desactualizados si ya se le genero un recibo a este cliente desde entonces. Al seleccionarlo
+        // se refresca puntualmente su informacion (igual que hace el boton de recargar, pero solo para este cliente),
+        // para no depender de que el usuario recuerde refrescar todo el listado manualmente.
+        // IMPORTANTE: no se despacha STORE_RECIBO_CLIENTES aqui -- cambiar esa lista dispara el useEffect de arriba
+        // (linea 32, dependencia [props.clientes]) que limpia clienteSelected (DELETE_RECIBO_CLIENTESELECTED),
+        // borrando la seleccion que se acaba de hacer. Por eso el refresco solo se usa para esta seleccion puntual.
+        // Tampoco se usa el modal de "Loading" (setLoading) aqui: abrir ese Dialog de Material-UI justo cuando el
+        // Dropdown de Semantic UI se esta cerrando le rompe el cierre (el Dropdown se queda abierto y el siguiente
+        // clic termina seleccionando otra fila). La consulta es liviana (un solo cliente), se hace en silencio.
+        let isOnline = await verificarConexion();
+        if (isOnline && localStorage.getItem("Conexion") === "Online") {
+            try {
+                let request = await axios.get(`${APIURL}/api/cliente/cuenta/${val.Codigo}`, {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                });
+                props.onSelect(request.data);
+            } catch (err) {
+                console.log(err);
+                props.onSelect(val);
+            }
+        } else {
+            props.onSelect(val);
+        }
     }
     if(props.clienteSelected != null) 
         localStorage.setItem('EmpresaCliente', props.clienteSelected.EmpresaId);

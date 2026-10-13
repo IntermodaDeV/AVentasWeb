@@ -647,22 +647,23 @@ const DetalleRecibo = (props) => {
                             //     cuot.Saldo.toFixed(2).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,'), //Saldo  
                             // ]);
                             data.push({
-                                Tipo: cuot.TipoDocumento, //Tipo  
-                                NumeroFactura: cuot.Factura, //Numero Factura 
-                                NumeroFEL: cuot.NumeroFEL, //NumeroFEL 
-                                Fecha: fact.FechaFactura, //Fecha  
-                                FechaVencimiento: cuot.FechaVencimiento, //FechaVencimiento  
-                                Dias: dias, //Dias  
-                                FechaDescuento: cuot.FechaMaxDescuento, //FechaDescuento  
-                                DiasDescuento: diasDescuento, //DiasDescuento  
-                                Moneda: cuot.IdMoneda, //Moneda  
-                                Valor: cuot.ValorCuota, //Valor  
-                                ValorDescuento: cuot.Descuento, //Valor Decuento 
+                                IdSubFactura: cuot.IdSubFactura, //Id de la subfactura (para respetar el orden de seleccion)
+                                Tipo: cuot.TipoDocumento, //Tipo
+                                NumeroFactura: cuot.Factura, //Numero Factura
+                                NumeroFEL: cuot.NumeroFEL, //NumeroFEL
+                                Fecha: fact.FechaFactura, //Fecha
+                                FechaVencimiento: cuot.FechaVencimiento, //FechaVencimiento
+                                Dias: dias, //Dias
+                                FechaDescuento: cuot.FechaMaxDescuento, //FechaDescuento
+                                DiasDescuento: diasDescuento, //DiasDescuento
+                                Moneda: cuot.IdMoneda, //Moneda
+                                Valor: cuot.ValorCuota, //Valor
+                                ValorDescuento: cuot.Descuento, //Valor Decuento
                                 PagoAplicado: 0,
                                 DescuentoAplicado: 0,
-                                Saldo: cuot.Saldo, //Saldo  
+                                Saldo: cuot.Saldo, //Saldo
                                 APagar: cuot.Saldo, //APagar
-                                ExcepcionDescuento: cuot.ExcepcionDescuento  
+                                ExcepcionDescuento: cuot.ExcepcionDescuento
                             });
                         }
                     });
@@ -670,31 +671,36 @@ const DetalleRecibo = (props) => {
                 });
             });
         });
-        
+
+        // Mismo orden de prioridad que aplica el backend al guardar el recibo (ReciboController.PostRecibo):
+        // 1) vencidas primero, 2) entre vencidas la mas antigua primero, 3) entre las no vencidas, el orden en que
+        // el asesor las selecciono en pantalla. Antes, un segundo sort() por NumeroFactura pisaba por completo el
+        // orden de CuotasSinAgruparSort, por eso la vista previa siempre mostraba el mismo orden del listado en vez
+        // del orden de seleccion -- aunque el recibo ya se guardara correctamente, porque el backend ordena aparte.
         data.sort(CuotasSinAgruparSort);
-        return data.sort((a,b)=>{
-            if (a.NumeroFactura < b.NumeroFactura) {
-                return -1;
-              }
-              if (a.NumeroFactura > b.NumeroFactura) {
-        
-                return 1;
-              }
-        
-              return 0;
-        })
+        return data;
 
     }
+    const esVencidaCuota = (cuot) => moment(cuot.FechaVencimiento).isBefore(moment(), 'days');
     const CuotasSinAgruparSort = (a, b) => {
-        if (moment(a.FechaVencimiento).isBefore(b.FechaVencimiento, 'days')) {
-            return -1;
+        const aVencida = esVencidaCuota(a);
+        const bVencida = esVencidaCuota(b);
+
+        if (aVencida !== bVencida) {
+            return aVencida ? -1 : 1;
         }
-        if (moment(a.FechaVencimiento).isAfter(b.FechaVencimiento, 'days')) {
-            return 1;
-        }
-        if (moment(a.FechaVencimiento).isSame(b.FechaVencimiento, 'days')) {
+
+        if (aVencida) {
+            if (moment(a.FechaVencimiento).isBefore(b.FechaVencimiento, 'days')) {
+                return -1;
+            }
+            if (moment(a.FechaVencimiento).isAfter(b.FechaVencimiento, 'days')) {
+                return 1;
+            }
             return 0;
         }
+
+        return props.CuotasAPagar.indexOf(a.IdSubFactura) - props.CuotasAPagar.indexOf(b.IdSubFactura);
     }
     useEffect(() => {
         const monedaDefault = monedas.find(mon => mon.key === 'HNL');
