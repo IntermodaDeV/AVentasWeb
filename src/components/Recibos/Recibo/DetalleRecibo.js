@@ -697,6 +697,14 @@ const DetalleRecibo = (props) => {
             if (moment(a.FechaVencimiento).isAfter(b.FechaVencimiento, 'days')) {
                 return 1;
             }
+            // Entre vencidas con la misma fecha de vencimiento, por numero de factura -- nunca por orden de
+            // seleccion. Las vencidas siempre van por fecha y numero de factura, sin excepcion.
+            if (a.NumeroFactura < b.NumeroFactura) {
+                return -1;
+            }
+            if (a.NumeroFactura > b.NumeroFactura) {
+                return 1;
+            }
             return 0;
         }
 

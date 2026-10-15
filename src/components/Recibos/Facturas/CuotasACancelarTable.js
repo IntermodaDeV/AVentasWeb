@@ -137,12 +137,12 @@ const CuotasACancelarTable = props => {
     },
   }
   
-  // eslint-disable-next-line
-  props.CuotasSinAgruparACancelar.sort((a,b)=>{
-    if (moment(a[4], "DD/MM/YYYY").isSame(moment(b[4], "DD/MM/YYYY"), 'day')) {
-      return (a[1]<b[1])?-1:1
-    }
-  });
+  // El arreglo que llega en props.CuotasSinAgruparACancelar ya viene ordenado correctamente (vencidas primero, la
+  // mas antigua primero, y entre las no vencidas el orden real en que el asesor las selecciono -- ver
+  // DetalleRecibo.js -> CuotasSinAgrupar/CuotasSinAgruparSort). El sort que estaba aqui reordenaba otra vez por
+  // NumeroFactura cualquier par de facturas con la MISMA fecha de vencimiento (a[4]), pisando ese orden -- y como
+  // varias facturas no vencidas suelen compartir fecha de vencimiento, en la practica el orden de seleccion nunca
+  // se llegaba a ver en esta tabla. Se quita porque ya no hace falta re-ordenar aqui.
 
   return (
     <MuiThemeProvider theme={getMuiTheme()}>
