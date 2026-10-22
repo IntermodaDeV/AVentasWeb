@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import moment from 'moment';
 import 'moment/locale/es';
 import ClienteSelected from 'components/Devoluciones/ClienteSelected'
@@ -91,6 +91,10 @@ export const Devoluciones = (props) => {
           exact
           path={props.match.url + '/ImprimirDevolucion'}
           render={(routeProps) => {
+            // Al recargar la página ya no existen los datos de la devolución
+            if (!routeProps.location.state) {
+              return <Redirect to={props.match.url} />
+            }
             return (
               <ImprimirDevolucionOriginal
                 tableValue={tableValue}
@@ -106,6 +110,9 @@ export const Devoluciones = (props) => {
           exact
           path={props.match.url + '/ImprimirDevolucion/Parcial'}
           render={(routeProps) => {
+            if (!routeProps.location.state) {
+              return <Redirect to={props.match.url} />
+            }
             return (
               <DevolucionParcialReporte
                 tableValue={tableValue}

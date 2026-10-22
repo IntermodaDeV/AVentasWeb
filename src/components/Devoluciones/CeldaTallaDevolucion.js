@@ -56,7 +56,7 @@ export const CeldaTallaDevolucion = (props) => {
 
                     <div className="row">
                         <div className="d-flex pr-1 m-auto">
-                            Precio: {props.precio.toFixed(2)}
+                            Precio: {(props.precio || 0).toFixed(2)}
                         </div>
                     </div>
                 </div>
