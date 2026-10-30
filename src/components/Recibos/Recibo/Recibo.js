@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactToPrint from 'react-to-print';
 import Logo from 'assets/img/logo/LogoSinLetrasB.png';
 import styles from "components/Recibos/Recibo/Recibo.module.css";
@@ -32,6 +32,21 @@ const Recibo = (props) => {
     const moneda = Monedas.find(e => e.IdMoneda === props.Cliente.Moneda).Abreviacion;
     const RecibosEnCache = useSelector(e => e.RecibosEnCache);
     const dispatch = useDispatch();
+    const [firmaRecibo, setFirmaRecibo] = useState(localStorage.getItem("firmarecibo") || "");
+
+    useEffect(() => {
+        // La firma en localStorage solo se actualiza al sincronizar; si hay conexion se consulta la del usuario actual.
+        if (localStorage.getItem("Conexion") === "offline") return;
+        axios.get(`${APIURL}/api/recibos/firma/${localStorage.getItem('empresa')}`, {
+            headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+        }).then(request => {
+            if (request.data) {
+                setFirmaRecibo(request.data);
+                try { localStorage.setItem("firmarecibo", request.data); } catch (e) { console.log(e); }
+            }
+        }).catch(error => console.log(error));
+    }, []);
+
     if (clienteContado !== null && clienteContado !== undefined) {
         if (Total < 10000) {
             NombreCliente = 'CONSUMIDOR FINAL';
@@ -356,8 +371,8 @@ const Recibo = (props) => {
                                         </div>
 
                                         <div className="col-6 p-0 m-auto" style={{ display: "flex", flexDirection: "column" }}>
-                                            {(localStorage.getItem("firmarecibo") !== null && localStorage.getItem("firmarecibo") !== "") && <img alt="Firma asesor" src={localStorage.getItem("firmarecibo")} style={{ height: 150, alignSelf: "center" }} />}
-                                            <div className={styles.FirmaContainer} style={{ marginTop: (localStorage.getItem("firmarecibo") !== null && localStorage.getItem("firmarecibo") !== "") ? 16 : 160 }}>
+                                            {firmaRecibo !== "" && <img alt="Firma asesor" src={firmaRecibo} style={{ height: 150, alignSelf: "center" }} />}
+                                            <div className={styles.FirmaContainer} style={{ marginTop: firmaRecibo !== "" ? 16 : 160 }}>
                                                 <h4 className={"font-weight-bold text-center " + styles.LineHeight_Normal}>
                                                     {props.RecibosAplicados.NombreAsesor || localStorage.getItem('asesor')}
                                                 </h4>

@@ -91,6 +91,10 @@ const columns = [
 
 const CuotasTable = props => {
   const [selectedRowsIndex, setSelectedRowsIndex] = useState([])
+  // La tabla (MUIDataTable) siempre entrega "allRowsSelected" ordenado por dataIndex (orden de la tabla), sin
+  // importar en que secuencia se marcaron las filas. ordenSeleccion lleva aparte el orden real en que el asesor
+  // fue seleccionando, para poder respetarlo cuando ninguna de las facturas seleccionadas esta vencida.
+  const [ordenSeleccion, setOrdenSeleccion] = useState([])
   const clienteSeleccionado = useSelector(e => e.Recibo.clienteSelected);
   const data = [];
   let foundExpired = false;
@@ -178,7 +182,19 @@ const CuotasTable = props => {
       )
     },
     onRowsSelect: (currentRowsSelected, allRowsSelected) => {
-      setSelectedRowsIndex(allRowsSelected.map(row => row.dataIndex))
+      const indexesSeleccionados = allRowsSelected.map(row => row.dataIndex)
+      setSelectedRowsIndex(indexesSeleccionados)
+      setOrdenSeleccion(prevOrden => {
+        // se quitan de la secuencia las filas que ya no estan marcadas (se deseleccionaron)
+        let nuevoOrden = prevOrden.filter(idx => indexesSeleccionados.includes(idx))
+        // y se agregan al final, en el orden en que llegaron en este evento, las que son nuevas
+        currentRowsSelected.forEach(row => {
+          if (indexesSeleccionados.includes(row.dataIndex) && !nuevoOrden.includes(row.dataIndex)) {
+            nuevoOrden.push(row.dataIndex)
+          }
+        })
+        return nuevoOrden
+      })
     }
   }
 
@@ -331,7 +347,7 @@ const CuotasTable = props => {
     let selectedExpired = [];
 
 
-    selectedRowsIndex.forEach(selRowsIndex => {
+    ordenSeleccion.forEach(selRowsIndex => {
       let select = Expired.find(element => element.IdSubFactura === data[selRowsIndex].IdSubFactura);
 
       if (select) {
