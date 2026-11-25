@@ -242,7 +242,7 @@ export const ProductosDevolucion = (props) => {
         return almacenes.map(x => ({ key: x.Almacen, value: x.Almacen, text: x.Almacen + " - " + x.Nombre }));
     }
     const dataFacturasAbiertas = () => {
-        return facturasDestino.map(x => ({ key: x.Factura, value: x.Factura, text: x.Factura + " - " + x.Abreviacion + numberWithCommasNoDec(x.Saldo) }));
+        return facturasDestino.map(x => ({ key: x.Factura, value: x.Factura, text: x.Factura + " - " + x.Abreviacion + numberWithCommasNoDec(x.Saldo || 0) }));
     }
 
     useEffect(() => {

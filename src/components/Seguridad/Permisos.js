@@ -250,6 +250,21 @@ export const PermisoDesactivarMotivoAnulacion = () => {
     return false;
 }
 
+export const PermisoListadoConfiguracionesSistema = () => {
+    const globalState = store.getState();
+    const Permisos = globalState["Permisos"];
+
+    for (const Permiso of Permisos) {
+        for (const Roles of Permiso.RolesUsuarios) {
+            if (Roles.Nombre === "Administrador de Sistema") {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 export const permisoEliminarInventario = () => {
     const globalState = store.getState();
     const Permisos = globalState["Permisos"];

@@ -6,7 +6,7 @@ import { Button, IconButton, Modal, TextField, Paper, Grid, Select, MenuItem, Fo
 import { Edit, Block, CheckCircle } from '@material-ui/icons';
 import Swal from 'sweetalert2';
 import { PermisoListadoConfiguracionCorreo, PermisoGrupoConfiguracionCorreo, PermisoDesactivarConfiguracionCorreo } from 'components/Seguridad/Permisos';
-import { EmailChipInput } from 'components/ConfiguracionCorreo/EmailChipInput';
+import { DestinatariosManager } from 'components/ConfiguracionCorreo/DestinatariosManager';
 
 const usuarioActual = () => localStorage.getItem('codigo');
 
@@ -14,8 +14,6 @@ const valoresIniciales = {
     Id: null,
     EmpresaId: '',
     TipoConfiguracionId: '',
-    CorreosDestino: '',
-    CorreosCopia: '',
     Asunto: '',
     CuerpoPlantilla: '',
 };
@@ -24,6 +22,8 @@ export const ConfiguracionCorreo = (props) => {
     const [data, setData] = useState([]);
     const [empresas, setEmpresas] = useState([]);
     const [tipos, setTipos] = useState([]);
+    const [usuariosSistema, setUsuariosSistema] = useState([]);
+    const [destinatarios, setDestinatarios] = useState([]);
     const [open, setOpen] = useState(false);
     const [currentRow, setCurrentRow] = useState(null);
     const [modalData, setModalData] = useState(valoresIniciales);
@@ -73,6 +73,24 @@ export const ConfiguracionCorreo = (props) => {
         }
     };
 
+    const cargarUsuariosSistema = async () => {
+        try {
+            const response = await axios.get(`${APIURL}/api/usuario/usuariosactivos`);
+            setUsuariosSistema(response.data);
+        } catch (err) {
+            mostrarError('No se pudieron cargar los usuarios del sistema.')(err);
+        }
+    };
+
+    const cargarDestinatarios = async (configuracionCorreoId) => {
+        try {
+            const response = await axios.get(`${APIURL}/api/configuracioncorreo/destinatarios/${configuracionCorreoId}`);
+            setDestinatarios(response.data);
+        } catch (err) {
+            mostrarError('No se pudieron cargar los destinatarios.')(err);
+        }
+    };
+
     useEffect(() => {
         if (!puedeListar) {
             props.history.push('/home');
@@ -82,6 +100,7 @@ export const ConfiguracionCorreo = (props) => {
         cargarEmpresas();
         cargarTipos();
         cargarConfiguraciones();
+        cargarUsuariosSistema();
         // eslint-disable-next-line
     }, []);
 
@@ -89,13 +108,10 @@ export const ConfiguracionCorreo = (props) => {
         setModalData({ ...modalData, [e.target.name]: e.target.value });
     };
 
-    const handleCorreosChange = (name, value) => {
-        setModalData((prev) => ({ ...prev, [name]: value }));
-    };
-
     const handleAdd = () => {
         setModalData(valoresIniciales);
         setCurrentRow(null);
+        setDestinatarios([]);
         setOpen(true);
     };
 
@@ -104,20 +120,19 @@ export const ConfiguracionCorreo = (props) => {
             Id: row.Id,
             EmpresaId: row.EmpresaId,
             TipoConfiguracionId: row.TipoConfiguracionId,
-            CorreosDestino: row.CorreosDestino,
-            CorreosCopia: row.CorreosCopia || '',
             Asunto: row.Asunto || '',
             CuerpoPlantilla: row.CuerpoPlantilla || '',
         });
         setCurrentRow(row);
+        cargarDestinatarios(row.Id);
         setOpen(true);
     };
 
     const handleClose = () => setOpen(false);
 
     const handleSave = async () => {
-        if (!modalData.EmpresaId || !modalData.TipoConfiguracionId || !modalData.CorreosDestino) {
-            Swal.fire({ icon: 'warning', title: 'Atención', text: 'Empresa, Tipo y Correos Destino son obligatorios.' });
+        if (!modalData.EmpresaId || !modalData.TipoConfiguracionId) {
+            Swal.fire({ icon: 'warning', title: 'Atención', text: 'Empresa y Tipo son obligatorios.' });
             return;
         }
 
@@ -127,15 +142,48 @@ export const ConfiguracionCorreo = (props) => {
             if (currentRow) {
                 await axios.put(`${APIURL}/api/configuracioncorreo/modificar`, payload);
                 Swal.fire({ icon: 'success', title: 'Actualizado', text: 'Configuración de correo actualizada exitosamente.' });
+                cargarConfiguraciones();
             } else {
-                await axios.post(`${APIURL}/api/configuracioncorreo/crear`, payload);
-                Swal.fire({ icon: 'success', title: 'Creado', text: 'Configuración de correo creada exitosamente.' });
+                const response = await axios.post(`${APIURL}/api/configuracioncorreo/crear`, payload);
+                Swal.fire({ icon: 'success', title: 'Creado', text: 'Ahora puede agregar los destinatarios.' });
+
+                const nuevoId = response.data.id;
+                setModalData((prev) => ({ ...prev, Id: nuevoId }));
+                setCurrentRow({ Id: nuevoId });
+                setDestinatarios([]);
+                cargarConfiguraciones();
+                return;
             }
 
             setOpen(false);
-            cargarConfiguraciones();
         } catch (err) {
             mostrarError('Hubo un problema al guardar la configuración de correo.')(err);
+        }
+    };
+
+    const handleAgregarDestinatario = (tipo) => async ({ UsuarioId, CorreoManual }) => {
+        try {
+            await axios.post(`${APIURL}/api/configuracioncorreo/destinatarios/crear`, {
+                ConfiguracionCorreoId: modalData.Id,
+                UsuarioId,
+                CorreoManual,
+                Tipo: tipo,
+                Usuario: usuarioActual(),
+            });
+            cargarDestinatarios(modalData.Id);
+            cargarConfiguraciones();
+        } catch (err) {
+            mostrarError('Hubo un problema al agregar el destinatario.')(err);
+        }
+    };
+
+    const handleQuitarDestinatario = async (id) => {
+        try {
+            await axios.post(`${APIURL}/api/configuracioncorreo/destinatarios/estado/${id}/${usuarioActual()}`);
+            cargarDestinatarios(modalData.Id);
+            cargarConfiguraciones();
+        } catch (err) {
+            mostrarError('Hubo un problema al quitar el destinatario.')(err);
         }
     };
 
@@ -275,23 +323,32 @@ export const ConfiguracionCorreo = (props) => {
                             </FormControl>
                         </Grid>
                         <Grid item xs={12}>
-                            <EmailChipInput
+                            <DestinatariosManager
                                 label="Correos Destino"
-                                name="CorreosDestino"
-                                value={modalData.CorreosDestino}
-                                onChange={handleCorreosChange}
-                                helperText="Escriba un correo y presione Enter para agregarlo"
+                                destinatarios={destinatarios.filter((d) => d.Tipo === 'DESTINO')}
+                                usuariosSistema={usuariosSistema}
+                                onAgregar={handleAgregarDestinatario('DESTINO')}
+                                onQuitar={handleQuitarDestinatario}
+                                disabled={!modalData.Id}
                             />
                         </Grid>
                         <Grid item xs={12}>
-                            <EmailChipInput
+                            <DestinatariosManager
                                 label="Correos en Copia"
-                                name="CorreosCopia"
-                                value={modalData.CorreosCopia}
-                                onChange={handleCorreosChange}
-                                helperText="Escriba un correo y presione Enter para agregarlo"
+                                destinatarios={destinatarios.filter((d) => d.Tipo === 'COPIA')}
+                                usuariosSistema={usuariosSistema}
+                                onAgregar={handleAgregarDestinatario('COPIA')}
+                                onQuitar={handleQuitarDestinatario}
+                                disabled={!modalData.Id}
                             />
                         </Grid>
+                        {!modalData.Id && (
+                            <Grid item xs={12}>
+                                <span style={{ color: 'rgba(0, 0, 0, 0.54)', fontSize: '0.875rem' }}>
+                                    Guarde la configuración para poder agregar destinatarios.
+                                </span>
+                            </Grid>
+                        )}
                         <Grid item xs={12}>
                             <TextField
                                 label="Asunto"

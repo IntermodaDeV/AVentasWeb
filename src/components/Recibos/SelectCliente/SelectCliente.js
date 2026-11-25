@@ -28,6 +28,7 @@ const SelectCliente = (props) => {
     const [Value, setValue] = useState(null);
     const dispatch = useDispatch();
     const [loading,setLoading] = useState(false);
+    const [cargandoCliente, setCargandoCliente] = useState(false);
     const RecibosCache = useSelector(e=>e.RecibosEnCache);
     useEffect(() => {
         if (props.codigoClientePreseleccionado !== null && props.clientes.length > 0) {
@@ -111,16 +112,50 @@ const SelectCliente = (props) => {
         })
     }
 
-    const handleOnChange = (value) => {
+    const handleOnChange = async (value) => {
         var val = JSON.parse(value);
 
         setValue(value);
-        props.onSelect(val);
         localStorage.setItem('isVencido',false);
         localStorage.setItem('isAnticipo',false);
         localStorage.setItem('isFavor',false);
         localStorage.setItem("saldoFavor",0);
         dispatch({type:'delete_pedidoselected'});
+
+        // Se limpia la seleccion/cuotas del cliente anterior de inmediato (antes de traer los datos frescos del
+        // nuevo cliente) para que la tabla de facturas quede vacia mientras carga, en vez de seguir mostrando por
+        // un momento las facturas del cliente anterior como si ya fueran del cliente recien seleccionado.
+        dispatch({type:'DELETE_RECIBO_CUOTASCUENTACORRIENTE'});
+        dispatch({type:'DELETE_RECIBO_CLIENTESELECTED'});
+
+        // El listado de clientes (props.clientes) se carga una sola vez al entrar al modulo, asi que puede traer
+        // saldos/facturas desactualizados si ya se le genero un recibo a este cliente desde entonces. Al seleccionarlo
+        // se refresca puntualmente su informacion (igual que hace el boton de recargar, pero solo para este cliente),
+        // para no depender de que el usuario recuerde refrescar todo el listado manualmente.
+        // IMPORTANTE: no se despacha STORE_RECIBO_CLIENTES aqui -- cambiar esa lista dispara el useEffect de arriba
+        // (linea 32, dependencia [props.clientes]) que limpia clienteSelected (DELETE_RECIBO_CLIENTESELECTED),
+        // borrando la seleccion que se acaba de hacer. Por eso el refresco solo se usa para esta seleccion puntual.
+        // No se usa el modal de "Loading" (el Dialog de setLoading/handleRecarga) aqui: abrirlo justo cuando el
+        // Dropdown de Semantic UI se esta cerrando le rompe el cierre (el Dropdown se queda abierto y el siguiente
+        // clic termina seleccionando otra fila). En su lugar, cargandoCliente pinta un indicador simple en la misma
+        // pantalla (sin modal/backdrop) mientras se trae la informacion fresca de este cliente.
+        let isOnline = await verificarConexion();
+        if (isOnline && localStorage.getItem("Conexion") === "Online") {
+            setCargandoCliente(true);
+            try {
+                let request = await axios.get(`${APIURL}/api/cliente/cuenta/${val.Codigo}`, {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+                });
+                props.onSelect(request.data);
+            } catch (err) {
+                console.log(err);
+                props.onSelect(val);
+            } finally {
+                setCargandoCliente(false);
+            }
+        } else {
+            props.onSelect(val);
+        }
     }
     if(props.clienteSelected != null) 
         localStorage.setItem('EmpresaCliente', props.clienteSelected.EmpresaId);
@@ -232,7 +267,7 @@ const SelectCliente = (props) => {
 
                         <div className={'col-xl-2 col-lg-2 col-sm-3 col-12 mt-2 text-lg-left text-right'}>
                             <Button
-                                disabled={props.clienteSelected ? false : true}
+                                disabled={props.clienteSelected && !cargandoCliente ? false : true}
                                 onClick={() => Validacion()}
                                 variant="contained"
                                 color="primary">
@@ -242,6 +277,17 @@ const SelectCliente = (props) => {
                         </div>
                         <Loading open={loading} title={"Cargando clientes"}/>
                     </div>
+
+                    {
+                        cargandoCliente &&
+                        <div style={{ textAlign: "center", marginBottom: '15px' }}>
+                            <SyncLoader
+                                size={10}
+                                color={'#31547C'}
+                                loading={cargandoCliente} />
+                            <div style={{ marginTop: '5px' }}>Cargando información del cliente...</div>
+                        </div>
+                    }
 
                     {
                         props.loading &&
